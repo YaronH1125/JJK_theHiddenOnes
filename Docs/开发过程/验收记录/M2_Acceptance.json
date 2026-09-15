@@ -1,0 +1,344 @@
+{
+  "status": "passed",
+  "engine": "5.8.2-56702186+++UE5+Release-5.8",
+  "checks": [
+    {
+      "name": "T01_hitstun_blocks",
+      "passed": true,
+      "details": "<ActionRequestResult.REJECTED_BLOCKED: 4>"
+    },
+    {
+      "name": "T01_single_damage",
+      "passed": true,
+      "details": [
+        1000.0,
+        965.0
+      ]
+    },
+    {
+      "name": "T01_one_instance_one_hit",
+      "passed": true,
+      "details": 1
+    },
+    {
+      "name": "T01_attacker_unhurt",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "T01_range_miss",
+      "passed": true,
+      "details": [
+        1000.0,
+        1000.0,
+        0
+      ]
+    },
+    {
+      "name": "T02_dedup_single",
+      "passed": true,
+      "details": [
+        965.0,
+        1
+      ]
+    },
+    {
+      "name": "T03_new_instance_hits",
+      "passed": true,
+      "details": [
+        930.0,
+        3,
+        4
+      ]
+    },
+    {
+      "name": "T04_spam_single",
+      "passed": true,
+      "details": [
+        "<ActionRequestResult.EXECUTED: 0>",
+        "<ActionRequestResult.REJECTED_ALREADY_ACTIVE: 3>",
+        "<ActionRequestResult.REJECTED_ALREADY_ACTIVE: 3>",
+        "<ActionRequestResult.REJECTED_ALREADY_ACTIVE: 3>",
+        "<ActionRequestResult.REJECTED_ALREADY_ACTIVE: 3>"
+      ]
+    },
+    {
+      "name": "T04_spam_single_damage",
+      "passed": true,
+      "details": 965.0
+    },
+    {
+      "name": "T04_blocked_reason",
+      "passed": true,
+      "details": "<ActionRequestResult.REJECTED_BLOCKED: 4>"
+    },
+    {
+      "name": "T05_interrupt_windup",
+      "passed": true,
+      "details": [
+        "windup",
+        false,
+        false,
+        1000.0
+      ]
+    },
+    {
+      "name": "T05_reattack_windup",
+      "passed": true,
+      "details": "<ActionRequestResult.EXECUTED: 0>"
+    },
+    {
+      "name": "T05_interrupt_active",
+      "passed": true,
+      "details": [
+        "active",
+        false,
+        false,
+        1000.0
+      ]
+    },
+    {
+      "name": "T05_reattack_active",
+      "passed": true,
+      "details": "<ActionRequestResult.EXECUTED: 0>"
+    },
+    {
+      "name": "T05_interrupt_recovery",
+      "passed": true,
+      "details": [
+        "recovery",
+        false,
+        false,
+        1000.0
+      ]
+    },
+    {
+      "name": "T05_reattack_recovery",
+      "passed": true,
+      "details": "<ActionRequestResult.EXECUTED: 0>"
+    },
+    {
+      "name": "T06_death_windup_no_delayed",
+      "passed": true,
+      "details": [
+        "windup",
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_dead_reject_windup",
+      "passed": true,
+      "details": "<ActionRequestResult.REJECTED_DEAD: 1>"
+    },
+    {
+      "name": "T06_reset_revive_windup",
+      "passed": true,
+      "details": [
+        1000.0,
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_death_active_no_delayed",
+      "passed": true,
+      "details": [
+        "active",
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_dead_reject_active",
+      "passed": true,
+      "details": "<ActionRequestResult.REJECTED_DEAD: 1>"
+    },
+    {
+      "name": "T06_reset_revive_active",
+      "passed": true,
+      "details": [
+        1000.0,
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_death_recovery_no_delayed",
+      "passed": true,
+      "details": [
+        "recovery",
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_dead_reject_recovery",
+      "passed": true,
+      "details": "<ActionRequestResult.REJECTED_DEAD: 1>"
+    },
+    {
+      "name": "T06_reset_revive_recovery",
+      "passed": true,
+      "details": [
+        1000.0,
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_reset_windup_no_late",
+      "passed": true,
+      "details": [
+        "windup",
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_reset_windup_can_attack",
+      "passed": true,
+      "details": "<ActionRequestResult.EXECUTED: 0>"
+    },
+    {
+      "name": "T06_reset_active_no_late",
+      "passed": true,
+      "details": [
+        "active",
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_reset_active_can_attack",
+      "passed": true,
+      "details": "<ActionRequestResult.EXECUTED: 0>"
+    },
+    {
+      "name": "T06_reset_recovery_no_late",
+      "passed": true,
+      "details": [
+        "recovery",
+        1000.0
+      ]
+    },
+    {
+      "name": "T06_reset_recovery_can_attack",
+      "passed": true,
+      "details": "<ActionRequestResult.EXECUTED: 0>"
+    },
+    {
+      "name": "T07_destroy_no_crash",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "T07_respawn",
+      "passed": true,
+      "details": [
+        "Fighter_P2_0",
+        1000.0
+      ]
+    },
+    {
+      "name": "T07_reattack_new_target",
+      "passed": true,
+      "details": {
+        "r": "<ActionRequestResult.EXECUTED: 0>",
+        "p1": [
+          379.487,
+          0.0,
+          98.15
+        ],
+        "p2": [
+          463.612,
+          0.0,
+          98.15
+        ],
+        "hp2": 965.0,
+        "hits": 1
+      }
+    },
+    {
+      "name": "T08_trade_1",
+      "passed": true,
+      "details": {
+        "p1_damage": 35.0,
+        "p2_damage": 35.0
+      }
+    },
+    {
+      "name": "T08_trade_2",
+      "passed": true,
+      "details": {
+        "p1_damage": 35.0,
+        "p2_damage": 35.0
+      }
+    },
+    {
+      "name": "T08_trade_3",
+      "passed": true,
+      "details": {
+        "p1_damage": 35.0,
+        "p2_damage": 35.0
+      }
+    },
+    {
+      "name": "T08_trade_4",
+      "passed": true,
+      "details": {
+        "p1_damage": 35.0,
+        "p2_damage": 35.0
+      }
+    },
+    {
+      "name": "T08_trade_5",
+      "passed": true,
+      "details": {
+        "p1_damage": 35.0,
+        "p2_damage": 35.0
+      }
+    },
+    {
+      "name": "T09_baseline_single",
+      "passed": true,
+      "details": 965.0
+    },
+    {
+      "name": "T10_fx_toggle_same_damage",
+      "passed": true,
+      "details": {
+        "fx_on": 35.0,
+        "fx_off": 35.0
+      }
+    },
+    {
+      "name": "T11_heavy_intent_no_damage",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "T11_stale_release",
+      "passed": true,
+      "details": 0
+    },
+    {
+      "name": "T11_light_still_works",
+      "passed": true,
+      "details": 965.0
+    },
+    {
+      "name": "T12_reset_invalidates",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "T12_focus_loss_invalidates",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "T12_death_invalidates",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "T12_repress_works",
+      "passed": true,
+      "details": 965.0
+    }
+  ],
+  "duration_seconds": 59.875
+}

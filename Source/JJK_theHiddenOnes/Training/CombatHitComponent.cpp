@@ -3,6 +3,7 @@
 #include "Training/CombatHitComponent.h"
 
 #include "AbilitySystemComponent.h"
+#include "DrawDebugHelpers.h"
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 #include "Training/AttackDefinition.h"
@@ -14,6 +15,13 @@
 
 namespace
 {
+	// 命中调试显示开关（T10：表现开关不影响结算）
+	TAutoConsoleVariable<int32> CVarJJKDebugHitFX(
+		TEXT("JJK.DebugHitFX"),
+		0,
+		TEXT("命中时绘制调试球（1=开，0=关）"),
+		ECVF_Default);
+
 	FGameplayEffectSpecHandle MakeDamageSpec(UAbilitySystemComponent* SourceASC, float Damage)
 	{
 		FGameplayEffectSpecHandle Handle = SourceASC->MakeOutgoingSpec(UDamageGameplayEffect::StaticClass(), 1.f, SourceASC->MakeEffectContext());
@@ -283,6 +291,11 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 			AttackerASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
 		}
 		++HitCountThisAttack;
+
+		if (CVarJJKDebugHitFX.GetValueOnGameThread() != 0 && GetWorld() != nullptr)
+		{
+			DrawDebugSphere(GetWorld(), Contact.HitLocation, Def->TraceRadius, 12, FColor::Red, false, 1.0f);
+		}
 
 		const bool bLethal = Target->GetFighterAttributeSet()->GetHealth() <= 0.f;
 		UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 命中 %s（实例 %llu 段 %d，伤害 %.0f，累计命中 %d，致死=%d）"),

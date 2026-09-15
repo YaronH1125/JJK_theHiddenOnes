@@ -42,18 +42,23 @@ public:
 	void NotifyEventsPending() { SetComponentTickEnabled(true); }
 
 	/** 当前阶段（调试显示用） */
+	UFUNCTION(BlueprintPure, Category = "Combat")
 	EAttackPhase GetPhase() const { return Phase; }
 
 	void SetPhase(EAttackPhase InPhase) { Phase = InPhase; }
 
-	uint64 GetActiveInstanceId() const { return ActiveInstanceId; }
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	int64 GetActiveInstanceId() const { return static_cast<int64>(ActiveInstanceId); }
 
+	UFUNCTION(BlueprintPure, Category = "Combat")
 	bool IsWindowOpen() const { return bWindowOpen; }
 
 	/** 本次攻击累计有效命中数 */
+	UFUNCTION(BlueprintPure, Category = "Combat")
 	int32 GetHitCount() const { return HitCountThisAttack; }
 
 	/** 是否存在活动攻击实例 */
+	UFUNCTION(BlueprintPure, Category = "Combat")
 	bool HasActiveAttack() const { return bAttackActive; }
 
 protected:

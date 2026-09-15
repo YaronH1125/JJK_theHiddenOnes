@@ -974,3 +974,179 @@ Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
 Result: Succeeded
 Total execution time: 18.65 seconds
 Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.7kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (working set of source files changed)
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatHitComponent.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 5 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.37 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/5] Compile [x64] CombatHitComponent.cpp
+[2/5] Compile [x64] Module.JJK_theHiddenOnes.cpp
+[3/5] Link [x64] UnrealEditor-JJK_theHiddenOnes.lib
+  正在创建库 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.lib 和对象 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.exp
+[4/5] Link [x64] UnrealEditor-JJK_theHiddenOnes.dll
+[5/5] WriteMetadata JJK_theHiddenOnesEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 14.39 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 17.23 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.2kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (working set of source files changed)
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatHitComponent.cpp, CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 6 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 31.09 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/6] Compile [x64] CombatInputComponent.cpp
+[2/6] Compile [x64] FighterCharacter.cpp
+[3/6] Compile [x64] Module.JJK_theHiddenOnes.cpp
+[4/6] Link [x64] UnrealEditor-JJK_theHiddenOnes.lib
+  正在创建库 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.lib 和对象 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.exp
+[5/6] Link [x64] UnrealEditor-JJK_theHiddenOnes.dll
+[6/6] WriteMetadata JJK_theHiddenOnesEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 14.75 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 17.62 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.4kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Target is up to date
+Using Unreal Build Accelerator local executor to run 0 action(s)
+Total time in Unreal Build Accelerator local executor: 0.13 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 1.45 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 2.8kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (working set of source files changed)
+UHT compiled-in object format Default
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatHitComponent.h(50): Error: Type 'uint64' is not supported by blueprint. Function:  GetActiveInstanceId Parameter ReturnValue
+Unhandled 1 aggregate exceptions
+
+Result: Failed (OtherCompilationError)
+Total execution time: 4.21 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 2.5kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatHitComponent.cpp, CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 6 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.72 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/6] Compile [x64] CombatHitComponent.cpp
+[2/6] Compile [x64] FighterCharacter.cpp
+[3/6] Compile [x64] Module.JJK_theHiddenOnes.cpp
+[4/6] Link [x64] UnrealEditor-JJK_theHiddenOnes.lib
+  正在创建库 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.lib 和对象 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.exp
+[5/6] Link [x64] UnrealEditor-JJK_theHiddenOnes.dll
+[6/6] WriteMetadata JJK_theHiddenOnesEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 14.12 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 18.17 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.4kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (working set of source files changed)
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: ArenaPlayerController.cpp, CombatHitComponent.cpp, CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 5 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.67 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/5] Compile [x64] ArenaPlayerController.cpp
+[2/5] Compile [x64] Module.JJK_theHiddenOnes.cpp
+[3/5] Link [x64] UnrealEditor-JJK_theHiddenOnes.lib
+  正在创建库 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.lib 和对象 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.exp
+[4/5] Link [x64] UnrealEditor-JJK_theHiddenOnes.dll
+[5/5] WriteMetadata JJK_theHiddenOnesEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 13.83 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 18.51 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.3kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Target is up to date
+Using Unreal Build Accelerator local executor to run 0 action(s)
+Total time in Unreal Build Accelerator local executor: 0.12 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 1.51 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 2.8kb

@@ -309,7 +309,13 @@ void AFighterCharacter::GrantAbilities()
 		return;
 	}
 
-	for (const TSubclassOf<UGameplayAbility>& AbilityClass : Definition->GrantedAbilities)
+	TArray<TSubclassOf<UGameplayAbility>> Abilities = Definition->GrantedAbilities;
+	if (Definition->MeleeAttackAbility != nullptr)
+	{
+		Abilities.AddUnique(Definition->MeleeAttackAbility);
+	}
+
+	for (const TSubclassOf<UGameplayAbility>& AbilityClass : Abilities)
 	{
 		if (AbilityClass == nullptr || GrantedAbilityClasses.Contains(AbilityClass))
 		{

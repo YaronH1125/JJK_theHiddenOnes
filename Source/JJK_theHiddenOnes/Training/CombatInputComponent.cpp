@@ -130,10 +130,10 @@ EActionRequestResult UCombatInputComponent::SubmitLightAttack()
 		{
 			TSubclassOf<UGameplayAbility> AbilityClass = Fighter->GetMeleeAttackAbilityClass();
 			UAbilitySystemComponent* MutableASC = Fighter->GetFighterAbilitySystemComponent();
-			if (AbilityClass == nullptr || !MutableASC->TryActivateAbilityByClass(AbilityClass))
+			if (AbilityClass == nullptr) { Result = EActionRequestResult::RejectedAbilityMissing; } else if (!MutableASC->TryActivateAbilityByClass(AbilityClass))
 			{
-				Result = AbilityClass == nullptr ? EActionRequestResult::RejectedAbilityMissing
-												 : EActionRequestResult::RejectedAlreadyActive;
+				Result = MutableASC->HasAllMatchingGameplayTags(FGameplayTagContainer(TAG_Ability_MeleeAttack))
+												 ? EActionRequestResult::RejectedBlocked : EActionRequestResult::RejectedAbilityMissing;
 			}
 		}
 	}

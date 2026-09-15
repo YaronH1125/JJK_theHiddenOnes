@@ -60,6 +60,7 @@ private:
 	void HandleAttackReleased();
 
 	/** 应用失焦：清攻击会话，恢复后要求重新按下（08 第 4.2 节） */
+	UFUNCTION(BlueprintCallable, Category = "Training|Input")
 	void HandleAppActivationChanged(bool bActive);
 
 	/** 调试：打印双方 GAS 状态（Owner/Avatar/数值/初始化次数） */
