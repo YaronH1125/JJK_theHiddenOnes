@@ -28,6 +28,7 @@ public class JJK_theHiddenOnes : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] {
 			"JJK_theHiddenOnes",
+			"JJK_theHiddenOnes/Training",
 			"JJK_theHiddenOnes/Variant_Platforming",
 			"JJK_theHiddenOnes/Variant_Platforming/Animation",
 			"JJK_theHiddenOnes/Variant_Combat",

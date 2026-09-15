@@ -30,4 +30,4 @@ class FJJK_theHiddenOnesModule : public FDefaultGameModuleImpl
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FJJK_theHiddenOnesModule, JJK_theHiddenOnes, "JJK_theHiddenOnes" );
 
-DEFINE_LOG_CATEGORY(LogJJK_theHiddenOnes)
+DEFINE_LOG_CATEGORY(LogJJK_theHiddenOnes);
