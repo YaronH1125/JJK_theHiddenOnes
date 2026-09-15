@@ -75,14 +75,6 @@ void AFighterCharacter::BeginPlay()
 	}
 }
 
-void AFighterCharacter::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	// 受击/死亡事件在本角色自身 Tick 开头处理：攻击方本帧已完成的接触仍属同一批次
-	ProcessCombatEvents();
-}
-
 bool AFighterCharacter::IsDead() const
 {
 	return bDead || (AbilitySystem != nullptr && AbilitySystem->HasMatchingGameplayTag(TAG_State_Dead));
@@ -96,6 +88,8 @@ TSubclassOf<UGameplayAbility> AFighterCharacter::GetMeleeAttackAbilityClass() co
 void AFighterCharacter::QueueCombatEvent(const FCombatEvent& Event)
 {
 	PendingCombatEvents.Push(Event);
+	// 确保事件在命中组件的 Tick 内、扫掠之后被处理（换血批次语义）
+	CombatHit->NotifyEventsPending();
 }
 
 void AFighterCharacter::ProcessCombatEvents()
@@ -222,6 +216,17 @@ void AFighterCharacter::JJKDebugForceHitReact()
 	Event.HitLocation = GetActorLocation();
 	QueueCombatEvent(Event);
 	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 调试注入受击（绕过检测窗口，异常注入标记）"), *GetName());
+}
+
+void AFighterCharacter::JJKDebugKill()
+{
+	// 明确标记的异常注入：致死伤害走延迟死亡队列
+	FCombatEvent Event;
+	Event.bLethal = true;
+	Event.Instigator = nullptr;
+	Event.HitLocation = GetActorLocation();
+	QueueCombatEvent(Event);
+	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 调试注入致死伤害（异常注入标记）"), *GetName());
 }
 
 void AFighterCharacter::PossessedBy(AController* NewController)

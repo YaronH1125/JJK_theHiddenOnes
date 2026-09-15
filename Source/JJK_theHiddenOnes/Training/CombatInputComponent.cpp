@@ -3,6 +3,7 @@
 #include "Training/CombatInputComponent.h"
 
 #include "AbilitySystemComponent.h"
+#include "Training/FighterAbilitySystemComponent.h"
 #include "Training/CombatTypes.h"
 #include "Training/FighterCharacter.h"
 

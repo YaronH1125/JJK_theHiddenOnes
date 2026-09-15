@@ -62,7 +62,7 @@ uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition)
 	DedupKeys.Reset();
 	HitCountThisAttack = 0;
 	SegmentId = Definition ? Definition->SegmentId : 0;
-	SetWindowTickEnabled(false);
+	SetComponentTickEnabled(true);
 
 	UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 开始攻击实例 %llu（段 %d，伤害 %.0f）"),
 		*GetNameSafe(GetOwner()), ActiveInstanceId, SegmentId, Definition ? Definition->Damage : 0.f);
@@ -87,7 +87,7 @@ void UCombatHitComponent::HandleAnimWindowNotify(bool bOpen, const UAnimSequence
 		bWindowOpen = true;
 		bHasLastSocketLocation = false;
 		Phase = EAttackPhase::Active;
-		SetWindowTickEnabled(true);
+		SetComponentTickEnabled(true);
 		UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 实例 %llu 窗口开启（段 %d）"), *GetNameSafe(GetOwner()), ActiveInstanceId, SegmentId);
 	}
 	else
@@ -107,7 +107,6 @@ void UCombatHitComponent::CloseWindow()
 		return;
 	}
 	bWindowOpen = false;
-	SetWindowTickEnabled(false);
 	Phase = EAttackPhase::Recovery;
 	// 去重键保持到本段结束：段结束即窗口关闭；新攻击实例各自独立
 	DedupKeys.Reset();
@@ -123,18 +122,39 @@ void UCombatHitComponent::EndAttack()
 	bAttackActive = false;
 	ActiveDefinition = nullptr;
 	Phase = EAttackPhase::None;
-	SetWindowTickEnabled(false);
+
+	AFighterCharacter* Fighter = GetOwnerFighter();
+	if (Fighter == nullptr || !Fighter->HasPendingCombatEvents())
+	{
+		SetComponentTickEnabled(false);
+	}
 }
 
 void UCombatHitComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (!bWindowOpen || !bAttackActive)
+
+	// 先扫掠（窗口期），再处理受击/死亡事件：
+	// 保证同帧互中时双方已完成扫掠的接触都有效（M2.5 换血），被打断者未来接触失效
+	if (bWindowOpen && bAttackActive)
 	{
-		SetWindowTickEnabled(false);
-		return;
+		ProcessSweep();
 	}
-	ProcessSweep();
+
+	AFighterCharacter* Fighter = GetOwnerFighter();
+	if (Fighter != nullptr)
+	{
+		Fighter->ProcessCombatEvents();
+	}
+
+	if (!bAttackActive && !bWindowOpen)
+	{
+		const bool bHasPending = Fighter != nullptr && Fighter->HasPendingCombatEvents();
+		if (!bHasPending)
+		{
+			SetComponentTickEnabled(false);
+		}
+	}
 }
 
 void UCombatHitComponent::ProcessSweep()

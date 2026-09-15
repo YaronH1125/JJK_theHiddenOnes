@@ -83,12 +83,20 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	TSubclassOf<UGameplayAbility> GetMeleeAttackAbilityClass() const;
 
-	/** 命中事件入队：受击方自身下一 Tick 处理（同帧已有效接触换血，M2.5） */
+	/** 命中事件入队：由 CombatHitComponent 在自身 Tick 内、扫掠之后统一处理（M2.5 换血保证） */
 	void QueueCombatEvent(const FCombatEvent& Event);
+
+	/** 事件处理与查询（由 CombatHitComponent 调度） */
+	void ProcessCombatEvents();
+	bool HasPendingCombatEvents() const { return PendingCombatEvents.Num() > 0; }
 
 	/** 调试异常注入：明确标记的直接命中注入（绕过检测，不入正常结算统计） */
 	UFUNCTION(Exec, Category = "Training|Debug")
 	void JJKDebugForceHitReact();
+
+	/** 调试异常注入：致死伤害（走延迟死亡队列，验证各阶段死亡处理） */
+	UFUNCTION(Exec, Category = "Training|Debug")
+	void JJKDebugKill();
 
 	/**
 	 * 按定义初始化属性与外观。
@@ -120,7 +128,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_Controller() override;
 	virtual void PawnClientRestart() override;
@@ -168,15 +175,14 @@ private:
 	TSet<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses;
 
 	// ---------- M2 战斗状态 ----------
-	/** 命中事件队列（受击/死亡），自身 Tick 开头统一处理 */
+	/** 命中事件队列（受击/死亡），CombatHitComponent 在扫掠之后统一处理 */
 	TArray<FCombatEvent> PendingCombatEvents;
 
 	bool bDead = false;
 	FTimerHandle HitStunTimerHandle;
 
-	void ProcessCombatEvents();
-	void ApplyHitReactNow(float StunDuration, AActor* Instigator, const FVector& HitLocation);
-	void Die(AActor* Instigator);
+	void ApplyHitReactNow(float StunDuration, AActor* InInstigator, const FVector& HitLocation);
+	void Die(AActor* InInstigator);
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	void RemoveHitStun();
 

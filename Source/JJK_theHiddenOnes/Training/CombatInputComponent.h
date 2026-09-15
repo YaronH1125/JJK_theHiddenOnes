@@ -29,15 +29,19 @@ public:
 	UCombatInputComponent();
 
 	/** 输入按下：建立会话（重复按下忽略，不重建） */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void NotifyAttackPressed();
 
 	/** 输入松开：按持续时长分流轻拳/重拳意图，随后清会话 */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void NotifyAttackReleased();
 
 	/** 会话失效：死亡/中断/失焦/重置调用；旧松键不再提交 */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void InvalidateSession(const FText& Reason);
 
 	/** 提交一段轻拳攻击（共享入口，玩家与调试对手一致） */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	EActionRequestResult SubmitLightAttack();
 
 	UFUNCTION(BlueprintPure, Category = "Combat")

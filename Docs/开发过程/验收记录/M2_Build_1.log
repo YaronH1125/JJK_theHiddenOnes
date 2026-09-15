@@ -10,21 +10,967 @@ Building JJK_theHiddenOnesEditor...
 Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
   Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
 Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
-[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: ArenaPlayerController.cpp, AttackWindowAnimNotify.cpp, CombatHitComponent.cpp, FighterCharacter.cpp, MeleeComboAbility.cpp, TrainingGameMode.cpp
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: AnimationUtils.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 5 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.03 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/5] Compile [x64] AnimationUtils.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\AnimationUtils.cpp(21,9): error C2248: “UAnimSequenceBase::SequenceLength”: 无法访问 protected 成员(在“UAnimSequenceBase”类中声明)
+	Montage->SequenceLength = NewLength;
+	       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Animation\AnimSequenceBase.h(49,8): note: 参见“UAnimSequenceBase::SequenceLength”的声明
+	float SequenceLength;
+	      ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Animation\AnimSequenceBase.h(36,7): note: 参见“UAnimSequenceBase”的声明
+class UAnimSequenceBase : public UAnimationAsset
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\AnimationUtils.cpp(21,9): warning C4996: 'UAnimSequenceBase::SequenceLength': Public access to SequenceLength is deprecated, use GetPlayLength or UAnimDataController::SetPlayLength instead - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	Montage->SequenceLength = NewLength;
+	       ^
+[2/5] Compile [x64] Module.JJK_theHiddenOnes.cpp
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(80,1): error C2653: “UJJKAnimationUtils”: 不是类或命名空间名称
+DEFINE_FUNCTION(UJJKAnimationUtils::execRecalculateMontageCache)
+^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(86,2): error C2653: “UJJKAnimationUtils”: 不是类或命名空间名称
+	UJJKAnimationUtils::RecalculateMontageCache(Z_Param_Montage,Z_Param_Out_OutNewLength);
+	^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(86,22): error C3861: “RecalculateMontageCache”: 找不到标识符
+	UJJKAnimationUtils::RecalculateMontageCache(Z_Param_Montage,Z_Param_Out_OutNewLength);
+	                    ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(114,66): error C2653: “UJJKAnimationUtils”: 不是类或命名空间名称
+		{ .NameUTF8 = UTF8TEXT("RecalculateMontageCache"), .Pointer = &UJJKAnimationUtils::execRecalculateMontageCache },
+		                                                               ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(122,23): error C2065: “UJJKAnimationUtils”: 未声明的标识符
+		TCppClassTypeTraits<UJJKAnimationUtils>::IsAbstract,
+		                    ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(122,3): error C2923: "TCppClassTypeTraits": "UJJKAnimationUtils" 不是参数 "CPPCLASS" 的有效 模板 类型参数
+		TCppClassTypeTraits<UJJKAnimationUtils>::IsAbstract,
+		^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(122,23): note: 参见“UJJKAnimationUtils”的声明
+		TCppClassTypeTraits<UJJKAnimationUtils>::IsAbstract,
+		                    ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(122,44): error C2955: “TCppClassTypeTraits”: 使用 类 模板 需要 模板 参数列表
+		TCppClassTypeTraits<UJJKAnimationUtils>::IsAbstract,
+		                                         ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(3741,8): note: 参见“TCppClassTypeTraits”的声明
+struct TCppClassTypeTraits : public FCppClassTypeTraitsBase
+       ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(122,44): error C2397: 从“TCppClassTypeTraits<CPPCLASS>::<unnamed-enum-IsAbstract>”转换到“bool”需要收缩转换
+		TCppClassTypeTraits<UJJKAnimationUtils>::IsAbstract,
+		                                         ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(122,44): error C4800: 从“TCppClassTypeTraits<CPPCLASS>::<unnamed-enum-IsAbstract>”到 bool 的隐式转换。信息可能丢失
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(122,44): note: 请考虑使用显式强制转换或比较 0 来避免此警告
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(3744,2): note: 参见“TCppClassTypeTraits<CPPCLASS>::<unnamed-enum-IsAbstract>”的声明
+	{
+	^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(122,44): warning C4305: “初始化”: 从“TCppClassTypeTraits<CPPCLASS>::<unnamed-enum-IsAbstract>”到“bool”截断
+		TCppClassTypeTraits<UJJKAnimationUtils>::IsAbstract,
+		                                         ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(148,18): error C2653: “UJJKAnimationUtils”: 不是类或命名空间名称
+	UClass* Class = UJJKAnimationUtils::StaticClass();
+	                ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(148,38): error C2672: “StaticClass”: 未找到匹配的重载函数
+	UClass* Class = UJJKAnimationUtils::StaticClass();
+	                                    ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\ReflectedTypeAccessors.h(14,45): note: 可能是“UClass *StaticClass(void)”
+template<typename ClassType> inline UClass* StaticClass()
+                                            ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(148,38): note: “UClass *StaticClass(void)”: 无法推导“ClassType”的 模板 参数
+	UClass* Class = UJJKAnimationUtils::StaticClass();
+	                                    ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(156,18): error C2061: 语法错误: 标识符“UJJKAnimationUtils”
+		using TClass = UJJKAnimationUtils;
+		               ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(160,5): error C2653: “TClass”: 不是类或命名空间名称
+				TClass::StaticPackage(),
+				^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(160,13): error C3861: “StaticPackage”: 找不到标识符
+				TClass::StaticPackage(),
+				        ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(164,16): error C2065: “TClass”: 未声明的标识符
+				DataSizeOf<TClass>(),
+				           ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(164,5): error C2672: “DataSizeOf”: 未找到匹配的重载函数
+				DataSizeOf<TClass>(),
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\Templates\AlignmentTemplates.h(84,23): note: 可能是“size_t DataSizeOf(void)”
+consteval std::size_t DataSizeOf()
+                      ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(164,16): note: “DataSizeOf”:“T”的 模板 参数无效，应为类型
+				DataSizeOf<TClass>(),
+				           ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(165,13): error C2061: 语法错误: 标识符“TClass”
+				alignof(TClass),
+				        ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(166,5): error C2653: “TClass”: 不是类或命名空间名称
+				TClass::StaticClassFlags,
+				^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(167,5): error C2653: “TClass”: 不是类或命名空间名称
+				TClass::StaticClassCastFlags(),
+				^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(168,5): error C2653: “TClass”: 不是类或命名空间名称
+				TClass::StaticConfigName(),
+				^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(169,55): error C2065: “TClass”: 未声明的标识符
+				(UClass::ClassConstructorType)InternalConstructor<TClass>,
+				                                                  ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(170,77): error C2065: “TClass”: 未声明的标识符
+				(UClass::ClassVTableHelperCtorCallerType)InternalVTableHelperCtorCaller<TClass>,
+				                                                                        ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(171,5): error C2653: “TClass”: 不是类或命名空间名称
+				UOBJECT_CPPCLASS_STATICFUNCTIONS_FORCLASS(TClass),
+				^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(172,6): error C2653: “TClass”: 不是类或命名空间名称
+				&TClass::Super::StaticClass,
+				 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(173,6): error C2653: “TClass”: 不是类或命名空间名称
+				&TClass::WithinClass::StaticClass
+				 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(185,1): error C2653: “UJJKAnimationUtils”: 不是类或命名空间名称
+UJJKAnimationUtils::UJJKAnimationUtils(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(185,21): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+UJJKAnimationUtils::UJJKAnimationUtils(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+                    ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(185,112): error C2550: “UJJKAnimationUtils”: 构造函数初始值设定项列表只能在构造函数定义中使用
+UJJKAnimationUtils::UJJKAnimationUtils(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+                                                                                                               ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(185,113): error C4508: “UJJKAnimationUtils”: 函数应返回一个值；假定“void”返回类型
+UJJKAnimationUtils::UJJKAnimationUtils(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+                                                                                                                ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(186,1): error C2653: “UJJKAnimationUtils”: 不是类或命名空间名称
+DEFINE_VTABLE_PTR_HELPER_CTOR_NS(, UJJKAnimationUtils);
+^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(186,1): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(186,1): error C2550: “UJJKAnimationUtils”: 构造函数初始值设定项列表只能在构造函数定义中使用
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(186,1): error C4508: “UJJKAnimationUtils”: 函数应返回一个值；假定“void”返回类型
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(187,1): error C2653: “UJJKAnimationUtils”: 不是类或命名空间名称
+UJJKAnimationUtils::~UJJKAnimationUtils() {}
+^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(187,22): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int
+UJJKAnimationUtils::~UJJKAnimationUtils() {}
+                     ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(187,44): error C4508: “{dtor}”: 函数应返回一个值；假定“void”返回类型
+UJJKAnimationUtils::~UJJKAnimationUtils() {}
+                                           ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\AnimationUtils.gen.cpp(198,120): error C2070: “overloaded-function”: 非法的 sizeof 操作数
+		{ Z_Construct_UClass_UJJKAnimationUtils, TEXT("UJJKAnimationUtils"), &Z_Registration_Info_UClass_UJJKAnimationUtils, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UJJKAnimationUtils), 3968571125U) },
+		                                                                                                                     ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\GameplayTags\Classes\GameplayTagsManager.h(933,4): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+			UE_LOGF(LogGameplayTags, Warning, "%s called when not using FastReplication (not rebuilding the fast replication cache)", __func__);
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\GameplayTags\Classes\GameplayTagsManager.h(933,4): note: 参见“UCFS_Result”的声明
+			UE_LOGF(LogGameplayTags, Warning, "%s called when not using FastReplication (not rebuilding the fast replication cache)", __func__);
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\GameplayTags\Classes\GameplayTagsManager.h(933,4): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\GameplayTags\Classes\GameplayTagsManager.h(933,4): note: 表达式的计算结果不是常数
+			UE_LOGF(LogGameplayTags, Warning, "%s called when not using FastReplication (not rebuilding the fast replication cache)", __func__);
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\GameplayTags\Classes\GameplayTagsManager.h(933,4): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\GameplayTags\Classes\GameplayTagsManager.h(933,4): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectSaveOverride.h(18,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(PropertyPath == Other.PropertyPath, TEXT("Merge called with an unrelated FPropertySaveOverride!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectSaveOverride.h(18,3): note: 参见“UCFS_Result”的声明
+		checkf(PropertyPath == Other.PropertyPath, TEXT("Merge called with an unrelated FPropertySaveOverride!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectSaveOverride.h(18,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectSaveOverride.h(18,3): note: 表达式的计算结果不是常数
+		checkf(PropertyPath == Other.PropertyPath, TEXT("Merge called with an unrelated FPropertySaveOverride!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectSaveOverride.h(18,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectSaveOverride.h(18,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieSceneTimeTransform.h(44,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(!FMath::IsNearlyZero(TimeScale), TEXT("It is invalid to create a linear transformation with a zero timescale. This case should be handled externally by FMovieSceneTimeWarpVariant and FLAG_Zero."))
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieSceneTimeTransform.h(44,3): note: 参见“UCFS_Result”的声明
+		checkf(!FMath::IsNearlyZero(TimeScale), TEXT("It is invalid to create a linear transformation with a zero timescale. This case should be handled externally by FMovieSceneTimeWarpVariant and FLAG_Zero."))
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieSceneTimeTransform.h(44,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieSceneTimeTransform.h(44,3): note: 表达式的计算结果不是常数
+		checkf(!FMath::IsNearlyZero(TimeScale), TEXT("It is invalid to create a linear transformation with a zero timescale. This case should be handled externally by FMovieSceneTimeWarpVariant and FLAG_Zero."))
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieSceneTimeTransform.h(44,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieSceneTimeTransform.h(44,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(423,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(bHasPreRollEndTime, TEXT("It's invalid to call GetPreRollEndFrame() without first checking HasPreRollEndTime()"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(423,3): note: 参见“UCFS_Result”的声明
+		checkf(bHasPreRollEndTime, TEXT("It's invalid to call GetPreRollEndFrame() without first checking HasPreRollEndTime()"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(423,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(423,3): note: 表达式的计算结果不是常数
+		checkf(bHasPreRollEndTime, TEXT("It's invalid to call GetPreRollEndFrame() without first checking HasPreRollEndTime()"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(423,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(423,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(433,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(bHasPostRollStartTime, TEXT("It's invalid to call GetPostRollStartFrame() without first checking HasPostRollStartTime()"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(433,3): note: 参见“UCFS_Result”的声明
+		checkf(bHasPostRollStartTime, TEXT("It's invalid to call GetPostRollStartFrame() without first checking HasPostRollStartTime()"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(433,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(433,3): note: 表达式的计算结果不是常数
+		checkf(bHasPostRollStartTime, TEXT("It's invalid to call GetPostRollStartFrame() without first checking HasPostRollStartTime()"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(433,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlayback.h(433,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntityIDs.h(35,49): error C2131: 表达式的计算结果不是常数
+using FComponentMaskAllocator = TFixedAllocator<ComponentMaskDWORDSize>;
+                                                ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntityIDs.h(35,49): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntityIDs.h(35,49): note: 请参见“UE::MovieScene::ComponentMaskDWORDSize”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\Containers\ContainerAllocationPolicies.h(1613,48): error C2131: 表达式的计算结果不是常数
+		TTypeCompatibleBytes<ElementType> InlineData[NumInlineElements];
+		                                             ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\Containers\ContainerAllocationPolicies.h(1613,48): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\Containers\ContainerAllocationPolicies.h(1613,48): note: 请参见“UE::MovieScene::ComponentMaskDWORDSize”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\Containers\ContainerAllocationPolicies.h(1613,48): note: 模板实例化上下文(最早的实例化上下文)为
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntityIDs.h(169,37): note: 查看对正在编译的 类 模板 实例化“TBitArray<UE::MovieScene::FComponentMaskAllocator>”的引用
+	TBitArray<FComponentMaskAllocator> Bits;
+	                                   ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\Containers\BitArray.h(1861,16): note: 查看对正在编译的 类 模板 实例化“TFixedAllocator<UE::MovieScene::ComponentMaskDWORDSize>::ForElementType<uint32>”的引用
+	AllocatorType AllocatorInstance;
+	              ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntityIDs.h(471,7): error C2451: 类型为“UE::MovieScene::FComponentTypeID”的条件表达式无效
+		if (ComponentType)
+		    ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntityIDs.h(471,7): note: 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntitySystemTypes.h(346,8): error C2451: 类型为“UE::MovieScene::FComponentTypeID”的条件表达式无效
+			if (TypeID)
+			    ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntitySystemTypes.h(346,8): note: 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntitySystemTypes.h(1159,2): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	checkf(PreviousAccessCount == 0, TEXT("Component header is still in use when it is being opened for write!"));
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntitySystemTypes.h(1159,2): note: 参见“UCFS_Result”的声明
+	checkf(PreviousAccessCount == 0, TEXT("Component header is still in use when it is being opened for write!"));
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntitySystemTypes.h(1159,2): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntitySystemTypes.h(1159,2): note: 表达式的计算结果不是常数
+	checkf(PreviousAccessCount == 0, TEXT("Component header is still in use when it is being opened for write!"));
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntitySystemTypes.h(1159,2): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\EntitySystem\MovieSceneEntitySystemTypes.h(1159,2): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(48,6): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+					checkf(false, TEXT("Unexpected playback capability storage mode"));
+					^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(48,6): note: 参见“UCFS_Result”的声明
+					checkf(false, TEXT("Unexpected playback capability storage mode"));
+					^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(35,5): note: 此诊断出现在编译器生成的函数“T *UE::MovieScene::FPlaybackCapabilityPtr::ResolveOptional(void) const”中
+	T* ResolveOptional() const
+	   ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(68,5): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+				checkf(false, TEXT("Unexpected playback capability storage mode"));
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(68,5): note: 参见“UCFS_Result”的声明
+				checkf(false, TEXT("Unexpected playback capability storage mode"));
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(56,5): note: 此诊断出现在编译器生成的函数“T &UE::MovieScene::FPlaybackCapabilityPtr::ResolveChecked(void) const”中
+	T& ResolveChecked() const
+	   ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(279,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf((AllCapabilities & CapabilityBit) == 0, TEXT("Capability already exists!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(279,3): note: 参见“UCFS_Result”的声明
+		checkf((AllCapabilities & CapabilityBit) == 0, TEXT("Capability already exists!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\MovieScene\Public\Evaluation\MovieScenePlaybackCapabilities.h(277,25): note: 此诊断出现在编译器生成的函数“UE::MovieScene::FPlaybackCapabilityPtr UE::MovieScene::FPlaybackCapabilitiesImpl::AddCapability(uint32,ArgTypes ...)”中
+	FPlaybackCapabilityPtr AddCapability(uint32 CapabilityBit, ArgTypes&&... InArgs)
+	                       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(79,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(StructMemory != nullptr, TEXT("CreateImpl is expected to always return a valid pointer to FStructSharedMemory."));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(79,3): note: 参见“UCFS_Result”的声明
+		checkf(StructMemory != nullptr, TEXT("CreateImpl is expected to always return a valid pointer to FStructSharedMemory."));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(74,41): note: 此诊断出现在编译器生成的函数“TSharedPtr<FStructSharedMemory,ESPMode::ThreadSafe> FStructSharedMemory::CreateArgs(TArgs ...)”中
+	static TSharedPtr<FStructSharedMemory> CreateArgs(TArgs&&... InArgs)
+	                                       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(54,4): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+			checkf(StructSharedMemory != nullptr
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(54,4): note: 参见“UCFS_Result”的声明
+			checkf(StructSharedMemory != nullptr
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(54,4): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(54,4): note: 表达式的计算结果不是常数
+			checkf(StructSharedMemory != nullptr
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(54,4): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(54,4): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(65,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(InScriptStruct, TEXT("FStructSharedMemory::Create - script struct cannot be null"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(65,3): note: 参见“UCFS_Result”的声明
+		checkf(InScriptStruct, TEXT("FStructSharedMemory::Create - script struct cannot be null"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(65,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(65,3): note: 表达式的计算结果不是常数
+		checkf(InScriptStruct, TEXT("FStructSharedMemory::Create - script struct cannot be null"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(65,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(65,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(68,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(StructMemory != nullptr, TEXT("CreateImpl is expected to always return a valid pointer to FStructSharedMemory."));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(68,3): note: 参见“UCFS_Result”的声明
+		checkf(StructMemory != nullptr, TEXT("CreateImpl is expected to always return a valid pointer to FStructSharedMemory."));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(68,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(68,3): note: 表达式的计算结果不是常数
+		checkf(StructMemory != nullptr, TEXT("CreateImpl is expected to always return a valid pointer to FStructSharedMemory."));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(68,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\CoreUObject\Public\StructUtils\SharedStruct.h(68,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\StateTree\Source\StateTreeModule\Public\StateTreeExecutionTypes.h(1150,102): error C2451: 类型为“TIndexedContainerIterator<TArray<FStateTreeTransitionDelayedState,FDefaultAllocator>,FStateTreeTransitionDelayedState,int>”的条件表达式无效
+		for (TArray<FStateTreeTransitionDelayedState>::TIterator It = DelayedTransitions.CreateIterator(); It; ++It)
+		                                                                                                   ^
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\StateTree\Source\StateTreeModule\Public\StateTreeExecutionTypes.h(1150,102): note: 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(274,46): error C2451: 类型为“TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::TIterator”的条件表达式无效
+        with
+        [
+            KeyType=int32,
+            ValueType=int32,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<int32,int32,false>
+        ]
+		for (auto It = IDToCLMap.CreateIterator(); It; ++It)
+		                                           ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(274,46): note: 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(564,4): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+			UE_LOGF(LogNetFastTArray, Log, "FFastArraySerializer::SetDeltaSerializationEnabled - Called after array has been serialized. Ignoring");
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(564,4): note: 参见“UCFS_Result”的声明
+			UE_LOGF(LogNetFastTArray, Log, "FFastArraySerializer::SetDeltaSerializationEnabled - Called after array has been serialized. Ignoring");
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(564,4): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(564,4): note: 表达式的计算结果不是常数
+			UE_LOGF(LogNetFastTArray, Log, "FFastArraySerializer::SetDeltaSerializationEnabled - Called after array has been serialized. Ignoring");
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(564,4): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(564,4): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(937,5): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+				UE_LOGF(LogNetFastTArray, Log, "       Stayed The Same - Skipping");
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(937,5): note: 参见“UCFS_Result”的声明
+				UE_LOGF(LogNetFastTArray, Log, "       Stayed The Same - Skipping");
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(967,5): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+				UE_LOGF(LogNetFastTArray, Log, "   Deleting ID: %d", It.Key());
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(967,5): note: 参见“UCFS_Result”的声明
+				UE_LOGF(LogNetFastTArray, Log, "   Deleting ID: %d", It.Key());
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(992,2): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	UE_LOGF(LogNetFastTArray, Log, "   Writing Bunch. NumChange: %d. NumDel: %d [%d/%d]",
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(992,2): note: 参见“UCFS_Result”的声明
+	UE_LOGF(LogNetFastTArray, Log, "   Writing Bunch. NumChange: %d. NumDel: %d [%d/%d]",
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1000,2): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	UE_CLOGF(NumDeletes > MaxNumDeleted, LogNetFastTArray, Warning, "NumDeletes > GetMaxNumberOfAllowedDeletionsPerUpdate: %d > %d. (Write)", NumDeletes, MaxNumDeleted);
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1000,2): note: 参见“UCFS_Result”的声明
+	UE_CLOGF(NumDeletes > MaxNumDeleted, LogNetFastTArray, Warning, "NumDeletes > GetMaxNumberOfAllowedDeletionsPerUpdate: %d > %d. (Write)", NumDeletes, MaxNumDeleted);
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1001,2): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	UE_CLOGF(Header.NumChanged > MaxNumChanged, LogNetFastTArray, Warning, "NumChanged > GetMaxNumberOfAllowedChangesPerUpdate: %d > %d. (Write)", Header.NumChanged, MaxNumChanged);
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1001,2): note: 参见“UCFS_Result”的声明
+	UE_CLOGF(Header.NumChanged > MaxNumChanged, LogNetFastTArray, Warning, "NumChanged > GetMaxNumberOfAllowedChangesPerUpdate: %d > %d. (Write)", Header.NumChanged, MaxNumChanged);
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1008,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		UE_LOGF(LogNetFastTArray, Log, "   Deleted ElementID: %d", ID);
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1008,3): note: 参见“UCFS_Result”的声明
+		UE_LOGF(LogNetFastTArray, Log, "   Deleted ElementID: %d", ID);
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1027,2): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	UE_LOGF(LogNetFastTArray, Log, "Received [%d/%d].", Header.ArrayReplicationKey, Header.BaseReplicationKey);
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1027,2): note: 参见“UCFS_Result”的声明
+	UE_LOGF(LogNetFastTArray, Log, "Received [%d/%d].", Header.ArrayReplicationKey, Header.BaseReplicationKey);
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1032,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		UE_LOGF(LogNetFastTArray, Warning, "NumDeletes > GetMaxNumberOfAllowedDeletionsPerUpdate: %d > %d. (Read)", NumDeletes, MaxNumDeleted);
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1032,3): note: 参见“UCFS_Result”的声明
+		UE_LOGF(LogNetFastTArray, Warning, "NumDeletes > GetMaxNumberOfAllowedDeletionsPerUpdate: %d > %d. (Read)", NumDeletes, MaxNumDeleted);
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1042,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		UE_LOGF(LogNetFastTArray, Warning, "NumChanged > GetMaxNumberOfAllowedChangesPerUpdate: %d > %d. (Read)", Header.NumChanged, MaxNumChanged);
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1042,3): note: 参见“UCFS_Result”的声明
+		UE_LOGF(LogNetFastTArray, Warning, "NumChanged > GetMaxNumberOfAllowedChangesPerUpdate: %d > %d. (Read)", Header.NumChanged, MaxNumChanged);
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1047,2): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	UE_LOGF(LogNetFastTArray, Log, "Read NumChanged: %d NumDeletes: %d.", Header.NumChanged, NumDeletes);
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1047,2): note: 参见“UCFS_Result”的声明
+	UE_LOGF(LogNetFastTArray, Log, "Read NumChanged: %d NumDeletes: %d.", Header.NumChanged, NumDeletes);
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1064,5): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+				UE_LOGF(LogNetFastTArray, Log, "   Adding ElementID: %d for deletion", ElementID);
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1064,5): note: 参见“UCFS_Result”的声明
+				UE_LOGF(LogNetFastTArray, Log, "   Adding ElementID: %d for deletion", ElementID);
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1068,5): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+				UE_LOGF(LogNetFastTArray, Log, "   Couldn't find ElementID: %d for deletion!", ElementID);
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1068,5): note: 参见“UCFS_Result”的声明
+				UE_LOGF(LogNetFastTArray, Log, "   Couldn't find ElementID: %d for deletion!", ElementID);
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1195,5): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+				UE_LOGF(LogNetFastTArray, Log, "   Deleting: %d", DeleteIndex);
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1195,5): note: 参见“UCFS_Result”的声明
+				UE_LOGF(LogNetFastTArray, Log, "   Deleting: %d", DeleteIndex);
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(693,8): note: 此诊断出现在编译器生成的函数“void FFastArraySerializer::TFastArraySerializeHelper<Type,SerializerType>::PostReceiveCleanup(FFastArraySerializer::FFastArraySerializerHeader &,TArray<int32,TSizedInlineAllocator<8,32,FDefaultAllocator>> &,TArray<int32,TSizedInlineAllocator<8,32,FDefaultAllocator>> &,GuidMapType &)”中
+		void PostReceiveCleanup(
+		     ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1481,4): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+			UE_LOGF(LogNetFastTArray, Log, "   Changed ElementID: %d", ID);
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1481,4): note: 参见“UCFS_Result”的声明
+			UE_LOGF(LogNetFastTArray, Log, "   Changed ElementID: %d", ID);
+			^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(494,14): note: 此诊断出现在编译器生成的函数“bool FFastArraySerializer::FastArrayDeltaSerialize(TArray<T,FDefaultAllocator> &,FNetDeltaSerializeInfo &,SerializerType &)”中
+	static bool FastArrayDeltaSerialize(TArray<Type>& Items, FNetDeltaSerializeInfo& Parms, SerializerType& ArraySerializer);
+	            ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1522,5): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+				UE_LOGF(LogNetFastTArray, Log, "   New. ID: %d. New Element!", ElementID);
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1522,5): note: 参见“UCFS_Result”的声明
+				UE_LOGF(LogNetFastTArray, Log, "   New. ID: %d. New Element!", ElementID);
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(494,14): note: 此诊断出现在编译器生成的函数“bool FFastArraySerializer::FastArrayDeltaSerialize(TArray<T,FDefaultAllocator> &,FNetDeltaSerializeInfo &,SerializerType &)”中
+	static bool FastArrayDeltaSerialize(TArray<Type>& Items, FNetDeltaSerializeInfo& Parms, SerializerType& ArraySerializer);
+	            ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1608,5): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+				UE_LOGF( LogNetFastTArray, Warning, "Parms.NetSerializeCB->NetSerializeStruct: Reader.IsError() == true" );
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(1608,5): note: 参见“UCFS_Result”的声明
+				UE_LOGF( LogNetFastTArray, Warning, "Parms.NetSerializeCB->NetSerializeStruct: Reader.IsError() == true" );
+				^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Net\Core\Classes\Net\Serialization\FastArraySerializer.h(494,14): note: 此诊断出现在编译器生成的函数“bool FFastArraySerializer::FastArrayDeltaSerialize(TArray<T,FDefaultAllocator> &,FNetDeltaSerializeInfo &,SerializerType &)”中
+	static bool FastArrayDeltaSerialize(TArray<Type>& Items, FNetDeltaSerializeInfo& Parms, SerializerType& ArraySerializer);
+	            ^
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\GameplayEffectTypes.h(1183,55): error C2451: 类型为“TIndexedContainerIterator<const TArray<FGameplayTag,FDefaultAllocator>,const FGameplayTag,int>”的条件表达式无效
+			for (auto TagIt = Container.CreateConstIterator(); TagIt; ++TagIt)
+			                                                   ^
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\GameplayEffectTypes.h(1183,55): note: 没有可用于执行该转换的用户定义的转换运算符，或者无法调用该运算符
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities\GameplayAbility.h(184,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(IsInstantiated(), TEXT("%s: GetCurrentActivationInfoRef cannot be called on a non-instanced ability. Check the instancing policy."), *GetPathName());
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities\GameplayAbility.h(184,3): note: 参见“UCFS_Result”的声明
+		checkf(IsInstantiated(), TEXT("%s: GetCurrentActivationInfoRef cannot be called on a non-instanced ability. Check the instancing policy."), *GetPathName());
+		^
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities\GameplayAbility.h(184,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities\GameplayAbility.h(184,3): note: 表达式的计算结果不是常数
+		checkf(IsInstantiated(), TEXT("%s: GetCurrentActivationInfoRef cannot be called on a non-instanced ability. Check the instancing policy."), *GetPathName());
+		^
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities\GameplayAbility.h(184,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities\GameplayAbility.h(184,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterAttributeSet.gen.cpp(567,2): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	checkf(bIsValid, TEXT("UHT Generated Rep Indices do not match runtime populated Rep Indices for properties in UFighterAttributeSet"));
+	^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterAttributeSet.gen.cpp(567,2): note: 参见“UCFS_Result”的声明
+	checkf(bIsValid, TEXT("UHT Generated Rep Indices do not match runtime populated Rep Indices for properties in UFighterAttributeSet"));
+	^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterAttributeSet.gen.cpp(567,2): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterAttributeSet.gen.cpp(567,2): note: 表达式的计算结果不是常数
+	checkf(bIsValid, TEXT("UHT Generated Rep Indices do not match runtime populated Rep Indices for properties in UFighterAttributeSet"));
+	^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterAttributeSet.gen.cpp(567,2): note: 读取未初始化符号导致失败
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterAttributeSet.gen.cpp(567,2): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(155,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(155,3): note: 参见“UCFS_Result”的声明
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(155,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(155,3): note: 表达式的计算结果不是常数
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(155,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(155,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(172,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(172,3): note: 参见“UCFS_Result”的声明
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(172,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(172,3): note: 表达式的计算结果不是常数
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(172,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(172,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(191,3): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(191,3): note: 参见“UCFS_Result”的声明
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(191,3): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(191,3): note: 表达式的计算结果不是常数
+		checkf(false, TEXT("Unsupported value type for input action value!"));
+		^
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(191,3): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Plugins\EnhancedInput\Source\EnhancedInput\Public\InputActionValue.h(191,3): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\AI\Navigation\PathFollowingAgentInterface.h(22,57): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	virtual void OnUnableToMove(const UObject& Instigator) PURE_VIRTUAL(IPathFollowingAgentInterface::OnUnableToMove, );
+	                                                       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\AI\Navigation\PathFollowingAgentInterface.h(22,57): note: 参见“UCFS_Result”的声明
+	virtual void OnUnableToMove(const UObject& Instigator) PURE_VIRTUAL(IPathFollowingAgentInterface::OnUnableToMove, );
+	                                                       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\AI\Navigation\PathFollowingAgentInterface.h(22,57): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\AI\Navigation\PathFollowingAgentInterface.h(22,57): note: 表达式的计算结果不是常数
+	virtual void OnUnableToMove(const UObject& Instigator) PURE_VIRTUAL(IPathFollowingAgentInterface::OnUnableToMove, );
+	                                                       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\AI\Navigation\PathFollowingAgentInterface.h(22,57): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\AI\Navigation\PathFollowingAgentInterface.h(22,57): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Interfaces\NetworkPredictionInterface.h(30,42): error C2971: “UE::Core::Private::FormatStringSan::TAtArgPos”: 模板参数“N”:“UCFS_Result”: 包含非静态存储持续时间的变量不能用作非类型参数
+	virtual void SendClientAdjustment()					PURE_VIRTUAL(INetworkPredictionInterface::SendClientAdjustment,);
+	                                   					^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(67,10): note: 参见“UE::Core::Private::FormatStringSan::TAtArgPos”的声明
+		struct TAtArgPos {};
+		       ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Interfaces\NetworkPredictionInterface.h(30,42): note: 参见“UCFS_Result”的声明
+	virtual void SendClientAdjustment()					PURE_VIRTUAL(INetworkPredictionInterface::SendClientAdjustment,);
+	                                   					^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Interfaces\NetworkPredictionInterface.h(30,42): error C2672: “UE::Core::Private::FormatStringSan::AssertFormatStatus”: 未找到匹配的重载函数
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Core\Public\String\FormatStringSan.h(53,18): note: 可能是“void UE::Core::Private::FormatStringSan::AssertFormatStatus(void)”
+		constexpr void AssertFormatStatus()
+		               ^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Interfaces\NetworkPredictionInterface.h(30,42): note: 表达式的计算结果不是常数
+	virtual void SendClientAdjustment()					PURE_VIRTUAL(INetworkPredictionInterface::SendClientAdjustment,);
+	                                   					^
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Interfaces\NetworkPredictionInterface.h(30,42): note: 读取未初始化符号导致失败
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Interfaces\NetworkPredictionInterface.h(30,42): note: 请参见“UCFS_Result”的用法
+F:\GameStudy\UE_5.8\Engine\Source\Runtime\Engine\Classes\Interfaces\NetworkPredictionInterface.h(30,42): fatal error C1003: 错误计数超过 100；正在停止编译
+Total time in Unreal Build Accelerator local executor: 4.67 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 5.95 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 15.2kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (source file removed)
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 6 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.44 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/6] Compile [x64] CombatInputComponent.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(119,38): error C2440: “初始化”: 无法从“UFighterAbilitySystemComponent *”转换为“const UAbilitySystemComponent *”
+		const UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent();
+		                                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(119,38): note: 指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(131,40): error C2440: “初始化”: 无法从“UFighterAbilitySystemComponent *”转换为“UAbilitySystemComponent *”
+			UAbilitySystemComponent* MutableASC = Fighter->GetFighterAbilitySystemComponent();
+			                                    ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(131,40): note: 指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+[2/6] Compile [x64] FighterCharacter.cpp
+[3/6] Compile [x64] Module.JJK_theHiddenOnes.cpp
+Total time in Unreal Build Accelerator local executor: 13.32 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 18.19 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.7kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 6 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.47 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/6] Compile [x64] CombatInputComponent.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(119,38): error C2440: “初始化”: 无法从“UFighterAbilitySystemComponent *”转换为“const UAbilitySystemComponent *”
+		const UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent();
+		                                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(119,38): note: 指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(131,40): error C2440: “初始化”: 无法从“UFighterAbilitySystemComponent *”转换为“UAbilitySystemComponent *”
+			UAbilitySystemComponent* MutableASC = Fighter->GetFighterAbilitySystemComponent();
+			                                    ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(131,40): note: 指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+[2/6] Compile [x64] FighterCharacter.cpp
+[3/6] Compile [x64] Module.JJK_theHiddenOnes.cpp
+Total time in Unreal Build Accelerator local executor: 12.83 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 17.10 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.4kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (Definitions.JJK_theHiddenOnes.h deleted)
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 7 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.25 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/7] Compile Resource [x64] Default.rc2
+[2/7] Compile [x64] CombatInputComponent.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(119,38): error C2440: “初始化”: 无法从“UFighterAbilitySystemComponent *”转换为“const UAbilitySystemComponent *”
+		const UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent();
+		                                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(119,38): note: 指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(131,40): error C2440: “初始化”: 无法从“UFighterAbilitySystemComponent *”转换为“UAbilitySystemComponent *”
+			UAbilitySystemComponent* MutableASC = Fighter->GetFighterAbilitySystemComponent();
+			                                    ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(131,40): note: 指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+[3/7] Compile [x64] FighterCharacter.cpp
+[4/7] Compile [x64] Module.JJK_theHiddenOnes.cpp
+Total time in Unreal Build Accelerator local executor: 12.61 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 15.20 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.7kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatInputComponent.cpp, FighterCharacter.cpp
 =================================
 Using Unreal Build Accelerator local executor to run 4 action(s)
   CPU 6 physical cores, 12 logical cores
-  Memory 31.94 GB physical, 30.86 GB/65.19 GB committed
+  Memory 31.94 GB physical, 30.02 GB/65.19 GB committed
   UBA Storage capacity 40 GB
-[1/4] Compile [x64] TrainingGameMode.cpp
+[1/4] Compile [x64] CombatInputComponent.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(119,38): error C2440: “初始化”: 无法从“UFighterAbilitySystemComponent *”转换为“const UAbilitySystemComponent *”
+		const UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent();
+		                                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(119,38): note: 指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(131,40): error C2440: “初始化”: 无法从“UFighterAbilitySystemComponent *”转换为“UAbilitySystemComponent *”
+			UAbilitySystemComponent* MutableASC = Fighter->GetFighterAbilitySystemComponent();
+			                                    ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\CombatInputComponent.cpp(131,40): note: 指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+Total time in Unreal Build Accelerator local executor: 2.46 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 3.76 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 5.6kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 4 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.01 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/4] Compile [x64] CombatInputComponent.cpp
 [2/4] Link [x64] UnrealEditor-JJK_theHiddenOnes.lib
   正在创建库 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.lib 和对象 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.exp
 [3/4] Link [x64] UnrealEditor-JJK_theHiddenOnes.dll
 [4/4] WriteMetadata JJK_theHiddenOnesEditor.target [NoUba]
 
-Total time in Unreal Build Accelerator local executor: 6.51 seconds
+Total time in Unreal Build Accelerator local executor: 6.21 seconds
 Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
 
 Result: Succeeded
-Total execution time: 7.92 seconds
-Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 6.0kb
+Total execution time: 7.50 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 5.9kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (working set of source files changed)
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatHitComponent.cpp, CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 7 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.85 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/7] Compile [x64] CombatInputComponent.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\FighterCharacter.h(184,7): error C2535: “void AFighterCharacter::ProcessCombatEvents(void)”: 已经定义或声明成员函数
+	void ProcessCombatEvents();
+	     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\FighterCharacter.h(90,7): note: 参见“AFighterCharacter::ProcessCombatEvents”的声明
+	void ProcessCombatEvents();
+	     ^
+[2/7] Compile [x64] CombatHitComponent.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\FighterCharacter.h(184,7): error C2535: “void AFighterCharacter::ProcessCombatEvents(void)”: 已经定义或声明成员函数
+	void ProcessCombatEvents();
+	     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\FighterCharacter.h(90,7): note: 参见“AFighterCharacter::ProcessCombatEvents”的声明
+	void ProcessCombatEvents();
+	     ^
+[3/7] Compile [x64] FighterCharacter.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\FighterCharacter.h(184,7): error C2535: “void AFighterCharacter::ProcessCombatEvents(void)”: 已经定义或声明成员函数
+	void ProcessCombatEvents();
+	     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\FighterCharacter.h(90,7): note: 参见“AFighterCharacter::ProcessCombatEvents”的声明
+	void ProcessCombatEvents();
+	     ^
+[4/7] Compile [x64] Module.JJK_theHiddenOnes.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\FighterCharacter.h(184,7): error C2535: “void AFighterCharacter::ProcessCombatEvents(void)”: 已经定义或声明成员函数
+	void ProcessCombatEvents();
+	     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\FighterCharacter.h(90,7): note: 参见“AFighterCharacter::ProcessCombatEvents”的声明
+	void ProcessCombatEvents();
+	     ^
+Total time in Unreal Build Accelerator local executor: 7.35 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 26.70 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 9.5kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: CombatHitComponent.cpp, CombatInputComponent.cpp, FighterCharacter.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 7 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 30.86 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/7] Compile [x64] CombatInputComponent.cpp
+[2/7] Compile [x64] CombatHitComponent.cpp
+[3/7] Compile [x64] FighterCharacter.cpp
+[4/7] Compile [x64] Module.JJK_theHiddenOnes.cpp
+[5/7] Link [x64] UnrealEditor-JJK_theHiddenOnes.lib
+  正在创建库 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.lib 和对象 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.exp
+[6/7] Link [x64] UnrealEditor-JJK_theHiddenOnes.dll
+[7/7] WriteMetadata JJK_theHiddenOnesEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 14.58 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 18.65 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.7kb

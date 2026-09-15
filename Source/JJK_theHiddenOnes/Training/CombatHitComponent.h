@@ -38,6 +38,9 @@ public:
 	/** 攻击结束/中断/重置：关窗、清去重、停用实例 */
 	void EndAttack();
 
+	/** 有待处理战斗事件：确保组件 Tick 开启（事件在本组件 Tick 内、扫掠之后处理） */
+	void NotifyEventsPending() { SetComponentTickEnabled(true); }
+
 	/** 当前阶段（调试显示用） */
 	EAttackPhase GetPhase() const { return Phase; }
 
