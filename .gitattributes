@@ -1,0 +1,4 @@
+# UE 资产按二进制处理，禁止文本合并/换行转换
+*.uasset binary
+*.umap binary
+*.uplugindata binary

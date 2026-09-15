@@ -1,0 +1,20 @@
+# Unreal Engine 生成目录（可由源文件重新生成）
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# IDE 本地缓存
+.vs/
+.idea/
+.vscode/
+*.code-workspace
+.zcode/
+
+# 由 uproject 重新生成的解决方案文件
+*.sln
+*.slnx
+
+# 系统杂项
+Thumbs.db
+Desktop.ini
