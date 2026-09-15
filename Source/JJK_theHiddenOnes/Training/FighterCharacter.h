@@ -10,11 +10,15 @@
 
 class UFighterAbilitySystemComponent;
 class UFighterAttributeSet;
+class UCombatHitComponent;
+class UCombatInputComponent;
 class UFighterDefinition;
 class UGameplayAbility;
 class UInputMappingContext;
 class UTargetingComponent;
 struct FGameplayAbilitySpecHandle;
+struct FOnAttributeChangeData;
+struct FCombatEvent;
 
 /**
  * 玩家与对手共享的战斗角色基座：
@@ -56,6 +60,33 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	UTargetingComponent* GetTargeting() const { return Targeting; }
 
+	/** 共享动作请求入口（轻/重输入会话） */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Fighter", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCombatInputComponent> CombatInput;
+
+	UFUNCTION(BlueprintPure, Category = "Fighter")
+	UCombatInputComponent* GetCombatInput() const { return CombatInput; }
+
+	/** 命中检测与结算组件（窗口采样、去重、批次结算） */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Fighter", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCombatHitComponent> CombatHit;
+
+	UFUNCTION(BlueprintPure, Category = "Fighter")
+	UCombatHitComponent* GetCombatHit() const { return CombatHit; }
+
+	UFUNCTION(BlueprintPure, Category = "Fighter")
+	bool IsDead() const;
+
+	UFUNCTION(BlueprintPure, Category = "Fighter")
+	TSubclassOf<UGameplayAbility> GetMeleeAttackAbilityClass() const;
+
+	/** 命中事件入队：受击方自身下一 Tick 处理（同帧已有效接触换血，M2.5） */
+	void QueueCombatEvent(const FCombatEvent& Event);
+
+	/** 调试异常注入：明确标记的直接命中注入（绕过检测，不入正常结算统计） */
+	UFUNCTION(Exec, Category = "Training|Debug")
+	void JJKDebugForceHitReact();
+
 	/**
 	 * 按定义初始化属性与外观。
 	 * 幂等：数值初始化只生效一次（StatsInitCount 不增长）；授予能力去重。
@@ -86,6 +117,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_Controller() override;
 	virtual void PawnClientRestart() override;
@@ -131,4 +163,21 @@ private:
 
 	/** 已授予能力类，防止重复授予 */
 	TSet<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses;
+
+	// ---------- M2 战斗状态 ----------
+	/** 命中事件队列（受击/死亡），自身 Tick 开头统一处理 */
+	TArray<FCombatEvent> PendingCombatEvents;
+
+	bool bDead = false;
+	FTimerHandle HitStunTimerHandle;
+
+	void ProcessCombatEvents();
+	void ApplyHitReactNow(float StunDuration, AActor* Instigator, const FVector& HitLocation);
+	void Die(AActor* Instigator);
+	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	void RemoveHitStun();
+
+	/** 最近一次受击来源与位置（调试显示） */
+	FVector LastHitLocation = FVector::ZeroVector;
+	TWeakObjectPtr<AActor> LastHitInstigator;
 };

@@ -2,15 +2,22 @@
 
 #include "Training/TrainingGameMode.h"
 
+#include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "Training/ArenaPlayerController.h"
+#include "Training/CombatHitComponent.h"
+#include "Training/CombatInputComponent.h"
+#include "Training/CombatTypes.h"
+#include "Training/FighterAttributeSet.h"
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
 #include "Training/TargetingComponent.h"
 
 ATrainingGameMode::ATrainingGameMode()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// 擂台默认出生配置：24m 擂台上 P1(-500,0) 朝 +X，P2(500,0) 朝 -X（07_擂台与视觉参考.md）
 	PlayerSpawnGroundTransform = FTransform(FRotator(0.f, 0.f, 0.f), FVector(-500.f, 0.f, 0.f));
 	OpponentSpawnGroundTransform = FTransform(FRotator(0.f, 180.f, 0.f), FVector(500.f, 0.f, 0.f));
@@ -24,6 +31,51 @@ void ATrainingGameMode::StartPlay()
 {
 	Super::StartPlay();
 	EnsureFightersSpawned();
+}
+
+void ATrainingGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (bDebugHud)
+	{
+		DrawCombatDebug();
+	}
+}
+
+void ATrainingGameMode::DrawCombatDebug() const
+{
+	int32 Line = 0;
+	auto DrawFighter = [this, &Line](const TCHAR* Label, const AFighterCharacter* Fighter)
+	{
+		if (Fighter == nullptr)
+		{
+			GEngine->AddOnScreenDebugMessage(100 + Line++, 0.f, FColor::Gray,
+				FString::Printf(TEXT("%s: 未生成"), Label));
+			return;
+		}
+		const UCombatHitComponent* Hit = Fighter->GetCombatHit();
+		const UCombatInputComponent* Input = Fighter->GetCombatInput();
+		const UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent();
+		const TCHAR* PhaseNames[] = {TEXT("None"), TEXT("Windup"), TEXT("Active"), TEXT("Recovery")};
+
+		FString Status;
+		if (Fighter->IsDead()) { Status = TEXT("死亡"); }
+		else if (ASC && ASC->HasMatchingGameplayTag(TAG_State_HitStun)) { Status = TEXT("受击硬直"); }
+		else if (Hit->HasActiveAttack()) { Status = FString::Printf(TEXT("攻击中(%s)"), PhaseNames[static_cast<int32>(Hit->GetPhase())]); }
+		else { Status = TEXT("待机"); }
+
+		GEngine->AddOnScreenDebugMessage(100 + Line++, 0.f,
+			Fighter == PlayerFighter ? FColor::Cyan : FColor::Orange,
+			FString::Printf(TEXT("%s [%s] HP=%.0f 阶段=%s 实例=%llu 命中=%d 会话=%d"),
+				Label, *Status,
+				Fighter->GetFighterAttributeSet() ? Fighter->GetFighterAttributeSet()->GetHealth() : -1.f,
+				PhaseNames[static_cast<int32>(Hit->GetPhase())],
+				Hit->GetActiveInstanceId(), Hit->GetHitCount(),
+				Input->GetActiveSessionId()));
+	};
+
+	DrawFighter(TEXT("P1"), PlayerFighter);
+	DrawFighter(TEXT("P2"), OpponentFighter);
 }
 
 void ATrainingGameMode::RestartPlayer(AController* NewPlayer)
@@ -162,4 +214,43 @@ AFighterCharacter* ATrainingGameMode::GetOpponentOf(const AFighterCharacter* Fig
 		return nullptr;
 	}
 	return Fighter == PlayerFighter ? OpponentFighter.Get() : (Fighter == OpponentFighter ? PlayerFighter.Get() : nullptr);
+}
+
+void ATrainingGameMode::ResetTraining()
+{
+	// 训练重置顺序（02_架构设计.md 第 10 节 / M2.6）：
+	// 1.停请求 2.取消能力 3.清临时对象/事件 4.复位双方 5.恢复属性统计 6.恢复目标与模式
+	UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 训练重置开始"));
+	for (AFighterCharacter* Fighter : {PlayerFighter.Get(), OpponentFighter.Get()})
+	{
+		if (Fighter != nullptr)
+		{
+			Fighter->ResetToInitialState();
+		}
+	}
+
+	// 恢复目标分配与身份标识（6）
+	if (IsValid(PlayerFighter) && IsValid(OpponentFighter))
+	{
+		PlayerFighter->GetTargeting()->SetPreferredTarget(OpponentFighter);
+		OpponentFighter->GetTargeting()->SetPreferredTarget(PlayerFighter);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 训练重置完成"));
+}
+
+void ATrainingGameMode::JJKOpponentAttack()
+{
+	if (OpponentFighter == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TrainingGM] 对手未生成"));
+		return;
+	}
+	// 调试对手走同一共享请求入口（M2.1）：合法性与玩家完全一致
+	OpponentFighter->GetCombatInput()->SubmitLightAttack();
+}
+
+void ATrainingGameMode::JJKDebugHud()
+{
+	ToggleDebugHud();
+	UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 调试 HUD = %d"), bDebugHud ? 1 : 0);
 }

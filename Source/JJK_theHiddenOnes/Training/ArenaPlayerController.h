@@ -28,7 +28,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
 	TObjectPtr<UInputAction> RecenterCameraAction;
 
+	/** 攻击（左键）：按下建立会话，松开按轻重阈值提交（M2.1） */
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
+	TObjectPtr<UInputAction> AttackAction;
+
 	virtual void SetupInputComponent() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	/** 锁定/解除切换；有目标则解除，否则锁定最优对手 */
 	UFUNCTION(BlueprintCallable, Category = "Training|Targeting")
@@ -51,6 +56,11 @@ protected:
 private:
 	void HandleLockInput();
 	void HandleRecenterInput();
+	void HandleAttackPressed();
+	void HandleAttackReleased();
+
+	/** 应用失焦：清攻击会话，恢复后要求重新按下（08 第 4.2 节） */
+	void HandleAppActivationChanged(bool bActive);
 
 	/** 调试：打印双方 GAS 状态（Owner/Avatar/数值/初始化次数） */
 	UFUNCTION(Exec, Category = "Training|Debug")

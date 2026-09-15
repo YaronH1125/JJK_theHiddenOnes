@@ -6,8 +6,10 @@
 #include "Engine/DataAsset.h"
 #include "FighterDefinition.generated.h"
 
+class UAttackDefinition;
 class UGameplayAbility;
 class UMaterialInterface;
+class UMeleeComboAbility;
 
 /**
  * 最小角色定义（02_架构设计.md 第 9 节）：只保存配置。
@@ -20,6 +22,8 @@ class UFighterDefinition : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	UFighterDefinition();
+
 	/** 调试与训练面板显示用 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Display")
 	FText DisplayName;
@@ -59,4 +63,12 @@ public:
 	/** 初始授予能力；M1 保持为空，授予具备防重复保护 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
+
+	/** M2 普攻能力类（共享动作请求入口按此激活）；默认 MeleeCombo 单段原型 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TSubclassOf<UGameplayAbility> MeleeAttackAbility;
+
+	/** M2 单段攻击配置（动画、命中段、伤害、轨迹参数） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TObjectPtr<UAttackDefinition> AttackDefinition;
 };

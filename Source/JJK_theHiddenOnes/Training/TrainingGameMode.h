@@ -81,7 +81,31 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Training")
 	void EnsureFightersSpawned();
 
+	/**
+	 * 训练重置（M2.6）：停请求 → 取消能力 → 清临时/事件 → 复位双方 →
+	 * 恢复属性与命中统计 → 恢复目标与模式。供调试入口与后续训练面板复用。
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Training")
+	void ResetTraining();
+
+	/** 调试：对手经共享请求入口提交一段轻拳（合法性与玩家一致） */
+	UFUNCTION(Exec, Category = "Training|Debug")
+	void JJKOpponentAttack();
+
+	/** 调试：开关战斗 HUD（请求结果/阶段/标签/实例/命中/生命） */
+	UFUNCTION(Exec, Category = "Training|Debug")
+	void JJKDebugHud();
+
 protected:
+	virtual void StartPlay() override;
+	virtual void RestartPlayer(AController* NewPlayer) override;
+	virtual void Tick(float DeltaSeconds) override;
+
+	void DrawCombatDebug() const;
+
+	/** 调试 HUD 显隐 */
+	bool bDebugHud = false;
+
 	AFighterCharacter* SpawnFighter(EFighterRole InRole, const FTransform& GroundTransform);
 
 	/** 按地面变换与胶囊半高计算角色中心出生变换 */

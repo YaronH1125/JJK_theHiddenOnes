@@ -5,6 +5,8 @@
 #include "EnhancedInputComponent.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Engine/World.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Training/CombatInputComponent.h"
 #include "Training/FighterCharacter.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
@@ -18,6 +20,33 @@ void AArenaPlayerController::BeginPlay()
 	{
 		PlayerCameraManager->ViewPitchMin = -65.f;
 		PlayerCameraManager->ViewPitchMax = 65.f;
+	}
+
+	// 失焦清会话：恢复后要求重新按下（08 第 4.2 节）
+	FSlateApplication::Get().OnApplicationActivationChangedEvent().AddUObject(
+		this, &AArenaPlayerController::HandleAppActivationChanged);
+}
+
+void AArenaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().OnApplicationActivationChangedEvent().RemoveAll(this);
+	}
+	Super::EndPlay(EndPlayReason);
+}
+
+void AArenaPlayerController::HandleAppActivationChanged(bool bActive)
+{
+	if (!bActive)
+	{
+		if (AFighterCharacter* Fighter = GetPlayerFighter())
+		{
+			if (UCombatInputComponent* Input = Fighter->GetCombatInput())
+			{
+				Input->InvalidateSession(FText::FromString(TEXT("应用失焦")));
+			}
+		}
 	}
 }
 
@@ -34,6 +63,11 @@ void AArenaPlayerController::SetupInputComponent()
 		if (RecenterCameraAction != nullptr)
 		{
 			EnhancedInputComponent->BindAction(RecenterCameraAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleRecenterInput);
+		}
+		if (AttackAction != nullptr)
+		{
+			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleAttackPressed);
+			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AArenaPlayerController::HandleAttackReleased);
 		}
 	}
 }
@@ -62,6 +96,28 @@ void AArenaPlayerController::HandleLockInput()
 void AArenaPlayerController::HandleRecenterInput()
 {
 	RecenterCameraToTarget();
+}
+
+void AArenaPlayerController::HandleAttackPressed()
+{
+	if (AFighterCharacter* Fighter = GetPlayerFighter())
+	{
+		if (UCombatInputComponent* Input = Fighter->GetCombatInput())
+		{
+			Input->NotifyAttackPressed();
+		}
+	}
+}
+
+void AArenaPlayerController::HandleAttackReleased()
+{
+	if (AFighterCharacter* Fighter = GetPlayerFighter())
+	{
+		if (UCombatInputComponent* Input = Fighter->GetCombatInput())
+		{
+			Input->NotifyAttackReleased();
+		}
+	}
 }
 
 void AArenaPlayerController::ToggleLock()
@@ -168,14 +224,8 @@ void AArenaPlayerController::JJKResetFighters()
 	{
 		return;
 	}
-	if (AFighterCharacter* P1Fighter = GM->GetPlayerFighter())
-	{
-		P1Fighter->ResetToInitialState();
-	}
-	if (AFighterCharacter* Opponent = GM->GetOpponentFighter())
-	{
-		Opponent->ResetToInitialState();
-	}
+	// 统一走 GameMode 训练重置序列（停请求→取消能力→清临时→复位→恢复→目标/模式）
+	GM->ResetTraining();
 	UE_LOG(LogTemp, Log, TEXT("[JJKResetFighters] 双方已重置"));
 	JJKFighters();
 }

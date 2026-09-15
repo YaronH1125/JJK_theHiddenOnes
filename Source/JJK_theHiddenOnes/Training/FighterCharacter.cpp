@@ -15,9 +15,14 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 #include "GameplayAbilitySpec.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
+#include "Training/AttackDefinition.h"
+#include "Training/CombatHitComponent.h"
+#include "Training/CombatInputComponent.h"
+#include "Training/CombatTypes.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
 #include "Training/FighterDefinition.h"
+#include "Training/MeleeComboAbility.h"
 #include "Training/TargetingComponent.h"
 
 AFighterCharacter::AFighterCharacter()
@@ -28,6 +33,10 @@ AFighterCharacter::AFighterCharacter()
 	AttributeSet = CreateDefaultSubobject<UFighterAttributeSet>(TEXT("AttributeSet"));
 
 	Targeting = CreateDefaultSubobject<UTargetingComponent>(TEXT("Targeting"));
+
+	CombatInput = CreateDefaultSubobject<UCombatInputComponent>(TEXT("CombatInput"));
+	CombatHit = CreateDefaultSubobject<UCombatHitComponent>(TEXT("CombatHit"));
+
 	// 无控制器的静止对手仍需落地、保持移动物理与动画更新。
 	GetCharacterMovement()->bRunPhysicsWithNoController = true;
 }
@@ -52,11 +61,167 @@ void AFighterCharacter::BeginPlay()
 	InitializeFromDefinition();
 	AddDefaultMappingContext();
 
+	// 生命变化监听：致死伤害进入延迟队列，与受击共用换血批次语义（M2.5）
+	if (AbilitySystem != nullptr && IsValid(AttributeSet))
+	{
+		AbilitySystem->GetGameplayAttributeValueChangeDelegate(UFighterAttributeSet::GetHealthAttribute())
+			.AddUObject(this, &AFighterCharacter::OnHealthChanged);
+	}
+
 	if (FighterRole != EFighterRole::Unassigned && InitialTransform.GetLocation().IsZero())
 	{
 		// GameMode 未记录时兜底保存当前变换
 		InitialTransform = GetActorTransform();
 	}
+}
+
+void AFighterCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// 受击/死亡事件在本角色自身 Tick 开头处理：攻击方本帧已完成的接触仍属同一批次
+	ProcessCombatEvents();
+}
+
+bool AFighterCharacter::IsDead() const
+{
+	return bDead || (AbilitySystem != nullptr && AbilitySystem->HasMatchingGameplayTag(TAG_State_Dead));
+}
+
+TSubclassOf<UGameplayAbility> AFighterCharacter::GetMeleeAttackAbilityClass() const
+{
+	return Definition ? Definition->MeleeAttackAbility : TSubclassOf<UGameplayAbility>();
+}
+
+void AFighterCharacter::QueueCombatEvent(const FCombatEvent& Event)
+{
+	PendingCombatEvents.Push(Event);
+}
+
+void AFighterCharacter::ProcessCombatEvents()
+{
+	if (PendingCombatEvents.IsEmpty())
+	{
+		return;
+	}
+	TArray<FCombatEvent> EventsToProcess = MoveTemp(PendingCombatEvents);
+	PendingCombatEvents.Reset();
+
+	for (const FCombatEvent& Event : EventsToProcess)
+	{
+		if (Event.bLethal)
+		{
+			Die(Event.Instigator.Get());
+		}
+		else
+		{
+			ApplyHitReactNow(Event.StunDuration, Event.Instigator.Get(), Event.HitLocation);
+		}
+	}
+}
+
+void AFighterCharacter::ApplyHitReactNow(float StunDuration, AActor* Instigator, const FVector& HitLocation)
+{
+	if (IsDead())
+	{
+		return;
+	}
+
+	LastHitLocation = HitLocation;
+	LastHitInstigator = Instigator;
+
+	// State.HitStun：硬直期内拒绝新动作请求（请求入口与能力激活双重检查）
+	if (AbilitySystem != nullptr)
+	{
+		AbilitySystem->AddLooseGameTag(TAG_State_HitStun);
+	}
+	if (GetWorld() != nullptr && StunDuration > 0.f)
+	{
+		GetWorldTimerManager().SetTimer(HitStunTimerHandle, this,
+			&AFighterCharacter::RemoveHitStun, FMath::Max(StunDuration, 0.01f), false);
+	}
+
+	// 受击打断攻击：按能力标签取消活动攻击（GA EndAbility 关窗清状态）
+	if (AbilitySystem != nullptr)
+	{
+		FGameplayTagContainer CancelTags;
+		CancelTags.AddTag(TAG_Ability_MeleeAttack);
+		AbilitySystem->CancelAbilities(&CancelTags);
+	}
+
+	CombatInput->InvalidateSession(FText::FromString(TEXT("受击中断")));
+
+	if (UAnimMontage* ReactMontage = Definition && Definition->AttackDefinition
+		? Definition->AttackDefinition->HitReactMontage.LoadSynchronous()
+		: nullptr)
+	{
+		GetMesh()->PlayAnimMontage(ReactMontage);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 受击硬直 %.2fs（来源 %s）"),
+		*GetName(), StunDuration, *GetNameSafe(Instigator));
+}
+
+void AFighterCharacter::RemoveHitStun()
+{
+	if (AbilitySystem != nullptr)
+	{
+		AbilitySystem->RemoveLooseGameTag(TAG_State_HitStun);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 硬直结束，恢复行动"), *GetName());
+}
+
+void AFighterCharacter::Die(AActor* Instigator)
+{
+	if (bDead)
+	{
+		return;
+	}
+	bDead = true;
+
+	if (AbilitySystem != nullptr)
+	{
+		AbilitySystem->AddLooseGameTag(TAG_State_Dead);
+		AbilitySystem->RemoveLooseGameTag(TAG_State_HitStun);
+		GetWorldTimerManager().ClearTimer(HitStunTimerHandle);
+
+		// 死亡取消一切战斗行为；等待调试重置（M2.4 最小死亡处理）
+		FGameplayTagContainer CancelTags;
+		CancelTags.AddTag(TAG_Ability_MeleeAttack);
+		AbilitySystem->CancelAbilities(&CancelTags);
+	}
+
+	CombatInput->InvalidateSession(FText::FromString(TEXT("死亡")));
+	CombatHit->EndAttack();
+	GetCharacterMovement()->StopMovementImmediately();
+
+	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 死亡（来源 %s），禁止新动作，等待训练重置"),
+		*GetName(), *GetNameSafe(Instigator));
+}
+
+void AFighterCharacter::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	if (Data.NewValue <= 0.f && !IsDead())
+	{
+		// 致死伤害与受击同批次语义：进入自身队列，下一 Tick 统一死亡处理
+		FCombatEvent Event;
+		Event.bLethal = true;
+		Event.Instigator = LastHitInstigator;
+		Event.HitLocation = LastHitLocation;
+		QueueCombatEvent(Event);
+	}
+}
+
+void AFighterCharacter::JJKDebugForceHitReact()
+{
+	// 明确标记的异常注入：直接命中事件，不入正常检测统计
+	FCombatEvent Event;
+	Event.bLethal = false;
+	Event.StunDuration = Definition && Definition->AttackDefinition ? Definition->AttackDefinition->HitStunDuration : 0.5f;
+	Event.Instigator = nullptr;
+	Event.HitLocation = GetActorLocation();
+	QueueCombatEvent(Event);
+	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 调试注入受击（绕过检测窗口，异常注入标记）"), *GetName());
 }
 
 void AFighterCharacter::PossessedBy(AController* NewController)
@@ -201,6 +366,24 @@ void AFighterCharacter::AddDefaultMappingContext() const
 
 void AFighterCharacter::ResetToInitialState()
 {
+	// 训练重置（M2.6 顺序：停请求 → 取消能力 → 清临时 → 复位 → 恢复属性）：
+	// 已授予能力不重复授予；本函数可从任意战斗状态安全重入
+	CombatInput->InvalidateSession(FText::FromString(TEXT("训练重置")));
+	CombatHit->EndAttack();
+	PendingCombatEvents.Reset();
+
+	bDead = false;
+	GetWorldTimerManager().ClearTimer(HitStunTimerHandle);
+	if (AbilitySystem != nullptr)
+	{
+		FGameplayTagContainer CancelTags;
+		CancelTags.AddTag(TAG_Ability_MeleeAttack);
+		AbilitySystem->CancelAbilities(&CancelTags);
+		AbilitySystem->RemoveLooseGameTag(TAG_State_Dead);
+		AbilitySystem->RemoveLooseGameTag(TAG_State_HitStun);
+		AbilitySystem->RemoveLooseGameTag(TAG_State_Attacking);
+	}
+
 	// 训练重置的属性恢复同样走集中入口；位置与速度由本函数恢复
 	if (Definition != nullptr)
 	{
