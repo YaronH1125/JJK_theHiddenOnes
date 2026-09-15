@@ -97,8 +97,6 @@ public:
 	void JJKDebugHud();
 
 protected:
-	virtual void StartPlay() override;
-	virtual void RestartPlayer(AController* NewPlayer) override;
 	virtual void Tick(float DeltaSeconds) override;
 
 	void DrawCombatDebug() const;

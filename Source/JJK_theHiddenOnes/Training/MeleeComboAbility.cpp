@@ -3,10 +3,12 @@
 #include "Training/MeleeComboAbility.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "AbilitySystemComponent.h"
 #include "Animation/AnimSequenceBase.h"
 #include "Training/AttackDefinition.h"
 #include "Training/CombatHitComponent.h"
 #include "Training/CombatTypes.h"
+#include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
 
@@ -57,7 +59,7 @@ void UMeleeComboAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	Fighter->GetCombatHit()->SetPhase(EAttackPhase::Windup);
 
 	// State.Attacking：唯一管理者为 ASC 标签（02_架构设计.md 第 4 节）；与 EndAbility 成对清理
-	Fighter->GetFighterAbilitySystemComponent()->AddLooseGameTag(TAG_State_Attacking);
+	Fighter->GetFighterAbilitySystemComponent()->AddLooseGameplayTag(TAG_State_Attacking);
 	bAttackTagApplied = true;
 
 	UAnimMontage* Montage = Definition->Montage.LoadSynchronous();
@@ -155,7 +157,7 @@ void UMeleeComboAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		{
 			if (UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent())
 			{
-				ASC->RemoveLooseGameTag(TAG_State_Attacking);
+				ASC->RemoveLooseGameplayTag(TAG_State_Attacking);
 			}
 			bAttackTagApplied = false;
 		}

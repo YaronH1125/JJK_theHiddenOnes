@@ -3,9 +3,12 @@
 #include "Training/CombatHitComponent.h"
 
 #include "AbilitySystemComponent.h"
+#include "Engine/OverlapResult.h"
 #include "Engine/World.h"
+#include "Training/AttackDefinition.h"
 #include "Training/CombatTypes.h"
 #include "Training/DamageGameplayEffect.h"
+#include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
 #include "Training/FighterCharacter.h"
 

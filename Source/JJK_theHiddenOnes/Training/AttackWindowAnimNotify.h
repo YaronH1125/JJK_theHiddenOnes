@@ -19,7 +19,7 @@ class UAnimNotify_AttackWindowOpen : public UAnimNotify
 	GENERATED_BODY()
 
 public:
-	virtual bool Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) const override;
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };
 
 /** 命中窗口关闭通知 */
@@ -29,5 +29,5 @@ class UAnimNotify_AttackWindowClose : public UAnimNotify
 	GENERATED_BODY()
 
 public:
-	virtual bool Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) const override;
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

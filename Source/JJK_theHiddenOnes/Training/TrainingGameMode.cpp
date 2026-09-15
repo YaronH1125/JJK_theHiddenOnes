@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "Training/ArenaPlayerController.h"
+#include "Training/FighterAbilitySystemComponent.h"
 #include "Training/CombatHitComponent.h"
 #include "Training/CombatInputComponent.h"
 #include "Training/CombatTypes.h"
@@ -49,7 +50,7 @@ void ATrainingGameMode::DrawCombatDebug() const
 	{
 		if (Fighter == nullptr)
 		{
-			GEngine->AddOnScreenDebugMessage(100 + Line++, 0.f, FColor::Gray,
+			GEngine->AddOnScreenDebugMessage(100 + Line++, 0.f, FColor::Silver,
 				FString::Printf(TEXT("%s: 未生成"), Label));
 			return;
 		}
@@ -251,6 +252,6 @@ void ATrainingGameMode::JJKOpponentAttack()
 
 void ATrainingGameMode::JJKDebugHud()
 {
-	ToggleDebugHud();
+	bDebugHud = !bDebugHud;
 	UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 调试 HUD = %d"), bDebugHud ? 1 : 0);
 }

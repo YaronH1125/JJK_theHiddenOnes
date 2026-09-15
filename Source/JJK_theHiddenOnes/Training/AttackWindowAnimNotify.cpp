@@ -21,20 +21,18 @@ namespace
 	}
 }
 
-bool UAnimNotify_AttackWindowOpen::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) const
+void UAnimNotify_AttackWindowOpen::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	if (UCombatHitComponent* Hit = FindCombatHit(MeshComp))
 	{
 		Hit->HandleAnimWindowNotify(true, Animation);
 	}
-	return false;
 }
 
-bool UAnimNotify_AttackWindowClose::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) const
+void UAnimNotify_AttackWindowClose::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	if (UCombatHitComponent* Hit = FindCombatHit(MeshComp))
 	{
 		Hit->HandleAnimWindowNotify(false, Animation);
 	}
-	return false;
 }

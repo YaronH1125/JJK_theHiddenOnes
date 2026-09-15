@@ -23,7 +23,7 @@ void AArenaPlayerController::BeginPlay()
 	}
 
 	// 失焦清会话：恢复后要求重新按下（08 第 4.2 节）
-	FSlateApplication::Get().OnApplicationActivationChangedEvent().AddUObject(
+	FSlateApplication::Get().OnApplicationActivationStateChanged().AddUObject(
 		this, &AArenaPlayerController::HandleAppActivationChanged);
 }
 
@@ -31,7 +31,7 @@ void AArenaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (FSlateApplication::IsInitialized())
 	{
-		FSlateApplication::Get().OnApplicationActivationChangedEvent().RemoveAll(this);
+		FSlateApplication::Get().OnApplicationActivationStateChanged().RemoveAll(this);
 	}
 	Super::EndPlay(EndPlayReason);
 }

@@ -47,6 +47,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Fighter")
 	TObjectPtr<UFighterDefinition> Definition;
 
+	UFUNCTION(BlueprintPure, Category = "Fighter")
+	UFighterDefinition* GetDefinition() const { return Definition; }
+
 	/** 训练场身份（GameMode 分配） */
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	EFighterRole GetRole() const { return FighterRole; }

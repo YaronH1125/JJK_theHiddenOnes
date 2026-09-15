@@ -120,7 +120,7 @@ void AFighterCharacter::ProcessCombatEvents()
 	}
 }
 
-void AFighterCharacter::ApplyHitReactNow(float StunDuration, AActor* Instigator, const FVector& HitLocation)
+void AFighterCharacter::ApplyHitReactNow(float StunDuration, AActor* InInstigator, const FVector& HitLocation)
 {
 	if (IsDead())
 	{
@@ -128,12 +128,12 @@ void AFighterCharacter::ApplyHitReactNow(float StunDuration, AActor* Instigator,
 	}
 
 	LastHitLocation = HitLocation;
-	LastHitInstigator = Instigator;
+	LastHitInstigator = InInstigator;
 
 	// State.HitStun：硬直期内拒绝新动作请求（请求入口与能力激活双重检查）
 	if (AbilitySystem != nullptr)
 	{
-		AbilitySystem->AddLooseGameTag(TAG_State_HitStun);
+		AbilitySystem->AddLooseGameplayTag(TAG_State_HitStun);
 	}
 	if (GetWorld() != nullptr && StunDuration > 0.f)
 	{
@@ -155,23 +155,23 @@ void AFighterCharacter::ApplyHitReactNow(float StunDuration, AActor* Instigator,
 		? Definition->AttackDefinition->HitReactMontage.LoadSynchronous()
 		: nullptr)
 	{
-		GetMesh()->PlayAnimMontage(ReactMontage);
+		PlayAnimMontage(ReactMontage);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 受击硬直 %.2fs（来源 %s）"),
-		*GetName(), StunDuration, *GetNameSafe(Instigator));
+		*GetName(), StunDuration, *GetNameSafe(InInstigator));
 }
 
 void AFighterCharacter::RemoveHitStun()
 {
 	if (AbilitySystem != nullptr)
 	{
-		AbilitySystem->RemoveLooseGameTag(TAG_State_HitStun);
+		AbilitySystem->RemoveLooseGameplayTag(TAG_State_HitStun);
 	}
 	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 硬直结束，恢复行动"), *GetName());
 }
 
-void AFighterCharacter::Die(AActor* Instigator)
+void AFighterCharacter::Die(AActor* InInstigator)
 {
 	if (bDead)
 	{
@@ -181,8 +181,8 @@ void AFighterCharacter::Die(AActor* Instigator)
 
 	if (AbilitySystem != nullptr)
 	{
-		AbilitySystem->AddLooseGameTag(TAG_State_Dead);
-		AbilitySystem->RemoveLooseGameTag(TAG_State_HitStun);
+		AbilitySystem->AddLooseGameplayTag(TAG_State_Dead);
+		AbilitySystem->RemoveLooseGameplayTag(TAG_State_HitStun);
 		GetWorldTimerManager().ClearTimer(HitStunTimerHandle);
 
 		// 死亡取消一切战斗行为；等待调试重置（M2.4 最小死亡处理）
@@ -196,7 +196,7 @@ void AFighterCharacter::Die(AActor* Instigator)
 	GetCharacterMovement()->StopMovementImmediately();
 
 	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 死亡（来源 %s），禁止新动作，等待训练重置"),
-		*GetName(), *GetNameSafe(Instigator));
+		*GetName(), *GetNameSafe(InInstigator));
 }
 
 void AFighterCharacter::OnHealthChanged(const FOnAttributeChangeData& Data)
@@ -379,9 +379,9 @@ void AFighterCharacter::ResetToInitialState()
 		FGameplayTagContainer CancelTags;
 		CancelTags.AddTag(TAG_Ability_MeleeAttack);
 		AbilitySystem->CancelAbilities(&CancelTags);
-		AbilitySystem->RemoveLooseGameTag(TAG_State_Dead);
-		AbilitySystem->RemoveLooseGameTag(TAG_State_HitStun);
-		AbilitySystem->RemoveLooseGameTag(TAG_State_Attacking);
+		AbilitySystem->RemoveLooseGameplayTag(TAG_State_Dead);
+		AbilitySystem->RemoveLooseGameplayTag(TAG_State_HitStun);
+		AbilitySystem->RemoveLooseGameplayTag(TAG_State_Attacking);
 	}
 
 	// 训练重置的属性恢复同样走集中入口；位置与速度由本函数恢复
