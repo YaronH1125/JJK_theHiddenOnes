@@ -54,22 +54,24 @@ cyl = unreal.load_object(None, "/Engine/BasicShapes/Cylinder.Cylinder")
 cube = unreal.load_object(None, "/Engine/BasicShapes/Cube.Cube")
 
 # ---------- 2. 地面：半径 1200cm 圆柱，顶面 Z=0 ----------
-floor = spawn_from_object(cyl, (0, 0, -50), (0, 0, 0), (12, 12, 1), "ArenaFloor")
+floor = spawn_from_object(cyl, (0, 0, -50), (0, 0, 0), (24, 24, 1), "ArenaFloor")
 log(f"地面: {floor.get_actor_label()} 位置={floor.get_actor_location()}")
 
-# ---------- 3. 围墙：12 段立方体，环半径 640cm，高 200cm ----------
-wall_len = 2.0 * math.pi * 640.0 / 12.0
+# ---------- 3. 围墙：12 段相切立方体，中心半径 1150cm，高 250cm ----------
+wall_len = 2.0 * 1150.0 * math.tan(math.pi / 12.0) + 30.0
 for i in range(12):
     ang_deg = i * 30.0
     ang = math.radians(ang_deg)
-    cx = 640.0 * math.cos(ang)
-    cy = 640.0 * math.sin(ang)
-    w = spawn_from_object(cube, (cx, cy, 100), (0, 0, ang_deg), (wall_len / 100.0, 0.5, 2.0), f"ArenaWall_{i:02d}")
+    cx = 1150.0 * math.cos(ang)
+    cy = 1150.0 * math.sin(ang)
+    w = spawn_from_object(cube, (cx, cy, 125), (0, 0, ang_deg + 90), (wall_len / 100.0, 0.5, 2.5), f"ArenaWall_{i:02d}")
 log("12 段围墙生成完成")
 
 # ---------- 4. 出生标记（视觉参考；实际出生由 GameMode 配置决定） ----------
 spawn_from_class(unreal.PlayerStart, (-500, 0, 96), (0, 0, 0), "PlayerStart_P1")
 spawn_from_class(unreal.PlayerStart, (500, 0, 96), (0, 0, 180), "PlayerStart_P2")
+for marker in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.PlayerStart):
+    marker.get_editor_property('root_component').set_collision_profile_name('NoCollision')
 
 # ---------- 5. 基础灯光与天空 ----------
 spawn_from_class(unreal.DirectionalLight, (0, 0, 500), (0, -45, 0), "SunLight")

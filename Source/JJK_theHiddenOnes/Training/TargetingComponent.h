@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJJKOnTargetInvalidated);
 /**
  * 目标选择与验证（02_架构设计.md 第 2 节）：仅负责目标身份、距离/有效性检查。
  * 不逐帧驱动镜头；辅助回正由 ArenaPlayerController 按输入触发。
- * 本组件不使用 Tick：有效性在查询与锁定时验证，目标销毁通过 OnDestroyed 通知。
+ * 仅有锁定目标时启用 Tick 检查距离；不写入任何镜头或角色旋转。
  */
 UCLASS(ClassGroup = (JJK), meta = (BlueprintSpawnableComponent))
 class UTargetingComponent : public UActorComponent
@@ -55,7 +55,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Targeting")
 	AFighterCharacter* GetCurrentTarget() const;
 
-	/** 当前目标是否有效（存在且未销毁） */
+	/** 当前目标是否有效（存在、未销毁、非自身且仍在锁定范围内） */
 	UFUNCTION(BlueprintPure, Category = "Targeting")
 	bool IsTargetValid() const;
 
@@ -73,10 +73,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	AFighterCharacter* GetOwnerFighter() const;
 	AFighterCharacter* FindBestTarget() const;
+	UFUNCTION()
 	void HandleTargetDestroyed(AActor* DestroyedActor);
+	void ClearTargetInternal(bool bInvalidated);
+	bool bHasTarget = false;
 
 	/** 当前锁定目标 */
 	TWeakObjectPtr<AFighterCharacter> CurrentTarget;

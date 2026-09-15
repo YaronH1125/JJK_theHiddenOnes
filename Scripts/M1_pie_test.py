@@ -22,12 +22,9 @@ def get_fighters(world):
     return unreal.GameplayStatics.get_all_actors_of_class(world, unreal.FighterCharacter)
 
 
-def read_health(attr_set):
-    data = attr_set.get_editor_property("health")
-    try:
-        return data.get_editor_property("current_value")
-    except Exception:
-        return -1.0
+def read_health(fighter):
+    values = unreal.get_default_object(unreal.AbilitySystemInspectorToolset).call_method('GetAttributeValues', (fighter,))
+    return next(v.current_value for v in values if v.attribute_name == 'Health')
 
 
 def main():
@@ -48,7 +45,7 @@ def main():
         for f in fighters:
             attr = f.get_editor_property("attribute_set")
             log(f"{f.get_name()} 位置={f.get_actor_location()} 朝向={f.get_actor_rotation()} "
-                f"Health={read_health(attr)} 初始化完成={f.is_stats_initialized()}")
+                f"Health={read_health(f)} 初始化次数={f.get_stats_init_count()}")
 
     elif step == "move":
         f = unreal.GameplayStatics.get_player_pawn(world, 0)
@@ -68,25 +65,22 @@ def main():
     elif step == "stats_read":
         for f in fighters:
             attr = f.get_editor_property("attribute_set")
-            log(f"{f.get_name()} Health={read_health(attr)}")
+            log(f"{f.get_name()} Health={read_health(f)}")
 
     elif step == "modify_p1":
-        # T07 隔离检查：只改玩家一方生命
-        target = None
-        for f in fighters:
-            if str(f.get_editor_property("fighter_role")) == "Player":
-                target = f
-                break
+        # T07 隔离检查：使用临时角色配置走集中重置，不改共享 DA。
+        target = pc.get_player_fighter()
         if target is None:
             log("未找到玩家角色")
             return
-        attr = target.get_editor_property("attribute_set")
-        h = attr.get_editor_property("health")
-        h.set_editor_property("current_value", 500.0)
-        h.set_editor_property("base_value", 500.0)
-        attr.set_editor_property("health", h)
+        original = target.definition
+        debug_definition = unreal.FighterDefinition()
+        debug_definition.set_editor_property('initial_health', 500)
+        target.set_editor_property('definition', debug_definition)
+        target.reset_to_initial_state()
+        target.set_editor_property('definition', original)
         for f in fighters:
-            log(f"{f.get_name()} Health={read_health(f.get_editor_property('attribute_set'))}")
+            log(f"{f.get_name()} Health={read_health(f)}")
 
     elif step == "lock":
         pc.toggle_lock()
@@ -98,10 +92,16 @@ def main():
         pc.toggle_lock()
 
     elif step == "kill":
-        pc.jjk_kill_target()
+        pc.call_method('JJKKillTarget')
 
     elif step == "reinit":
-        pc.jjk_reinit_fighters()
+        pc.call_method('JJKReinitFighters')
+
+    elif step == 'respawn':
+        pc.call_method('JJKRespawnFighters')
+
+    elif step == 'reset':
+        pc.call_method('JJKResetFighters')
 
     else:
         log(f"未知步骤 {step}")

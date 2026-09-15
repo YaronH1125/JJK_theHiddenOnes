@@ -45,6 +45,7 @@ public:
 	ATrainingGameMode* GetTrainingGameMode() const;
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 
 private:
@@ -66,4 +67,8 @@ private:
 	/** 调试：销毁当前目标（或未锁定时的对手），验证失效安全解除与重新分配 */
 	UFUNCTION(Exec, Category = "Training|Debug")
 	void JJKKillTarget();
+
+	/** 补齐已销毁的角色并重新分配目标。 */
+	UFUNCTION(Exec, Category = "Training|Debug")
+	void JJKRespawnFighters();
 };

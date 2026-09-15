@@ -59,6 +59,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Training")
 	EOpponentMode OpponentMode = EOpponentMode::Static;
 
+	/** 玩家身份标识颜色 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Training")
+	FLinearColor PlayerMarkerColor = FLinearColor(0.2f, 0.6f, 1.0f, 1.0f);
+
+	/** 对手身份标识颜色 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Training")
+	FLinearColor OpponentMarkerColor = FLinearColor(1.0f, 0.35f, 0.2f, 1.0f);
+
 	UFUNCTION(BlueprintPure, Category = "Training")
 	AFighterCharacter* GetPlayerFighter() const { return PlayerFighter; }
 
@@ -69,10 +77,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Training")
 	AFighterCharacter* GetOpponentOf(const AFighterCharacter* Fighter) const;
 
-protected:
 	/** 生成双方（幂等）；并记录初始变换、分配身份与首选目标 */
+	UFUNCTION(BlueprintCallable, Category = "Training")
 	void EnsureFightersSpawned();
 
+protected:
 	AFighterCharacter* SpawnFighter(EFighterRole InRole, const FTransform& GroundTransform);
 
 	/** 按地面变换与胶囊半高计算角色中心出生变换 */

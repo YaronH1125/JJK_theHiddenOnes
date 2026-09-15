@@ -14,7 +14,7 @@ void UFighterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		const float Max = FMath::Max(GetMaxHealth(), 0.f);
-		SetHealth(FMath::Clamp(Data.EvaluatedData.Magnitude, 0.f, Max));
+		SetHealth(FMath::Clamp(GetHealth(), 0.f, Max));
 	}
 }
 

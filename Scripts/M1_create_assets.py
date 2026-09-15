@@ -115,7 +115,8 @@ def make_key(name):
 
 
 try:
-    mappings = list(imc.get_editor_property("mappings"))
+    mapping_data = imc.get_editor_property("default_key_mappings")
+    mappings = list(mapping_data.get_editor_property("mappings"))
     have = {m.get_editor_property("action").get_path_name() for m in mappings if m.get_editor_property("action")}
     for action_obj, key_name in [(ia_lock_obj, "MiddleMouseButton"), (ia_recenter_obj, "C")]:
         if action_obj.get_path_name() in have:
@@ -126,7 +127,12 @@ try:
         m.set_editor_property("key", make_key(key_name))
         mappings.append(m)
         log(f"追加映射 {key_name} -> {action_obj.get_name()}")
-    imc.set_editor_property("mappings", mappings)
+    mouse_imc = EAL.load_asset('/Game/Input/IMC_MouseLook')
+    for mouse_mapping in mouse_imc.get_editor_property('default_key_mappings').mappings:
+        if mouse_mapping.action.get_path_name() not in have:
+            mappings.append(mouse_mapping)
+    mapping_data.set_editor_property("mappings", mappings)
+    imc.set_editor_property("default_key_mappings", mapping_data)
     EAL.save_asset(imc_path)
 except Exception as e:
     log_warn(f"IMC 映射写入失败: {e}")
@@ -138,6 +144,9 @@ def cdo_of(bp):
 
 try:
     da.set_editor_property("marker_overlay_material", mat)
+    mat.set_editor_property('used_with_skeletal_mesh', True)
+    unreal.MaterialEditingLibrary.recompile_material(mat)
+    assert EAL.save_loaded_asset(mat, only_if_is_dirty=False)
     EAL.save_asset(da_path)
     log("DA 覆盖材质已设置")
 
@@ -151,6 +160,8 @@ try:
     my_mesh = cdo.get_editor_property("mesh")
     my_mesh.set_editor_property("skeletal_mesh", tpc_mesh.get_editor_property("skeletal_mesh"))
     my_mesh.set_editor_property("anim_class", tpc_mesh.get_editor_property("anim_class"))
+    for prop in ["relative_location", "relative_rotation", "relative_scale3d"]:
+        my_mesh.set_editor_property(prop, tpc_mesh.get_editor_property(prop))
 
     for src in ["jump_action", "move_action", "look_action", "mouse_look_action"]:
         try:
@@ -161,13 +172,16 @@ try:
     cdo_gm = cdo_of(bp_gm)
     cdo_gm.set_editor_property("fighter_class", bp_fighter.generated_class())
     cdo_gm.set_editor_property("fighter_definition", da)
+    cdo_gm.set_editor_property("player_controller_class", bp_pc.generated_class())
+    cdo_gm.set_editor_property("default_pawn_class", None)
 
     cdo_pc = cdo_of(bp_pc)
     cdo_pc.set_editor_property("lock_target_action", ia_lock_obj)
     cdo_pc.set_editor_property("recenter_camera_action", ia_recenter_obj)
 
     for bp in [bp_fighter, bp_gm, bp_pc]:
-        EAL.save_asset(bp.get_path_name())
+        unreal.BlueprintEditorLibrary.compile_blueprint(bp)
+        assert EAL.save_loaded_asset(bp, only_if_is_dirty=False)
     log("BP CDO 属性配置完成并保存")
 except Exception as e:
     log_warn(f"BP 配置失败: {e}")

@@ -9,12 +9,9 @@ try:
     log(f"game_world={w}")
 except Exception as e:
     log(f"USS failed: {e}")
-try:
-    w2 = unreal.EditorLevelLibrary.get_game_world()
-    log(f"ELL game_world={w2}")
-except Exception as e:
-    log(f"ELL failed: {e}")
-try:
-    log(f"PIE running={unreal.EditorLevelLibrary.is_in_play_in_editor()}")
-except Exception as e:
-    log(f"ELL pie check failed: {e}")
+log(f"PIE running={w is not None}")
+if w:
+    fighters = unreal.GameplayStatics.get_all_actors_of_class(w, unreal.FighterCharacter)
+    log(f"fighter_count={len(fighters)}")
+    for fighter in fighters:
+        log(f"{fighter.get_name()} position={fighter.get_actor_location()} init_count={fighter.get_stats_init_count()}")

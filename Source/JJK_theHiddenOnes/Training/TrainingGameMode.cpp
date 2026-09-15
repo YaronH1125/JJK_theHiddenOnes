@@ -4,6 +4,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
+#include "Training/ArenaPlayerController.h"
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
 #include "Training/TargetingComponent.h"
@@ -13,6 +14,10 @@ ATrainingGameMode::ATrainingGameMode()
 	// 擂台默认出生配置：24m 擂台上 P1(-500,0) 朝 +X，P2(500,0) 朝 -X（07_擂台与视觉参考.md）
 	PlayerSpawnGroundTransform = FTransform(FRotator(0.f, 0.f, 0.f), FVector(-500.f, 0.f, 0.f));
 	OpponentSpawnGroundTransform = FTransform(FRotator(0.f, 180.f, 0.f), FVector(500.f, 0.f, 0.f));
+
+	// 玩家控制器使用训练场实现（锁定/回正输入语义与调试命令）
+	PlayerControllerClass = AArenaPlayerController::StaticClass();
+	DefaultPawnClass = nullptr;
 }
 
 void ATrainingGameMode::StartPlay()
@@ -50,7 +55,7 @@ void ATrainingGameMode::RestartPlayer(AController* NewPlayer)
 
 void ATrainingGameMode::EnsureFightersSpawned()
 {
-	if (PlayerFighter != nullptr && OpponentFighter != nullptr)
+	if (IsValid(PlayerFighter) && IsValid(OpponentFighter))
 	{
 		return;
 	}
@@ -61,11 +66,11 @@ void ATrainingGameMode::EnsureFightersSpawned()
 		return;
 	}
 
-	if (PlayerFighter == nullptr)
+	if (!IsValid(PlayerFighter))
 	{
 		PlayerFighter = SpawnFighter(EFighterRole::Player, PlayerSpawnGroundTransform);
 	}
-	if (OpponentFighter == nullptr)
+	if (!IsValid(OpponentFighter))
 	{
 		OpponentFighter = SpawnFighter(EFighterRole::Opponent, OpponentSpawnGroundTransform);
 	}
@@ -75,6 +80,10 @@ void ATrainingGameMode::EnsureFightersSpawned()
 		// 分配身份对应的首选目标；是否锁定仍由玩家手动触发
 		PlayerFighter->GetTargeting()->SetPreferredTarget(OpponentFighter);
 		OpponentFighter->GetTargeting()->SetPreferredTarget(PlayerFighter);
+
+		// 训练场身份颜色（角色定义仍是双方共享配置）
+		PlayerFighter->SetMarkerColor(PlayerMarkerColor);
+		OpponentFighter->SetMarkerColor(OpponentMarkerColor);
 
 		UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 双方已生成：P1=%s P2=%s 模式=%s"),
 			*GetNameSafe(PlayerFighter), *GetNameSafe(OpponentFighter),
@@ -93,6 +102,9 @@ AFighterCharacter* ATrainingGameMode::SpawnFighter(EFighterRole InRole, const FT
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	Params.Name = InRole == EFighterRole::Player ? TEXT("Fighter_P1") : TEXT("Fighter_P2");
+	// 已销毁对象可能尚未 GC；身份不依赖 UObject 名，重生允许唯一后缀。
+	Params.NameMode = FActorSpawnParameters::ESpawnActorNameMode::Requested;
+	Params.bDeferConstruction = true;
 
 	AFighterCharacter* Fighter = World->SpawnActor<AFighterCharacter>(FighterClass, ResolveSpawnTransform(GroundTransform), Params);
 	if (Fighter == nullptr)
@@ -102,11 +114,18 @@ AFighterCharacter* ATrainingGameMode::SpawnFighter(EFighterRole InRole, const FT
 	}
 
 	Fighter->SetRole(InRole);
-	Fighter->RecordInitialTransform(Fighter->GetActorTransform());
-	if (Fighter->Definition == nullptr)
+	if (FighterDefinition != nullptr)
 	{
 		Fighter->Definition = FighterDefinition;
 	}
+	// 配置、身份与静止模式必须先于 Construction/BeginPlay 初始化。
+	if (InRole == EFighterRole::Opponent && OpponentMode == EOpponentMode::Static)
+	{
+		Fighter->AutoPossessAI = EAutoPossessAI::Disabled;
+		Fighter->AutoPossessPlayer = EAutoReceiveInput::Disabled;
+	}
+	Fighter->FinishSpawning(Fighter->GetActorTransform());
+	Fighter->RecordInitialTransform(Fighter->GetActorTransform());
 
 	// 对手保持无控制器：木桩只停止主动决策，角色本体照常运行
 	if (InRole == EFighterRole::Opponent && OpponentMode == EOpponentMode::Static)

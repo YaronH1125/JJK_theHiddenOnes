@@ -8,7 +8,8 @@
 
 UTargetingComponent::UTargetingComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
 void UTargetingComponent::BeginPlay()
@@ -30,17 +31,26 @@ AFighterCharacter* UTargetingComponent::GetOwnerFighter() const
 
 void UTargetingComponent::HandleTargetDestroyed(AActor* DestroyedActor)
 {
-	if (CurrentTarget.IsValid() && DestroyedActor == CurrentTarget.Get())
+	if (bHasTarget && (!CurrentTarget.IsValid() || DestroyedActor == CurrentTarget.Get()))
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Targeting] %s 的目标 %s 已销毁，安全解除"), *GetNameSafe(GetOwner()), *GetNameSafe(DestroyedActor));
-		ClearTarget();
+		ClearTargetInternal(true);
+	}
+}
+
+void UTargetingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (bHasTarget && !IsFighterLockable(CurrentTarget.Get()))
+	{
+		ClearTargetInternal(true);
 	}
 }
 
 bool UTargetingComponent::IsFighterLockable(const AFighterCharacter* Candidate) const
 {
 	const AFighterCharacter* OwnerFighter = GetOwnerFighter();
-	if (Candidate == nullptr || Candidate == OwnerFighter)
+	if (!IsValid(OwnerFighter) || !IsValid(Candidate) || Candidate == OwnerFighter || Candidate->GetWorld() != GetWorld())
 	{
 		return false;
 	}
@@ -80,6 +90,8 @@ bool UTargetingComponent::LockTarget(AFighterCharacter* Candidate)
 	}
 
 	CurrentTarget = Candidate;
+	bHasTarget = true;
+	SetComponentTickEnabled(true);
 	Candidate->OnDestroyed.AddUniqueDynamic(this, &UTargetingComponent::HandleTargetDestroyed);
 
 	UE_LOG(LogTemp, Log, TEXT("[Targeting] %s 锁定 %s"), *GetNameSafe(GetOwner()), *GetNameSafe(Candidate));
@@ -122,27 +134,39 @@ bool UTargetingComponent::LockBestTarget()
 
 void UTargetingComponent::ClearTarget()
 {
+	ClearTargetInternal(false);
+}
+
+void UTargetingComponent::ClearTargetInternal(bool bInvalidated)
+{
 	AFighterCharacter* OldTarget = CurrentTarget.Get();
-	if (OldTarget == nullptr)
+	if (!bHasTarget)
 	{
 		return;
 	}
-	OldTarget->OnDestroyed.RemoveAll(this);
+	if (OldTarget != nullptr)
+	{
+		OldTarget->OnDestroyed.RemoveAll(this);
+	}
 	CurrentTarget = nullptr;
-	OnTargetInvalidated.Broadcast();
+	bHasTarget = false;
+	SetComponentTickEnabled(false);
+	if (bInvalidated)
+	{
+		OnTargetInvalidated.Broadcast();
+	}
 	OnTargetChanged.Broadcast(nullptr);
 	UE_LOG(LogTemp, Log, TEXT("[Targeting] %s 解除目标 %s"), *GetNameSafe(GetOwner()), *GetNameSafe(OldTarget));
 }
 
 AFighterCharacter* UTargetingComponent::GetCurrentTarget() const
 {
-	return CurrentTarget.Get();
+	return IsTargetValid() ? CurrentTarget.Get() : nullptr;
 }
 
 bool UTargetingComponent::IsTargetValid() const
 {
-	const AFighterCharacter* Target = CurrentTarget.Get();
-	return Target != nullptr && !Target->IsActorBeingDestroyed() && !Target->IsPendingKillPending();
+	return IsFighterLockable(CurrentTarget.Get());
 }
 
 void UTargetingComponent::SetPreferredTarget(AFighterCharacter* Candidate)

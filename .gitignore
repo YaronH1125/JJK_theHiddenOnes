@@ -18,3 +18,9 @@ Saved/
 # 系统杂项
 Thumbs.db
 Desktop.ini
+
+# 石流龙高模的可重建试导入（源 FBX 保留于旧工程；详见 M1 素材检查记录）
+Content/Training/ArtReview/
+
+# Python 工具缓存
+__pycache__/

@@ -71,6 +71,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	bool IsStatsInitialized() const { return StatsInitCount > 0; }
 
+	UFUNCTION(BlueprintPure, Category = "Fighter|GAS")
+	int32 GetStatsInitCount() const { return StatsInitCount; }
+
 	/** 生成时的初始变换，供训练重置使用 */
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	FTransform GetInitialTransform() const { return InitialTransform; }
@@ -78,10 +81,14 @@ public:
 	/** 由 GameMode 在生成时记录 */
 	void RecordInitialTransform(const FTransform& InTransform);
 
+	/** 训练场身份颜色覆盖（P1/P2 区分用）；未设置时用定义的 MarkerColor */
+	void SetMarkerColor(const FLinearColor& Color);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_Controller() override;
+	virtual void PawnClientRestart() override;
 
 	/** 更新 ASC ActorInfo；重新 Possess 时允许重复调用 */
 	void InitAbilityActorInfo();
@@ -114,6 +121,8 @@ protected:
 private:
 	UPROPERTY()
 	EFighterRole FighterRole = EFighterRole::Unassigned;
+
+	TOptional<FLinearColor> MarkerColorOverride;
 
 	FTransform InitialTransform;
 

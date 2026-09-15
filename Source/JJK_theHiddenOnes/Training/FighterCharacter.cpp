@@ -28,6 +28,8 @@ AFighterCharacter::AFighterCharacter()
 	AttributeSet = CreateDefaultSubobject<UFighterAttributeSet>(TEXT("AttributeSet"));
 
 	Targeting = CreateDefaultSubobject<UTargetingComponent>(TEXT("Targeting"));
+	// 无控制器的静止对手仍需落地、保持移动物理与动画更新。
+	GetCharacterMovement()->bRunPhysicsWithNoController = true;
 }
 
 UAbilitySystemComponent* AFighterCharacter::GetAbilitySystemComponent() const
@@ -70,6 +72,12 @@ void AFighterCharacter::OnRep_Controller()
 {
 	Super::OnRep_Controller();
 	InitAbilityActorInfo();
+}
+
+void AFighterCharacter::PawnClientRestart()
+{
+	Super::PawnClientRestart();
+	AddDefaultMappingContext();
 }
 
 void AFighterCharacter::InitAbilityActorInfo()
@@ -116,12 +124,12 @@ void AFighterCharacter::ApplyDefinitionStats()
 	const float Energy = FMath::Clamp(Definition->InitialEnergy, 0.f, MaxEnergy);
 
 	// 集中初始化入口：仅初始化/训练重置允许直接写基础值
-	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetHealthAttribute(), Health);
 	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetMaxHealthAttribute(), MaxHealth);
-	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetActionResourceAttribute(), Action);
+	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetHealthAttribute(), Health);
 	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetMaxActionResourceAttribute(), MaxAction);
-	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetEnergyAttribute(), Energy);
+	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetActionResourceAttribute(), Action);
 	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetMaxEnergyAttribute(), MaxEnergy);
+	AbilitySystem->SetNumericAttributeBase(UFighterAttributeSet::GetEnergyAttribute(), Energy);
 }
 
 void AFighterCharacter::GrantAbilities()
@@ -147,6 +155,12 @@ void AFighterCharacter::GrantAbilities()
 	}
 }
 
+void AFighterCharacter::SetMarkerColor(const FLinearColor& Color)
+{
+	MarkerColorOverride = Color;
+	ApplyMarkerVisual();
+}
+
 void AFighterCharacter::ApplyMarkerVisual()
 {
 	if (Definition == nullptr || GetMesh() == nullptr)
@@ -157,14 +171,14 @@ void AFighterCharacter::ApplyMarkerVisual()
 	UMaterialInterface* OverlayBase = Definition->MarkerOverlayMaterial.LoadSynchronous();
 	if (OverlayBase == nullptr)
 	{
+		GetMesh()->SetOverlayMaterial(nullptr);
 		return;
 	}
 
-	UMaterialInstanceDynamic* MarkerMID = GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(0, OverlayBase);
-	if (MarkerMID != nullptr)
-	{
-		MarkerMID->SetVectorParameterValue(TEXT("Tint"), Definition->MarkerColor);
-	}
+	// 覆盖材质整体叠染，不依赖角色网格原始材质的参数名
+	UMaterialInstanceDynamic* MarkerMID = UMaterialInstanceDynamic::Create(OverlayBase, this);
+	MarkerMID->SetVectorParameterValue(TEXT("Tint"), MarkerColorOverride.Get(Definition->MarkerColor));
+	GetMesh()->SetOverlayMaterial(MarkerMID);
 }
 
 void AFighterCharacter::AddDefaultMappingContext() const

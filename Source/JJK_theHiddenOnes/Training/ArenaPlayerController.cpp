@@ -3,12 +3,23 @@
 #include "Training/ArenaPlayerController.h"
 
 #include "EnhancedInputComponent.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Engine/World.h"
 #include "Training/FighterCharacter.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
 #include "Training/TargetingComponent.h"
 #include "Training/TrainingGameMode.h"
+
+void AArenaPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	if (PlayerCameraManager != nullptr)
+	{
+		PlayerCameraManager->ViewPitchMin = -65.f;
+		PlayerCameraManager->ViewPitchMax = 65.f;
+	}
+}
 
 void AArenaPlayerController::SetupInputComponent()
 {
@@ -126,7 +137,7 @@ void AArenaPlayerController::JJKFighters()
 			Attributes ? Attributes->GetMaxActionResource() : -1.f,
 			Attributes ? Attributes->GetEnergy() : -1.f,
 			Attributes ? Attributes->GetMaxEnergy() : -1.f,
-			Fighter->IsStatsInitialized() ? 1 : 0,
+			Fighter->GetStatsInitCount(),
 			Fighter->GetTargeting() != nullptr ? *GetNameSafe(Fighter->GetTargeting()->GetCurrentTarget()) : TEXT("null"));
 	}
 }
@@ -191,4 +202,12 @@ void AArenaPlayerController::JJKKillTarget()
 
 	UE_LOG(LogTemp, Log, TEXT("[JJKKillTarget] 调试销毁 %s"), *GetNameSafe(Victim));
 	Victim->Destroy();
+}
+
+void AArenaPlayerController::JJKRespawnFighters()
+{
+	if (ATrainingGameMode* GM = GetTrainingGameMode())
+	{
+		GM->RestartPlayer(this);
+	}
 }

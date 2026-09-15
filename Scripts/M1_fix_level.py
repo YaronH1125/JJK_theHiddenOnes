@@ -17,7 +17,7 @@ fixed = 0
 for a in actors:
     if a.get_class().get_name() == "PlayerStart":
         root = a.get_editor_property("root_component")
-        root.set_editor_property("collision_enabled", unreal.ECollisionEnabled.NO_COLLISION)
+        root.set_collision_profile_name("NoCollision")
         fixed += 1
         log(f"{a.get_actor_label()} 碰撞已关闭")
 log(f"完成，处理 {fixed} 个出生标记")
