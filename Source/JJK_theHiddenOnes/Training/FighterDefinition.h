@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Training/BlastConfig.h"
 #include "FighterDefinition.generated.h"
 
 class UAttackDefinition;
@@ -239,4 +240,48 @@ public:
 	/** 切形态能力类 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TSubclassOf<UGameplayAbility> StanceSwitchAbility;
+
+	/** 远程移动蓄力炮能力类 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TSubclassOf<UGameplayAbility> MobileBlastAbility;
+
+	/** 远程定点超级炮能力类 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TSubclassOf<UGameplayAbility> StationaryBlastAbility;
+
+	/** 领域展开能力类 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TSubclassOf<UGameplayAbility> DomainExpansionAbility;
+
+	/** 移动蓄力炮 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Blast")
+	FMobileBlastConfig MobileBlast;
+
+	/** 定点超级蓄力炮 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Blast")
+	FSuperBlastConfig SuperBlast;
+
+	/** 领域展开 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Domain")
+	FDomainConfig DomainConfig;
+
+	/** 咒力/领域能量流动 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Resource")
+	FResourceFlowConfig ResourceFlow;
+
+	/** 炮口 Socket（正式模型为 Muzzle_Head_Review；占位模型回退头部骨骼名） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Blast")
+	FName MuzzleSocket = TEXT("Muzzle_Head_Review");
+
+	/** 右键瞄准镜头臂长 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "50.0", ForceUnits = "cm"))
+	float AimArmLength = 250.f;
+
+	/** 普通镜头臂长（松开右键恢复） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "50.0", ForceUnits = "cm"))
+	float NormalArmLength = 450.f;
+
+	/** 瞄准插值速度（FInterpTo 参数，参考旧工程 10） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "1.0"))
+	float AimInterpSpeed = 10.f;
 };

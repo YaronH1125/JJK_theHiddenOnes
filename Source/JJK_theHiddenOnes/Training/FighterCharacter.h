@@ -15,6 +15,8 @@ class UFighterAbilitySystemComponent;
 class UFighterAttributeSet;
 class UCombatHitComponent;
 class UCombatInputComponent;
+class UChargedBlastAbilityBase;
+class UDomainOrb;
 class UFighterDefinition;
 class UGameplayAbility;
 class UAttackDefinition;
@@ -122,8 +124,24 @@ public:
 	float GetActionResource() const;
 
  bool SpendActionResource(float Amount);
+ bool TrySpendActionResource(float Amount);
+ void GainCursedEnergy(float Amount);
+ void GainDomainEnergy(float ResolvedDamage, uint64 AttackInstanceId);
+ void ModifyEnergy(float SignedAmount);
  void ApplyCombatDamage(AFighterCharacter* Target, float RawDamage, float ResolvedDamage, ETrainingContact Kind);
-
+ FName GetMuzzleSocketName() const;
+ AFighterCharacter* GetPreferredTargetFighter() const;
+ void SetAimIntent(bool bAiming);
+ bool IsAimIntent() const { return bAimIntent; }
+ bool IsBlastCharging() const;
+ void NotifyCurseFlowActivity();
+ void RegisterActiveBlast(class UChargedBlastAbilityBase* Blast);
+ void NotifyBlastRelease();
+ void NotifyBlastEnded(class UChargedBlastAbilityBase* Blast);
+ float GetCursedEnergy() const;
+ bool ModifyCursedEnergy(float SignedAmount);
+ void SetDomainActive(bool bActive);
+ bool IsDomainActive() const { return bDomainActive; }
 
 	/** 恢复行动资源（GE 增加） */
 	void RestoreActionResource(float Amount);
@@ -233,6 +251,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void DoMove(float Right, float Forward) override;
 	virtual void PossessedBy(AController* NewController) override;
@@ -341,5 +360,17 @@ private:
 	double LastStanceSwitchTime = -1000.0;
 
 	static constexpr float ResourceRegenTimerInterval = 0.25f;
+
+	// ---------- M6 蓄力炮/领域/瞄准 ----------
+	TWeakObjectPtr<class UChargedBlastAbilityBase> ActiveBlast;
+	FName MuzzleSocket = TEXT("Muzzle_Head_Review");
+	float BaseCameraArmLength = 450.f;
+	bool bAimIntent = false;
+	bool bAiming = false;
+	bool bDomainActive = false;
+	double LastCurseFlowActivityTime = -1000.0;
+
+	void TickAimCamera(float DeltaSeconds);
+	void TickCurseRegen(float DeltaSeconds);
 
 };

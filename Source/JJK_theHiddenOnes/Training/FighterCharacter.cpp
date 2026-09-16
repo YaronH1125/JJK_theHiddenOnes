@@ -9,6 +9,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 #include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -19,9 +20,11 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 #include "Materials/MaterialInterface.h"
 #include "Training/AttackDefinition.h"
 #include "Training/CombatHitComponent.h"
+#include "Training/ChargedBlastAbility.h"
 #include "Training/CombatInputComponent.h"
 #include "Training/CombatTypes.h"
 #include "Training/DamageGameplayEffect.h"
+#include "Training/ModifyAttributeGameplayEffect.h"
 #include "Training/TrainingGameMode.h"
 #include "Training/TrainingProbeAbility.h"
 #include "Training/FighterAbilitySystemComponent.h"
@@ -261,6 +264,11 @@ bool AFighterCharacter::SpendActionResource(float Amount)
 	return ModifyActionResource(-FMath::Abs(Amount));
 }
 
+bool AFighterCharacter::TrySpendActionResource(float Amount)
+{
+	return ModifyActionResource(-FMath::Abs(Amount));
+}
+
 void AFighterCharacter::RestoreActionResource(float Amount)
 {
 	ModifyActionResource(FMath::Abs(Amount));
@@ -321,7 +329,7 @@ bool AFighterCharacter::RequestDodge(FVector Direction)
 	// 先全部检查（含资源），通过才停止旧 GA（M3.4）
 	const bool bPaid = !AbilitySystem->HasInfiniteResources();
 	const double PreviousSpendTime = LastResourceSpendTime;
-	if (!SpendActionResource(Cost))
+	if (!TrySpendActionResource(Cost))
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 闪避被拒：行动资源不足（需 %.0f）"), *GetName(), Cost);
 		return false;
@@ -1167,4 +1175,150 @@ void AFighterCharacter::ApplyCombatDamage(AFighterCharacter* Target, float RawDa
  auto Spec=AbilitySystem->MakeOutgoingSpec(UDamageGameplayEffect::StaticClass(),1,AbilitySystem->MakeEffectContext());
  if (Actual>0.f && Spec.IsValid()) { Spec.Data->SetSetByCallerMagnitude(TAG_Data_Damage,-Actual); AbilitySystem->ApplyGameplayEffectSpecToTarget(*Spec.Data,Target->AbilitySystem); }
  if (GM) GM->RecordContact(this,Target,Kind,RawDamage,Resolved,Before-Target->AttributeSet->GetHealth());
+}
+
+// ---------- M6 蓄力炮/领域/瞄准 ----------
+
+float AFighterCharacter::GetCursedEnergy() const
+{
+	return AttributeSet ? AttributeSet->GetCursedEnergy() : 0.f;
+}
+
+bool AFighterCharacter::ModifyCursedEnergy(float SignedAmount)
+{
+	if (!AbilitySystem) return false;
+	if (SignedAmount < 0.f && AbilitySystem->HasInfiniteResources()) return true;
+	const float Current = AttributeSet ? AttributeSet->GetCursedEnergy() : 0.f;
+	if (SignedAmount < 0.f && Current + SignedAmount < -0.01f) return false;
+	auto Spec = AbilitySystem->MakeOutgoingSpec(UModifyCursedEnergyGameplayEffect::StaticClass(), 1.f, AbilitySystem->MakeEffectContext());
+	if (!Spec.IsValid()) return false;
+	Spec.Data->SetSetByCallerMagnitude(TAG_Data_Amount, SignedAmount);
+	AbilitySystem->ApplyGameplayEffectSpecToSelf(*Spec.Data);
+	return true;
+}
+
+void AFighterCharacter::GainCursedEnergy(float Amount)
+{
+	ModifyCursedEnergy(FMath::Abs(Amount));
+}
+
+bool AFighterCharacter::IsBlastCharging() const
+{
+	return ActiveBlast.IsValid() && ActiveBlast->IsCharging();
+}
+
+void AFighterCharacter::RegisterActiveBlast(UChargedBlastAbilityBase* Blast)
+{
+	ActiveBlast = Blast;
+}
+
+void AFighterCharacter::NotifyBlastRelease()
+{
+	if (ActiveBlast.IsValid()) ActiveBlast->NotifyExternalRelease();
+}
+
+void AFighterCharacter::NotifyBlastEnded(UChargedBlastAbilityBase* Blast)
+{
+	if (ActiveBlast == Blast) ActiveBlast = nullptr;
+	LastCurseFlowActivityTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+}
+
+void AFighterCharacter::NotifyCurseFlowActivity()
+{
+	LastCurseFlowActivityTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+}
+
+void AFighterCharacter::SetDomainActive(bool bActive)
+{
+	bDomainActive = bActive;
+	if (AbilitySystem)
+	{
+		if (bActive) AbilitySystem->AddLooseGameplayTag(TAG_State_DomainActive);
+		else AbilitySystem->RemoveLooseGameplayTag(TAG_State_DomainActive);
+	}
+}
+
+void AFighterCharacter::GainDomainEnergy(float ResolvedDamage, uint64 AttackInstanceId)
+{
+	if (!Definition || !AbilitySystem) return;
+	const float Gain = FMath::Min(ResolvedDamage * Definition->ResourceFlow.DomainEnergyGainRatio,
+		Definition->ResourceFlow.DomainEnergyGainPerInstanceCap);
+	if (Gain <= 0.f) return;
+	ModifyEnergy(Gain);
+}
+
+FName AFighterCharacter::GetMuzzleSocketName() const
+{
+	return MuzzleSocket;
+}
+
+void AFighterCharacter::SetAimIntent(bool bNewAiming)
+{
+	bAimIntent = bNewAiming;
+}
+
+AFighterCharacter* AFighterCharacter::GetPreferredTargetFighter() const
+{
+	auto* GM = GetWorld() ? GetWorld()->GetAuthGameMode<ATrainingGameMode>() : nullptr;
+	return GM ? GM->GetOpponentOf(this) : nullptr;
+}
+
+
+void AFighterCharacter::ModifyEnergy(float SignedAmount)
+{
+	if (!AbilitySystem) return;
+	auto Spec = AbilitySystem->MakeOutgoingSpec(UModifyDomainEnergyGameplayEffect::StaticClass(), 1.f, AbilitySystem->MakeEffectContext());
+	if (Spec.IsValid())
+	{
+		Spec.Data->SetSetByCallerMagnitude(TAG_Data_Amount, SignedAmount);
+		AbilitySystem->ApplyGameplayEffectSpecToSelf(*Spec.Data);
+	}
+}
+
+void AFighterCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	ProcessCombatEvents();
+	TickAimCamera(DeltaSeconds);
+	TickCurseRegen(DeltaSeconds);
+	TickThrowPair();
+}
+
+void AFighterCharacter::TickAimCamera(float DeltaSeconds)
+{
+	if (!Definition || !GetCameraBoom()) return;
+	float TargetLen = bAiming ? Definition->AimArmLength : Definition->NormalArmLength;
+	auto* Boom = GetCameraBoom();
+	float Current = Boom->TargetArmLength;
+	Boom->TargetArmLength = FMath::FInterpTo(Current, TargetLen, DeltaSeconds, Definition ? Definition->AimInterpSpeed : 10.f);
+	bUseControllerRotationYaw = bAiming;
+}
+
+void AFighterCharacter::TickCurseRegen(float DeltaSeconds)
+{
+	if (!AbilitySystem || !AttributeSet || IsDead()) return;
+	if (IsBlastCharging()) return; // 蓄力期暂停回咒
+	const double Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+	if (Now - LastCurseFlowActivityTime < (Definition ? Definition->ResourceFlow.CurseRegenDelay : 2.0)) return;
+	const float Curse = AttributeSet->GetCursedEnergy();
+	const float MaxCurse = AttributeSet->GetMaxCursedEnergy();
+	if (Curse < MaxCurse)
+	{
+		ModifyCursedEnergy(FMath::Min(Definition ? Definition->ResourceFlow.CurseRegenPerSecond : 6.f, MaxCurse - Curse) * DeltaSeconds);
+	}
+}
+
+void UChargedBlastAbilityBase::ClearTimers()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ChargeTickHandle);
+		GetWorld()->GetTimerManager().ClearTimer(PhaseTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(CooldownTimerHandle);
+	}
+}
+
+double UChargedBlastAbilityBase::Now() const
+{
+	return GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
 }

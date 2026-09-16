@@ -15,11 +15,17 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_SuperArmor, "State.SuperArmor");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_DodgeInvulnerable, "State.DodgeInvulnerable");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_DodgeRecovery, "State.DodgeRecovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_StanceSwitching, "State.StanceSwitching");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_SuperBlastCooldown, "State.SuperBlastCooldown");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_BlastCharging, "State.BlastCharging");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_DomainActive, "State.DomainActive");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_DomainCasting, "State.DomainCasting");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_RangedBlastCharging, "State.RangedBlastCharging");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Stance_Melee, "Stance.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Stance_Ranged, "Stance.Ranged");
 
 // M3 能力标识
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_MeleeAttack, "Ability.Melee.Attack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Blast, "Ability.Blast");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dodge, "Ability.Dodge");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_StanceSwitch, "Ability.StanceSwitch");
 
