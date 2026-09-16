@@ -15728,3 +15728,902 @@ Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
 Result: Succeeded
 Total execution time: 9.67 seconds
 Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 6.1kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (source file added)
+UHT compiled-in object format Default
+Unable to build while Live Coding is active. Exit the editor and game, or press Ctrl+Alt+F11 if iterating on code in the editor or game
+
+Result: Failed (OtherCompilationError)
+Total execution time: 5.78 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 3.0kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: MobileChargedBlastAbility.cpp, StationaryChargedBlastAbility.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 6 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 42.5 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/6] Compile [x64] StationaryChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(14,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(15,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinCost : 45.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(19,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(20,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MaxCost : 65.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(24,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(25,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinDamage : 150.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(29,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(30,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MaxDamage : 220.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(34,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(35,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.CapTime : 2.4f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(39,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(40,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.LockWindup : 0.25f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(44,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(45,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.Range : 2400.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(53,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(54,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinChargeTime : 1.2f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(58,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(59,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.Cooldown : 10.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(61,38): error C2084: 函数“bool UStationaryChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UStationaryChargedBlastAbility::LocksMovementWhileCharging() const { return true; }
+                                     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.h(31,15): note: 参见“UStationaryChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return true; }
+	             ^
+[2/6] Compile [x64] MobileChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(14,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(15,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MinCost : 8.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(19,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(20,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MaxCost : 24.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(24,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(25,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MinDamage : 30.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(29,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(30,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MaxDamage : 90.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(34,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(35,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.CapTime : 1.2f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(39,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(40,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.LockWindup : 0.15f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(44,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(45,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.Range : 1800.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(53,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(54,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MoveSpeedScale : 0.55f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(56,34): error C2084: 函数“bool UMobileChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UMobileChargedBlastAbility::LocksMovementWhileCharging() const { return false; }
+                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.h(31,15): note: 参见“UMobileChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return false; }
+	             ^
+[3/6] Compile [x64] Module.JJK_theHiddenOnes.cpp
+Total time in Unreal Build Accelerator local executor: 17.74 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 19.11 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 22.9kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: MobileChargedBlastAbility.cpp, StationaryChargedBlastAbility.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 6 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 42.98 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/6] Compile [x64] StationaryChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(14,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(15,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinCost : 45.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(19,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(20,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MaxCost : 65.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(24,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(25,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinDamage : 150.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(29,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(30,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MaxDamage : 220.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(34,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(35,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.CapTime : 2.4f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(39,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(40,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.LockWindup : 0.25f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(44,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(45,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.Range : 2400.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(53,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(54,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinChargeTime : 1.2f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(58,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(59,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.Cooldown : 10.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(61,38): error C2084: 函数“bool UStationaryChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UStationaryChargedBlastAbility::LocksMovementWhileCharging() const { return true; }
+                                     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.h(31,15): note: 参见“UStationaryChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return true; }
+	             ^
+[2/6] Compile [x64] MobileChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(14,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(15,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MinCost : 8.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(19,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(20,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MaxCost : 24.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(24,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(25,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MinDamage : 30.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(29,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(30,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MaxDamage : 90.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(34,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(35,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.CapTime : 1.2f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(39,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(40,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.LockWindup : 0.15f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(44,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(45,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.Range : 1800.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(53,12): error C2248: “UChargedBlastAbilityBase::GetFighter”: 无法访问 private 成员(在“UChargedBlastAbilityBase”类中声明)
+	auto* F = GetFighter();
+	          ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(87,21): note: 参见“UChargedBlastAbilityBase::GetFighter”的声明
+	AFighterCharacter* GetFighter() const;
+	                   ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\ChargedBlastAbility.h(30,7): note: 参见“UChargedBlastAbilityBase”的声明
+class UChargedBlastAbilityBase : public UGameplayAbility
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(54,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MoveSpeedScale : 0.55f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(56,34): error C2084: 函数“bool UMobileChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UMobileChargedBlastAbility::LocksMovementWhileCharging() const { return false; }
+                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.h(31,15): note: 参见“UMobileChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return false; }
+	             ^
+[3/6] Compile [x64] Module.JJK_theHiddenOnes.cpp
+Total time in Unreal Build Accelerator local executor: 17.61 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 21.97 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 22.9kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for JJK_theHiddenOnesEditor (working set of source files changed)
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: ChargedBlastAbility.cpp, MobileChargedBlastAbility.cpp, StationaryChargedBlastAbility.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 7 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 43.12 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/7] Compile [x64] StationaryChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(15,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinCost : 45.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(20,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MaxCost : 65.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(25,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinDamage : 150.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(30,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MaxDamage : 220.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(35,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.CapTime : 2.4f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(40,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.LockWindup : 0.25f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(45,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.Range : 2400.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(54,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.MinChargeTime : 1.2f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(59,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.Cooldown : 10.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(61,38): error C2084: 函数“bool UStationaryChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UStationaryChargedBlastAbility::LocksMovementWhileCharging() const { return true; }
+                                     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.h(31,15): note: 参见“UStationaryChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return true; }
+	             ^
+[2/7] Compile [x64] MobileChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(15,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MinCost : 8.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(20,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MaxCost : 24.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(25,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MinDamage : 30.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(30,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MaxDamage : 90.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(35,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.CapTime : 1.2f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(40,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.LockWindup : 0.15f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(45,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.Range : 1800.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(54,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MoveSpeedScale : 0.55f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(56,34): error C2084: 函数“bool UMobileChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UMobileChargedBlastAbility::LocksMovementWhileCharging() const { return false; }
+                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.h(31,15): note: 参见“UMobileChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return false; }
+	             ^
+[3/7] Compile [x64] ChargedBlastAbility.cpp
+[4/7] Compile [x64] Module.JJK_theHiddenOnes.cpp
+Total time in Unreal Build Accelerator local executor: 17.57 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 22.66 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 17.3kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: ChargedBlastAbility.cpp, MobileChargedBlastAbility.cpp, StationaryChargedBlastAbility.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 5 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 42.61 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/5] Compile [x64] MobileChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(15,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MinCost : 8.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(20,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MaxCost : 24.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(25,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MinDamage : 30.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(30,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MaxDamage : 90.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(35,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.CapTime : 1.2f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(40,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.LockWindup : 0.15f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(45,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.Range : 1800.f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(54,51): error C2027: 使用了未定义类型“UFighterDefinition”
+	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MoveSpeedScale : 0.55f;
+	                                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Intermediate\Build\Win64\UnrealEditor\Inc\JJK_theHiddenOnes\UHT\FighterCharacter.generated.h(24,7): note: 参见“UFighterDefinition”的声明
+class UFighterDefinition;
+      ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(56,34): error C2084: 函数“bool UMobileChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UMobileChargedBlastAbility::LocksMovementWhileCharging() const { return false; }
+                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.h(31,15): note: 参见“UMobileChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return false; }
+	             ^
+[2/5] Compile [x64] StationaryChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(62,38): error C2084: 函数“bool UStationaryChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UStationaryChargedBlastAbility::LocksMovementWhileCharging() const { return true; }
+                                     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.h(31,15): note: 参见“UStationaryChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return true; }
+	             ^
+Total time in Unreal Build Accelerator local executor: 2.26 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 3.82 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 10.2kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: ChargedBlastAbility.cpp, MobileChargedBlastAbility.cpp, StationaryChargedBlastAbility.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 5 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 42.54 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/5] Compile [x64] StationaryChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.cpp(62,38): error C2084: 函数“bool UStationaryChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UStationaryChargedBlastAbility::LocksMovementWhileCharging() const { return true; }
+                                     ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\StationaryChargedBlastAbility.h(31,15): note: 参见“UStationaryChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return true; }
+	             ^
+[2/5] Compile [x64] MobileChargedBlastAbility.cpp
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.cpp(57,34): error C2084: 函数“bool UMobileChargedBlastAbility::LocksMovementWhileCharging(void) const”已有主体
+bool UMobileChargedBlastAbility::LocksMovementWhileCharging() const { return false; }
+                                 ^
+F:\GameStudy\JJK_theHiddenOnes\Source\JJK_theHiddenOnes\Training\MobileChargedBlastAbility.h(31,15): note: 参见“UMobileChargedBlastAbility::LocksMovementWhileCharging”的前一个定义
+	virtual bool LocksMovementWhileCharging() const override { return false; }
+	             ^
+Total time in Unreal Build Accelerator local executor: 2.31 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 3.71 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 6.1kb
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -project=F:\GameStudy\JJK_theHiddenOnes\JJK_theHiddenOnes.uproject -WaitMutex
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaServer - Listening on 0.0.0.0:1345
+UHT compiled-in object format Default
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: ChargedBlastAbility.cpp, MobileChargedBlastAbility.cpp, StationaryChargedBlastAbility.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 6 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 43.05 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/6] Compile [x64] StationaryChargedBlastAbility.cpp
+[2/6] Compile [x64] MobileChargedBlastAbility.cpp
+[3/6] Compile [x64] Module.JJK_theHiddenOnes.cpp
+[4/6] Link [x64] UnrealEditor-JJK_theHiddenOnes.lib
+  正在创建库 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.lib 和对象 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.exp
+[5/6] Link [x64] UnrealEditor-JJK_theHiddenOnes.dll
+[6/6] WriteMetadata JJK_theHiddenOnesEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 19.41 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 23.81 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.7kb

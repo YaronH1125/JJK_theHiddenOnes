@@ -84,6 +84,7 @@ private:
 	void ApplyMoveSpeedScale(float Scale);
 	void RestoreMoveSpeed();
 
+protected:
 	AFighterCharacter* GetFighter() const;
 	bool PassesActivationChecks(FString& OutReason) const;
 
