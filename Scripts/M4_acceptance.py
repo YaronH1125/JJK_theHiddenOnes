@@ -88,10 +88,10 @@ def suite():
     yield from wait(1.1);check('M4-T01_guard_after_recovery',p2.can_act() and p2.is_guard_intent())
     p2.jjk_debug_force_hit_react();yield from wait(.05);gm.set_opponent_mode(unreal.OpponentMode.STATIC);yield from wait(1.1)
     check('M4-T01_static_after_recovery',p2.can_act() and not p2.is_guard_intent())
-    check('M4-T02_AI_rejected',not gm.is_mode_available(unreal.OpponentMode.AI) and not gm.set_opponent_mode(unreal.OpponentMode.AI))
+    check('M4-T02_AI_available_M5',gm.is_mode_available(unreal.OpponentMode.AI))
     pc.set_training_panel_open(True);yield from wait(.1)
     panel=pc.get_editor_property('training_panel')
-    check('M4-T02_AI_disabled_UMG',panel.is_ai_option_disabled())
+    check('M4-T02_AI_available_UMG_M5',not panel.is_ai_option_disabled())
     check('M4-T11_initial_values', '1000/1000' in panel.get_displayed_state(),panel.get_displayed_state())
     pc.set_training_panel_open(False)
     # Recovery restarts after new contact. A long test delay leaves a hittable interval.

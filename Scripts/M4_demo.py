@@ -32,7 +32,7 @@ def suite():
  gm.reset_training();near();pc.set_control_rotation(unreal.Rotator(-15,0,0));yield from wait(.5)
  stage('静止木桩进入面板');pc.set_training_panel_open(True);yield from wait(.3)
  check('M4-demo_UMG_visible',panel().is_in_viewport() and pc.get_editor_property('show_mouse_cursor'))
- check('M4-demo_AI_disabled',panel().is_ai_option_disabled())
+ check('M4-demo_AI_available_M5',not panel().is_ai_option_disabled())
  panel().get_editor_property('OpponentChoice').set_selected_option('固定防御')
  check('M4-demo_mode_control',gm.get_editor_property('opponent_mode')==unreal.OpponentMode.FIXED_GUARD)
  panel().call_method('CloseClicked');yield from wait(.2)

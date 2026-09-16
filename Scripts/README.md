@@ -84,3 +84,37 @@ python Scripts/run_m4_demo.py        # 必须有图形渲染：UMG 控件回调�
 游戏内 **F1** 打开训练面板。面板原生 UMG 控件无需另跑资源创建脚本；`TrainingPanelClass` 可由 Controller 薄蓝图替换。默认所有训练开关关闭。非 Shipping 构建的“开发测试技能”用真实 GE 消耗行动资源 1、咒力 10、领域能量 5，冷却 3 秒；默认领域能量 0 时正常拒绝，可先开无限资源试验。它不代表正式炮击已实现。
 
 自动化使用真实 PIE/ASC/碰撞/动画和 UMG 控件回调，不模拟操作系统实体键鼠。规则、统计口径和 M5/M6 交接见 [M4 记录](../Docs/开发过程/M4_训练系统.md)。
+
+
+## M5 AI 对战
+
+F1 面板选择 **AI 对战**（或 AI 快捷按钮），返回战斗后开始；菜单中 AI 暂停。胜负结果自动打开面板，快速重置保留模式与设置，关闭面板后开始下一局。静止木桩/固定防御仍可随时切换。`JJKDebugHud` 可查看行为树分支与任务状态。
+
+```powershell
+# 仅首次配置/修复地图时执行；先停止 PIE，普通验收不运行此修复脚本
+python Scripts/ue_python.py Scripts/M5_setup_nav.py
+# 已正式构建且打开编辑器：规则 / 旧阶段回归 / 三次重新进入
+python Scripts/run_m5_acceptance.py
+python Scripts/run_m5_regression.py M4
+python Scripts/run_m5_regression.py M3
+python Scripts/run_m5_reentry.py
+# 有图形编辑器中，真实 UMG 操作及 AI 造成致死伤害的闭环截图
+python Scripts/run_m5_demo.py
+```
+
+规则允许 `-nullrhi`，图形演示禁止该参数。M4 旧脚本仅把两项“AI 尚不可用”预期更新为 M5 的可用状态，105 项规则断言保留；报告归档为 M5_M4_Regression，不覆盖历史 M4 证据。脚本临时参数在结束时恢复，不在验收中保存资产。首次 cook 会大量编译着色器，精确时序回归应与 cook 分开运行。
+
+独立包构建（先关闭本项目编辑器，避免编辑器 MCP 插件端口冲突；项目根目录 PowerShell）：
+
+```powershell
+& F:/GameStudy/UE_5.8/Engine/Build/BatchFiles/RunUAT.bat BuildCookRun `
+  -project=F:/GameStudy/JJK_theHiddenOnes/JJK_theHiddenOnes.uproject `
+  -noP4 -platform=Win64 -clientconfig=Development -build -skipbuildeditor `
+  -cook -map=/Game/Maps/L_TrainingArena -stage -pak -archive `
+  -archivedirectory=F:/GameStudy/JJK_theHiddenOnes/Saved/Packages/M5 -unattended -utf8output
+python Scripts/run_m5_package.py
+```
+
+`-skipbuildeditor` 要求编辑器模块已经由最终源码正式构建。包位于 `Saved/Packages/M5/Windows`；普通游戏从顶层 exe 启动。`run_m5_package.py` 显式传 `-M5SmokeTest`，通过包内开发验收器检查 14 项并自动退出，包含真实伤害、结果面板、三种胜负/三次重开与模式重入。未传该参数的普通游戏不运行自动测试；Shipping 中该入口无效。`--nullrhi` 可做无图形包内规则复查，但不能替代图形启动与截图。
+
+原生 BT/Blackboard、具体参数和 M6 技能任务接入点见 [M5 文档](../Docs/开发过程/M5_AI对战.md)。

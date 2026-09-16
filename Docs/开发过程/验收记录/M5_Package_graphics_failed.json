@@ -1,0 +1,21 @@
+{
+  "status": "failed",
+  "checks": 14,
+  "graphics": true,
+  "command": [
+    "F:\\GameStudy\\JJK_theHiddenOnes\\Saved\\Packages\\M5\\Windows\\JJK_theHiddenOnes\\Binaries\\Win64\\JJK_theHiddenOnes.exe",
+    "-M5SmokeTest",
+    "-NoSound",
+    "-unattended",
+    "-windowed",
+    "-ResX=1280",
+    "-ResY=720",
+    "-UserDir=F:/GameStudy/JJK_theHiddenOnes/Saved/M5_PackageRuntime",
+    "-abslog=F:/GameStudy/JJK_theHiddenOnes/Saved/M5_PackageRuntime/M5_Package_graphics.log"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 227.69138193130493,
+  "package_path": "F:\\GameStudy\\JJK_theHiddenOnes\\Saved\\Packages\\M5\\Windows",
+  "exe_sha256": "789b866b5342cfc7740c76b8fdde263df0d47bf072bbaedc6f90b4844baa1286",
+  "reason": "14 functional checks passed, but startup had AssetBaseClassLoaded ensure; editor-only asset rule requires correction."
+}

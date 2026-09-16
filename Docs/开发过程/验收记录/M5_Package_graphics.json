@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "checks": 14,
+  "graphics": true,
+  "command": [
+    "F:\\GameStudy\\JJK_theHiddenOnes\\Saved\\Packages\\M5\\Windows\\JJK_theHiddenOnes\\Binaries\\Win64\\JJK_theHiddenOnes.exe",
+    "-M5SmokeTest",
+    "-NoSound",
+    "-unattended",
+    "-windowed",
+    "-ResX=1280",
+    "-ResY=720",
+    "-UserDir=F:/GameStudy/JJK_theHiddenOnes/Saved/M5_PackageRuntime",
+    "-abslog=F:/GameStudy/JJK_theHiddenOnes/Saved/M5_PackageRuntime/M5_Package_graphics.log"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 21.993215799331665,
+  "package_path": "F:\\GameStudy\\JJK_theHiddenOnes\\Saved\\Packages\\M5\\Windows",
+  "exe_sha256": "31d678f80a802512625820c341d15ea797dc4b5688491025fe88a1d1405a6810",
+  "content_hashes": {
+    "JJK_theHiddenOnes\\Content\\Paks\\global.ucas": "3fbfc5a5ffcb00c739e7e7712abf8326e24753dc8bec9667187c8666c17dd147",
+    "JJK_theHiddenOnes\\Content\\Paks\\global.utoc": "5b47735b1ced274ba85b59b49b520ce6fe061928fb60e588a8eaebfff0458e29",
+    "JJK_theHiddenOnes\\Content\\Paks\\JJK_theHiddenOnes-Windows.pak": "9340d4ea5faf83881fd940656a916804a8ed5a83aa8130e054eca02629e353af",
+    "JJK_theHiddenOnes\\Content\\Paks\\JJK_theHiddenOnes-Windows.ucas": "24385002f6928a8a5da8bc8fcdc7d70415fd98d315c44360f109389f961578ab",
+    "JJK_theHiddenOnes\\Content\\Paks\\JJK_theHiddenOnes-Windows.utoc": "d468dbc742bc6bcdc155474a2e5d5f51191ab15fb998f6641911dd40434d739b"
+  }
+}

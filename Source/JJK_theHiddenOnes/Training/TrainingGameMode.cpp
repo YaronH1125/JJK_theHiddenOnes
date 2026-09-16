@@ -96,6 +96,10 @@ void ATrainingGameMode::DrawCombatDebug() const
 
 	DrawFighter(TEXT("P1"), PlayerFighter);
 	DrawFighter(TEXT("P2"), OpponentFighter);
+	if (IsValid(OpponentAI))
+	{
+		GEngine->AddOnScreenDebugMessage(120, 0.f, FColor::Yellow, OpponentAI->GetDebugState());
+	}
 }
 
 void ATrainingGameMode::RestartPlayer(AController* NewPlayer)

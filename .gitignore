@@ -24,3 +24,6 @@ Content/Training/ArtReview/
 
 # Python 工具缓存
 __pycache__/
+
+# Cook 生成的文件访问顺序日志
+Build/*/FileOpenOrder/
