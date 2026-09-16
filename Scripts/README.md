@@ -52,3 +52,18 @@ python Scripts/run_m2_acceptance.py
 `run_m2_acceptance.py` 首先检查磁盘资产，再运行 57 项断言（原有 48 项 + T13 输入分发 9 项）。T13 核对左键映射、Controller 引用、IMC 已安装，并逐帧注入 Enhanced Input action 的按下/松开，验证会话、攻击 Montage、受击 Montage、恰好一次 35 点伤害与长按无轻拳。它不模拟操作系统鼠标，实体键鼠手感仍需人工验收。
 
 任一失败、异常、超时或断言数量不符都会使 runner 失败；失败详情保留在 `Saved/M2_acceptance.json`，成功才更新正式证据。资产文件哈希随成功报告归档；提交时应包含 `Content/Training/IA_Attack.uasset`。
+
+
+## M3 连招与核心攻防
+
+`M3_create_assets.py` 幂等保存六个独立招式 DA、四个新输入 action、IMC 和 Controller；所有近战动画均明确使用已验证拳击占位。
+
+```powershell
+python Scripts/ue_python.py Scripts/M3_create_assets.py
+python Scripts/run_m3_acceptance.py
+python Scripts/run_m3_demo.py
+```
+
+规则 runner 在新 PIE 执行 118 项检查并归档源代码/资产 SHA-256；失败单独保存，不覆盖成功证据。需要验证真实 30/60/120 游戏时序时可用 `UnrealEditor.exe <uproject> -nullrhi -NoSound` 启动，再使用同一 runner；它验证真实动画姿态/碰撞/GAS/Input 但不验证渲染。`run_m3_demo.py` 必须在有图形编辑器运行，20 项闭环/边界检查并保存三张实际游戏截图；动画仍为占位，默认不发起独立打包。
+
+测试临时修改配置后会恢复，严禁在测试运行期间保存资产。菜单接入 `SetCombatInputEnabled`，对手停止决策接入 `SetRequestsEnabled`；训练重置仍用 `ResetTraining`。详见 [M3 验收与 M4 交接](../Docs/开发过程/M3_连招与核心攻防.md)。
