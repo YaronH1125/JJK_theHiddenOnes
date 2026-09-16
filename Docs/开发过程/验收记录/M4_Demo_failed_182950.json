@@ -1,0 +1,24 @@
+{
+  "status": "failed",
+  "command_line": "-NoSplash -NoSound -RenderOffscreen",
+  "checks": [
+    {
+      "name": "M4-demo_UMG_visible",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M4-demo_AI_disabled",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "stages": [
+    {
+      "name": "静止木桩进入面板",
+      "time": 3.8941281884908676
+    }
+  ],
+  "error": "Traceback (most recent call last):\n  File \"F:/GameStudy/JJK_theHiddenOnes/Scripts/M4_demo.py\", line 68, in tick\n    next(gen)\n  File \"F:/GameStudy/JJK_theHiddenOnes/Scripts/M4_demo.py\", line 36, in suite\n    panel().get_editor_property('opponent_choice').set_selected_option('固定防御')\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nException: TrainingPanelWidget: Failed to find property 'opponent_choice' for attribute 'opponent_choice' on 'TrainingPanelWidget'\n",
+  "duration_seconds": 0.875
+}
