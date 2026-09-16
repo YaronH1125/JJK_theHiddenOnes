@@ -73,6 +73,9 @@ void AFighterAIController::ActivateAI(AFighterCharacter* Target)
 {
  if (bActive && GetTarget()==Target) return;
  DeactivateAI(); BuildTree();
+ // ABP_Unarmed requires both speed and acceleration to enter locomotion.
+ // Direct-velocity path following otherwise leaves ShouldMove false while sliding.
+ if (auto* Self=GetSelf()) Self->GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths=true;
  UBlackboardComponent* BB=Blackboard;
  if (!UseBlackboard(ArenaBlackboard,BB)) return;
  Blackboard->SetValueAsObject(TEXT("Target"),Target);
