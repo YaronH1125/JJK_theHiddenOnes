@@ -35,7 +35,8 @@ void UTrainingPanelWidget::NativeOnInitialized()
  Text(TEXT("双方通用 · 开关关闭后恢复正常规则，不补扣过去消耗"),13);
  OpponentChoice=WidgetTree->ConstructWidget<UComboBoxString>(); OpponentChoice->AddOption(TEXT("静止木桩")); OpponentChoice->AddOption(TEXT("固定防御"));
  Box->AddChildToVerticalBox(OpponentChoice)->SetPadding(FMargin(0,6)); OpponentChoice->OnSelectionChanged.AddDynamic(this,&UTrainingPanelWidget::ModeChanged);
- AIButton=WidgetTree->ConstructWidget<UButton>(); auto* AILabel=WidgetTree->ConstructWidget<UTextBlock>(); AILabel->SetText(FText::FromString(TEXT("AI 对战：M5 未接入"))); AIButton->AddChild(AILabel); AIButton->SetIsEnabled(false); Box->AddChildToVerticalBox(AIButton);
+ AIButton=WidgetTree->ConstructWidget<UButton>(); auto* AILabel=WidgetTree->ConstructWidget<UTextBlock>(); AILabel->SetText(FText::FromString(TEXT("AI 对战"))); AIButton->AddChild(AILabel); Box->AddChildToVerticalBox(AIButton);
+ AIButton->OnClicked.AddDynamic(this,&UTrainingPanelWidget::AIClicked);
  auto Check=[this,Box](const TCHAR* Label)
  {
   auto* C=WidgetTree->ConstructWidget<UCheckBox>(); auto* T=WidgetTree->ConstructWidget<UTextBlock>(); T->SetText(FText::FromString(Label)); auto Font=T->GetFont(); Font.Size=16; T->SetFont(Font); C->AddChild(T);
@@ -78,7 +79,16 @@ void UTrainingPanelWidget::Refresh()
  bRefreshing=true; ++RefreshCount;
  AutoHeal->SetIsChecked(GM->Settings.bAutoRecoverHealth); InfiniteHealth->SetIsChecked(GM->Settings.bInfiniteHealth);
  InfiniteResources->SetIsChecked(GM->Settings.bInfiniteResources); NoCooldown->SetIsChecked(GM->Settings.bNoCooldown); Delay->SetValue(GM->Settings.RecoveryDelay);
- OpponentChoice->SetSelectedOption(GM->OpponentMode==EOpponentMode::FixedGuard ? TEXT("固定防御") : TEXT("静止木桩"));
+ if(GM->OpponentMode==EOpponentMode::AI)
+ {
+  OpponentChoice->SetSelectedOption(TEXT(""));
+  if(AIButton) AIButton->SetIsEnabled(false);
+ }
+ else
+ {
+  OpponentChoice->SetSelectedOption(GM->OpponentMode==EOpponentMode::FixedGuard ? TEXT("固定防御") : TEXT("静止木桩"));
+  if(AIButton) AIButton->SetIsEnabled(true);
+ }
  FString Lines;
  auto Fighter=[&Lines](const TCHAR* Name,AFighterCharacter* F,const FTrainingStats& S)
  {
@@ -87,6 +97,12 @@ void UTrainingPanelWidget::Refresh()
   Lines+=FString::Printf(TEXT("%s  生命 %.0f/%.0f  行动 %.1f/%.0f  咒力 %.0f/%.0f  领域 %.0f/%.0f\n开发技能冷却 %.1fs  | 当前连击 %d / %.0f  上次 %d / %.0f\n原始 %.0f  结算 %.0f  扣血 %.0f | 命中 %d 防御 %d 免疫 %d 空挥 %d\n"),Name,A->GetHealth(),A->GetMaxHealth(),A->GetActionResource(),A->GetMaxActionResource(),A->GetCursedEnergy(),A->GetMaxCursedEnergy(),A->GetEnergy(),A->GetMaxEnergy(),F->GetFighterAbilitySystemComponent()->GetTrainingCooldownRemaining(),S.ComboHits,S.ComboDamage,S.LastComboHits,S.LastComboDamage,S.RawDamage,S.ResolvedDamage,S.HealthLost,S.Hits,S.Guards,S.Immunes,S.Whiffs);
  };
  Fighter(TEXT("P1"),GM->GetPlayerFighter(),GM->PlayerStats); Fighter(TEXT("P2"),GM->GetOpponentFighter(),GM->OpponentStats);
+ if(GM->IsMatchResolved())
+ {
+  const TCHAR* OutcomeNames[]={TEXT("无"),TEXT("玩家胜利"),TEXT("对手胜利"),TEXT("平局")};
+  Lines+=FString::Printf(TEXT("对局结束：%s（快速重置可重开）"),OutcomeNames[static_cast<int32>(GM->GetMatchOutcome())%4]);
+
+ }
  Status->SetText(FText::FromString(Lines)); History->SetText(FText::FromString(TEXT("最近请求（新→旧）\n")+FString::Join(GM->InputHistory,TEXT("\n"))));
  bRefreshing=false;
 }
@@ -98,9 +114,13 @@ void UTrainingPanelWidget::SettingsChanged(bool)
 void UTrainingPanelWidget::DelayChanged(float) { SettingsChanged(false); }
 void UTrainingPanelWidget::ModeChanged(FString Item,ESelectInfo::Type)
 {
- if(!bRefreshing && Mode.IsValid()) Mode->SetOpponentMode(Item==TEXT("固定防御") ? EOpponentMode::FixedGuard : EOpponentMode::Static);
+ if(bRefreshing || !Mode.IsValid()) return;
+ if(Item==TEXT("固定防御")) Mode->SetOpponentMode(EOpponentMode::FixedGuard);
+ else if(Item==TEXT("静止木桩")) Mode->SetOpponentMode(EOpponentMode::Static);
+ // 选择为空 = 当前为 AI 模式（由 AIButton 触发），不变更
 }
 void UTrainingPanelWidget::ResetClicked() { if(Mode.IsValid()) Mode->ResetTraining(); }
+void UTrainingPanelWidget::AIClicked() { if(Mode.IsValid()) Mode->SetOpponentMode(EOpponentMode::AI); }
 void UTrainingPanelWidget::CloseClicked() { if(auto* PC=Cast<AArenaPlayerController>(GetOwningPlayer())) PC->SetTrainingPanelOpen(false); }
 void UTrainingPanelWidget::ProbeClicked()
 {

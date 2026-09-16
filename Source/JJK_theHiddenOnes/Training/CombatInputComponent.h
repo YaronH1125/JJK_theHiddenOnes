@@ -112,7 +112,10 @@ public:
 	ECachedAction PeekCachedAction() const;
 
 	/** 消费缓存（仅当动作与期望一致；寿命与 GA 允许集由 GA 校验） */
-	void ConsumeCache();
+	void ConsumeCache(bool bConsumed = false);
+ uint64 GetCacheId() const { return CacheCounter; }
+ uint64 GetConsumedCacheId() const { return ConsumedCacheId; }
+ void ClearOwnedCache(uint64 Id) { if (Id && Id == CacheCounter) ConsumeCache(); }
 
 protected:
 	virtual void BeginPlay() override;
@@ -144,6 +147,7 @@ protected:
 	FVector CachedDirection = FVector::ZeroVector;
 	TWeakObjectPtr<AFighterCharacter> CachedTarget;
 	bool bCacheHadTarget = false;
+	uint64 CacheCounter = 0, ConsumedCacheId = 0;
 	ECachedAction CachedAction = ECachedAction::None;
 	double CachedActionTime = 0.0;
 };

@@ -42,6 +42,7 @@ private:
  UFUNCTION() void DelayChanged(float Value);
  UFUNCTION() void ModeChanged(FString Item,ESelectInfo::Type Type);
  UFUNCTION() void ResetClicked();
+	UFUNCTION() void AIClicked();
  UFUNCTION() void CloseClicked();
  UFUNCTION() void ProbeClicked();
 };

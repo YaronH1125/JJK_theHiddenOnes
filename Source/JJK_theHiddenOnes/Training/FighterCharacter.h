@@ -118,6 +118,9 @@ public:
 	void NotifyStanceSwitched();
 
 	/** 消耗行动资源（GE 扣除）；不足返回 false */
+	UFUNCTION(BlueprintPure, Category = "Fighter|GAS")
+	float GetActionResource() const;
+
  bool SpendActionResource(float Amount);
  void ApplyCombatDamage(AFighterCharacter* Target, float RawDamage, float ResolvedDamage, ETrainingContact Kind);
 

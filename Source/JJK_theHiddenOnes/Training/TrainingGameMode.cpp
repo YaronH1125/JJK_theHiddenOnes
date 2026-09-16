@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
+#include "Training/FighterAIController.h"
 #include "Training/ArenaPlayerController.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/CombatHitComponent.h"
@@ -43,6 +44,7 @@ void ATrainingGameMode::Tick(float DeltaSeconds)
 	{
 		DrawCombatDebug();
 	}
+	CheckMatchOutcome();
 }
 
 void ATrainingGameMode::DrawCombatDebug() const
@@ -235,6 +237,7 @@ void ATrainingGameMode::ResetTraining()
 {
  if (bResetting) return;
  bResetting=true;
+ if(IsValid(OpponentAI)) OpponentAI->DeactivateAI();
  EnsureFightersSpawned();
  GetWorldTimerManager().ClearTimer(PlayerRecoveryTimer);
  GetWorldTimerManager().ClearTimer(OpponentRecoveryTimer);
@@ -253,6 +256,7 @@ void ATrainingGameMode::ResetTraining()
   PlayerFighter->GetTargeting()->SetPreferredTarget(OpponentFighter);
   OpponentFighter->GetTargeting()->SetPreferredTarget(PlayerFighter);
  }
+ bMatchResolved=false; MatchOutcome=EMatchOutcome::None; DeathObservedFrame=0;
  bResetting=false;
  SetTrainingMenuOpen(bMenuOpen);
  NotifyTrainingChanged();
@@ -314,14 +318,88 @@ void ATrainingGameMode::ApplyOpponentMode()
 {
  if(!IsValid(OpponentFighter) || bResetting) return;
  auto* Input=OpponentFighter->GetCombatInput();
- Input->SetRequestsEnabled(!bMenuOpen);
- if(!bMenuOpen && OpponentMode==EOpponentMode::FixedGuard && OpponentFighter->CanAct() && !OpponentFighter->HasPendingCombatEvents() && !OpponentFighter->IsGuardIntent()) Input->NotifyGuardPressed();
+ Input->SetRequestsEnabled(!bMenuOpen && !bMatchResolved);
+ if(OpponentMode==EOpponentMode::AI)
+ {
+  EnsureOpponentAI();
+  if(IsValid(OpponentAI))
+  {
+   if(bMenuOpen || bMatchResolved) OpponentAI->DeactivateAI();
+   else OpponentAI->ActivateAI(PlayerFighter);
+  }
+  return;
+ }
+ ShutdownOpponentAI();
+ if(!bMenuOpen && !bMatchResolved && OpponentMode==EOpponentMode::FixedGuard && OpponentFighter->CanAct() && !OpponentFighter->HasPendingCombatEvents() && !OpponentFighter->IsGuardIntent()) Input->NotifyGuardPressed();
+}
+
+void ATrainingGameMode::EnsureOpponentAI()
+{
+ if(IsValid(OpponentAI) && OpponentAI->GetPawn()==OpponentFighter) return;
+ if(IsValid(OpponentAI)) OpponentAI->Destroy();
+ OpponentAI = GetWorld() ? GetWorld()->SpawnActor<AFighterAIController>(AFighterAIController::StaticClass()) : nullptr;
+ if(IsValid(OpponentAI) && IsValid(OpponentFighter)) OpponentAI->Possess(OpponentFighter);
+}
+
+void ATrainingGameMode::ShutdownOpponentAI()
+{
+ if(IsValid(OpponentAI))
+ {
+  OpponentAI->DeactivateAI();
+  OpponentAI->Destroy();
+ }
+ OpponentAI=nullptr;
+}
+
+void ATrainingGameMode::CheckMatchOutcome()
+{
+ // M5.6：AI 对战中一方死亡后结算一次；同批次双亡为平局。
+ // 至少跨过死亡观察帧且双方待处理接触队列清空，才发布结果。
+ if(bMatchResolved || OpponentMode!=EOpponentMode::AI) return;
+ if(!IsValid(PlayerFighter) || !IsValid(OpponentFighter)) return;
+ const bool bPlayerDead=PlayerFighter->IsDead();
+ const bool bOpponentDead=OpponentFighter->IsDead();
+ if(!bPlayerDead && !bOpponentDead) { DeathObservedFrame=0; return; }
+ if(!DeathObservedFrame) { DeathObservedFrame=GFrameCounter; return; }
+ if(GFrameCounter<=DeathObservedFrame || PlayerFighter->HasPendingCombatEvents() || OpponentFighter->HasPendingCombatEvents()) return;
+ ResolveMatchOutcome(bPlayerDead&&bOpponentDead ? EMatchOutcome::Draw
+   : (bPlayerDead ? EMatchOutcome::OpponentWin : EMatchOutcome::PlayerWin));
+}
+
+void ATrainingGameMode::ResolveMatchOutcome(EMatchOutcome InOutcome)
+{
+ if(bMatchResolved) return;
+ bMatchResolved=true;
+ MatchOutcome=InOutcome; ++MatchResolutionCount;
+ // 停止双方新主动行为（受击等被动流程照常），AI 决策随之冻结
+ StopActiveIntent(PlayerFighter);
+ StopActiveIntent(OpponentFighter);
+ if(IsValid(OpponentAI)) OpponentAI->DeactivateAI();
+ const TCHAR* OutcomeNames[]={TEXT("无"),TEXT("玩家胜利"),TEXT("对手胜利"),TEXT("平局")};
+ const int32 Idx=FMath::Clamp(static_cast<int32>(InOutcome),0,3);
+ UE_LOG(LogTemp,Log,TEXT("[TrainingGM] 对局结束：%s（只结算一次）"),OutcomeNames[Idx]);
+ RecordInput(PlayerFighter,FString::Printf(TEXT("对局结束：%s"),OutcomeNames[Idx]));
+ NotifyTrainingChanged();
+}
+
+void ATrainingGameMode::RestartMatch()
+{
+ // M5.6 重开：M4 统一重置事务 + 清对局结束状态；AI 按当前模式恢复
+ bMatchResolved=false;
+ MatchOutcome=EMatchOutcome::None;
+ ResetTraining();
 }
 bool ATrainingGameMode::SetOpponentMode(EOpponentMode Value)
 {
- if(!IsModeAvailable(Value) || (Value!=EOpponentMode::Static && Value!=EOpponentMode::FixedGuard)) return false;
+ if(!IsModeAvailable(Value)) return false;
+ if(IsValid(OpponentAI)) OpponentAI->DeactivateAI();
  StopActiveIntent(OpponentFighter);
  OpponentMode=Value;
+ if(Value!=EOpponentMode::AI && bMatchResolved)
+ {
+  bMatchResolved=false; MatchOutcome=EMatchOutcome::None; DeathObservedFrame=0;
+  if(IsValid(PlayerFighter)) PlayerFighter->GetCombatInput()->SetRequestsEnabled(!bMenuOpen);
+ }
  ApplyOpponentMode();
  NotifyTrainingChanged();
  return true;
@@ -339,7 +417,7 @@ void ATrainingGameMode::SetTrainingSettings(FTrainingSettings Value)
  Settings=Value;
  for(auto* F : {PlayerFighter.Get(),OpponentFighter.Get()}) if(IsValid(F))
  {
-  if(bResourcesChanged) { StopActiveIntent(F); F->GetCombatInput()->SetRequestsEnabled(!bMenuOpen); }
+  if(bResourcesChanged) { StopActiveIntent(F); F->GetCombatInput()->SetRequestsEnabled(!bMenuOpen && !bMatchResolved); }
   if(Settings.bNoCooldown) ClearTrainingCooldowns(F);
  }
  GetWorldTimerManager().ClearTimer(PlayerRecoveryTimer);
@@ -354,9 +432,9 @@ void ATrainingGameMode::SetTrainingMenuOpen(bool bOpen)
  for(auto* F : {PlayerFighter.Get(),OpponentFighter.Get()}) if(IsValid(F))
  {
   if(bOpen) StopActiveIntent(F);
-  else F->GetCombatInput()->SetRequestsEnabled(true);
+  else F->GetCombatInput()->SetRequestsEnabled(!bMatchResolved);
  }
- if(auto* PC=Cast<AArenaPlayerController>(GetWorld()->GetFirstPlayerController())) PC->SetCombatInputEnabled(!bOpen);
+ if(auto* PC=Cast<AArenaPlayerController>(GetWorld()->GetFirstPlayerController())) PC->SetCombatInputEnabled(!bOpen && !bMatchResolved);
  ApplyOpponentMode();
  NotifyTrainingChanged();
 }
@@ -433,7 +511,7 @@ void ATrainingGameMode::BindFighters()
  BoundPlayer=PlayerFighter; BoundOpponent=OpponentFighter;
  for(auto* F : {PlayerFighter.Get(),OpponentFighter.Get()}) if(IsValid(F))
  {
-  F->GetCombatInput()->SetRequestsEnabled(!bMenuOpen && !bResetting);
+  F->GetCombatInput()->SetRequestsEnabled(!bMenuOpen && !bResetting && !bMatchResolved);
   auto* ASC=F->GetFighterAbilitySystemComponent();
   for(auto Attr : {UFighterAttributeSet::GetHealthAttribute(),UFighterAttributeSet::GetMaxHealthAttribute(),UFighterAttributeSet::GetActionResourceAttribute(),UFighterAttributeSet::GetMaxActionResourceAttribute(),UFighterAttributeSet::GetCursedEnergyAttribute(),UFighterAttributeSet::GetMaxCursedEnergyAttribute(),UFighterAttributeSet::GetEnergyAttribute(),UFighterAttributeSet::GetMaxEnergyAttribute()})
   {
@@ -457,7 +535,7 @@ void ATrainingGameMode::OnFighterDestroyed(AActor* Actor)
 }
 bool ATrainingGameMode::RequestTrainingProbe(AFighterCharacter* Fighter)
 {
- if(bMenuOpen || bResetting || !IsValid(Fighter) || (Fighter!=PlayerFighter && Fighter!=OpponentFighter)) return false;
+ if(bMenuOpen || bResetting || bMatchResolved || !IsValid(Fighter) || (Fighter!=PlayerFighter && Fighter!=OpponentFighter)) return false;
  const bool Result=Fighter->GetFighterAbilitySystemComponent()->TryActivateAbilityByClass(UTrainingProbeAbility::StaticClass());
  RecordInput(Fighter,Result ? TEXT("开发测试技能：执行") : TEXT("开发测试技能：拒绝"));
  if(Result && !Settings.bNoCooldown)
@@ -473,6 +551,7 @@ bool ATrainingGameMode::RequestTrainingProbe(AFighterCharacter* Fighter)
 }
 void ATrainingGameMode::EndPlay(const EEndPlayReason::Type Reason)
 {
+ ShutdownOpponentAI();
  UnbindFighters(); GetWorldTimerManager().ClearAllTimersForObject(this);
  Super::EndPlay(Reason);
 }

@@ -215,13 +215,15 @@ ECachedAction UCombatInputComponent::PeekCachedAction() const
 	return CachedAction;
 }
 
-void UCombatInputComponent::ConsumeCache()
+void UCombatInputComponent::ConsumeCache(bool bConsumed)
 {
+ if (bConsumed) ConsumedCacheId = CacheCounter;
 	CachedAction = ECachedAction::None;
 }
 
 void UCombatInputComponent::CacheAction(ECachedAction Action)
 {
+	++CacheCounter;
 	CachedAction = Action;
 	CachedActionTime = Now();
 	if (auto* F = GetOwnerFighter()) { CachedDirection = F->GetLastDodgeDirection(); CachedTarget = F->GetTargeting()->GetCurrentTarget(); bCacheHadTarget = CachedTarget.IsValid(); }

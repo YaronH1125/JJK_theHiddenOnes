@@ -7,12 +7,23 @@
 #include "Training/TrainingTypes.h"
 #include "Training/TrainingSettings.h"
 #include "GameplayEffectTypes.h"
+#include "Training/FighterAIController.h"
 #include "TrainingGameMode.generated.h"
 
 class AFighterCharacter;
 class AController;
 class UFighterDefinition;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTrainingChanged);
+
+/** AI 对战胜负（M5.6：只结算一次；同批次双亡为平局） */
+UENUM(BlueprintType)
+enum class EMatchOutcome : uint8
+{
+	None,
+	PlayerWin,
+	OpponentWin,
+	Draw
+};
 
 /** 对手行为模式；Static 仅停止主动决策，角色 Tick/ASC/碰撞/动画保持正常 */
 UENUM(BlueprintType)
@@ -43,11 +54,16 @@ public:
  UPROPERTY(BlueprintAssignable, Category="Training") FTrainingChanged OnTrainingChanged;
  UFUNCTION(BlueprintCallable, Category="Training") void SetTrainingSettings(FTrainingSettings Value);
  UFUNCTION(BlueprintCallable, Category="Training") bool SetOpponentMode(EOpponentMode Value);
- UFUNCTION(BlueprintPure, Category="Training") bool IsModeAvailable(EOpponentMode Value) const { return Value != EOpponentMode::AI; }
+ UFUNCTION(BlueprintPure, Category="Training") bool IsModeAvailable(EOpponentMode Value) const { return Value==EOpponentMode::Static || Value==EOpponentMode::FixedGuard || Value==EOpponentMode::AI; }
+ UFUNCTION(BlueprintPure, Category="Training") EMatchOutcome GetMatchOutcome() const { return MatchOutcome; }
+ UFUNCTION(BlueprintPure, Category="Training") bool IsMatchResolved() const { return bMatchResolved; }
+ UFUNCTION(BlueprintCallable, Category="Training") void RestartMatch();
  UFUNCTION(BlueprintCallable, Category="Training") void SetTrainingMenuOpen(bool bOpen);
  UFUNCTION(BlueprintPure, Category="Training") bool IsTrainingMenuOpen() const { return bMenuOpen; }
  UFUNCTION(BlueprintCallable, Category="Training|Debug") bool RequestTrainingProbe(AFighterCharacter* Fighter);
  UFUNCTION(BlueprintPure, Category="Training|Debug") int32 GetAttributeBindingCount() const { return AttributeBindings.Num(); }
+ UFUNCTION(BlueprintPure, Category="AI") AFighterAIController* GetOpponentAI() const { return OpponentAI; }
+ UFUNCTION(BlueprintPure, Category="AI") int32 GetMatchResolutionCount() const { return MatchResolutionCount; }
  void RecordContact(AFighterCharacter* Source, AFighterCharacter* Target, ETrainingContact Kind, float Raw, float Resolved, float Lost);
  void RecordInput(AFighterCharacter* Source, const FString& Text);
  void NotifyTrainingChanged();
@@ -138,6 +154,10 @@ protected:
  void UnbindFighters();
  void ApplyOpponentMode();
  void StopActiveIntent(AFighterCharacter* Fighter);
+ void EnsureOpponentAI();
+ void ShutdownOpponentAI();
+ void CheckMatchOutcome();
+ void ResolveMatchOutcome(EMatchOutcome Outcome);
  void ResolveRecovery(AFighterCharacter* Victim);
  void ScheduleRecovery(AFighterCharacter* Victim);
  void ClearTrainingCooldowns(AFighterCharacter* Fighter);
@@ -156,4 +176,15 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<AFighterCharacter> OpponentFighter;
+
+	UPROPERTY()
+	TObjectPtr<AFighterAIController> OpponentAI;
+
+	/** AI 对战胜负（M5.6：只结算一次） */
+	UPROPERTY(BlueprintReadOnly, Category = "Training")
+	EMatchOutcome MatchOutcome = EMatchOutcome::None;
+
+	bool bMatchResolved = false;
+ uint64 DeathObservedFrame = 0;
+ int32 MatchResolutionCount = 0;
 };

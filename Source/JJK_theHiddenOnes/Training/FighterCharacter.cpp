@@ -250,6 +250,11 @@ AFighterCharacter::FDodgeRequest AFighterCharacter::ConsumePendingDodge()
  return Result;
 }
 
+float AFighterCharacter::GetActionResource() const
+{
+	return AttributeSet ? AttributeSet->GetActionResource() : 0.f;
+}
+
 bool AFighterCharacter::SpendActionResource(float Amount)
 {
 	return ModifyActionResource(-FMath::Abs(Amount));

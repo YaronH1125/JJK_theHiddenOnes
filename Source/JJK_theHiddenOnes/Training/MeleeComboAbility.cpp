@@ -229,7 +229,7 @@ void UMeleeComboAbility::HandleCachePoll()
 	{
 		return;
 	}
-	if (Fighter->ValidateAttackRequest() != EActionRequestResult::Executed) { Input->ConsumeCache(); return; }
+	if (Fighter->ValidateAttackRequest() != EActionRequestResult::Executed) { Input->ConsumeCache(true); return; }
 	if (!InstanceMatches())
 	{
 		return;
@@ -241,14 +241,14 @@ void UMeleeComboAbility::HandleCachePoll()
 	case ECachedAction::NextSegment:
 		if (Def->bAllowNextSegment && SegmentIndex + 1 < SegmentSequence.Num())
 		{
-			Input->ConsumeCache();
+			Input->ConsumeCache(true);
 			AdvanceToSegment(SegmentIndex + 1);
 		}
 		break;
 	case ECachedAction::HeavyPunch:
 		if (Def->bAllowHeavyTransition && FighterDef->HeavyPunchDefinition != nullptr)
 		{
-			Input->ConsumeCache();
+			Input->ConsumeCache(true);
 			SegmentSequence = {TObjectPtr<UAttackDefinition>(FighterDef->HeavyPunchDefinition)};
 			AdvanceToSegment(0);
 		}
@@ -256,7 +256,7 @@ void UMeleeComboAbility::HandleCachePoll()
 	case ECachedAction::Kick:
 		if (Def->bAllowKickTransition && FighterDef->KickDefinition != nullptr)
 		{
-			Input->ConsumeCache();
+			Input->ConsumeCache(true);
 			SegmentSequence = {TObjectPtr<UAttackDefinition>(FighterDef->KickDefinition)};
 			AdvanceToSegment(0);
 		}
@@ -264,7 +264,7 @@ void UMeleeComboAbility::HandleCachePoll()
 	case ECachedAction::HeavyKick:
 		if (Def->bAllowKickTransition && FighterDef->HeavyKickDefinition != nullptr)
 		{
-			Input->ConsumeCache();
+			Input->ConsumeCache(true);
 			SegmentSequence = {TObjectPtr<UAttackDefinition>(FighterDef->HeavyKickDefinition)};
 			AdvanceToSegment(0);
 		}
