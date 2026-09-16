@@ -32,7 +32,27 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
 	TObjectPtr<UInputAction> AttackAction;
 
+	/** 闪避（Shift；可取消攻击） */
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
+	TObjectPtr<UInputAction> DodgeAction;
+
+	/** 持续防御（F 按住） */
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
+	TObjectPtr<UInputAction> GuardAction;
+
+	/** 腿击/重踢（Q 点按/长按） */
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
+	TObjectPtr<UInputAction> KickAction;
+
+	/** 切形态（E；远程形态 M3 不发炮） */
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
+	TObjectPtr<UInputAction> StanceSwitchAction;
+
 	virtual void SetupInputComponent() override;
+ virtual void PostProcessInput(float DeltaTime, bool bGamePaused) override;
+ UFUNCTION(BlueprintCallable, Category = "Training|Input")
+ void SetCombatInputEnabled(bool bEnabled);
+
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	/** 锁定/解除切换；有目标则解除，否则锁定最优对手 */
@@ -54,10 +74,20 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 private:
+ bool bCombatInputEnabled = true;
+ bool bAttackPressed = false, bAttackReleased = false, bKickPressed = false, bKickReleased = false;
+ bool bDodgePressed = false, bStancePressed = false;
+ void ClearFrameInput();
 	void HandleLockInput();
 	void HandleRecenterInput();
 	void HandleAttackPressed();
 	void HandleAttackReleased();
+	void HandleDodgePressed();
+	void HandleGuardPressed();
+	void HandleGuardReleased();
+	void HandleKickPressed();
+	void HandleKickReleased();
+	void HandleStanceSwitchPressed();
 
 	/** 应用失焦：清攻击会话，恢复后要求重新按下（08 第 4.2 节） */
 	UFUNCTION(BlueprintCallable, Category = "Training|Input")

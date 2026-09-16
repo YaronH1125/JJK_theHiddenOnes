@@ -41,7 +41,14 @@ public:
 	FGameplayAttributeData MaxActionResource;
 	ATTRIBUTE_ACCESSORS_BASIC(UFighterAttributeSet, MaxActionResource)
 
-	/** 能量（技能/绝技消耗） */
+ UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+ FGameplayAttributeData CursedEnergy;
+ ATTRIBUTE_ACCESSORS_BASIC(UFighterAttributeSet, CursedEnergy)
+ UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+ FGameplayAttributeData MaxCursedEnergy;
+ ATTRIBUTE_ACCESSORS_BASIC(UFighterAttributeSet, MaxCursedEnergy)
+ // Energy 保持现有序列化字段，表示领域能量。
+
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Energy, Category = "Attributes")
 	FGameplayAttributeData Energy;
 	ATTRIBUTE_ACCESSORS_BASIC(UFighterAttributeSet, Energy)

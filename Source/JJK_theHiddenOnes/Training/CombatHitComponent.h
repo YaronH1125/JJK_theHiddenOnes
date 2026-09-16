@@ -41,6 +41,18 @@ public:
 	/** 有待处理战斗事件：确保组件 Tick 开启（事件在本组件 Tick 内、扫掠之后处理） */
 	void NotifyEventsPending() { SetComponentTickEnabled(true); }
 
+	/** 当前段配置（GA/闪避取消窗口使用） */
+	const UAttackDefinition* GetActiveDefinition() const { return ActiveDefinition.Get(); }
+
+	/** 是否处于当前段的闪避取消窗口内（段开始后 CancelWindowStart～End） */
+	bool IsCancelWindowOpen() const;
+
+	/** 当前段已进行时长（秒，自 BeginAttack） */
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	float GetSegmentElapsedTime() const;
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	int32 GetSegmentId() const { return SegmentId; }
+
 	/** 当前阶段（调试显示用） */
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	EAttackPhase GetPhase() const { return Phase; }
@@ -86,10 +98,12 @@ protected:
 	/** 攻击实例计数（角色生命周期内递增） */
 	uint64 InstanceCounter = 0;
 	uint64 ActiveInstanceId = 0;
+	double SegmentBeginTime = 0.0;
 	bool bAttackActive = false;
 	bool bWindowOpen = false;
 
 	EAttackPhase Phase = EAttackPhase::None;
+	bool bCursedEnergyGranted = false;
 	int32 SegmentId = 0;
 	int32 HitCountThisAttack = 0;
 

@@ -6,6 +6,8 @@
 #include "AbilitySystemInterface.h"
 #include "JJK_theHiddenOnesCharacter.h"
 #include "Training/TrainingTypes.h"
+#include "Training/CombatTypes.h"
+#include "GameplayEffectTypes.h"
 #include "FighterCharacter.generated.h"
 
 class UFighterAbilitySystemComponent;
@@ -14,11 +16,13 @@ class UCombatHitComponent;
 class UCombatInputComponent;
 class UFighterDefinition;
 class UGameplayAbility;
+class UAttackDefinition;
 class UInputMappingContext;
 class UTargetingComponent;
 struct FGameplayAbilitySpecHandle;
 struct FOnAttributeChangeData;
 struct FCombatEvent;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJJKCombatBoundary);
 
 /**
  * 玩家与对手共享的战斗角色基座：
@@ -83,6 +87,41 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	TSubclassOf<UGameplayAbility> GetMeleeAttackAbilityClass() const;
 
+	UFUNCTION(BlueprintPure, Category = "Fighter")
+	EFighterStance GetStance() const { return Stance; }
+
+	UFUNCTION(BlueprintPure, Category = "Fighter")
+	bool IsAttacking() const;
+
+	UFUNCTION(BlueprintPure, Category = "Fighter")
+	bool IsGuardIntent() const;
+
+	/** 当前是否处于可生效的防御姿态（意图 + 无阻止状态；面向判断在结算处按来向计算） */
+	bool IsGuarding() const;
+
+	/** 共享动作请求通用校验（死亡/未初始化/硬直/倒地/形态） */
+	EActionRequestResult ValidateAttackRequest() const;
+
+	/** 请求一段攻击序列（输入入口；连击中则该请求来自缓存消费路径） */
+	bool RequestAttackSequence(ECachedAction Action);
+
+	/** 闪避请求（含取消变招判定）；返回是否成功激活 */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool RequestDodge(FVector Direction);
+
+	/** 切形态请求 */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool RequestStanceSwitch();
+
+	/** 切形态完成回调（StanceSwitchAbility 调用）：切换 Stance 并记录时间戳 */
+	void NotifyStanceSwitched();
+
+	/** 消耗行动资源（GE 扣除）；不足返回 false */
+	bool SpendActionResource(float Amount);
+
+	/** 恢复行动资源（GE 增加） */
+	void RestoreActionResource(float Amount);
+
 	/** 命中事件入队：由 CombatHitComponent 在自身 Tick 内、扫掠之后统一处理（M2.5 换血保证） */
 	void QueueCombatEvent(const FCombatEvent& Event);
 
@@ -90,13 +129,64 @@ public:
 	void ProcessCombatEvents();
 	bool HasPendingCombatEvents() const { return PendingCombatEvents.Num() > 0; }
 
-	/** 调试异常注入：明确标记的直接命中注入（绕过检测，不入正常结算统计） */
-	UFUNCTION(Exec, Category = "Training|Debug")
-	void JJKDebugForceHitReact();
+	/** 投技配对：由攻击方驱动，双方进入配对锁定 */
+	bool BeginThrowPair(AFighterCharacter* Partner, float Duration, float Damage, float PairDistance);
+	void EndThrowPair(bool bRestore);
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	bool IsThrowPaired() const { return HasCombatTag(TAG_State_ThrowPaired); }
 
-	/** 调试异常注入：致死伤害（走延迟死亡队列，验证各阶段死亡处理） */
-	UFUNCTION(Exec, Category = "Training|Debug")
+	/** 霸体：受击不中断（伤害照常） */
+	bool HasSuperArmor() const;
+
+	/** 供 GA/结算使用的内部查询 */
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	bool HasCombatTag(const FGameplayTag& Tag) const;
+
+	/** 来向是否在防御者正面弧内（防御结算用） */
+	bool IsAttackFromFront(AActor* Attacker, float HalfAngleDeg) const;
+	float GetGuardFrontArcHalfAngle() const;
+
+	/** 条件投技可转检查（距离/地面/配对占用/状态） */
+	bool CanThrowTarget(AFighterCharacter* Target, bool bAttackCanThrow);
+	UAttackDefinition* ResolveAttackDefinition(ECachedAction Action) const;
+	UAttackDefinition* ResolveCurrentAttackDefinition() const;
+	UAnimMontage* GetHitReactMontage() const;
+	bool ModifyActionResource(float SignedAmount);
+	void TickResourceRegen();
+
+	/** 闪避请求的暂存（RequestDodge 设置，DodgeAbility 激活时读取） */
+	struct FDodgeRequest
+	{
+		bool bPending = false;
+		bool bCancel = false;
+		FVector Direction = FVector::ZeroVector;
+	};
+	FDodgeRequest ConsumePendingDodge();
+	void ClearPendingDodge() { PendingDodge.bPending = false; }
+	/** 最近移动输入方向（世界空间；闪避无方向时后撤用） */
+	FVector LastMoveInputDirection = FVector::ZeroVector;
+	FVector GetLastDodgeDirection() const { return LastMoveInputDirection; }
+
+	/** GA 消费待执行攻击序列 */
+	bool ConsumePendingSequence(TArray<TObjectPtr<UAttackDefinition>>& OutSequence, int32& OutSegmentIndex);
+	void SetPendingSequenceSegment(int32 Index) { PendingSegmentIndex = Index; }
+	UFUNCTION(BlueprintCallable, Category = "Combat|Debug")
+	void JJKDebugForceHitReact();
+	UFUNCTION(BlueprintCallable, Category = "Combat|Debug")
 	void JJKDebugKill();
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	bool CanAct() const;
+	void RefreshMovementControl();
+ UPROPERTY(BlueprintAssignable, Category = "Combat")
+ FJJKCombatBoundary OnRecovered;
+ UPROPERTY(BlueprintAssignable, Category = "Combat")
+ FJJKCombatBoundary OnComboEnded;
+ void RestoreCursedEnergyOnHit();
+ FActiveGameplayEffectHandle ApplyCombatState(FGameplayTag Tag, float Duration);
+ void ClearReactionEffects();
+ FActiveGameplayEffectHandle StunEffect, KnockdownEffect, DeathEffect, ThrowEffect, GuardEffect, GetUpEffect;
+
+	virtual void Jump() override;
 
 	/**
 	 * 按定义初始化属性与外观。
@@ -128,6 +218,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void DoMove(float Right, float Forward) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_Controller() override;
 	virtual void PawnClientRestart() override;
@@ -174,19 +266,61 @@ private:
 	/** 已授予能力类，防止重复授予 */
 	TSet<TSubclassOf<UGameplayAbility>> GrantedAbilityClasses;
 
-	// ---------- M2 战斗状态 ----------
-	/** 命中事件队列（受击/死亡），CombatHitComponent 在扫掠之后统一处理 */
+	// ---------- M2/M3 战斗状态 ----------
+	/** 命中事件队列（受击/死亡/倒地/防御硬直），CombatHitComponent 在扫掠之后统一处理 */
 	TArray<FCombatEvent> PendingCombatEvents;
 
 	bool bDead = false;
 	FTimerHandle HitStunTimerHandle;
+	FTimerHandle KnockdownTimerHandle;
+	FTimerHandle ResourceRegenTimerHandle;
+	FTimerHandle ThrowPairTimerHandle;
+	FTimerHandle ThrowWatchTimerHandle;
 
-	void ApplyHitReactNow(float StunDuration, AActor* InInstigator, const FVector& HitLocation);
+	void ApplyHitReactNow(const FCombatEvent& Event);
+	void ApplyGuardStunNow(const FCombatEvent& Event);
+	void ApplyKnockdownNow(const FCombatEvent& Event);
 	void Die(AActor* InInstigator);
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	void RemoveHitStun();
+	void EndKnockdown();
+	void BeginGetUp();
+	FTimerHandle GetUpTimerHandle;
 
 	/** 最近一次受击来源与位置（调试显示） */
 	FVector LastHitLocation = FVector::ZeroVector;
 	TWeakObjectPtr<AActor> LastHitInstigator;
+
+	// ---------- M3 状态 ----------
+	UPROPERTY()
+	EFighterStance Stance = EFighterStance::Melee;
+
+	/** 防御意图（按住 F）；能否生效由结算按状态与朝向判定 */
+
+	/** 行动资源上次消耗时刻 */
+	double LastResourceSpendTime = -1000.0;
+
+	/** 投技配对对象 */
+	TWeakObjectPtr<AFighterCharacter> ThrowPartner;
+
+	/** 待执行攻击序列（输入入口设置，GA 激活时消费） */
+	UPROPERTY()
+	TArray<TObjectPtr<UAttackDefinition>> PendingSequence;
+	int32 PendingSegmentIndex = 0;
+
+	FDodgeRequest PendingDodge;
+	bool bMovementLocked = false;
+	bool bSavedOrientToMovement = true;
+	float SavedMaxWalkSpeed = 500.f;
+	bool FindThrowPosition(AFighterCharacter* Partner, float PairDistance, FVector& OutPosition) const;
+	void TickThrowPair();
+	TWeakObjectPtr<UAnimMontage> ThrowMontage;
+	bool bThrowDriver = false;
+	uint8 PreThrowMovementMode = 1;
+
+	bool bPendingStanceSwitch = false;
+	double LastStanceSwitchTime = -1000.0;
+
+	static constexpr float ResourceRegenTimerInterval = 0.25f;
+
 };

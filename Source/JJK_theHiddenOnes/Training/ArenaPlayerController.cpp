@@ -40,11 +40,14 @@ void AArenaPlayerController::HandleAppActivationChanged(bool bActive)
 {
 	if (!bActive)
 	{
+		ClearFrameInput();
 		if (AFighterCharacter* Fighter = GetPlayerFighter())
 		{
 			if (UCombatInputComponent* Input = Fighter->GetCombatInput())
 			{
 				Input->InvalidateSession(FText::FromString(TEXT("应用失焦")));
+				Input->ReleaseContinuousInputs();
+				Fighter->LastMoveInputDirection = FVector::ZeroVector;
 			}
 		}
 	}
@@ -69,7 +72,25 @@ void AArenaPlayerController::SetupInputComponent()
 			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleAttackPressed);
 			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AArenaPlayerController::HandleAttackReleased);
 		}
-		else
+		if (DodgeAction != nullptr)
+		{
+			EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleDodgePressed);
+		}
+		if (GuardAction != nullptr)
+		{
+			EnhancedInputComponent->BindAction(GuardAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleGuardPressed);
+			EnhancedInputComponent->BindAction(GuardAction, ETriggerEvent::Completed, this, &AArenaPlayerController::HandleGuardReleased);
+		}
+		if (KickAction != nullptr)
+		{
+			EnhancedInputComponent->BindAction(KickAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleKickPressed);
+			EnhancedInputComponent->BindAction(KickAction, ETriggerEvent::Completed, this, &AArenaPlayerController::HandleKickReleased);
+		}
+		if (StanceSwitchAction != nullptr)
+		{
+			EnhancedInputComponent->BindAction(StanceSwitchAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleStanceSwitchPressed);
+		}
+		if (!AttackAction)
 		{
 			UE_LOG(LogTemp, Error, TEXT("[ArenaPC] AttackAction 未配置，攻击输入无法绑定；请检查 BP_ArenaPlayerController 与 IA_Attack 资产"));
 		}
@@ -104,24 +125,55 @@ void AArenaPlayerController::HandleRecenterInput()
 
 void AArenaPlayerController::HandleAttackPressed()
 {
+ if (bCombatInputEnabled) bAttackPressed = true;
+}
+
+void AArenaPlayerController::HandleAttackReleased()
+{
+ if (bCombatInputEnabled) bAttackReleased = true;
+}
+
+void AArenaPlayerController::HandleDodgePressed()
+{
+ if (bCombatInputEnabled) bDodgePressed = true;
+}
+
+void AArenaPlayerController::HandleGuardPressed()
+{
+	if (!bCombatInputEnabled) return;
 	if (AFighterCharacter* Fighter = GetPlayerFighter())
 	{
 		if (UCombatInputComponent* Input = Fighter->GetCombatInput())
 		{
-			Input->NotifyAttackPressed();
+			Input->NotifyGuardPressed();
 		}
 	}
 }
 
-void AArenaPlayerController::HandleAttackReleased()
+void AArenaPlayerController::HandleGuardReleased()
 {
 	if (AFighterCharacter* Fighter = GetPlayerFighter())
 	{
 		if (UCombatInputComponent* Input = Fighter->GetCombatInput())
 		{
-			Input->NotifyAttackReleased();
+			Input->NotifyGuardReleased();
 		}
 	}
+}
+
+void AArenaPlayerController::HandleKickPressed()
+{
+ if (bCombatInputEnabled) bKickPressed = true;
+}
+
+void AArenaPlayerController::HandleKickReleased()
+{
+ if (bCombatInputEnabled) bKickReleased = true;
+}
+
+void AArenaPlayerController::HandleStanceSwitchPressed()
+{
+ if (bCombatInputEnabled) bStancePressed = true;
 }
 
 void AArenaPlayerController::ToggleLock()
@@ -264,4 +316,35 @@ void AArenaPlayerController::JJKRespawnFighters()
 	{
 		GM->RestartPlayer(this);
 	}
+}
+
+void AArenaPlayerController::ClearFrameInput()
+{
+ bAttackPressed = bAttackReleased = bKickPressed = bKickReleased = bDodgePressed = bStancePressed = false;
+}
+void AArenaPlayerController::SetCombatInputEnabled(bool bEnabled)
+{
+ bCombatInputEnabled = bEnabled;
+ if (auto* F = GetPlayerFighter()) F->GetCombatInput()->SetRequestsEnabled(bEnabled);
+ ClearFrameInput();
+ if (!bEnabled) HandleAppActivationChanged(false);
+}
+void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
+{
+ Super::PostProcessInput(DeltaTime, bGamePaused);
+ AFighterCharacter* Fighter = GetPlayerFighter();
+ if (!Fighter || !bCombatInputEnabled || bGamePaused) { ClearFrameInput(); return; }
+ auto* Input = Fighter->GetCombatInput();
+ // 先应用待处理死亡/强制中断，再按 Shift > 松键 > 新动作排序，与映射迭代顺序无关。
+ Fighter->ProcessCombatEvents();
+ const bool Dodged = bDodgePressed && Fighter->RequestDodge(Fighter->GetLastDodgeDirection());
+ if (!Dodged)
+ {
+  if (bAttackPressed) Input->NotifyAttackPressed();
+  if (bKickPressed) Input->NotifyKickPressed();
+  if (bAttackReleased) Input->NotifyAttackReleased();
+  if (bKickReleased) Input->NotifyKickReleased();
+  if (bStancePressed) Input->NotifyStanceSwitchPressed();
+ }
+ ClearFrameInput();
 }

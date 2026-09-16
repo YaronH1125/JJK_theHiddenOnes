@@ -63,6 +63,8 @@ void AJJK_theHiddenOnesCharacter::SetupPlayerInputComponent(UInputComponent* Pla
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AJJK_theHiddenOnesCharacter::Move);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &AJJK_theHiddenOnesCharacter::Look);
 
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AJJK_theHiddenOnesCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Canceled, this, &AJJK_theHiddenOnesCharacter::Move);
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AJJK_theHiddenOnesCharacter::Look);
 	}

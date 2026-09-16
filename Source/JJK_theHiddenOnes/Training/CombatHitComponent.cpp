@@ -12,6 +12,7 @@
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
 #include "Training/FighterCharacter.h"
+#include "Training/FighterDefinition.h"
 
 namespace
 {
@@ -43,6 +44,7 @@ UCombatHitComponent::UCombatHitComponent()
 void UCombatHitComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	if (AFighterCharacter* F = GetOwnerFighter()) AddTickPrerequisiteComponent(F->GetMesh());
 }
 
 AFighterCharacter* UCombatHitComponent::GetOwnerFighter() const
@@ -69,7 +71,9 @@ uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition)
 	bHasLastSocketLocation = false;
 	DedupKeys.Reset();
 	HitCountThisAttack = 0;
+	bCursedEnergyGranted = false;
 	SegmentId = Definition ? Definition->SegmentId : 0;
+	SegmentBeginTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
 	SetComponentTickEnabled(true);
 
 	UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 开始攻击实例 %llu（段 %d，伤害 %.0f）"),
@@ -77,8 +81,31 @@ uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition)
 	return ActiveInstanceId;
 }
 
+bool UCombatHitComponent::IsCancelWindowOpen() const
+{
+	const UAttackDefinition* Def = ActiveDefinition.Get();
+	if (Def == nullptr || !bAttackActive)
+	{
+		return false;
+	}
+	const UWorld* World = GetWorld();
+	if (World == nullptr)
+	{
+		return false;
+	}
+	const float Elapsed = static_cast<float>(World->GetTimeSeconds() - SegmentBeginTime);
+	return Def->CancelWindowEndTime > 0.f && Elapsed >= Def->CancelWindowStartTime && Elapsed <= Def->CancelWindowEndTime;
+}
+
+float UCombatHitComponent::GetSegmentElapsedTime() const
+{
+	const UWorld* World = GetWorld();
+	return World != nullptr ? static_cast<float>(World->GetTimeSeconds() - SegmentBeginTime) : 0.f;
+}
+
 void UCombatHitComponent::HandleAnimWindowNotify(bool bOpen, const UAnimSequenceBase* Animation)
 {
+	if (Animation && (!ActiveDefinition.IsValid() || !ActiveDefinition->bWindowFromAnimNotifies)) return;
 	if (!bAttackActive)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 拒绝窗口通知（%s）：无活动攻击实例（旧动画遗留）"),
@@ -116,8 +143,7 @@ void UCombatHitComponent::CloseWindow()
 	}
 	bWindowOpen = false;
 	Phase = EAttackPhase::Recovery;
-	// 去重键保持到本段结束：段结束即窗口关闭；新攻击实例各自独立
-	DedupKeys.Reset();
+	// 关闭窗口不清去重；只有 BeginAttack 为新段清空，避免重复通知绕过结果。
 	UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 实例 %llu 窗口关闭（有效命中 %d）"), *GetNameSafe(GetOwner()), ActiveInstanceId, HitCountThisAttack);
 }
 
@@ -253,7 +279,8 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		{
 			continue;
 		}
-		if (Target->GetAbilitySystemComponent()->HasMatchingGameplayTag(TAG_State_Dead))
+		// 倒地保护与死亡：不进入普通连段结算，也不占用去重键
+		if (Target->IsDead() || Target->IsThrowPaired() || Target->HasCombatTag(TAG_State_KnockedDown))
 		{
 			continue;
 		}
@@ -275,6 +302,8 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 	UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 实例 %llu 批次结算：有效接触 %d 个"),
 		*GetNameSafe(Attacker), ActiveInstanceId, ValidContacts.Num());
 
+	// 命中结果分类：普通命中 / 防御 / 免疫 / 投技（M3.3/M3.5）。
+	// 被防住/免疫的接触同样占用去重键：同一窗口内后续采样不会绕过首次结果（T14）。
 	for (const FValidContact& Contact : ValidContacts)
 	{
 		AFighterCharacter* Target = Contact.Target;
@@ -284,7 +313,52 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 			continue;
 		}
 
-		// 伤害经 GE 生效（SetByCaller Data.Damage，负值扣减生命）
+		// 免疫（闪避无敌窗口）：无伤害、不受击
+		if (Def->bDodgeable && Target->HasCombatTag(TAG_State_DodgeInvulnerable))
+		{
+			UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 的接触被 %s 闪避免疫（实例 %llu）"),
+				*GetNameSafe(Attacker), *GetNameSafe(Target), ActiveInstanceId);
+			continue;
+		}
+
+		// 防御判定：目标防御意图生效、本攻击可被防御、且来向在目标正面弧内
+		const bool bFront = Target->IsAttackFromFront(Attacker, Target->GetGuardFrontArcHalfAngle());
+		const bool bGuarded = Target->IsGuarding() && Def->bBlockable && bFront;
+
+		// 条件投技（M3.5）：可转投段 + 目标防御 + 距离/朝向/地面/配对占用检查
+		if (bGuarded && Def->bCanThrow && Attacker->CanThrowTarget(Target, Def->bCanThrow))
+		{
+			const UFighterDefinition* AttackerDef = Attacker->GetDefinition();
+			UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 对防御中的 %s 转投技（实例 %llu）"),
+				*GetNameSafe(Attacker), *GetNameSafe(Target), ActiveInstanceId);
+			if (Attacker->BeginThrowPair(Target, AttackerDef->ThrowConfig.PairDuration,
+				AttackerDef->ThrowConfig.Damage, AttackerDef->ThrowConfig.PairDistance)) return;
+			// 配对站位非法，继续原防御结果
+		}
+
+		if (bGuarded)
+		{
+			// 防御结果：无伤害，防御方进入防御硬直（防住结果占用去重键，后续采样不绕过）
+			++HitCountThisAttack;
+            const auto& Guard = Target->GetDefinition()->GuardConfig;
+            if (Guard.bChipDamage)
+            {
+             const auto Chip = MakeDamageSpec(AttackerASC, Def->Damage * Guard.ChipDamageRatio);
+             if (Chip.IsValid()) AttackerASC->ApplyGameplayEffectSpecToTarget(*Chip.Data, TargetASC);
+            }
+			FCombatEvent GuardEvent;
+			GuardEvent.Type = FCombatEvent::EType::GuardStun;
+			GuardEvent.Instigator = Attacker;
+			GuardEvent.StunDuration = Def->GuardStunDuration;
+			GuardEvent.HitLocation = Contact.HitLocation;
+			Target->QueueCombatEvent(GuardEvent);
+			UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 的攻击被 %s 防御（实例 %llu）"),
+				*GetNameSafe(Attacker), *GetNameSafe(Target), ActiveInstanceId);
+			continue;
+		}
+
+		if (!bCursedEnergyGranted) { Attacker->RestoreCursedEnergyOnHit(); bCursedEnergyGranted = true; }
+		// 普通命中：伤害经 GE 生效（SetByCaller Data.Damage，负值扣减生命）
 		const FGameplayEffectSpecHandle Spec = MakeDamageSpec(AttackerASC, Def->Damage);
 		if (Spec.IsValid())
 		{
@@ -301,8 +375,17 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 命中 %s（实例 %llu 段 %d，伤害 %.0f，累计命中 %d，致死=%d）"),
 			*GetNameSafe(Attacker), *GetNameSafe(Target), ActiveInstanceId, SegmentId, Def->Damage, HitCountThisAttack, bLethal ? 1 : 0);
 
-		// 受击/死亡进入受击方延迟队列：受击方自身下一 Tick 处理中断；
+		// 受击/倒地进入受击方延迟队列：受击方自身下一 Tick 处理中断；
 		// 本帧（同一批次窗口内）双方已有效接触仍换血，被打断后未来接触失效
-		Target->QueueCombatEvent({Attacker, Def->HitStunDuration, bLethal, Contact.HitLocation});
+		FCombatEvent Event;
+		Event.Type = Def->bKnockdown ? FCombatEvent::EType::Knockdown : FCombatEvent::EType::HitReact;
+		Event.Instigator = Attacker;
+		Event.InterruptLevel = Def->InterruptLevel;
+		Event.StunDuration = Def->HitStunDuration;
+		Event.bLethal = bLethal;
+		Event.HitLocation = Contact.HitLocation;
+		Event.KnockbackStrength = Def->KnockbackStrength;
+		Event.KnockbackDirection = (Target->GetActorLocation() - Attacker->GetActorLocation()).GetSafeNormal2D();
+		Target->QueueCombatEvent(Event);
 	}
 }

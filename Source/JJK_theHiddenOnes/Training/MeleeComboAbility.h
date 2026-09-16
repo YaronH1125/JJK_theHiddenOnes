@@ -11,11 +11,11 @@ class UAbilityTask_PlayMontageAndWait;
 class UAttackDefinition;
 
 /**
- * M2 单段拳击 GA：管理激活、Montage、命中窗口阶段与结束清理。
- * - 窗口默认由动画通知驱动（AttackWindowOpen/Close），事件由 CombatHitComponent 以实例校验；
- *   Definition 关闭通知来源时使用配置时间窗口（显式记录的回退）。
- * - 所有退出路径（完成、被打断、取消、死亡、重置）都经 EndAbility 关窗清状态；
- *   通知丢失或 Montage 播放失败也能结束能力。
+ * 近战攻击 GA（M3）：驱动一段攻击序列（A1→A2→A3 / 重拳 / 腿击 / 重踢）。
+ * - 每段：分配攻击实例 → Montage → 时间窗口扫掠 → 恢复。
+ * - 衔接窗口内轮询输入缓存（NextSegment/HeavyPunch/Kick/HeavyKick），按当前段允许集消费转段；
+ *   未消费则 Montage 完成后结束。
+ * - 所有退出路径经 EndAbility 关窗清状态；通知丢失/播放失败也能结束。
  */
 UCLASS()
 class UMeleeComboAbility : public UGameplayAbility
@@ -43,19 +43,44 @@ private:
 	UFUNCTION()
 	void HandleMontageInterrupted();
 
+	UFUNCTION()
+	void HandleWindowOpen();
+
+	UFUNCTION()
+	void HandleWindowClose();
+
+	UFUNCTION()
+	void HandleCachePoll();
+
+	/** 进入序列中的下一段 */
+	void AdvanceToSegment(int32 Index);
+
 	AFighterCharacter* GetFighter() const;
+	UAttackDefinition* CurrentDef() const;
+	bool InstanceMatches() const;
 
 	void FinishMontageTask();
+	void ClearTimers();
 
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
 
 	TWeakObjectPtr<AFighterCharacter> CachedFighter;
-	TWeakObjectPtr<const UAttackDefinition> ActiveDefinition;
 
+	/** 本序列的段配置 */
+	UPROPERTY()
+	TArray<TObjectPtr<UAttackDefinition>> SegmentSequence;
+
+	int32 SegmentIndex = INDEX_NONE;
 	uint64 AttackInstanceId = 0;
 	bool bInstanceActive = false;
 	bool bAttackTagApplied = false;
+	bool bSuperArmorApplied = false;
+	bool bComboWindowOpen = false;
+
 	FTimerHandle WindowOpenTimerHandle;
 	FTimerHandle WindowCloseTimerHandle;
+	FTimerHandle ComboWindowOpenTimerHandle;
+	FTimerHandle ComboWindowCloseTimerHandle;
+	FTimerHandle ComboCachePollTimerHandle;
 };

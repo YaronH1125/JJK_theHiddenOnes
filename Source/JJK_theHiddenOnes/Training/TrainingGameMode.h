@@ -95,6 +95,10 @@ public:
 	/** 调试：开关战斗 HUD（请求结果/阶段/标签/实例/命中/生命） */
 	UFUNCTION(Exec, Category = "Training|Debug")
 	void JJKDebugHud();
+	UFUNCTION(Exec, Category = "Training|Debug")
+	void JJKOpponentGuard(bool bHeld);
+	UFUNCTION(Exec, Category = "Training|Debug")
+	void JJKOpponentAction(int32 Action);
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;

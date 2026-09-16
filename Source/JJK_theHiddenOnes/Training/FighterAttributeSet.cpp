@@ -10,7 +10,9 @@ void UFighterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 {
 	Super::PostGameplayEffectExecute(Data);
 
-	// 当前仅约束生命范围；资源类属性的约束在 M2 引入对应 GE 时补充
+ if (Data.EvaluatedData.Attribute == GetActionResourceAttribute()) SetActionResource(FMath::Clamp(GetActionResource(),0.f,GetMaxActionResource()));
+ if (Data.EvaluatedData.Attribute == GetCursedEnergyAttribute()) SetCursedEnergy(FMath::Clamp(GetCursedEnergy(),0.f,GetMaxCursedEnergy()));
+
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		const float Max = FMath::Max(GetMaxHealth(), 0.f);

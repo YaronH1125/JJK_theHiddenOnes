@@ -73,6 +73,12 @@ void ATrainingGameMode::DrawCombatDebug() const
 				PhaseNames[static_cast<int32>(Hit->GetPhase())],
 				Hit->GetActiveInstanceId(), Hit->GetHitCount(),
 				Input->GetActiveSessionId()));
+        FGameplayTagContainer Tags;
+        ASC->GetOwnedGameplayTags(Tags);
+        GEngine->AddOnScreenDebugMessage(100 + Line++, 0.f, FColor::White,
+            FString::Printf(TEXT("AR %.2f / CE %.0f | Segment %d Cache %d | %s"),
+                Fighter->GetFighterAttributeSet()->GetActionResource(), Fighter->GetFighterAttributeSet()->GetCursedEnergy(),
+                Hit->GetSegmentId(), int32(Input->PeekCachedAction()), *Tags.ToStringSimple()));
 	};
 
 	DrawFighter(TEXT("P1"), PlayerFighter);
@@ -122,6 +128,10 @@ void ATrainingGameMode::EnsureFightersSpawned()
 	if (!IsValid(PlayerFighter))
 	{
 		PlayerFighter = SpawnFighter(EFighterRole::Player, PlayerSpawnGroundTransform);
+		if (PlayerFighter)
+		{
+			if (APlayerController* PC = GetWorld()->GetFirstPlayerController()) PC->Possess(PlayerFighter);
+		}
 	}
 	if (!IsValid(OpponentFighter))
 	{
@@ -254,4 +264,25 @@ void ATrainingGameMode::JJKDebugHud()
 {
 	bDebugHud = !bDebugHud;
 	UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 调试 HUD = %d"), bDebugHud ? 1 : 0);
+}
+
+void ATrainingGameMode::JJKOpponentGuard(bool bHeld)
+{
+ if (!IsValid(OpponentFighter)) return;
+ if (bHeld) OpponentFighter->GetCombatInput()->NotifyGuardPressed();
+ else OpponentFighter->GetCombatInput()->NotifyGuardReleased();
+}
+
+void ATrainingGameMode::JJKOpponentAction(int32 Action)
+{
+ if (!IsValid(OpponentFighter)) return;
+ auto* Input = OpponentFighter->GetCombatInput();
+ switch (Action)
+ {
+ case 1: Input->SubmitHeavyPunch(); break;
+ case 2: Input->SubmitKick(); break;
+ case 3: Input->SubmitHeavyKick(); break;
+ case 4: Input->NotifyDodgePressed(FVector::ZeroVector); break;
+ default: Input->SubmitLightAttack(); break;
+ }
 }
