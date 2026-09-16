@@ -75,6 +75,56 @@ def full_recover():
 
 def suite():
     global p1, p2
+    # ---------- T13 Enhanced Input 分发（不直接调用 CombatInput 入口） ----------
+    reset_all()
+    place(p1, 400, 0)
+    yield from wait(0.3)
+    action = unreal.load_object(None, '/Game/Training/IA_Attack.IA_Attack')
+    imc = unreal.load_object(None, '/Game/Training/IMC_Training.IMC_Training')
+    check('T13_controller_action', action is not None and pc.get_editor_property('attack_action') == action,
+          action.get_path_name() if action else None)
+    mappings = imc.get_editor_property('default_key_mappings').get_editor_property('mappings')
+    left = [m for m in mappings if str(m.key.get_editor_property('key_name')) == 'LeftMouseButton']
+    check('T13_left_mouse_mapping', len(left) == 1 and left[0].action == action,
+          [m.action.get_path_name() if m.action else None for m in left])
+    subsystem = unreal.get_default_object(unreal.load_class(None, '/Script/Engine.SubsystemBlueprintLibrary')).call_method(
+        'GetLocalPlayerSubSystemFromPlayerController', (pc, unreal.EnhancedInputLocalPlayerSubsystem.static_class()))
+    check('T13_mapping_installed', subsystem.has_mapping_context(imc) is not None)
+    inp = p1.get_combat_input()
+    hp_before = hp(p2)
+    # 每帧注入布尔按下；零值产生 Completed，经过 Controller 的 Started/Completed 绑定。
+    for _ in wait(0.06):
+        subsystem.inject_input_vector_for_action(action, unreal.Vector(1, 0, 0), [], [])
+        yield
+    check('T13_started_session', inp.get_active_session_id() > 0, inp.get_active_session_id())
+    subsystem.inject_input_vector_for_action(action, unreal.Vector(0, 0, 0), [], [])
+    yield from wait(0.08)
+    attack_montage = unreal.load_object(None, '/Game/Training/AM_M2_A1.AM_M2_A1')
+    check('T13_completed_activates_montage', inp.get_active_session_id() == 0
+          and p1.get_combat_hit().has_active_attack()
+          and p1.mesh.get_anim_instance().montage_is_playing(attack_montage))
+    react_montage = unreal.load_object(None, '/Game/Training/AM_M2_HitReact.AM_M2_HitReact')
+    saw_react = False
+    for _ in wait(0.7):
+        saw_react = saw_react or p2.mesh.get_anim_instance().montage_is_playing(react_montage)
+        yield
+    check('T13_hit_react_montage', saw_react)
+    yield from wait(0.6)
+    check('T13_input_single_damage', abs(hp(p2) - (hp_before - DAMAGE)) < 0.01
+          and p1.get_combat_hit().get_hit_count() == 1,
+          {'hp_before': hp_before, 'hp_after': hp(p2), 'hits': p1.get_combat_hit().get_hit_count()})
+    check('T13_input_attack_ended', not p1.get_combat_hit().has_active_attack())
+    reset_all()
+    place(p1, 400, 0)
+    yield from wait(0.3)
+    for _ in wait(0.3):
+        subsystem.inject_input_vector_for_action(action, unreal.Vector(1, 0, 0), [], [])
+        yield
+    subsystem.inject_input_vector_for_action(action, unreal.Vector(0, 0, 0), [], [])
+    yield from wait(1.3)
+    check('T13_injected_hold_no_light', hp(p2) == 1000 and inp.get_active_session_id() == 0
+          and not p1.get_combat_hit().has_active_attack(), hp(p2))
+
     # ---------- T01 有效距离命中 / 范围外空挥 ----------
     reset_all()
     place(p1, 400, 0)
@@ -387,10 +437,12 @@ def finish():
 
 def tick(_delta_time=None):
     try:
+        if time.monotonic() - started > 210:
+            raise TimeoutError('M2 acceptance exceeded 210 seconds')
         next(gen)
     except StopIteration:
-        state['status'] = 'passed'
-        unreal.log('[M2Acceptance] ALL PASSED')
+        state['status'] = 'passed' if state['checks'] and all(c['passed'] for c in state['checks']) else 'failed'
+        unreal.log('[M2Acceptance] ' + state['status'].upper())
         finish()
     except Exception:
         state['status'] = 'failed'

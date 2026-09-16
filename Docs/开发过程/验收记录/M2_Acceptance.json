@@ -3,6 +3,57 @@
   "engine": "5.8.2-56702186+++UE5+Release-5.8",
   "checks": [
     {
+      "name": "T13_controller_action",
+      "passed": true,
+      "details": "/Game/Training/IA_Attack.IA_Attack"
+    },
+    {
+      "name": "T13_left_mouse_mapping",
+      "passed": true,
+      "details": [
+        "/Game/Training/IA_Attack.IA_Attack"
+      ]
+    },
+    {
+      "name": "T13_mapping_installed",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "T13_started_session",
+      "passed": true,
+      "details": 1
+    },
+    {
+      "name": "T13_completed_activates_montage",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "T13_hit_react_montage",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "T13_input_single_damage",
+      "passed": true,
+      "details": {
+        "hp_before": 1000.0,
+        "hp_after": 965.0,
+        "hits": 1
+      }
+    },
+    {
+      "name": "T13_input_attack_ended",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "T13_injected_hold_no_light",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
       "name": "T01_hitstun_blocks",
       "passed": true,
       "details": "<ActionRequestResult.REJECTED_BLOCKED: 4>"
@@ -47,8 +98,8 @@
       "passed": true,
       "details": [
         930.0,
-        3,
-        4
+        4,
+        5
       ]
     },
     {
@@ -238,12 +289,12 @@
       "details": {
         "r": "<ActionRequestResult.EXECUTED: 0>",
         "p1": [
-          379.487,
+          378.997,
           0.0,
           98.15
         ],
         "p2": [
-          463.612,
+          463.097,
           0.0,
           98.15
         ],
@@ -340,5 +391,22 @@
       "details": 965.0
     }
   ],
-  "duration_seconds": 59.875
+  "duration_seconds": 63.562,
+  "disk_assets": {
+    "IA_Attack": {
+      "path": "Content/Training/IA_Attack.uasset",
+      "bytes": 1154,
+      "sha256": "42796a5b9f070b20b9653ecc26567511f61637899e4d4a085af57a06699a175c"
+    },
+    "IMC_Training": {
+      "path": "Content/Training/IMC_Training.uasset",
+      "bytes": 10592,
+      "sha256": "e92a9d4a29f044688a05762d17ac5c2ff86bfb9d95e31aadc07a8f7af0da9ecc"
+    },
+    "BP_ArenaPlayerController": {
+      "path": "Content/Training/BP_ArenaPlayerController.uasset",
+      "bytes": 21356,
+      "sha256": "349760b961ab425e2105f4b7f25a1835f916b501e5d6a4a0ccaa035828ca985f"
+    }
+  }
 }

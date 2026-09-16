@@ -1,4 +1,4 @@
-# UE 自动化与 M1 验收
+# UE 自动化与 M1 / M2 验收
 
 先打开本项目 UE 5.8.2 编辑器。以下命令在项目根目录执行，无需保持编辑器前台。
 
@@ -35,3 +35,20 @@ python Scripts/ue_python.py Scripts/M1_art_review.py
 - `M1_demo_view.py`：新 PIE 中取斜侧玩家视角，延后数帧请求游戏 HighResShot。截图写入有延迟，需查看文件时间与内容确认。
 
 运行结果、参数与已知限制见 [M1 记录](../Docs/开发过程/M1_基础训练擂台.md)；排障见 [处理回复](../Docs/求救信/M1_UE编辑器自动化通道_处理回复_2026-09-15.md)。
+
+## M2 输入修复与冷启动验收
+
+```powershell
+# 停止 PIE 后，幂等创建/保存 IA_Attack，修复映射与控制器
+python Scripts/ue_python.py Scripts/M2_fix_inputs.py
+# 正常保存退出；等待 UnrealEditor 进程完全退出后再重新打开本项目
+python Scripts/ue_python.py Scripts/M1_save_close.py
+# 新编辑器中运行；验收不会创建或修复输入资产
+python Scripts/run_m2_acceptance.py
+```
+
+只保留一个本项目编辑器实例。`M2_fix_inputs.py` 断言保存成功、正式 Content 文件存在且未被 Git 忽略；`M2_create_assets.py` 共用此输入修复入口。
+
+`run_m2_acceptance.py` 首先检查磁盘资产，再运行 57 项断言（原有 48 项 + T13 输入分发 9 项）。T13 核对左键映射、Controller 引用、IMC 已安装，并逐帧注入 Enhanced Input action 的按下/松开，验证会话、攻击 Montage、受击 Montage、恰好一次 35 点伤害与长按无轻拳。它不模拟操作系统鼠标，实体键鼠手感仍需人工验收。
+
+任一失败、异常、超时或断言数量不符都会使 runner 失败；失败详情保留在 `Saved/M2_acceptance.json`，成功才更新正式证据。资产文件哈希随成功报告归档；提交时应包含 `Content/Training/IA_Attack.uasset`。
