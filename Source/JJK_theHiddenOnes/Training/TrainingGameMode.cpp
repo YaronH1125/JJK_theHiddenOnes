@@ -1,6 +1,9 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Training/TrainingGameMode.h"
+#include "Training/M5SmokeHarness.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 
 #include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -35,6 +38,12 @@ void ATrainingGameMode::StartPlay()
 {
 	Super::StartPlay();
 	EnsureFightersSpawned();
+#if !UE_BUILD_SHIPPING
+ if(FParse::Param(FCommandLine::Get(),TEXT("M5SmokeTest")))
+ {
+  auto* Harness=NewObject<UM5SmokeHarness>(this); Harness->RegisterComponent();
+ }
+#endif
 }
 
 void ATrainingGameMode::Tick(float DeltaSeconds)
@@ -379,6 +388,7 @@ void ATrainingGameMode::ResolveMatchOutcome(EMatchOutcome InOutcome)
  const int32 Idx=FMath::Clamp(static_cast<int32>(InOutcome),0,3);
  UE_LOG(LogTemp,Log,TEXT("[TrainingGM] 对局结束：%s（只结算一次）"),OutcomeNames[Idx]);
  RecordInput(PlayerFighter,FString::Printf(TEXT("对局结束：%s"),OutcomeNames[Idx]));
+ if(auto* PC=Cast<AArenaPlayerController>(GetWorld()->GetFirstPlayerController())) PC->SetTrainingPanelOpen(true);
  NotifyTrainingChanged();
 }
 

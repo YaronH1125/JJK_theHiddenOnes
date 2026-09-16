@@ -1,6 +1,8 @@
 #include "Training/FighterAIController.h"
 #include "Training/ArenaBTNodes.h"
 #include "Training/FighterCharacter.h"
+#include "Training/FighterDefinition.h"
+#include "Training/FighterAbilitySystemComponent.h"
 #include "Training/CombatInputComponent.h"
 #include "Training/TrainingGameMode.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -82,7 +84,7 @@ void AFighterAIController::ActivateAI(AFighterCharacter* Target)
 }
 void AFighterAIController::DeactivateAI()
 {
- bActive=false;
+ bActive=false; DebugBranch.Reset();
  if (auto* BT=Cast<UBehaviorTreeComponent>(BrainComponent)) BT->StopTree(EBTStopMode::Forced);
  StopMovement(); ClearFocus(EAIFocusPriority::Gameplay);
  if (auto* F=GetSelf()) { F->GetCombatInput()->InvalidateSession(FText::FromString(TEXT("AI停止"))); F->GetCombatInput()->ReleaseContinuousInputs(); }
@@ -100,13 +102,18 @@ void AFighterAIController::SetParams(FArenaAIParams Value)
  Value.AttackRangeExit=FMath::Max(Value.AttackRange,Value.AttackRangeExit);
  Value.RetreatDistance=FMath::Clamp(Value.RetreatDistance,0.f,Value.AttackRange);
  if (Params.RandomSeed!=Value.RandomSeed) RandomStream.Initialize(Value.RandomSeed);
+ Value.AttackChance=FMath::Clamp(Value.AttackChance,0.f,1.f);
+ Value.HeavyChance=FMath::Clamp(Value.HeavyChance,0.f,1.f);
+ Value.DodgeChance=FMath::Clamp(Value.DodgeChance,0.f,1.f);
+ Value.DefendChance=FMath::Clamp(Value.DefendChance,0.f,1.f-Value.DodgeChance);
+ Value.StrafeSwitchInterval=FMath::Max(.1f,Value.StrafeSwitchInterval);
  Params=Value;
 }
 void AFighterAIController::Tick(float Delta)
 {
  Super::Tick(Delta); Observe();
  // 只撤销寻路，避免 StopMovementImmediately 抹掉已生效击退/闪避速度。
- if (!CanRun() || !GetSelf()->CanAct()) { StopMovement(); ClearFocus(EAIFocusPriority::Gameplay); }
+ if (!CanRun() || !GetSelf()->CanAct()) { StopPathKeepingVelocity(); ClearFocus(EAIFocusPriority::Gameplay); }
 }
 void AFighterAIController::Observe()
 {
@@ -129,7 +136,8 @@ void AFighterAIController::Decide()
   const float D=Blackboard->GetValueAsFloat(TEXT("Distance"));
   const bool Threat=ObservedAttackAt>=0. && Now()-ObservedAttackAt>=Params.ReactionDelay && D<=Params.AttackRangeExit+80.f;
   const float Roll=RandomFraction();
-  if (Threat && Roll<Params.DodgeChance && Blackboard->GetValueAsFloat(TEXT("ActionResource"))>=1.f) Next=EAIBranch::Dodge;
+  const bool CanPayDodge=GetSelf()->GetFighterAbilitySystemComponent()->HasInfiniteResources() || Blackboard->GetValueAsFloat(TEXT("ActionResource"))>=GetSelf()->GetDefinition()->DodgeConfig.DodgeCost;
+  if (Threat && Roll<Params.DodgeChance && CanPayDodge) Next=EAIBranch::Dodge;
   else if (Threat && Roll<Params.DodgeChance+Params.DefendChance) Next=EAIBranch::Defend;
   else if (D<Params.RetreatDistance) Next=EAIBranch::Retreat;
   else if (D<=(Previous==EAIBranch::Attack ? Params.AttackRangeExit : Params.AttackRange)) Next=Roll<Params.AttackChance ? EAIBranch::Attack : EAIBranch::Strafe;
@@ -138,6 +146,9 @@ void AFighterAIController::Decide()
   const bool WasMoving=Previous==EAIBranch::Approach || Previous==EAIBranch::Strafe || Previous==EAIBranch::Retreat;
   if (!Threat && WasMoving && Next!=Previous && Now()-LastBranchSwitch<Params.MinBranchHoldTime) Next=Previous;
  }
+#if !UE_BUILD_SHIPPING
+ if (DebugBranch.IsSet() && CanRun()) { Next=DebugBranch.GetValue(); DebugBranch.Reset(); }
+#endif
  if (Next!=Previous) LastBranchSwitch=Now();
  Blackboard->SetValueAsInt(TEXT("Branch"),int32(Next));
  LogDecision(FString::Printf(TEXT("Branch=%s Distance=%.1f ObservedFor=%.2f"),*StaticEnum<EAIBranch>()->GetNameStringByValue(int64(Next)),Blackboard->GetValueAsFloat(TEXT("Distance")),ObservedAttackAt<0. ? -1. : Now()-ObservedAttackAt));
@@ -185,4 +196,19 @@ void AFighterAIController::LogDecision(const FString& Text)
  const FString Line=FString::Printf(TEXT("%.3f %s"),Now(),*Text);
  DecisionLog.Add(Line); if (DecisionLog.Num()>64) DecisionLog.RemoveAt(0);
  UE_LOG(LogTemp,Log,TEXT("[ArenaAI] %s"),*Line);
+}
+
+void AFighterAIController::StopPathKeepingVelocity()
+{
+ if (auto* Path=GetPathFollowingComponent())
+  if (Path->GetStatus()!=EPathFollowingStatus::Idle)
+   Path->AbortMove(*this,FPathFollowingResultFlags::ForcedScript,FAIRequestID::CurrentRequest,EPathFollowingVelocityMode::Keep);
+}
+void AFighterAIController::DebugRequestBranch(EAIBranch Branch)
+{
+#if !UE_BUILD_SHIPPING
+ if (!bActive) return;
+ if (auto* BT=Cast<UBehaviorTreeComponent>(BrainComponent))
+ { BT->StopTree(EBTStopMode::Forced); DebugBranch=Branch; BT->StartTree(*ArenaTree); }
+#endif
 }

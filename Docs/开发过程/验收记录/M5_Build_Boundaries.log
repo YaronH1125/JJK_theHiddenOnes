@@ -1,0 +1,33 @@
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" JJK_theHiddenOnesEditor Win64 Development -Project=F:/GameStudy/JJK_theHiddenOnes/JJK_theHiddenOnes.uproject -WaitMutex -NoHotReloadFromIDE
+Log file: C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (6 physical cores, 12 logical cores)
+  Executing up to 6 processes, one per physical core
+  Requested 1.5 GB memory per action, 5.11 GB available: limiting max parallel actions to 3
+Using 'git status' to determine working set for adaptive non-unity build (F:\GameStudy\JJK_theHiddenOnes).
+UbaStorageServer - Previous run was not gracefully shutdown. Reparsing cas directory C:\ProgramData\Epic\UnrealBuildAccelerator\cas\ to check for added/missing/corrupt files (Saved 2026-09-16 23:14:25)
+UbaStorageServer - Validated storage (size 0b) in <1ms
+UbaServer - Listening on 0.0.0.0:1345
+Building JJK_theHiddenOnesEditor...
+===== Toolchain Information =====
+Using ISPC compiler (F:\GameStudy\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35217 toolchain (D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from JJK_theHiddenOnes unity file: ArenaBTNodes.cpp, FighterAIController.cpp, M5SmokeHarness.cpp, TrainingGameMode.cpp, TrainingPanelWidget.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 4 action(s)
+  CPU 6 physical cores, 12 logical cores
+  Memory 31.94 GB physical, 45.86 GB/65.19 GB committed
+  UBA Storage capacity 40 GB
+[1/4] Compile [x64] FighterAIController.cpp
+[2/4] Link [x64] UnrealEditor-JJK_theHiddenOnes.lib
+  正在创建库 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.lib 和对象 F:/GameStudy/JJK_theHiddenOnes/Intermediate/Build/Win64/x64/UnrealEditor/Development/JJK_theHiddenOnes/UnrealEditor-JJK_theHiddenOnes.exp
+[3/4] Link [x64] UnrealEditor-JJK_theHiddenOnes.dll
+[4/4] WriteMetadata JJK_theHiddenOnesEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 16.30 seconds
+Output binary: F:\GameStudy\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 19.16 seconds
+Trace written to file C:\Users\yaeonh\AppData\Local\UnrealBuildTool\Trace.uba with size 7.3kb

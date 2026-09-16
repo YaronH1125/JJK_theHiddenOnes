@@ -33,7 +33,7 @@ void UTrainingPanelWidget::NativeOnInitialized()
  };
  Text(TEXT("训练设置  /  F1 返回战斗"),24);
  Text(TEXT("双方通用 · 开关关闭后恢复正常规则，不补扣过去消耗"),13);
- OpponentChoice=WidgetTree->ConstructWidget<UComboBoxString>(); OpponentChoice->AddOption(TEXT("静止木桩")); OpponentChoice->AddOption(TEXT("固定防御"));
+ OpponentChoice=WidgetTree->ConstructWidget<UComboBoxString>(); OpponentChoice->AddOption(TEXT("静止木桩")); OpponentChoice->AddOption(TEXT("固定防御")); OpponentChoice->AddOption(TEXT("AI 对战"));
  Box->AddChildToVerticalBox(OpponentChoice)->SetPadding(FMargin(0,6)); OpponentChoice->OnSelectionChanged.AddDynamic(this,&UTrainingPanelWidget::ModeChanged);
  AIButton=WidgetTree->ConstructWidget<UButton>(); auto* AILabel=WidgetTree->ConstructWidget<UTextBlock>(); AILabel->SetText(FText::FromString(TEXT("AI 对战"))); AIButton->AddChild(AILabel); Box->AddChildToVerticalBox(AIButton);
  AIButton->OnClicked.AddDynamic(this,&UTrainingPanelWidget::AIClicked);
@@ -81,7 +81,7 @@ void UTrainingPanelWidget::Refresh()
  InfiniteResources->SetIsChecked(GM->Settings.bInfiniteResources); NoCooldown->SetIsChecked(GM->Settings.bNoCooldown); Delay->SetValue(GM->Settings.RecoveryDelay);
  if(GM->OpponentMode==EOpponentMode::AI)
  {
-  OpponentChoice->SetSelectedOption(TEXT(""));
+  OpponentChoice->SetSelectedOption(TEXT("AI 对战"));
   if(AIButton) AIButton->SetIsEnabled(false);
  }
  else
@@ -103,6 +103,7 @@ void UTrainingPanelWidget::Refresh()
   Lines+=FString::Printf(TEXT("对局结束：%s（快速重置可重开）"),OutcomeNames[static_cast<int32>(GM->GetMatchOutcome())%4]);
 
  }
+ if(auto* AI=GM->GetOpponentAI()) Lines+=TEXT("\n")+AI->GetDebugState();
  Status->SetText(FText::FromString(Lines)); History->SetText(FText::FromString(TEXT("最近请求（新→旧）\n")+FString::Join(GM->InputHistory,TEXT("\n"))));
  bRefreshing=false;
 }
@@ -117,7 +118,7 @@ void UTrainingPanelWidget::ModeChanged(FString Item,ESelectInfo::Type)
  if(bRefreshing || !Mode.IsValid()) return;
  if(Item==TEXT("固定防御")) Mode->SetOpponentMode(EOpponentMode::FixedGuard);
  else if(Item==TEXT("静止木桩")) Mode->SetOpponentMode(EOpponentMode::Static);
- // 选择为空 = 当前为 AI 模式（由 AIButton 触发），不变更
+ else if(Item==TEXT("AI 对战")) Mode->SetOpponentMode(EOpponentMode::AI);
 }
 void UTrainingPanelWidget::ResetClicked() { if(Mode.IsValid()) Mode->ResetTraining(); }
 void UTrainingPanelWidget::AIClicked() { if(Mode.IsValid()) Mode->SetOpponentMode(EOpponentMode::AI); }

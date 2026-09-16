@@ -65,6 +65,9 @@ public:
  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI") FArenaAIParams Params;
  UPROPERTY(Transient, BlueprintReadOnly, Category="AI") TObjectPtr<class UBehaviorTree> ArenaTree;
  UPROPERTY(Transient, BlueprintReadOnly, Category="AI") TObjectPtr<class UBlackboardData> ArenaBlackboard;
+ /** 开发复现入口：下一次树决策指定分支，仍经过完整共享请求规则。Shipping 无效。 */
+ UFUNCTION(BlueprintCallable, Category="AI|Debug") void DebugRequestBranch(EAIBranch Branch);
+ void StopPathKeepingVelocity();
  void Observe();
  void Decide();
  bool BeginMove(EAIBranch Branch);
@@ -84,6 +87,7 @@ private:
  void LogDecision(const FString& Text);
  bool ProjectDestination(const FVector& Point, FVector& Out) const;
  bool bActive = false;
+ TOptional<EAIBranch> DebugBranch;
  FRandomStream RandomStream;
  TArray<FString> DecisionLog;
  FString TaskStatus = TEXT("Stopped");

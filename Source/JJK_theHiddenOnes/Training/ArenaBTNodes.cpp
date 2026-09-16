@@ -33,10 +33,10 @@ EBTNodeResult::Type UBTTask_ArenaAction::ExecuteTask(UBehaviorTreeComponent& Own
  if (!AI->CanRun()) { AI->SetTaskStatus(TEXT("Wait: target/mode unavailable")); return EBTNodeResult::InProgress; }
  if (Branch==EAIBranch::Approach || Branch==EAIBranch::Strafe || Branch==EAIBranch::Retreat)
  { AI->BeginMove(Branch); return EBTNodeResult::InProgress; }
- AI->StopMovement();
+ AI->StopPathKeepingVelocity();
  if (Branch==EAIBranch::Wait) { AI->SetTaskStatus(TEXT("Wait: combat control")); return EBTNodeResult::InProgress; }
  AI->SetFocus(AI->GetTarget());
- Self->SetActorRotation((AI->GetTarget()->GetActorLocation()-Self->GetActorLocation()).GetSafeNormal2D().Rotation());
+ if (Self->CanAct()) Self->SetActorRotation((AI->GetTarget()->GetActorLocation()-Self->GetActorLocation()).GetSafeNormal2D().Rotation());
  auto* Input=Self->GetCombatInput();
  if (Branch==EAIBranch::Defend)
  {
@@ -83,7 +83,7 @@ void UBTTask_ArenaAction::TickTask(UBehaviorTreeComponent& Owner,uint8*,float)
  }
  if (bEnded) { AI->SetTaskStatus(bCancelled ? TEXT("Ability interrupted") : TEXT("Ability completed")); FinishLatentTask(Owner,bCancelled ? EBTNodeResult::Failed : EBTNodeResult::Succeeded); return; }
  const bool Moving=Branch==EAIBranch::Approach || Branch==EAIBranch::Strafe || Branch==EAIBranch::Retreat;
- if ((Moving || Branch==EAIBranch::Defend) && !Self->CanAct()) { AI->StopMovement(); FinishLatentTask(Owner,EBTNodeResult::Failed); return; }
+ if ((Moving || Branch==EAIBranch::Defend) && !Self->CanAct()) { AI->StopPathKeepingVelocity(); FinishLatentTask(Owner,EBTNodeResult::Failed); return; }
  if (AI->Now()>=Deadline)
  { AI->SetTaskStatus(Ability.IsValid() ? TEXT("Ability timeout (subscription released)") : TEXT("Branch completed")); FinishLatentTask(Owner,Ability.IsValid() ? EBTNodeResult::Failed : EBTNodeResult::Succeeded); }
 }
@@ -101,10 +101,10 @@ void UBTTask_ArenaAction::Cleanup()
    Self->GetCombatInput()->ClearOwnedCache(CacheId);
   }
   // 任务清理只停止自己的寻路；能力是否可取消仍由共享规则/模式事务决定。
-  if (Branch==EAIBranch::Approach || Branch==EAIBranch::Strafe || Branch==EAIBranch::Retreat) AI->StopMovement();
+
  }
  ActivatedHandle.Reset(); EndedHandle.Reset(); ASC.Reset(); Ability.Reset(); Controller.Reset(); CacheId=0; bGuardOwned=false;
 }
-EBTNodeResult::Type UBTTask_ArenaAction::AbortTask(UBehaviorTreeComponent&,uint8*) { Cleanup(); return EBTNodeResult::Aborted; }
+EBTNodeResult::Type UBTTask_ArenaAction::AbortTask(UBehaviorTreeComponent&,uint8*) { if (Controller.IsValid()) Controller->StopPathKeepingVelocity(); Cleanup(); return EBTNodeResult::Aborted; }
 void UBTTask_ArenaAction::OnTaskFinished(UBehaviorTreeComponent& Owner,uint8* Memory,EBTNodeResult::Type Result)
-{ Cleanup(); Super::OnTaskFinished(Owner,Memory,Result); }
+{ if (Result!=EBTNodeResult::Succeeded && Controller.IsValid()) Controller->StopPathKeepingVelocity(); Cleanup(); Super::OnTaskFinished(Owner,Memory,Result); }
