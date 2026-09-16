@@ -5,8 +5,10 @@
 #include "EnhancedInputComponent.h"
 #include "InputCoreTypes.h"
 #include "Training/TrainingPanelWidget.h"
+#include "Training/CombatHudWidget.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Engine/World.h"
+#include "Engine/GameViewportClient.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Training/CombatInputComponent.h"
 #include "Training/FighterCharacter.h"
@@ -18,6 +20,11 @@
 void AArenaPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+ if(IsLocalController())
+ {
+  CombatHud=CreateWidget<UCombatHudWidget>(this);
+  CombatHud->AddToViewport(5);
+ }
 	if (PlayerCameraManager != nullptr)
 	{
 		PlayerCameraManager->ViewPitchMin = -65.f;
@@ -36,6 +43,7 @@ void AArenaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		FSlateApplication::Get().OnApplicationActivationStateChanged().RemoveAll(this);
 	}
 	if(TrainingPanel) { TrainingPanel->RemoveFromParent(); TrainingPanel=nullptr; }
+ if(CombatHud) { CombatHud->RemoveFromParent(); CombatHud=nullptr; }
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -43,6 +51,7 @@ void AArenaPlayerController::HandleAppActivationChanged(bool bActive)
 {
 	if (!bActive)
 	{
+		bDodgeHeld = false;
 		ClearFrameInput();
 		if (AFighterCharacter* Fighter = GetPlayerFighter())
 		{
@@ -51,6 +60,7 @@ void AArenaPlayerController::HandleAppActivationChanged(bool bActive)
 				Input->InvalidateSession(FText::FromString(TEXT("应用失焦")));
 				Input->ReleaseContinuousInputs();
 				Fighter->LastMoveInputDirection = FVector::ZeroVector;
+				Fighter->SetSprintHeld(false);
 			}
 		}
 	}
@@ -79,6 +89,8 @@ void AArenaPlayerController::SetupInputComponent()
 		if (DodgeAction != nullptr)
 		{
 			EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleDodgePressed);
+   EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Completed, this, &AArenaPlayerController::HandleDodgeReleased);
+   EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Canceled, this, &AArenaPlayerController::HandleDodgeReleased);
 		}
 		if (GuardAction != nullptr)
 		{
@@ -140,7 +152,13 @@ void AArenaPlayerController::HandleAttackReleased()
 
 void AArenaPlayerController::HandleDodgePressed()
 {
- if (bCombatInputEnabled) bDodgePressed = true;
+ if (bCombatInputEnabled) { bDodgePressed = true; bDodgeHeld = true; }
+}
+
+void AArenaPlayerController::HandleDodgeReleased()
+{
+ bDodgeHeld = false;
+ if(auto* Fighter=GetPlayerFighter()) Fighter->SetSprintHeld(false);
 }
 
 void AArenaPlayerController::HandleGuardPressed()
@@ -343,6 +361,8 @@ void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
  // 先应用待处理死亡/强制中断，再按 Shift > 松键 > 新动作排序，与映射迭代顺序无关。
  Fighter->ProcessCombatEvents();
  const bool Dodged = bDodgePressed && Fighter->RequestDodge(Fighter->GetLastDodgeDirection());
+ if(Dodged) Fighter->SetSprintHeld(bDodgeHeld && !Fighter->LastMoveInputDirection.IsNearlyZero());
+ Fighter->RefreshMovementControl();
  if(bDodgePressed) if(auto* GM=GetTrainingGameMode()) GM->RecordInput(Fighter,Dodged ? TEXT("闪避：执行") : TEXT("闪避：拒绝"));
  if (!Dodged)
  {
@@ -380,6 +400,20 @@ void AArenaPlayerController::SetTrainingPanelOpen(bool bOpen)
  FlushPressedKeys();
 }
 void AArenaPlayerController::ToggleTrainingPanel() { if(auto* GM=GetTrainingGameMode()) SetTrainingPanelOpen(!GM->IsTrainingMenuOpen()); }
+void AArenaPlayerController::DebugSendKey(FName KeyName, bool bPressed)
+{
+#if !UE_BUILD_SHIPPING
+ if(!FSlateApplication::IsInitialized()) return;
+ const FKeyEvent Event(FKey(KeyName),FModifierKeysState(),0,false,0,0);
+ if(bPressed) FSlateApplication::Get().ProcessKeyDownEvent(Event);
+ else FSlateApplication::Get().ProcessKeyUpEvent(Event);
+#endif
+}
+bool AArenaPlayerController::IsWireframeView() const
+{
+ const auto* Viewport=GetWorld() ? GetWorld()->GetGameViewport() : nullptr;
+ return Viewport && Viewport->EngineShowFlags.Wireframe;
+}
 void AArenaPlayerController::RebuildTrainingPanel()
 {
  auto* GM=GetTrainingGameMode(); const bool bWasOpen=GM && GM->IsTrainingMenuOpen();

@@ -10,6 +10,7 @@ class AFighterCharacter;
 class ATrainingGameMode;
 class UInputAction;
 class UTrainingPanelWidget;
+class UCombatHudWidget;
 
 /**
  * 训练场玩家控制器：输入入口与镜头协调。
@@ -51,9 +52,13 @@ public:
 
  UPROPERTY(EditDefaultsOnly, Category="Training|UI") TSubclassOf<UTrainingPanelWidget> TrainingPanelClass;
  UPROPERTY(BlueprintReadOnly, Category="Training|UI") TObjectPtr<UTrainingPanelWidget> TrainingPanel;
+ UPROPERTY(BlueprintReadOnly, Category="Training|UI") TObjectPtr<UCombatHudWidget> CombatHud;
  UFUNCTION(BlueprintCallable, Category="Training|UI") void SetTrainingPanelOpen(bool bOpen);
  UFUNCTION(BlueprintCallable, Category="Training|UI") void ToggleTrainingPanel();
  UFUNCTION(BlueprintCallable, Category="Training|UI") void RebuildTrainingPanel();
+ /** Development verification through Slate's real key routing, including engine debug bindings. */
+ UFUNCTION(BlueprintCallable, Category="Training|Debug") void DebugSendKey(FName KeyName, bool bPressed);
+ UFUNCTION(BlueprintPure, Category="Training|Debug") bool IsWireframeView() const;
  virtual void SetupInputComponent() override;
  virtual void PostProcessInput(float DeltaTime, bool bGamePaused) override;
  UFUNCTION(BlueprintCallable, Category = "Training|Input")
@@ -83,12 +88,14 @@ private:
  bool bCombatInputEnabled = true;
  bool bAttackPressed = false, bAttackReleased = false, bKickPressed = false, bKickReleased = false;
  bool bDodgePressed = false, bStancePressed = false;
+ bool bDodgeHeld = false;
  void ClearFrameInput();
 	void HandleLockInput();
 	void HandleRecenterInput();
 	void HandleAttackPressed();
 	void HandleAttackReleased();
 	void HandleDodgePressed();
+	void HandleDodgeReleased();
 	void HandleGuardPressed();
 	void HandleGuardReleased();
 	void HandleKickPressed();

@@ -75,7 +75,8 @@ void AFighterCharacter::DoMove(float Right, float Forward)
 			LastMoveInputDirection = FVector::ZeroVector;
 		}
 	}
-	if (CanAct()) Super::DoMove(Right, Forward);
+ UpdateSprintMovement();
+	if (CanAct() || CanMoveDuringDodgeRecovery()) Super::DoMove(Right, Forward);
 }
 
 void AFighterCharacter::BeginPlay()
@@ -1015,6 +1016,8 @@ void AFighterCharacter::ResetToInitialState()
 	}
 
 	LastMoveInputDirection = FVector::ZeroVector;
+	SetSprintHeld(false);
+	LastDodgeSuccessTime = -1000.;
 	LastStanceSwitchTime = -1000;
 	LastResourceSpendTime = -1000;
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
@@ -1040,12 +1043,15 @@ bool AFighterCharacter::CanAct() const
 void AFighterCharacter::RefreshMovementControl()
 {
  auto* Move = GetCharacterMovement();
+ // Attacks, guarding, hit reactions and death require a fresh Shift press afterward.
+ if (IsGuardIntent() || (!CanAct() && !HasCombatTag(TAG_State_DodgeInvulnerable) && !HasCombatTag(TAG_State_DodgeRecovery))) bSprintHeld=false;
+ UpdateSprintMovement();
  if (AbilitySystem)
  {
   if (IsGuarding() && !GuardEffect.IsValid()) GuardEffect = ApplyCombatState(TAG_State_Guarding, -1.f);
   else if (!IsGuarding() && GuardEffect.IsValid()) { AbilitySystem->RemoveActiveGameplayEffect(GuardEffect); GuardEffect.Invalidate(); }
  }
- const bool Locked = !CanAct();
+ const bool Locked = !CanAct() && !CanMoveDuringDodgeRecovery();
  if (Locked && !bMovementLocked)
  {
   SavedMaxWalkSpeed = Move->MaxWalkSpeed;
@@ -1064,6 +1070,45 @@ void AFighterCharacter::RefreshMovementControl()
   GetWorldTimerManager().SetTimerForNextTick(Recovered);
  }
  bMovementLocked = Locked;
+}
+
+bool AFighterCharacter::CanMoveDuringDodgeRecovery() const
+{
+ return bSprintHeld && !LastMoveInputDirection.IsNearlyZero() && HasCombatTag(TAG_State_DodgeRecovery)
+  && !HasCombatTag(TAG_State_DodgeInvulnerable) && !IsDead() && !IsAttacking() && !IsThrowPaired()
+  && !HasCombatTag(TAG_State_HitStun) && !HasCombatTag(TAG_State_GuardStun)
+  && !HasCombatTag(TAG_State_KnockedDown) && !HasCombatTag(TAG_State_StanceSwitching)
+  && !IsGuardIntent() && CombatInput->AreRequestsEnabled();
+}
+
+void AFighterCharacter::SetSprintHeld(bool bHeld)
+{
+ bSprintHeld=bHeld;
+ RefreshMovementControl();
+}
+
+void AFighterCharacter::UpdateSprintMovement()
+{
+ auto* Move=GetCharacterMovement();
+ const bool bWanted=bSprintHeld && IsPlayerControlled() && !LastMoveInputDirection.IsNearlyZero()
+  && Move->IsMovingOnGround() && CombatInput->AreRequestsEnabled() && !IsGuardIntent()
+  && (CanAct() || CanMoveDuringDodgeRecovery());
+ if(bWanted==bSprinting) return;
+ // While combat owns the movement lock, update the speed to restore, never unlock it here.
+ float& Speed=bMovementLocked ? SavedMaxWalkSpeed : Move->MaxWalkSpeed;
+ if(bWanted) { PreSprintMaxWalkSpeed=Speed; Speed*=Definition ? Definition->SprintSpeedMultiplier : 1.5f; }
+ else Speed=PreSprintMaxWalkSpeed;
+ bSprinting=bWanted;
+}
+
+void AFighterCharacter::NotifyDodgeAvoided()
+{
+ if(HasCombatTag(TAG_State_DodgeInvulnerable)) LastDodgeSuccessTime=GetWorld()->GetTimeSeconds();
+}
+
+bool AFighterCharacter::HasRecentDodgeSuccess() const
+{
+ return GetWorld() && GetWorld()->GetTimeSeconds()-LastDodgeSuccessTime<.8;
 }
 
 void AFighterCharacter::Jump()

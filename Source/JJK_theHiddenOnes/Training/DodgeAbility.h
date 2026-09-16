@@ -8,6 +8,7 @@
 
 class AFighterCharacter;
 class UAbilityTask_ApplyRootMotionConstantForce;
+class UAnimMontage;
 
 /**
  * 闪避 GA（M3.3/M3.4）：方向/后撤位移 + 无敌窗口 + 恢复期。
@@ -45,4 +46,5 @@ private:
 	FTimerHandle InvulnTimerHandle;
 	FTimerHandle RecoveryTimerHandle;
 	TWeakObjectPtr<AFighterCharacter> CachedFighter;
+ TWeakObjectPtr<UAnimMontage> PresentationMontage;
 };

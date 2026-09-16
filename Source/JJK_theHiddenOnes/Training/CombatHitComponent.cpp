@@ -310,6 +310,7 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		// 免疫（闪避无敌窗口）：无伤害、不受击
   if (Def->bDodgeable && Target->HasCombatTag(TAG_State_DodgeInvulnerable))
   {
+   Target->NotifyDodgeAvoided();
    if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordContact(Attacker,Target,ETrainingContact::Immune,Def->Damage,0,0);
 			UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 的接触被 %s 闪避免疫（实例 %llu）"),
 				*GetNameSafe(Attacker), *GetNameSafe(Target), ActiveInstanceId);

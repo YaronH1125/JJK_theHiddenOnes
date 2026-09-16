@@ -10,6 +10,8 @@
 #include "Training/FighterDefinition.h"
 #include "AbilitySystemComponent.h"
 #include "Training/FighterCharacter.h"
+#include "Animation/AnimMontage.h"
+#include "Animation/AnimInstance.h"
 
 UDodgeAbility::UDodgeAbility()
 {
@@ -65,6 +67,16 @@ void UDodgeAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
   FGameplayTagContainer CancelTags; CancelTags.AddTag(TAG_Ability_MeleeAttack);
   Fighter->GetFighterAbilitySystemComponent()->CancelAbilities(&CancelTags);
  }
+ // A montage supplies the pose only; the single RootMotionSource below owns travel.
+ if (!Dodge.Direction.IsNearlyZero()) Fighter->SetActorRotation(Dir.Rotation());
+ const auto& Pose=Dodge.Direction.IsNearlyZero() ? Fighter->GetDefinition()->BackstepMontage : Fighter->GetDefinition()->DodgeMontage;
+ if (auto* Montage=Pose.LoadSynchronous())
+ {
+  PresentationMontage=Montage;
+  Fighter->PlayAnimMontage(Montage,Montage->GetPlayLength()/FMath::Max(.1f,Config.InvulnerableDuration+Config.RecoveryDuration));
+  if(auto* Instance=Fighter->GetMesh()->GetAnimInstance()->GetActiveInstanceForMontage(Montage))
+   Instance->PushDisableRootMotion(); // This montage instance owns only the pose, including its blend-out.
+ }
  Fighter->RefreshMovementControl();
  MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
   this, TEXT("DodgeMove"), Dir, Config.DodgeSpeed, Config.InvulnerableDuration, false,
@@ -90,6 +102,8 @@ void UDodgeAbility::HandleInvulnEnd()
 		ASC->RemoveLooseGameplayTag(TAG_State_DodgeInvulnerable);
 		ASC->AddLooseGameplayTag(TAG_State_DodgeRecovery);
 	}
+ // Holding Shift may resume locomotion now, while attack/re-dodge recovery stays blocked.
+ Fighter->RefreshMovementControl();
 	const float Recovery = Fighter->GetDefinition() ? Fighter->GetDefinition()->DodgeConfig.RecoveryDuration : 0.4f;
 	GetWorld()->GetTimerManager().SetTimer(RecoveryTimerHandle, this,
 		&UDodgeAbility::HandleRecoveryEnd, FMath::Max(Recovery, 0.01f), false);
@@ -122,6 +136,8 @@ void UDodgeAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	if (MoveTask) { MoveTask->EndTask(); MoveTask = nullptr; }
 	if (AFighterCharacter* Fighter = CachedFighter.Get())
 	{
+  if(auto* Anim=Fighter->GetMesh()->GetAnimInstance(); Anim && PresentationMontage.IsValid())
+   Anim->Montage_Stop(.1f,PresentationMontage.Get());
 		if (UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent())
 		{
 			ASC->RemoveLooseGameplayTag(TAG_State_DodgeInvulnerable);
@@ -130,5 +146,6 @@ void UDodgeAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 	if (AFighterCharacter* F = CachedFighter.Get()) F->RefreshMovementControl();
 	CachedFighter = nullptr;
+ PresentationMontage.Reset();
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

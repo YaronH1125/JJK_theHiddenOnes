@@ -321,6 +321,7 @@ void ATrainingGameMode::StopActiveIntent(AFighterCharacter* F)
 {
  if(!IsValid(F)) return;
  F->GetCombatInput()->SetRequestsEnabled(false);
+ F->SetSprintHeld(false);
  F->GetFighterAbilitySystemComponent()->CancelAllAbilities();
  F->GetCharacterMovement()->StopMovementImmediately();
  F->ConsumeMovementInputVector();

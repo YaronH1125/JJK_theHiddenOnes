@@ -10,6 +10,7 @@ class UAttackDefinition;
 class UGameplayAbility;
 class UMaterialInterface;
 class UMeleeComboAbility;
+class UAnimMontage;
 
 /** 防御规则（M3.3）：正面角度按防御者朝向判断，与镜头无关 */
 USTRUCT(BlueprintType)
@@ -207,6 +208,14 @@ public:
 	/** 闪避规则 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Dodge")
 	FDodgeConfig DodgeConfig;
+
+ /** Presentation only; displacement and invulnerability remain owned by DodgeAbility. */
+ UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Movement")
+ TSoftObjectPtr<UAnimMontage> DodgeMontage;
+ UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Movement")
+ TSoftObjectPtr<UAnimMontage> BackstepMontage;
+ UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Movement", meta=(ClampMin="1.0",ClampMax="3.0"))
+ float SprintSpeedMultiplier = 1.5f;
 
 	/** 行动资源恢复 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Resource")

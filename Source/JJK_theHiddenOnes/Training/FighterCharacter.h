@@ -172,6 +172,12 @@ public:
 	/** 最近移动输入方向（世界空间；闪避无方向时后撤用） */
 	FVector LastMoveInputDirection = FVector::ZeroVector;
 	FVector GetLastDodgeDirection() const { return LastMoveInputDirection; }
+ UFUNCTION(BlueprintCallable, Category="Combat|Movement") void SetSprintHeld(bool bHeld);
+ UFUNCTION(BlueprintPure, Category="Combat|Movement") bool IsSprinting() const { return bSprinting; }
+ void UpdateSprintMovement();
+ bool CanMoveDuringDodgeRecovery() const;
+ void NotifyDodgeAvoided();
+ UFUNCTION(BlueprintPure, Category="Combat|Movement") bool HasRecentDodgeSuccess() const;
 
 	/** GA 消费待执行攻击序列 */
 	bool ConsumePendingSequence(TArray<TObjectPtr<UAttackDefinition>>& OutSequence, int32& OutSegmentIndex);
@@ -321,6 +327,10 @@ private:
 	bool bMovementLocked = false;
 	bool bSavedOrientToMovement = true;
 	float SavedMaxWalkSpeed = 500.f;
+ bool bSprintHeld = false;
+ bool bSprinting = false;
+ float PreSprintMaxWalkSpeed = 500.f;
+ double LastDodgeSuccessTime = -1000.;
 	bool FindThrowPosition(AFighterCharacter* Partner, float PairDistance, FVector& OutPosition) const;
 	void TickThrowPair();
 	TWeakObjectPtr<UAnimMontage> ThrowMontage;
