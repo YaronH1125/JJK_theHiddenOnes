@@ -47,6 +47,7 @@ private:
 	bool bPausedMovement = false;
 	FVector Velocity = FVector::ZeroVector;
 	FVector PrevPosition = FVector::ZeroVector;
+	bool bPrevValid = false;
 
 	void SteerTowardTarget(float DT);
 	void CheckContact();

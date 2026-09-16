@@ -85,7 +85,7 @@ void ADomainOrb::SteerTowardTarget(float DT)
 	}
 
 	PrevPosition = GetActorLocation();
-	SetActorLocation(GetActorLocation() + Velocity * DeltaSeconds, true);
+	SetActorLocation(GetActorLocation() + Velocity * DT, true);
 }
 
 void ADomainOrb::CheckContact()
