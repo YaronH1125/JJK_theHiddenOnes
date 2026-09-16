@@ -104,6 +104,7 @@ protected:
 
 	EAttackPhase Phase = EAttackPhase::None;
 	bool bCursedEnergyGranted = false;
+	bool bHadContact = false;
 	int32 SegmentId = 0;
 	int32 HitCountThisAttack = 0;
 

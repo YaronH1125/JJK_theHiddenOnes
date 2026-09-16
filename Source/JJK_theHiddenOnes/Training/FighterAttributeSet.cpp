@@ -10,6 +10,7 @@ void UFighterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 {
 	Super::PostGameplayEffectExecute(Data);
 
+ if (Data.EvaluatedData.Attribute == GetEnergyAttribute()) SetEnergy(FMath::Clamp(GetEnergy(),0.f,GetMaxEnergy()));
  if (Data.EvaluatedData.Attribute == GetActionResourceAttribute()) SetActionResource(FMath::Clamp(GetActionResource(),0.f,GetMaxActionResource()));
  if (Data.EvaluatedData.Attribute == GetCursedEnergyAttribute()) SetCursedEnergy(FMath::Clamp(GetCursedEnergy(),0.f,GetMaxCursedEnergy()));
 

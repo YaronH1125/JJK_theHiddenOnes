@@ -16,5 +16,13 @@ class UFighterAbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
-	UFighterAbilitySystemComponent();
+ UFighterAbilitySystemComponent();
+ bool HasInfiniteResources() const;
+ bool HasNoCooldown() const;
+ bool CanPayTrainingCost() const;
+ void PayTrainingCost();
+ UFUNCTION(BlueprintPure, Category="Training") float GetTrainingCooldownRemaining() const;
+ UFUNCTION(BlueprintPure, Category="Training|Debug") int32 GetGrantedAbilityCount() const { return GetActivatableAbilities().Num(); }
+ UFUNCTION(BlueprintPure, Category="Training|Debug") int32 GetActiveEffectCount() const { return GetActiveEffects(FGameplayEffectQuery()).Num(); }
+
 };

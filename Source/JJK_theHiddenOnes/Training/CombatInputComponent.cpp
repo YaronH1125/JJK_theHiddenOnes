@@ -10,6 +10,7 @@
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
 #include "Training/TargetingComponent.h"
+#include "Training/TrainingGameMode.h"
 
 UCombatInputComponent::UCombatInputComponent()
 {
@@ -130,6 +131,7 @@ void UCombatInputComponent::NotifyKickReleased()
 
 void UCombatInputComponent::NotifyGuardPressed()
 {
+ if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(GetOwnerFighter(),TEXT("防御按下"));
 	if (!bRequestsEnabled) return;
 	bGuardIntent = true;
 	if (auto* F = GetOwnerFighter()) F->RefreshMovementControl();
@@ -138,6 +140,7 @@ void UCombatInputComponent::NotifyGuardPressed()
 
 void UCombatInputComponent::NotifyGuardReleased()
 {
+ if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(GetOwnerFighter(),TEXT("防御松开"));
 	if (bGuardIntent)
 	{
 		bGuardIntent = false;
@@ -148,6 +151,7 @@ void UCombatInputComponent::NotifyGuardReleased()
 
 void UCombatInputComponent::NotifyDodgePressed(FVector Direction)
 {
+ if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(GetOwnerFighter(),TEXT("闪避请求"));
 	AFighterCharacter* Fighter = GetOwnerFighter();
 	if (Fighter == nullptr)
 	{
@@ -160,6 +164,7 @@ void UCombatInputComponent::NotifyDodgePressed(FVector Direction)
 
 void UCombatInputComponent::NotifyStanceSwitchPressed()
 {
+ if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(GetOwnerFighter(),TEXT("切形态请求"));
 	AFighterCharacter* Fighter = GetOwnerFighter();
 	if (Fighter == nullptr)
 	{
@@ -245,7 +250,8 @@ EActionRequestResult UCombatInputComponent::SubmitLightAttack()
 	if (Result != EActionRequestResult::Executed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 轻拳请求：%s"), *GetNameSafe(GetOwner()), ToString(Result));
-		OnRequestResult.Broadcast(Result, GetActiveSessionId());
+		if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(Fighter,FString(TEXT("轻拳: "))+ToString(Result));
+	OnRequestResult.Broadcast(Result, GetActiveSessionId());
 		return Result;
 	}
 
@@ -262,6 +268,7 @@ EActionRequestResult UCombatInputComponent::SubmitLightAttack()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 轻拳请求结果：%s"), *GetNameSafe(GetOwner()), ToString(Result));
+	if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(Fighter,FString(TEXT("轻拳: "))+ToString(Result));
 	OnRequestResult.Broadcast(Result, GetActiveSessionId());
 	return Result;
 }
@@ -278,7 +285,8 @@ EActionRequestResult UCombatInputComponent::SubmitKick()
 	if (Result != EActionRequestResult::Executed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 腿击请求：%s"), *GetNameSafe(GetOwner()), ToString(Result));
-		OnRequestResult.Broadcast(Result, GetActiveSessionId());
+		if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(Fighter,FString(TEXT("腿击: "))+ToString(Result));
+	OnRequestResult.Broadcast(Result, GetActiveSessionId());
 		return Result;
 	}
 
@@ -294,6 +302,7 @@ EActionRequestResult UCombatInputComponent::SubmitKick()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 腿击请求结果：%s"), *GetNameSafe(GetOwner()), ToString(Result));
+	if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(Fighter,FString(TEXT("腿击: "))+ToString(Result));
 	OnRequestResult.Broadcast(Result, GetActiveSessionId());
 	return Result;
 }
@@ -310,7 +319,8 @@ EActionRequestResult UCombatInputComponent::SubmitHeavyPunch()
 	if (Result != EActionRequestResult::Executed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 重拳请求：%s"), *GetNameSafe(GetOwner()), ToString(Result));
-		OnRequestResult.Broadcast(Result, GetActiveSessionId());
+		if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(Fighter,FString(TEXT("重拳: "))+ToString(Result));
+	OnRequestResult.Broadcast(Result, GetActiveSessionId());
 		return Result;
 	}
 
@@ -326,6 +336,7 @@ EActionRequestResult UCombatInputComponent::SubmitHeavyPunch()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 重拳请求结果：%s"), *GetNameSafe(GetOwner()), ToString(Result));
+	if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(Fighter,FString(TEXT("重拳: "))+ToString(Result));
 	OnRequestResult.Broadcast(Result, GetActiveSessionId());
 	return Result;
 }
@@ -342,7 +353,8 @@ EActionRequestResult UCombatInputComponent::SubmitHeavyKick()
 	if (Result != EActionRequestResult::Executed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 重踢请求：%s"), *GetNameSafe(GetOwner()), ToString(Result));
-		OnRequestResult.Broadcast(Result, GetActiveSessionId());
+		if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(Fighter,FString(TEXT("重踢: "))+ToString(Result));
+	OnRequestResult.Broadcast(Result, GetActiveSessionId());
 		return Result;
 	}
 
@@ -358,6 +370,7 @@ EActionRequestResult UCombatInputComponent::SubmitHeavyKick()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 重踢请求结果：%s"), *GetNameSafe(GetOwner()), ToString(Result));
+	if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordInput(Fighter,FString(TEXT("重踢: "))+ToString(Result));
 	OnRequestResult.Broadcast(Result, GetActiveSessionId());
 	return Result;
 }

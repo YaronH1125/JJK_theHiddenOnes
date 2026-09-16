@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "JJK_theHiddenOnesCharacter.h"
 #include "Training/TrainingTypes.h"
+#include "Training/TrainingSettings.h"
 #include "Training/CombatTypes.h"
 #include "GameplayEffectTypes.h"
 #include "FighterCharacter.generated.h"
@@ -117,7 +118,9 @@ public:
 	void NotifyStanceSwitched();
 
 	/** 消耗行动资源（GE 扣除）；不足返回 false */
-	bool SpendActionResource(float Amount);
+ bool SpendActionResource(float Amount);
+ void ApplyCombatDamage(AFighterCharacter* Target, float RawDamage, float ResolvedDamage, ETrainingContact Kind);
+
 
 	/** 恢复行动资源（GE 增加） */
 	void RestoreActionResource(float Amount);
@@ -179,6 +182,9 @@ public:
 	void RefreshMovementControl();
  UPROPERTY(BlueprintAssignable, Category = "Combat")
  FJJKCombatBoundary OnRecovered;
+ /** 延迟受击/死亡队列已处理，训练统计可读取实际保护/恢复状态。 */
+ UPROPERTY(BlueprintAssignable, Category = "Combat")
+ FJJKCombatBoundary OnCombatEventsProcessed;
  UPROPERTY(BlueprintAssignable, Category = "Combat")
  FJJKCombatBoundary OnComboEnded;
  void RestoreCursedEnergyOnHit();

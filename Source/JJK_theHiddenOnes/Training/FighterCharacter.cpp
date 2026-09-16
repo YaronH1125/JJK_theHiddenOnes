@@ -22,6 +22,8 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 #include "Training/CombatInputComponent.h"
 #include "Training/CombatTypes.h"
 #include "Training/DamageGameplayEffect.h"
+#include "Training/TrainingGameMode.h"
+#include "Training/TrainingProbeAbility.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
 #include "Training/FighterDefinition.h"
@@ -264,6 +266,7 @@ bool AFighterCharacter::ModifyActionResource(float SignedAmount)
 	{
 		return false;
 	}
+	if (SignedAmount < 0.f && AbilitySystem->HasInfiniteResources()) return true;
 	const float Current = AttributeSet ? AttributeSet->GetActionResource() : 0.f;
 	if (SignedAmount < 0.f && Current + SignedAmount < -0.01f)
 	{
@@ -310,6 +313,7 @@ bool AFighterCharacter::RequestDodge(FVector Direction)
 											 : (Definition ? Definition->DodgeConfig.DodgeCost : 1.f);
 
 	// 先全部检查（含资源），通过才停止旧 GA（M3.4）
+	const bool bPaid = !AbilitySystem->HasInfiniteResources();
 	const double PreviousSpendTime = LastResourceSpendTime;
 	if (!SpendActionResource(Cost))
 	{
@@ -327,7 +331,7 @@ bool AFighterCharacter::RequestDodge(FVector Direction)
 	{
 		// 激活失败：退还资源，原动作继续
 		PendingDodge = {};
-		RestoreActionResource(Cost);
+		if (bPaid) RestoreActionResource(Cost);
 		LastResourceSpendTime = PreviousSpendTime;
 		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 闪避激活失败，资源已退还"), *GetName());
 		return false;
@@ -463,13 +467,8 @@ bool AFighterCharacter::BeginThrowPair(AFighterCharacter* Partner, float Duratio
  {
   AFighterCharacter* Victim = WeakPartner.Get();
   if (!Victim || !IsThrowPaired() || IsDead() || Victim->IsDead()) { EndThrowPair(true); return; }
-  auto Spec = AbilitySystem->MakeOutgoingSpec(UDamageGameplayEffect::StaticClass(), 1.f, AbilitySystem->MakeEffectContext());
-  if (Spec.IsValid())
-  {
-   Spec.Data->SetSetByCallerMagnitude(TAG_Data_Damage, -Damage);
-   AbilitySystem->ApplyGameplayEffectSpecToTarget(*Spec.Data, Victim->AbilitySystem);
-   RestoreCursedEnergyOnHit();
-  }
+  ApplyCombatDamage(Victim, Damage, Damage, ETrainingContact::Throw);
+  RestoreCursedEnergyOnHit();
   EndThrowPair(true);
  });
  GetWorldTimerManager().SetTimer(ThrowPairTimerHandle, Delegate, FMath::Max(Duration,0.2f), false);
@@ -541,6 +540,7 @@ void AFighterCharacter::ProcessCombatEvents()
 			break;
 		}
 	}
+ OnCombatEventsProcessed.Broadcast();
 }
 
 void AFighterCharacter::ApplyHitReactNow(const FCombatEvent& Event)
@@ -884,7 +884,10 @@ void AFighterCharacter::GrantAbilities()
 		return;
 	}
 
-	TArray<TSubclassOf<UGameplayAbility>> Abilities = Definition->GrantedAbilities;
+ TArray<TSubclassOf<UGameplayAbility>> Abilities = Definition->GrantedAbilities;
+#if !UE_BUILD_SHIPPING
+ Abilities.AddUnique(UTrainingProbeAbility::StaticClass());
+#endif
 	if (Definition->MeleeAttackAbility != nullptr)
 	{
 		Abilities.AddUnique(Definition->MeleeAttackAbility);
@@ -960,7 +963,8 @@ void AFighterCharacter::AddDefaultMappingContext() const
 
 void AFighterCharacter::ResetToInitialState()
 {
-	CombatInput->SetRequestsEnabled(true);
+	const bool bResumeRequests = CombatInput->AreRequestsEnabled();
+	CombatInput->SetRequestsEnabled(false);
 	// 训练重置（M2.6 顺序：停请求 → 取消能力 → 清临时 → 复位 → 恢复属性）：
 	// 已授予能力不重复授予；本函数可从任意战斗状态安全重入
 	CombatInput->InvalidateSession(FText::FromString(TEXT("训练重置")));
@@ -1016,6 +1020,7 @@ void AFighterCharacter::ResetToInitialState()
 	GetCharacterMovement()->StopMovementImmediately();
 	TeleportTo(InitialTransform.GetLocation(), InitialTransform.Rotator());
 
+	CombatInput->SetRequestsEnabled(bResumeRequests);
 	UE_LOG(LogTemplateCharacter, Log, TEXT("[%s] 训练重置完成"), *GetName());
 }
 
@@ -1100,4 +1105,16 @@ void AFighterCharacter::RestoreCursedEnergyOnHit()
   Spec.Data->SetSetByCallerMagnitude(TAG_Data_Amount, Definition->MeleeCursedEnergyGain);
   AbilitySystem->ApplyGameplayEffectSpecToSelf(*Spec.Data);
  }
+}
+
+void AFighterCharacter::ApplyCombatDamage(AFighterCharacter* Target, float RawDamage, float ResolvedDamage, ETrainingContact Kind)
+{
+ if (!IsValid(Target) || !AbilitySystem || !Target->AbilitySystem || Target->IsDead()) return;
+ auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>();
+ const float Before=Target->AttributeSet->GetHealth();
+ const float Resolved=FMath::Max(0.f,ResolvedDamage);
+ const float Actual=(GM && GM->Settings.bInfiniteHealth) ? FMath::Min(Resolved,FMath::Max(0.f,Before-1.f)) : FMath::Min(Resolved,Before);
+ auto Spec=AbilitySystem->MakeOutgoingSpec(UDamageGameplayEffect::StaticClass(),1,AbilitySystem->MakeEffectContext());
+ if (Actual>0.f && Spec.IsValid()) { Spec.Data->SetSetByCallerMagnitude(TAG_Data_Damage,-Actual); AbilitySystem->ApplyGameplayEffectSpecToTarget(*Spec.Data,Target->AbilitySystem); }
+ if (GM) GM->RecordContact(this,Target,Kind,RawDamage,Resolved,Before-Target->AttributeSet->GetHealth());
 }

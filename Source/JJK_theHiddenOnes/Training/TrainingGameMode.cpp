@@ -14,6 +14,8 @@
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
 #include "Training/TargetingComponent.h"
+#include "Training/TrainingProbeAbility.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ATrainingGameMode::ATrainingGameMode()
 {
@@ -140,6 +142,8 @@ void ATrainingGameMode::EnsureFightersSpawned()
 
 	if (PlayerFighter != nullptr && OpponentFighter != nullptr)
 	{
+		BindFighters();
+		ApplyOpponentMode();
 		// 分配身份对应的首选目标；是否锁定仍由玩家手动触发
 		PlayerFighter->GetTargeting()->SetPreferredTarget(OpponentFighter);
 		OpponentFighter->GetTargeting()->SetPreferredTarget(PlayerFighter);
@@ -182,7 +186,7 @@ AFighterCharacter* ATrainingGameMode::SpawnFighter(EFighterRole InRole, const FT
 		Fighter->Definition = FighterDefinition;
 	}
 	// 配置、身份与静止模式必须先于 Construction/BeginPlay 初始化。
-	if (InRole == EFighterRole::Opponent && OpponentMode == EOpponentMode::Static)
+	if (InRole == EFighterRole::Opponent)
 	{
 		Fighter->AutoPossessAI = EAutoPossessAI::Disabled;
 		Fighter->AutoPossessPlayer = EAutoReceiveInput::Disabled;
@@ -191,7 +195,7 @@ AFighterCharacter* ATrainingGameMode::SpawnFighter(EFighterRole InRole, const FT
 	Fighter->RecordInitialTransform(Fighter->GetActorTransform());
 
 	// 对手保持无控制器：木桩只停止主动决策，角色本体照常运行
-	if (InRole == EFighterRole::Opponent && OpponentMode == EOpponentMode::Static)
+	if (InRole == EFighterRole::Opponent)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 对手以 Static 模式生成（无控制器）"));
 	}
@@ -229,24 +233,29 @@ AFighterCharacter* ATrainingGameMode::GetOpponentOf(const AFighterCharacter* Fig
 
 void ATrainingGameMode::ResetTraining()
 {
-	// 训练重置顺序（02_架构设计.md 第 10 节 / M2.6）：
-	// 1.停请求 2.取消能力 3.清临时对象/事件 4.复位双方 5.恢复属性统计 6.恢复目标与模式
-	UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 训练重置开始"));
-	for (AFighterCharacter* Fighter : {PlayerFighter.Get(), OpponentFighter.Get()})
-	{
-		if (Fighter != nullptr)
-		{
-			Fighter->ResetToInitialState();
-		}
-	}
-
-	// 恢复目标分配与身份标识（6）
-	if (IsValid(PlayerFighter) && IsValid(OpponentFighter))
-	{
-		PlayerFighter->GetTargeting()->SetPreferredTarget(OpponentFighter);
-		OpponentFighter->GetTargeting()->SetPreferredTarget(PlayerFighter);
-	}
-	UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 训练重置完成"));
+ if (bResetting) return;
+ bResetting=true;
+ EnsureFightersSpawned();
+ GetWorldTimerManager().ClearTimer(PlayerRecoveryTimer);
+ GetWorldTimerManager().ClearTimer(OpponentRecoveryTimer);
+ GetWorldTimerManager().ClearTimer(CooldownRefreshTimer);
+ // 先同时关闭双方请求，避免一方恢复时另一方仍投技/提交动作。
+ for(auto* F : {PlayerFighter.Get(),OpponentFighter.Get()}) if(IsValid(F)) F->GetCombatInput()->SetRequestsEnabled(false);
+ for(auto* F : {PlayerFighter.Get(),OpponentFighter.Get()}) if(IsValid(F))
+ {
+  F->GetFighterAbilitySystemComponent()->CancelAllAbilities();
+  F->ResetToInitialState();
+  ClearTrainingCooldowns(F);
+ }
+ PlayerStats={}; OpponentStats={}; InputHistory.Reset();
+ if(IsValid(PlayerFighter) && IsValid(OpponentFighter))
+ {
+  PlayerFighter->GetTargeting()->SetPreferredTarget(OpponentFighter);
+  OpponentFighter->GetTargeting()->SetPreferredTarget(PlayerFighter);
+ }
+ bResetting=false;
+ SetTrainingMenuOpen(bMenuOpen);
+ NotifyTrainingChanged();
 }
 
 void ATrainingGameMode::JJKOpponentAttack()
@@ -285,4 +294,185 @@ void ATrainingGameMode::JJKOpponentAction(int32 Action)
  case 4: Input->NotifyDodgePressed(FVector::ZeroVector); break;
  default: Input->SubmitLightAttack(); break;
  }
+}
+
+void ATrainingGameMode::NotifyTrainingChanged()
+{
+ if (!bResetting) OnTrainingChanged.Broadcast();
+}
+void ATrainingGameMode::StopActiveIntent(AFighterCharacter* F)
+{
+ if(!IsValid(F)) return;
+ F->GetCombatInput()->SetRequestsEnabled(false);
+ F->GetFighterAbilitySystemComponent()->CancelAllAbilities();
+ F->GetCharacterMovement()->StopMovementImmediately();
+ F->ConsumeMovementInputVector();
+ F->LastMoveInputDirection=FVector::ZeroVector;
+ // 被动受击/倒地/配对不通过取消 GA 强行解除。
+}
+void ATrainingGameMode::ApplyOpponentMode()
+{
+ if(!IsValid(OpponentFighter) || bResetting) return;
+ auto* Input=OpponentFighter->GetCombatInput();
+ Input->SetRequestsEnabled(!bMenuOpen);
+ if(!bMenuOpen && OpponentMode==EOpponentMode::FixedGuard && OpponentFighter->CanAct() && !OpponentFighter->HasPendingCombatEvents() && !OpponentFighter->IsGuardIntent()) Input->NotifyGuardPressed();
+}
+bool ATrainingGameMode::SetOpponentMode(EOpponentMode Value)
+{
+ if(!IsModeAvailable(Value) || (Value!=EOpponentMode::Static && Value!=EOpponentMode::FixedGuard)) return false;
+ StopActiveIntent(OpponentFighter);
+ OpponentMode=Value;
+ ApplyOpponentMode();
+ NotifyTrainingChanged();
+ return true;
+}
+void ATrainingGameMode::ClearTrainingCooldowns(AFighterCharacter* F)
+{
+ if(!IsValid(F)) return;
+ FGameplayTagContainer CooldownTags; CooldownTags.AddTag(TAG_Cooldown_TrainingProbe);
+ F->GetFighterAbilitySystemComponent()->RemoveActiveEffects(FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTags));
+}
+void ATrainingGameMode::SetTrainingSettings(FTrainingSettings Value)
+{
+ Value.RecoveryDelay=FMath::Clamp(Value.RecoveryDelay,0.1f,30.f);
+ const bool bResourcesChanged=Settings.bInfiniteResources!=Value.bInfiniteResources;
+ Settings=Value;
+ for(auto* F : {PlayerFighter.Get(),OpponentFighter.Get()}) if(IsValid(F))
+ {
+  if(bResourcesChanged) { StopActiveIntent(F); F->GetCombatInput()->SetRequestsEnabled(!bMenuOpen); }
+  if(Settings.bNoCooldown) ClearTrainingCooldowns(F);
+ }
+ GetWorldTimerManager().ClearTimer(PlayerRecoveryTimer);
+ GetWorldTimerManager().ClearTimer(OpponentRecoveryTimer);
+ if(Settings.bAutoRecoverHealth) { ScheduleRecovery(PlayerFighter); ScheduleRecovery(OpponentFighter); }
+ ApplyOpponentMode();
+ NotifyTrainingChanged();
+}
+void ATrainingGameMode::SetTrainingMenuOpen(bool bOpen)
+{
+ bMenuOpen=bOpen;
+ for(auto* F : {PlayerFighter.Get(),OpponentFighter.Get()}) if(IsValid(F))
+ {
+  if(bOpen) StopActiveIntent(F);
+  else F->GetCombatInput()->SetRequestsEnabled(true);
+ }
+ if(auto* PC=Cast<AArenaPlayerController>(GetWorld()->GetFirstPlayerController())) PC->SetCombatInputEnabled(!bOpen);
+ ApplyOpponentMode();
+ NotifyTrainingChanged();
+}
+void ATrainingGameMode::RecordInput(AFighterCharacter* Source,const FString& Text)
+{
+ if(bResetting || !IsValid(Source)) return;
+ InputHistory.Insert(FString::Printf(TEXT("%.2f %s %s"),GetWorld()->GetTimeSeconds(),Source==PlayerFighter ? TEXT("P1") : TEXT("P2"),*Text),0);
+ InputHistory.SetNum(FMath::Min(InputHistory.Num(),8));
+ NotifyTrainingChanged();
+}
+void ATrainingGameMode::RecordContact(AFighterCharacter* Source,AFighterCharacter* Target,ETrainingContact Kind,float Raw,float Resolved,float Lost)
+{
+ if(bResetting || (Source!=PlayerFighter && Source!=OpponentFighter)) return;
+ auto& Stats=Source==PlayerFighter ? PlayerStats : OpponentStats;
+ if(Kind==ETrainingContact::Whiff) ++Stats.Whiffs;
+ else
+ {
+  Stats.RawDamage+=FMath::Max(0.f,Raw); Stats.ResolvedDamage+=Resolved; Stats.HealthLost+=Lost;
+  if(Kind==ETrainingContact::Guard) ++Stats.Guards;
+  else if(Kind==ETrainingContact::Immune) ++Stats.Immunes;
+  else { ++Stats.Hits; ++Stats.ComboHits; Stats.ComboDamage+=Resolved; }
+  if(Kind!=ETrainingContact::Immune && IsValid(Target))
+  {
+   GetWorldTimerManager().ClearTimer(Target==PlayerFighter ? PlayerRecoveryTimer : OpponentRecoveryTimer);
+   // 接触先于本帧被动事件处理；下一 Tick 才判断恢复，不能按扣血时的 CanAct 提前断连。
+   TWeakObjectPtr<AFighterCharacter> Weak=Target;
+   FTimerDelegate D; D.BindWeakLambda(this,[this,Weak]() { if(Weak.IsValid()) ResolveRecovery(Weak.Get()); });
+   GetWorldTimerManager().SetTimerForNextTick(D);
+  }
+ }
+ NotifyTrainingChanged();
+}
+void ATrainingGameMode::ResolveRecovery(AFighterCharacter* Victim)
+{
+ if(!IsValid(Victim) || bResetting || Victim->HasPendingCombatEvents()) return;
+ if(!Victim->CanAct() && !Victim->IsDead() && !Victim->HasCombatTag(TAG_State_KnockedDown)) return;
+ auto& Stats=Victim==OpponentFighter ? PlayerStats : OpponentStats;
+ if(Stats.ComboHits>0) { Stats.LastComboHits=Stats.ComboHits; Stats.LastComboDamage=Stats.ComboDamage; Stats.ComboHits=0; Stats.ComboDamage=0; }
+ ScheduleRecovery(Victim);
+ if(Victim==OpponentFighter) ApplyOpponentMode();
+ NotifyTrainingChanged();
+}
+void ATrainingGameMode::ScheduleRecovery(AFighterCharacter* Victim)
+{
+ if(!Settings.bAutoRecoverHealth || !IsValid(Victim) || !Victim->CanAct() || Victim->HasPendingCombatEvents()) return;
+ auto& Timer=Victim==PlayerFighter ? PlayerRecoveryTimer : OpponentRecoveryTimer;
+ if(GetWorldTimerManager().IsTimerActive(Timer)) return;
+ if(Victim->GetFighterAttributeSet()->GetHealth()>=Victim->GetFighterAttributeSet()->GetMaxHealth()) return;
+ TWeakObjectPtr<AFighterCharacter> Weak=Victim;
+ FTimerDelegate D; D.BindWeakLambda(this,[this,Weak]()
+ {
+  auto* F=Weak.Get();
+  if(!F || !Settings.bAutoRecoverHealth || F->IsDead() || !F->CanAct() || F->HasPendingCombatEvents()) return;
+  auto* ASC=F->GetFighterAbilitySystemComponent();
+  auto Spec=ASC->MakeOutgoingSpec(UTrainingHealEffect::StaticClass(),1,ASC->MakeEffectContext());
+  Spec.Data->SetSetByCallerMagnitude(TAG_Data_Amount,F->GetFighterAttributeSet()->GetMaxHealth());
+  ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data);
+ });
+ GetWorldTimerManager().SetTimer(Timer,D,Settings.RecoveryDelay,false);
+}
+void ATrainingGameMode::OnPlayerRecovered() { ResolveRecovery(PlayerFighter); }
+void ATrainingGameMode::OnOpponentRecovered() { ResolveRecovery(OpponentFighter); }
+void ATrainingGameMode::UnbindFighters()
+{
+ for(auto& B:AttributeBindings) if(B.ASC.IsValid()) B.ASC->GetGameplayAttributeValueChangeDelegate(B.Attribute).Remove(B.Handle);
+ AttributeBindings.Reset();
+ if(auto* F=BoundPlayer.Get()) { F->OnRecovered.RemoveDynamic(this,&ATrainingGameMode::OnPlayerRecovered); F->OnCombatEventsProcessed.RemoveDynamic(this,&ATrainingGameMode::OnPlayerRecovered); F->OnDestroyed.RemoveDynamic(this,&ATrainingGameMode::OnFighterDestroyed); }
+ if(auto* F=BoundOpponent.Get()) { F->OnRecovered.RemoveDynamic(this,&ATrainingGameMode::OnOpponentRecovered); F->OnCombatEventsProcessed.RemoveDynamic(this,&ATrainingGameMode::OnOpponentRecovered); F->OnDestroyed.RemoveDynamic(this,&ATrainingGameMode::OnFighterDestroyed); }
+ BoundPlayer.Reset(); BoundOpponent.Reset();
+}
+void ATrainingGameMode::BindFighters()
+{
+ UnbindFighters();
+ BoundPlayer=PlayerFighter; BoundOpponent=OpponentFighter;
+ for(auto* F : {PlayerFighter.Get(),OpponentFighter.Get()}) if(IsValid(F))
+ {
+  F->GetCombatInput()->SetRequestsEnabled(!bMenuOpen && !bResetting);
+  auto* ASC=F->GetFighterAbilitySystemComponent();
+  for(auto Attr : {UFighterAttributeSet::GetHealthAttribute(),UFighterAttributeSet::GetMaxHealthAttribute(),UFighterAttributeSet::GetActionResourceAttribute(),UFighterAttributeSet::GetMaxActionResourceAttribute(),UFighterAttributeSet::GetCursedEnergyAttribute(),UFighterAttributeSet::GetMaxCursedEnergyAttribute(),UFighterAttributeSet::GetEnergyAttribute(),UFighterAttributeSet::GetMaxEnergyAttribute()})
+  {
+   auto Handle=ASC->GetGameplayAttributeValueChangeDelegate(Attr).AddWeakLambda(this,[this](const FOnAttributeChangeData&) { NotifyTrainingChanged(); });
+   AttributeBindings.Add({ASC,Attr,Handle});
+  }
+  F->OnDestroyed.AddUniqueDynamic(this,&ATrainingGameMode::OnFighterDestroyed);
+ }
+ if(IsValid(PlayerFighter)) { PlayerFighter->OnRecovered.AddUniqueDynamic(this,&ATrainingGameMode::OnPlayerRecovered); PlayerFighter->OnCombatEventsProcessed.AddUniqueDynamic(this,&ATrainingGameMode::OnPlayerRecovered); }
+ if(IsValid(OpponentFighter)) { OpponentFighter->OnRecovered.AddUniqueDynamic(this,&ATrainingGameMode::OnOpponentRecovered); OpponentFighter->OnCombatEventsProcessed.AddUniqueDynamic(this,&ATrainingGameMode::OnOpponentRecovered); }
+ NotifyTrainingChanged();
+}
+void ATrainingGameMode::OnFighterDestroyed(AActor* Actor)
+{
+ GetWorldTimerManager().ClearTimer(PlayerRecoveryTimer); GetWorldTimerManager().ClearTimer(OpponentRecoveryTimer);
+ if(Actor==PlayerFighter) PlayerFighter=nullptr;
+ if(Actor==OpponentFighter) OpponentFighter=nullptr;
+ PlayerStats.ComboHits=OpponentStats.ComboHits=0;
+ PlayerStats.ComboDamage=OpponentStats.ComboDamage=0;
+ BindFighters();
+}
+bool ATrainingGameMode::RequestTrainingProbe(AFighterCharacter* Fighter)
+{
+ if(bMenuOpen || bResetting || !IsValid(Fighter) || (Fighter!=PlayerFighter && Fighter!=OpponentFighter)) return false;
+ const bool Result=Fighter->GetFighterAbilitySystemComponent()->TryActivateAbilityByClass(UTrainingProbeAbility::StaticClass());
+ RecordInput(Fighter,Result ? TEXT("开发测试技能：执行") : TEXT("开发测试技能：拒绝"));
+ if(Result && !Settings.bNoCooldown)
+ {
+  GetWorldTimerManager().SetTimer(CooldownRefreshTimer,FTimerDelegate::CreateWeakLambda(this,[this]()
+  {
+   NotifyTrainingChanged();
+   const bool Active=(IsValid(PlayerFighter) && PlayerFighter->GetFighterAbilitySystemComponent()->GetTrainingCooldownRemaining()>0.f) || (IsValid(OpponentFighter) && OpponentFighter->GetFighterAbilitySystemComponent()->GetTrainingCooldownRemaining()>0.f);
+   if(!Active) GetWorldTimerManager().ClearTimer(CooldownRefreshTimer);
+  }),0.1f,true);
+ }
+ return Result;
+}
+void ATrainingGameMode::EndPlay(const EEndPlayReason::Type Reason)
+{
+ UnbindFighters(); GetWorldTimerManager().ClearAllTimersForObject(this);
+ Super::EndPlay(Reason);
 }

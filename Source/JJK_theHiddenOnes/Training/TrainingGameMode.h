@@ -5,18 +5,23 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Training/TrainingTypes.h"
+#include "Training/TrainingSettings.h"
+#include "GameplayEffectTypes.h"
 #include "TrainingGameMode.generated.h"
 
 class AFighterCharacter;
 class AController;
 class UFighterDefinition;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTrainingChanged);
 
 /** 对手行为模式；Static 仅停止主动决策，角色 Tick/ASC/碰撞/动画保持正常 */
 UENUM(BlueprintType)
 enum class EOpponentMode : uint8
 {
 	/** 无主动行为木桩 */
-	Static
+	Static,
+	FixedGuard,
+	AI
 };
 
 /**
@@ -30,7 +35,24 @@ class ATrainingGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	ATrainingGameMode();
+ ATrainingGameMode();
+ UPROPERTY(BlueprintReadOnly, Category="Training") FTrainingSettings Settings;
+ UPROPERTY(BlueprintReadOnly, Category="Training") FTrainingStats PlayerStats;
+ UPROPERTY(BlueprintReadOnly, Category="Training") FTrainingStats OpponentStats;
+ UPROPERTY(BlueprintReadOnly, Category="Training") TArray<FString> InputHistory;
+ UPROPERTY(BlueprintAssignable, Category="Training") FTrainingChanged OnTrainingChanged;
+ UFUNCTION(BlueprintCallable, Category="Training") void SetTrainingSettings(FTrainingSettings Value);
+ UFUNCTION(BlueprintCallable, Category="Training") bool SetOpponentMode(EOpponentMode Value);
+ UFUNCTION(BlueprintPure, Category="Training") bool IsModeAvailable(EOpponentMode Value) const { return Value != EOpponentMode::AI; }
+ UFUNCTION(BlueprintCallable, Category="Training") void SetTrainingMenuOpen(bool bOpen);
+ UFUNCTION(BlueprintPure, Category="Training") bool IsTrainingMenuOpen() const { return bMenuOpen; }
+ UFUNCTION(BlueprintCallable, Category="Training|Debug") bool RequestTrainingProbe(AFighterCharacter* Fighter);
+ UFUNCTION(BlueprintPure, Category="Training|Debug") int32 GetAttributeBindingCount() const { return AttributeBindings.Num(); }
+ void RecordContact(AFighterCharacter* Source, AFighterCharacter* Target, ETrainingContact Kind, float Raw, float Resolved, float Lost);
+ void RecordInput(AFighterCharacter* Source, const FString& Text);
+ void NotifyTrainingChanged();
+ virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+
 
 	virtual void StartPlay() override;
 	virtual void RestartPlayer(AController* NewPlayer) override;
@@ -106,7 +128,23 @@ protected:
 	void DrawCombatDebug() const;
 
 	/** 调试 HUD 显隐 */
-	bool bDebugHud = false;
+ bool bDebugHud = false;
+ bool bMenuOpen = false, bResetting = false;
+ struct FAttributeBinding { TWeakObjectPtr<class UFighterAbilitySystemComponent> ASC; FGameplayAttribute Attribute; FDelegateHandle Handle; };
+ TArray<FAttributeBinding> AttributeBindings;
+ TWeakObjectPtr<AFighterCharacter> BoundPlayer, BoundOpponent;
+ FTimerHandle PlayerRecoveryTimer, OpponentRecoveryTimer, CooldownRefreshTimer;
+ void BindFighters();
+ void UnbindFighters();
+ void ApplyOpponentMode();
+ void StopActiveIntent(AFighterCharacter* Fighter);
+ void ResolveRecovery(AFighterCharacter* Victim);
+ void ScheduleRecovery(AFighterCharacter* Victim);
+ void ClearTrainingCooldowns(AFighterCharacter* Fighter);
+ UFUNCTION() void OnPlayerRecovered();
+ UFUNCTION() void OnOpponentRecovered();
+ UFUNCTION() void OnFighterDestroyed(AActor* Actor);
+
 
 	AFighterCharacter* SpawnFighter(EFighterRole InRole, const FTransform& GroundTransform);
 

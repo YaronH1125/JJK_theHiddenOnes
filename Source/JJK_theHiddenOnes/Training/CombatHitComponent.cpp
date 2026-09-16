@@ -8,11 +8,11 @@
 #include "Engine/World.h"
 #include "Training/AttackDefinition.h"
 #include "Training/CombatTypes.h"
-#include "Training/DamageGameplayEffect.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
+#include "Training/TrainingGameMode.h"
 
 namespace
 {
@@ -23,15 +23,6 @@ namespace
 		TEXT("命中时绘制调试球（1=开，0=关）"),
 		ECVF_Default);
 
-	FGameplayEffectSpecHandle MakeDamageSpec(UAbilitySystemComponent* SourceASC, float Damage)
-	{
-		FGameplayEffectSpecHandle Handle = SourceASC->MakeOutgoingSpec(UDamageGameplayEffect::StaticClass(), 1.f, SourceASC->MakeEffectContext());
-		if (Handle.IsValid())
-		{
-			Handle.Data->SetSetByCallerMagnitude(TAG_Data_Damage, -FMath::Abs(Damage));
-		}
-		return Handle;
-	}
 }
 
 UCombatHitComponent::UCombatHitComponent()
@@ -72,6 +63,7 @@ uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition)
 	DedupKeys.Reset();
 	HitCountThisAttack = 0;
 	bCursedEnergyGranted = false;
+	bHadContact = false;
 	SegmentId = Definition ? Definition->SegmentId : 0;
 	SegmentBeginTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
 	SetComponentTickEnabled(true);
@@ -141,8 +133,9 @@ void UCombatHitComponent::CloseWindow()
 	{
 		return;
 	}
-	bWindowOpen = false;
-	Phase = EAttackPhase::Recovery;
+ if (!bHadContact) if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordContact(GetOwnerFighter(),nullptr,ETrainingContact::Whiff,0,0,0);
+ bWindowOpen = false;
+ Phase = EAttackPhase::Recovery;
 	// 关闭窗口不清去重；只有 BeginAttack 为新段清空，避免重复通知绕过结果。
 	UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 实例 %llu 窗口关闭（有效命中 %d）"), *GetNameSafe(GetOwner()), ActiveInstanceId, HitCountThisAttack);
 }
@@ -291,6 +284,7 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 			continue; // 同实例同段同目标只结算一次
 		}
 		DedupKeys.Add(Key);
+		bHadContact = true;
 		ValidContacts.Push({Target, Candidate.HitLocation});
 	}
 
@@ -314,8 +308,9 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		}
 
 		// 免疫（闪避无敌窗口）：无伤害、不受击
-		if (Def->bDodgeable && Target->HasCombatTag(TAG_State_DodgeInvulnerable))
-		{
+  if (Def->bDodgeable && Target->HasCombatTag(TAG_State_DodgeInvulnerable))
+  {
+   if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordContact(Attacker,Target,ETrainingContact::Immune,Def->Damage,0,0);
 			UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 的接触被 %s 闪避免疫（实例 %llu）"),
 				*GetNameSafe(Attacker), *GetNameSafe(Target), ActiveInstanceId);
 			continue;
@@ -341,11 +336,7 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 			// 防御结果：无伤害，防御方进入防御硬直（防住结果占用去重键，后续采样不绕过）
 			++HitCountThisAttack;
             const auto& Guard = Target->GetDefinition()->GuardConfig;
-            if (Guard.bChipDamage)
-            {
-             const auto Chip = MakeDamageSpec(AttackerASC, Def->Damage * Guard.ChipDamageRatio);
-             if (Chip.IsValid()) AttackerASC->ApplyGameplayEffectSpecToTarget(*Chip.Data, TargetASC);
-            }
+            Attacker->ApplyCombatDamage(Target,Def->Damage,Guard.bChipDamage ? Def->Damage * Guard.ChipDamageRatio : 0.f,ETrainingContact::Guard);
 			FCombatEvent GuardEvent;
 			GuardEvent.Type = FCombatEvent::EType::GuardStun;
 			GuardEvent.Instigator = Attacker;
@@ -359,11 +350,7 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 
 		if (!bCursedEnergyGranted) { Attacker->RestoreCursedEnergyOnHit(); bCursedEnergyGranted = true; }
 		// 普通命中：伤害经 GE 生效（SetByCaller Data.Damage，负值扣减生命）
-		const FGameplayEffectSpecHandle Spec = MakeDamageSpec(AttackerASC, Def->Damage);
-		if (Spec.IsValid())
-		{
-			AttackerASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
-		}
+		Attacker->ApplyCombatDamage(Target,Def->Damage,Def->Damage,ETrainingContact::Hit);
 		++HitCountThisAttack;
 
 		if (CVarJJKDebugHitFX.GetValueOnGameThread() != 0 && GetWorld() != nullptr)

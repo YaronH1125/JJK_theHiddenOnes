@@ -26,3 +26,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_StanceSwitch, "Ability.StanceSwitch");
 // GE SetByCaller 数据键
 UE_DEFINE_GAMEPLAY_TAG(TAG_Data_Damage, "Data.Damage");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Data_Amount, "Data.Amount");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_TrainingProbe, "Cooldown.Training.Probe");
