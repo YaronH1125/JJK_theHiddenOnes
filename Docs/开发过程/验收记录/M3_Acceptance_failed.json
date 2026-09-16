@@ -1,0 +1,752 @@
+{
+  "status": "failed",
+  "engine": "5.8.2-56702186+++UE5+Release-5.8",
+  "checks": [
+    {
+      "name": "M3-T01_single_A1",
+      "passed": true,
+      "details": 965.0
+    },
+    {
+      "name": "M2-T02_dedup_single",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T01_A2",
+      "passed": true,
+      "details": 1
+    },
+    {
+      "name": "M3-T01_A3",
+      "passed": true,
+      "details": 2
+    },
+    {
+      "name": "M3-T01_chain_end",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T01_three_damage",
+      "passed": true,
+      "details": 870.0
+    },
+    {
+      "name": "M3-T02_expired",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T02_latest_wins",
+      "passed": true,
+      "details": 4
+    },
+    {
+      "name": "M3-T02_consumed_once",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T02_forbidden_A1_heavy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T03_cache_clear_jjk_debug_force_hit_react",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T03_cache_clear_jjk_debug_kill",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T03_cache_clear_reset_to_initial_state",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T04_front_guard",
+      "passed": false,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T05_guard_stun_release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T04_back_hit",
+      "passed": true,
+      "details": 955.0
+    },
+    {
+      "name": "M3-T06_invulnerable_contact",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T06_recovery_vulnerable",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T14_no_late_bypass",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T06_new_attack_hits",
+      "passed": true,
+      "details": 955.0
+    },
+    {
+      "name": "M3-T07_cancel_(False, False)",
+      "passed": true,
+      "details": false
+    },
+    {
+      "name": "M3-T15_cost_(False, False)",
+      "passed": true,
+      "details": 1.25
+    },
+    {
+      "name": "M3-T15_old_action_(False, False)",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T07_cancel_(False, True)",
+      "passed": true,
+      "details": false
+    },
+    {
+      "name": "M3-T15_cost_(False, True)",
+      "passed": true,
+      "details": 5.0
+    },
+    {
+      "name": "M3-T15_old_action_(False, True)",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T07_cancel_(True, False)",
+      "passed": true,
+      "details": false
+    },
+    {
+      "name": "M3-T15_cost_(True, False)",
+      "passed": true,
+      "details": 1.25
+    },
+    {
+      "name": "M3-T15_old_action_(True, False)",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T07_cancel_(True, True)",
+      "passed": true,
+      "details": true
+    },
+    {
+      "name": "M3-T15_cost_(True, True)",
+      "passed": true,
+      "details": 3.0
+    },
+    {
+      "name": "M3-T15_old_action_(True, True)",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T11_direction_displacement",
+      "passed": true,
+      "details": 255.14289624989033
+    },
+    {
+      "name": "M3-T16_recovery_rejects_E_attack",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T06_dodge_restores",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T08_reject_jjk_debug_force_hit_react",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T08_reject_jjk_debug_kill",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T09_pair_started",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T09_no_double_damage",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T08_throw_rejects_actions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T09_pair_damage_release",
+      "passed": true,
+      "details": 880.0
+    },
+    {
+      "name": "M3-T10_setup_1_death",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_1_death",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_1_death",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_1_reset",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_1_reset",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_1_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_1_stop",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_1_stop",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_1_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_1_destroy",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_1_destroy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_1_destroy",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_2_death",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_2_death",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_2_death",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_2_reset",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_2_reset",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_2_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_2_stop",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_2_stop",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_2_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_2_destroy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_2_destroy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_2_destroy",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T11_boundary_throw_falls_back",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T11_dodge_wall",
+      "passed": true,
+      "details": 1082.189165417638
+    },
+    {
+      "name": "M3-T12_armor_damage_no_interrupt",
+      "passed": true,
+      "details": 965.0
+    },
+    {
+      "name": "M3-T12_high_interrupt_knockdown",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T12_knockdown",
+      "passed": true,
+      "details": 900.0
+    },
+    {
+      "name": "M3-T12_knockdown_protection",
+      "passed": true,
+      "details": 900.0
+    },
+    {
+      "name": "M3-T12_getup_action",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T14_guard_dedup",
+      "passed": false,
+      "details": 955.0
+    },
+    {
+      "name": "M3-T16_hold_shift_one_dodge",
+      "passed": false,
+      "details": 5.0
+    },
+    {
+      "name": "M3-T16_same_frame_success",
+      "passed": false,
+      "details": 5.0
+    },
+    {
+      "name": "M3-T16_failed_shift_keeps_release",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T17_F_not_cancel",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T17_F_release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T17_SLL-T02_menu",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T17_SLL-T02_focus",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "SLL-T01_Attack0.06",
+      "passed": false,
+      "details": 0
+    },
+    {
+      "name": "SLL-T01_Attack0.25",
+      "passed": false,
+      "details": 0
+    },
+    {
+      "name": "SLL-T01_Kick0.06",
+      "passed": false,
+      "details": 0
+    },
+    {
+      "name": "SLL-T01_Kick0.25",
+      "passed": false,
+      "details": 0
+    },
+    {
+      "name": "SLL-T03_hold_rejects_E",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T03_ranged",
+      "passed": false,
+      "details": "<FighterStance.MELEE: 0>"
+    },
+    {
+      "name": "SLL-T03_ranged_no_melee",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "SLL-T03_back_melee",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T04_hit_gain_once",
+      "passed": true,
+      "details": 53.0
+    },
+    {
+      "name": "SLL-T04_block_no_gain",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T04_whiff_no_cost",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T04_throw_gain_once",
+      "passed": true,
+      "details": 53.0
+    },
+    {
+      "name": "M2-T05-T06_windup_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_windup_hit",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_windup_kill",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_windup_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_active_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_active_hit",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_active_kill",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_active_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_recovery_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_recovery_hit",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_recovery_kill",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_recovery_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T13_combo_30",
+      "passed": true,
+      "details": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "M3-T13_narrow_cancel_30",
+      "passed": true,
+      "details": {
+        "elapsed": 0.24716819822788239,
+        "result": true
+      }
+    },
+    {
+      "name": "M3-T13_combo_60",
+      "passed": true,
+      "details": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "M3-T13_narrow_cancel_60",
+      "passed": true,
+      "details": {
+        "elapsed": 0.23331540822982788,
+        "result": true
+      }
+    },
+    {
+      "name": "M3-T13_combo_120",
+      "passed": true,
+      "details": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "M3-T13_narrow_cancel_120",
+      "passed": true,
+      "details": {
+        "elapsed": 0.2269994020462036,
+        "result": true
+      }
+    }
+  ],
+  "fps": [
+    {
+      "requested": 30,
+      "measured": 11.837799854969868,
+      "min_delta": 0.05907989665865898,
+      "max_delta": 0.10320410132408142
+    },
+    {
+      "requested": 60,
+      "measured": 11.259656568064482,
+      "min_delta": 0.046983201056718826,
+      "max_delta": 0.13083139061927795
+    },
+    {
+      "requested": 120,
+      "measured": 11.726936316130391,
+      "min_delta": 0.05793580040335655,
+      "max_delta": 0.116811603307724
+    }
+  ],
+  "duration_seconds": 91.5,
+  "snapshot": {
+    "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
+    "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
+    "Source/JJK_theHiddenOnes/JJK_theHiddenOnesGameMode.h": "15a1d6d41e63aa19cdc91151e8afdb4eec7bdedae51b1b203c2d72a90b51d482",
+    "Source/JJK_theHiddenOnes/JJK_theHiddenOnesPlayerController.h": "cf492575628b8267432339c83c87dabd698239f723508511d44074d36f500d44",
+    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.h": "cdb31c7554db9a4fd9039d31c1127ba99cb79eb27b7b3b7ae470d4007fe0dc3c",
+    "Source/JJK_theHiddenOnes/Training/AttackDefinition.h": "8eee2eac48a7fa93be8c70b60dc5f2ccaa90d998a3cd8bf407272c52bdf9ea1a",
+    "Source/JJK_theHiddenOnes/Training/AttackWindowAnimNotify.h": "53f31c6d0d02b8c71dae8c85e12cb8286f23d7f0030c46475381ddf8d8da0886",
+    "Source/JJK_theHiddenOnes/Training/CombatHitComponent.h": "fb8362bfcfa9cd571897759ba2072b5f8d33bfe0ae916f820148f714a87144a0",
+    "Source/JJK_theHiddenOnes/Training/CombatInputComponent.h": "7cab14ee88cbf5d964194d977fe67d46107de3028be46f2e35d9ec63e8c1faae",
+    "Source/JJK_theHiddenOnes/Training/CombatStateGameplayEffect.h": "3ca613f8121ecd83d816ce231f692a6975223d03169f6b319d75cefcfe516503",
+    "Source/JJK_theHiddenOnes/Training/CombatTypes.h": "8d9d204b0970023ada4b5931a1694d9e862ed63531511a08d7f39471fe0f4cf2",
+    "Source/JJK_theHiddenOnes/Training/DamageGameplayEffect.h": "b25fde6ada9febed8a239d41e648ed3bdbf7fa46a6db41bdac3c85e1001887a6",
+    "Source/JJK_theHiddenOnes/Training/DodgeAbility.h": "625d5ec9b6c9b1031d1c75ae014c5611f955f4b0e498d45b42203ba610a0d9fa",
+    "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.h": "3e65f7aaf8410bef97f74c02a016d505db3c609b9eb39e3ccf2c0d4bdafb661f",
+    "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.h": "4c64f213a89374e62ba88eeec6250d0f03dfc77d325d3b144f902a21471cf665",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.h": "48803dec6395f8c1f622b1bd4b4944b4a4f230b75b56d8aca248d0ef0b8561cc",
+    "Source/JJK_theHiddenOnes/Training/FighterDefinition.h": "692bbe1193ff401e3e9dbc9bf18ec6b9a6624f4b6e30ae10d293a4d563964d0e",
+    "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.h": "b51cd81e1c8938637fcdfff158c1feb6b445f3b6ee5733c4c3d735351f2b0f25",
+    "Source/JJK_theHiddenOnes/Training/ModifyActionResourceGameplayEffect.h": "181a554c30b8a3628726f2e9aa72d6cb831aef71d961c14f0e65972fe0780924",
+    "Source/JJK_theHiddenOnes/Training/RestoreCursedEnergyGameplayEffect.h": "155e997126c782308da99004c1a4d9ee1f32b4addb2a4d43639b925bcdb3ab76",
+    "Source/JJK_theHiddenOnes/Training/StanceSwitchAbility.h": "604c5adc3c35c20391c80105caf2881340938234c03698a6504a697fdf070614",
+    "Source/JJK_theHiddenOnes/Training/TargetingComponent.h": "26aed88c8bbc75ded8b2ef64c97100a2c6e105ca4f5981eb3d498ed464395f10",
+    "Source/JJK_theHiddenOnes/Training/TrainingGameMode.h": "622e28f3899af1275ba8cf6f9a3ecbeae30965ea143e52bb747bad104fc4d7f2",
+    "Source/JJK_theHiddenOnes/Training/TrainingTypes.h": "bb8960b501ffad053b9cbd796abd31ae116d0d7882216371a2a4d7a2b9cd7f9e",
+    "Source/JJK_theHiddenOnes/Variant_Combat/CombatCharacter.h": "8c5e9d20f8930ac3a334ade19d3213c230c92a6f8696b564497145f9f68387e8",
+    "Source/JJK_theHiddenOnes/Variant_Combat/CombatGameMode.h": "0d22d9e00aae9544f29d81f73588870e77c7339de6f2277482ca002d12f208d6",
+    "Source/JJK_theHiddenOnes/Variant_Combat/CombatPlayerController.h": "a0438cecbd065fc53897fcdcfc41881e2dd7a778479a126a3147b3dc3a37eb20",
+    "Source/JJK_theHiddenOnes/Variant_Platforming/PlatformingCharacter.h": "5e862072af0919d7c4c04c740e823a0568bffac00577d1a73bb934d15c63da1f",
+    "Source/JJK_theHiddenOnes/Variant_Platforming/PlatformingGameMode.h": "fca351d4dc24abcd810453e9dcad37b10404d5b2e2e5fd6613b301c868ff4094",
+    "Source/JJK_theHiddenOnes/Variant_Platforming/PlatformingPlayerController.h": "45db8b4fa47a7c6d90a049783b07e9d2ead05fb622ddf77dc03f01b07c447e35",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/SideScrollingCameraManager.h": "be383db6f6cc92cdc22d68d00cd1ecbd0c7a5eff7150f8ae1049c11ac0362c20",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/SideScrollingCharacter.h": "a8f855b846d8e44f5a8318398ae7589abfe18fd7a0ebf321dd33d9ffd51e3640",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/SideScrollingGameMode.h": "756dbf932d68b05c3ce3c6e3b12dab05cfcf09a07407a49be9faf422c2007d67",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/SideScrollingPlayerController.h": "ce8a2757c326c732a7d2099513fa8087bb83f6fc0aa029674bc3ea5a73940dd3",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/AI/SideScrollingAIController.h": "a03041f0aa841a98ccbc374270ed4b430944821bed0be42d00ed464cbc6dda56",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/AI/SideScrollingNPC.h": "dbbf579fccc41103b9a42241c2091ccaa7b179cfb93a45a1c72d78b3d7871ab0",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/AI/SideScrollingStateTreeUtility.h": "d2180d29f86b969e8bf3cfc38dc478dd9f84d72dbbc511b1214e133fc7ed2e1f",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Gameplay/SideScrollingJumpPad.h": "9a1887131b94913c0cd1a5bfdbef33228ba19572adab159ca8b40f145566de8f",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Gameplay/SideScrollingMovingPlatform.h": "2cb2bb3d5e8d5cad9ccc951f0a5bd20ff986492b9d09ef1e26b1195349855d4d",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Gameplay/SideScrollingPickup.h": "4e3acbc5d236d25b99f882597be2327973c2aabd3a0586d9bad5222e2089f393",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Gameplay/SideScrollingSoftPlatform.h": "29b8b0d8679783a777028c6c086f57d2105084c7f66ac99717d60bf2d3f92f40",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Interfaces/SideScrollingInteractable.h": "7db9c88a12cc339cf767da9d9c6172f28f196a6d12d0bb8e4afb575cb7eb9f00",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/UI/SideScrollingUI.h": "d5c7899c6d98edc402e5aa4bf677caaa0d03609e59427c77ec647f35df126e07",
+    "Source/JJK_theHiddenOnes/Variant_Platforming/Animation/AnimNotify_EndDash.h": "3fa1acff7bc00157507f670de00b40a14f35a6a131c95a1a7646cacb364c080a",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/CombatAIController.h": "dfe3912b8f2a8395dca2b00facc8255817d68f7dbbcfa50373a32752d538d8d1",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/CombatEnemy.h": "f0a48761effe77535d7bbc5f8e38d440535e6fda1561b1de4cf6e25430dea092",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/CombatEnemySpawner.h": "7340c0edf7d88a69187117fdb602d4dda686d29e5c0472f89bf91c530d1696fe",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/CombatStateTreeUtility.h": "4f318c7613254956132de5304d1aa59b6495a8f8417acfe4f417f71d694c27fe",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/EnvQueryContext_Danger.h": "4d4bcfca6370f09c61ce56f3b4628888ce0745574cd5b629886cc3a2fe141388",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/EnvQueryContext_Player.h": "a01581486af43f53da11549769cc900a3f98d1f792fc0b837eeec44347587b47",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Animation/AnimNotify_CheckChargedAttack.h": "7217e969011c57388dbc568484211517f883e015f2014e20a62a5b306c8117f6",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Animation/AnimNotify_CheckCombo.h": "7fba79fd88e486ed1c938081158049bb734d8e82ce4284fbef46e2d023a68033",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Animation/AnimNotify_DoAttackTrace.h": "db0a34ed8243e7e75c4b49cfba76623045a7d756b05eb8b4254ea89b974c3564",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatActivationVolume.h": "c6934e8f0ae70a3812d855283cfb46df8005e3a93935126545fd64e302b189c5",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatCheckpointVolume.h": "14dceca3d22159f950430c77cb0b29fb18bf2134d53f5fc4156a0db18963bc00",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatDamageableBox.h": "798b7962553e0a5b9c2488358d5b0bf6db0766133b952347b20a4dae80640b81",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatDummy.h": "69240ee78d0432269e092f3a056b51466c3289022c18ab465d5e310ffd7d6d38",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatLavaFloor.h": "35480e9854364122fe89ed8a99fdcc5594541f8e9183062d8c3ad99b3f5f32ed",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Interfaces/CombatActivatable.h": "667420904131ab6dd15425dfcdc86f8cbc76e7c8192f448b714ee455e1abc68a",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Interfaces/CombatAttacker.h": "02d3519e3dd56562b5c0ed97a42cb63eba04927565f2eb5058c835b181ec1578",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Interfaces/CombatDamageable.h": "4a93e03fd3026d02bf5209a667576ee2a6b26d98eb1f6d8be4571ab7682a42ed",
+    "Source/JJK_theHiddenOnes/Variant_Combat/UI/CombatLifeBar.h": "b334b1e05929d5614ff04935a3dc5dd97befe4bbb486f0436c6d5ab3073b9208",
+    "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.cpp": "ed2ea2ee679e4b8c499cf8ffcb525e2a9287a6dec2bc98c406cc4d8e937e52a2",
+    "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.cpp": "6f0f77f28bcad3004a73eeacbbdfaa95cebe661987d39f90cb22c8c959482982",
+    "Source/JJK_theHiddenOnes/JJK_theHiddenOnesGameMode.cpp": "23e98df25dc1d0d28179f4c6d5fe176e15ede6f226495adc0004296badfad776",
+    "Source/JJK_theHiddenOnes/JJK_theHiddenOnesPlayerController.cpp": "b64de10d70454574f6370874e941714b3598ca4dc5162ad15b0a13629381840b",
+    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.cpp": "edfb532fffe0af335309255c4e397a8a65e097b6c701cbf02276bc02a6fed47d",
+    "Source/JJK_theHiddenOnes/Training/AttackDefinition.cpp": "50956bb857f8fd5f2ccb5a87f53a30c8c4a483bedb4cb47c225efae239de314a",
+    "Source/JJK_theHiddenOnes/Training/AttackWindowAnimNotify.cpp": "bc904edee603933554b06f5c263eb846a64587fd6263dbd33fa26bbc0a7f9f1c",
+    "Source/JJK_theHiddenOnes/Training/CombatHitComponent.cpp": "cf15370d5a07593c2be33ff62383a0e5e7d8b93b8b7cf51239bd9e78b0887cb3",
+    "Source/JJK_theHiddenOnes/Training/CombatInputComponent.cpp": "8c187c63a3b144ab199094403c80e1fad590553e4c5aaaf8b357b13d84df73ec",
+    "Source/JJK_theHiddenOnes/Training/CombatNativeTags.cpp": "a010cb32f97d3c42318d71a10cbd1d7579e694c080920ae0f2ddce86596cbd57",
+    "Source/JJK_theHiddenOnes/Training/CombatStateGameplayEffect.cpp": "322abf52b5e678afe34b814ddd2438a445051f7078e59b2f5870d52ac3376c14",
+    "Source/JJK_theHiddenOnes/Training/DamageGameplayEffect.cpp": "0e5aa9a3b8b3646f0ff81f301fb25c0905ddb308ea572a6a0f246b0f7e85cc9d",
+    "Source/JJK_theHiddenOnes/Training/DodgeAbility.cpp": "14adce4e8ccff19be27206406b5a0d45b2962234b963ca97977fdef745212cd3",
+    "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.cpp": "5badea26f5f3a6c117b0225a768def173880bcd4aa5d1d5ca630fb4dc9cf2c01",
+    "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.cpp": "86cb9b64c17080d27ffff7c47e650f0ad9ffbf8dcc5c77e60d179c629804886f",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "fc1673880271f831be6102a37ec2c36ddd018d6696c2d337bf9ab6d24953f140",
+    "Source/JJK_theHiddenOnes/Training/FighterDefinition.cpp": "49ff2e8200676d920005a8d2d212b3aa4104bea1622b35b5036d1edcba8d51a2",
+    "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.cpp": "9360429e97c058bd8bd2ae8f551bcd5a1a1bf6817ebcd603911aad690db90b55",
+    "Source/JJK_theHiddenOnes/Training/ModifyActionResourceGameplayEffect.cpp": "4aeedbb19b448c8049f1776819256c18040db33ea0bef56e982569ebfd44329e",
+    "Source/JJK_theHiddenOnes/Training/RestoreCursedEnergyGameplayEffect.cpp": "b87a299190aced827339ec0aee1eb4aed5d76bd3a830b5b697c9fb7539e5375c",
+    "Source/JJK_theHiddenOnes/Training/StanceSwitchAbility.cpp": "2bb0436cd2a410159fc115be8119e33916508e532d289879e9ec5f66b3a800ff",
+    "Source/JJK_theHiddenOnes/Training/TargetingComponent.cpp": "b77031d07acaccf56ee1f134a864a81ef3f640715344628042129d8fa190e563",
+    "Source/JJK_theHiddenOnes/Training/TrainingGameMode.cpp": "f7e697a33ca50a825d4ffb2e651600b80562eace0a5b4cf636473a6aeee4b119",
+    "Source/JJK_theHiddenOnes/Variant_Combat/CombatCharacter.cpp": "6bdd232c5ac4b1b3fb8814ba6d08565f8db7dc955f733a497841948c330713ba",
+    "Source/JJK_theHiddenOnes/Variant_Combat/CombatGameMode.cpp": "868f294ce822f060b44261a1b73a71c52e6bc2b745eb2db572a1a1de8bcc4ef8",
+    "Source/JJK_theHiddenOnes/Variant_Combat/CombatPlayerController.cpp": "130b5195621f53094cb8124f91d96fa443b4679565e45dbbc8ad8fbfa79719c0",
+    "Source/JJK_theHiddenOnes/Variant_Platforming/PlatformingCharacter.cpp": "176a26c72f343397c316744b9b049c180ab3ed09a65faa4553b1a960f778732e",
+    "Source/JJK_theHiddenOnes/Variant_Platforming/PlatformingGameMode.cpp": "f717126ab93860ad9c102bfa067b2d14dfd1f4a755fa952d7c6b907d4d47b1e7",
+    "Source/JJK_theHiddenOnes/Variant_Platforming/PlatformingPlayerController.cpp": "82a40d57702d9d25a4006210306ba4f2dd10468a0fc6ea118a547592f3e99f16",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/SideScrollingCameraManager.cpp": "7b271db57b2fdb2131dd2f17a6d2df947528bdf1b74f80654a01fbee6ac83dad",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/SideScrollingCharacter.cpp": "6b3ab05a43ad858b183475d5cda14ddd97a3d52a3b504c5617842aeedf282296",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/SideScrollingGameMode.cpp": "346e5f8b66b2401326f76dae03c3d4ecac2b69e3bfb14ceaddecaf2a5c235e66",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/SideScrollingPlayerController.cpp": "ff8dcb4c05d7330ad0346d9771d6788c191d89b649a20d5f7fea40df2f3f1c5d",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/AI/SideScrollingAIController.cpp": "d88c97c73ae881dd4e01e66cd716bc08ce72c62d55685d5a77b44d85d4400ffb",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/AI/SideScrollingNPC.cpp": "2ee346c7399b8e567883c87dc584cceb9aea66782541b0aa85aba803663dd192",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/AI/SideScrollingStateTreeUtility.cpp": "cbbc76a40e15807bc8cdcb36a2c221a78e436db049de9b91271076184c439f32",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Gameplay/SideScrollingJumpPad.cpp": "ec45c344d86420c8bf298f96d24a9ce566002f63927d1451a6c34411b7af0791",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Gameplay/SideScrollingMovingPlatform.cpp": "b4546ccbf1135cd0f5ff6fa6bf7d2e22f3bcc5968ee01f40efad67235a9183e9",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Gameplay/SideScrollingPickup.cpp": "2010ed63cdd56cc71d14c88e2d6ab1c7befa7edbcb8026921d4d89a663dec37d",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Gameplay/SideScrollingSoftPlatform.cpp": "4067a7458e1070343b0fba40a07ef5ff147f6ad4667d7113cea6493d54fc79af",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/Interfaces/SideScrollingInteractable.cpp": "f145765da2993e59752419ccd968db75dbc7359f98008b3758480f4dd2fa2e52",
+    "Source/JJK_theHiddenOnes/Variant_SideScrolling/UI/SideScrollingUI.cpp": "80429ad41ef9ddbdbec1e9100cee1196fa2497dd6e552f630dd18c7761d8f5b1",
+    "Source/JJK_theHiddenOnes/Variant_Platforming/Animation/AnimNotify_EndDash.cpp": "bab4b0aa7c6912a40145a4ee0c1fe96df765fadf610f370ffb1ead2dc338859a",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/CombatAIController.cpp": "284d569aa4e0da606fa57cde8972f2ae5386f2563a7096fa1c9bbef018b90c1d",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/CombatEnemy.cpp": "03937d099e01da430a2ad5e85e9b23536f686b3239b695ce6772f8adce4ab6db",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/CombatEnemySpawner.cpp": "12a10515ade0bc00b4c42a9aaec24e67353f6107a4022f359f19d0f9d939173f",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/CombatStateTreeUtility.cpp": "9cb87c332c423d41831a770b00c76382a7fd08a9b0f847d31c0e85d2a5345fef",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/EnvQueryContext_Danger.cpp": "55ff89ec36863bf9d4ff0bb69f0608d8071ffd3a8af325e1350160954ba76c0e",
+    "Source/JJK_theHiddenOnes/Variant_Combat/AI/EnvQueryContext_Player.cpp": "29709e7fcc2f5b016e089b1ff36031bb4309c282d1fbe1991bcaa77967a9cf92",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Animation/AnimNotify_CheckChargedAttack.cpp": "a7ba5be23d5972270c787a42534591214b607fae13dfb41ddcc9724f12fc9817",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Animation/AnimNotify_CheckCombo.cpp": "6f208a41ae7fa918e14a155513a524698d638cbd09592fcaed2254af6458b766",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Animation/AnimNotify_DoAttackTrace.cpp": "330da20e757dce4a66307456e45cb504b95bb2b7390f57a766119887bbc09192",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatActivationVolume.cpp": "93aa5c83de6c151f1a3e61babc3a784540863943cad6dd739358a9bafb5c067d",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatCheckpointVolume.cpp": "49dc1064892d878febcd45a8d1ef098f9785702f6afa3556f8f5490ca8b01033",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatDamageableBox.cpp": "11a1c8650864afdedbd423cf6014ffa8898c89f5a508a4e155fff980983eb68b",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatDummy.cpp": "0c6b76bf72e5c7415a2577521669a195a17e588174e25504263f13ee521fd3c6",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Gameplay/CombatLavaFloor.cpp": "8f0324387aa077014c2fe82feee09b6a305f27839090d1881aaca29ee6c4b594",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Interfaces/CombatActivatable.cpp": "e2f80a8a5faff0f3b7851080da2a603ab0f7b5f5631a18846be77f858dfd7174",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Interfaces/CombatAttacker.cpp": "2a0e7797fefa8f31a41260377879aa8e7278c146b3e04719eeca10052f3b4b21",
+    "Source/JJK_theHiddenOnes/Variant_Combat/Interfaces/CombatDamageable.cpp": "8b466a64c3c1ad64ca25e7342c161173b1c3bc7f975751695af6703d9f43748a",
+    "Source/JJK_theHiddenOnes/Variant_Combat/UI/CombatLifeBar.cpp": "66072f80a18fd2b36ff7ed9d2360129dfe3665f810209d8cda47e097d51a501e",
+    "Content/Training/AM_M2_A1.uasset": "22a9b53a1a960f49f9e4c19791f78f5be4dd0cbd8b3528cc277bfa8ca2b8c5b0",
+    "Content/Training/AM_M2_HitReact.uasset": "fe873b563f03691b2dd7a0c6a9af38a1c208a1bb73e483475f6d279adb3969e1",
+    "Content/Training/BP_ArenaPlayerController.uasset": "f208651297986ea2fa3a4fa83def80b58dd4b78c9561cf41e616b14b95ffc5a6",
+    "Content/Training/BP_Fighter.uasset": "c8cdf5f49b2d2b6822a896c41afcd38b9b89ff154cc8f488cf9456315202d50d",
+    "Content/Training/BP_TrainingGameMode.uasset": "f910744af48cb75f3fec16d4d5be767e208e88f3a0d17a63b8c5be14c123091d",
+    "Content/Training/DA_Fighter_Ishigori.uasset": "8885d50c43b0050748b9db9ed9bcfe91731cec7d164e513a2bc06824910c3d0c",
+    "Content/Training/DA_M2_Attack_A1.uasset": "341ca0f636487d5b729b0c0c3fd2ebb84f17443e59fbf0db3c5aa1ecb1633788",
+    "Content/Training/DA_M3_A1.uasset": "5d18059d22229d779e4447ddd56c6006ad82c35141ece173143c5c207871f9c8",
+    "Content/Training/DA_M3_A2.uasset": "6c6fef14c55fa1128937ad5fa4d15f89fdec6db1ff77c5af1610809ac744e34d",
+    "Content/Training/DA_M3_A3.uasset": "355063b12c5979f19808ffe76456f67d94338c1ed9d9acd82b9eedef2e8cd4d1",
+    "Content/Training/DA_M3_HeavyKick.uasset": "d13626a6631d94a5d89ba0f1c437f212b2bff7b0d4ae9ae0d6f85388525a7064",
+    "Content/Training/DA_M3_HeavyPunch.uasset": "d4b4f5528f7e4585f7ff53b76217a968ce8b7e10cc134e528bab3cb5c55cf1b7",
+    "Content/Training/DA_M3_Kick.uasset": "f8cad4167bd8593bd5386e32b818a2876b497f7dc31e70ca478c59e3f14dc1fb",
+    "Content/Training/IA_Attack.uasset": "42796a5b9f070b20b9653ecc26567511f61637899e4d4a085af57a06699a175c",
+    "Content/Training/IA_Dodge.uasset": "945dc3535306f6fbfba4007cf4c4184b83950903f5e1709429f86e49d9ea38ff",
+    "Content/Training/IA_Guard.uasset": "c6de860d89829541a6820a685642b6d995dbdd14beed3f58a5a7293d21b9000c",
+    "Content/Training/IA_Kick.uasset": "dd4cb6c613dbfa31b320e00a4c547f6c7cc5aa2046d69ec54d841f149de4c849",
+    "Content/Training/IA_LockTarget.uasset": "c3f9569adc1a4278a1edc3b47f6d895d9fe55f19d6db111a5ff78cf867de8bc0",
+    "Content/Training/IA_RecenterCamera.uasset": "1e7d8a4f9f0d8ceeda4fe9eee9d83a45a6e69d103c194230c4d1fb9f3857a7f3",
+    "Content/Training/IA_StanceSwitch.uasset": "c34328426d561c89bc23153de803e87345a7673c33c9361800464614cd7cac2a",
+    "Content/Training/IMC_Training.uasset": "e1608e23c0ccd981be7e2363bb532c793380f858392648e8b7c4f9d1f67b851f",
+    "Content/Training/M_FighterTint.uasset": "2ce60f32b1328348adbee5136a4f7f6f5a96f98422ced8ab9cc5facaf0109d73",
+    "Content/Training/ArtReview/A_Ishigori_Idle_Review.uasset": "c485db1b6c3a981fa3f3940ce4742e82cc60550f9047f5a93db1880a1df816c2",
+    "Content/Training/ArtReview/A_Ishigori_Run_Review.uasset": "ad84c678a3c47da13a9786f652cd97f3a6a4980a6404b341ae0813468d64a414",
+    "Content/Training/ArtReview/A_Ishigori_Walk_Review.uasset": "64bd9fd1ecd006953a467a47ad91bb40244f69ed90e54c883196dba94803e0f1",
+    "Content/Training/ArtReview/SK_Ishigori_Review.uasset": "1e5b1de442a356494100fcfc27906b066e8d39b8ab76f5b27b2a7b066fdc5e5c",
+    "Content/Training/ArtReview/SK_Ishigori_Review_Skeleton.uasset": "133bf0aa418dd5b7ada0a2af7f6efce192ab14690b0682c142f1528b9b5bd446",
+    "Scripts/M3_acceptance.py": "e8c1b7f61e741a4c09c3428ddb283f4ac3ba435a5aa824d89ee8fbe5fcc50955",
+    "Scripts/M3_create_assets.py": "56cfc6207e840a2b638cdf019d08921af5d32a216025790104c2bf7dde8848d3"
+  }
+}
