@@ -67,3 +67,20 @@ python Scripts/run_m3_demo.py
 规则 runner 在新 PIE 执行 118 项检查并归档源代码/资产 SHA-256；失败单独保存，不覆盖成功证据。需要验证真实 30/60/120 游戏时序时可用 `UnrealEditor.exe <uproject> -nullrhi -NoSound` 启动，再使用同一 runner；它验证真实动画姿态/碰撞/GAS/Input 但不验证渲染。`run_m3_demo.py` 必须在有图形编辑器运行，20 项闭环/边界检查并保存三张实际游戏截图；动画仍为占位，默认不发起独立打包。
 
 测试临时修改配置后会恢复，严禁在测试运行期间保存资产。菜单接入 `SetCombatInputEnabled`，对手停止决策接入 `SetRequestsEnabled`；训练重置仍用 `ResetTraining`。详见 [M3 验收与 M4 交接](../Docs/开发过程/M3_连招与核心攻防.md)。
+
+
+## M4 训练系统
+
+先用最终 C++ 源码正式构建，启动本项目编辑器；同一时间只运行一个验收脚本，不在测试进行中保存资产。
+
+```powershell
+python Scripts/run_m4_acceptance.py  # 新 PIE：M4-T01—T12，含至少 20 次重置与 UI 换绑
+python Scripts/run_m4_regression.py  # 新 PIE：原 M3 118 项；结果独立归档，不覆盖历史 M3
+python Scripts/run_m4_demo.py        # 必须有图形渲染：UMG 控件回调闭环与实际面板截图
+```
+
+规则检查可用 `-nullrhi`；图形演示不可使用该参数。M4 脚本临时修改定义初值和受击时长后会恢复，最终证据写入 `Docs/开发过程/验收记录/M4_*`。报告采用临时文件替换，避免 runner 在写入中读取半份 JSON；失败报告单独保留。回归 runner 对旧 M3 脚本的非原子报告读取做重试。
+
+游戏内 **F1** 打开训练面板。面板原生 UMG 控件无需另跑资源创建脚本；`TrainingPanelClass` 可由 Controller 薄蓝图替换。默认所有训练开关关闭。非 Shipping 构建的“开发测试技能”用真实 GE 消耗行动资源 1、咒力 10、领域能量 5，冷却 3 秒；默认领域能量 0 时正常拒绝，可先开无限资源试验。它不代表正式炮击已实现。
+
+自动化使用真实 PIE/ASC/碰撞/动画和 UMG 控件回调，不模拟操作系统实体键鼠。规则、统计口径和 M5/M6 交接见 [M4 记录](../Docs/开发过程/M4_训练系统.md)。
