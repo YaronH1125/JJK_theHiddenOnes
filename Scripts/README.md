@@ -118,3 +118,13 @@ python Scripts/run_m5_package.py
 `-skipbuildeditor` 要求编辑器模块已经由最终源码正式构建。包位于 `Saved/Packages/M5/Windows`；普通游戏从顶层 exe 启动。`run_m5_package.py` 显式传 `-M5SmokeTest`，通过包内开发验收器检查 14 项并自动退出，包含真实伤害、结果面板、三种胜负/三次重开与模式重入。未传该参数的普通游戏不运行自动测试；Shipping 中该入口无效。`--nullrhi` 可做无图形包内规则复查，但不能替代图形启动与截图。
 
 原生 BT/Blackboard、具体参数和 M6 技能任务接入点见 [M5 文档](../Docs/开发过程/M5_AI对战.md)。
+
+
+### M5 体验修复（2026-09-17）
+
+- `M5_followup_assets.py` 建立明确的占位冲刺/后撤动画，仅修改 Training 下资源。
+- `python Scripts/ue_python.py Scripts/M5_followup_validate_assets.py`：冷启动、非 PIE 时核对真实保存的动画引用及默认资源/闪避参数，打包前执行。
+- `python Scripts/run_m5_followup.py`：图形 PIE，Slate 真实 F1/W/Shift 路由、动画姿势和常驻 HUD 检查。
+- `python Scripts/run_m5_followup.py M3` / `M4` / `M5`：使用原规则脚本生成独立 Followup 报告，保留历史 M5 证据。目标帧率规则在 nullrhi 编辑器中跑；视觉与按键另用图形 PIE。
+- `python Scripts/run_m5_package.py --report-prefix M5_Followup`：对更新后的同目录 Development 包生成独立报告。
+- 测试配置必须恢复后再保存/打包；M3/M4 的 DodgeConfig/ThrowConfig 使用文本快照，避免可变结构留下临时参数。异常中止后先清测试回调，必要时重启编辑器，不能在持续脚本报错的会话中继续计验收结果。

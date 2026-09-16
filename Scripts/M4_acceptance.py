@@ -16,6 +16,7 @@ state={'status':'running','engine':unreal.SystemLibrary.get_engine_version(),
 perf=unreal.load_object(None,'/Script/UnrealEd.Default__EditorPerformanceSettings')
 old_throttle=perf.get_editor_property('bThrottleCPUWhenNotForeground');perf.set_editor_property('bThrottleCPUWhenNotForeground',False)
 original=[]
+config_snapshot={k:fd.get_editor_property(k).export_text() for k in ['dodge_config','throw_config']}
 def settemp(obj,key,value):
     if not any(o==obj and k==key for o,k,v in original):original.append((obj,key,obj.get_editor_property(key)))
     obj.set_editor_property(key,value)
@@ -226,6 +227,8 @@ def finish():
         try:obj.set_editor_property(k,v)
         except Exception:cleanup_errors.append(traceback.format_exc())
     perf.set_editor_property('bThrottleCPUWhenNotForeground',old_throttle)
+    for k,value in config_snapshot.items():
+        cfg=fd.get_editor_property(k);cfg.import_text(value);fd.set_editor_property(k,cfg)
     try:
         pc.set_training_panel_open(False)
         settings(auto_recover_health=False,infinite_health=False,infinite_resources=False,no_cooldown=False)

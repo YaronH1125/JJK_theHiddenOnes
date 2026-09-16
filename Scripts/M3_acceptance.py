@@ -16,6 +16,7 @@ state={'status':'running','engine':unreal.SystemLibrary.get_engine_version(),
 perf=unreal.load_object(None,'/Script/UnrealEd.Default__EditorPerformanceSettings')
 old_throttle=perf.get_editor_property('bThrottleCPUWhenNotForeground');perf.set_editor_property('bThrottleCPUWhenNotForeground',False)
 original=[]
+config_snapshot={k:fd.get_editor_property(k).export_text() for k in ['dodge_config','throw_config']}
 def settemp(obj,key,value):
     if not any(o==obj and k==key for o,k,v in original):original.append((obj,key,obj.get_editor_property(key)))
     obj.set_editor_property(key,value)
@@ -262,6 +263,8 @@ gen=suite();started=time.monotonic()
 def finish():
     unreal.unregister_slate_post_tick_callback(handle)
     for obj,k,v in reversed(original):obj.set_editor_property(k,v)
+    for k,value in config_snapshot.items():
+        cfg=fd.get_editor_property(k);cfg.import_text(value);fd.set_editor_property(k,cfg)
     perf.set_editor_property('bThrottleCPUWhenNotForeground',old_throttle)
     unreal.SystemLibrary.execute_console_command(world,'t.MaxFPS 0')
     gm.reset_training();pc.set_combat_input_enabled(True)
