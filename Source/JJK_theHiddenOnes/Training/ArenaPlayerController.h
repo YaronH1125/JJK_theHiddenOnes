@@ -9,6 +9,7 @@
 class AFighterCharacter;
 class ATrainingGameMode;
 class UInputAction;
+class UTrainingPanelWidget;
 
 /**
  * 训练场玩家控制器：输入入口与镜头协调。
@@ -48,7 +49,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
 	TObjectPtr<UInputAction> StanceSwitchAction;
 
-	virtual void SetupInputComponent() override;
+ UPROPERTY(EditDefaultsOnly, Category="Training|UI") TSubclassOf<UTrainingPanelWidget> TrainingPanelClass;
+ UPROPERTY(BlueprintReadOnly, Category="Training|UI") TObjectPtr<UTrainingPanelWidget> TrainingPanel;
+ UFUNCTION(BlueprintCallable, Category="Training|UI") void SetTrainingPanelOpen(bool bOpen);
+ UFUNCTION(BlueprintCallable, Category="Training|UI") void ToggleTrainingPanel();
+ UFUNCTION(BlueprintCallable, Category="Training|UI") void RebuildTrainingPanel();
+ virtual void SetupInputComponent() override;
  virtual void PostProcessInput(float DeltaTime, bool bGamePaused) override;
  UFUNCTION(BlueprintCallable, Category = "Training|Input")
  void SetCombatInputEnabled(bool bEnabled);

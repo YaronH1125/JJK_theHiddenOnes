@@ -3,6 +3,8 @@
 #include "Training/ArenaPlayerController.h"
 
 #include "EnhancedInputComponent.h"
+#include "InputCoreTypes.h"
+#include "Training/TrainingPanelWidget.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Engine/World.h"
 #include "Framework/Application/SlateApplication.h"
@@ -33,6 +35,7 @@ void AArenaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		FSlateApplication::Get().OnApplicationActivationStateChanged().RemoveAll(this);
 	}
+	if(TrainingPanel) { TrainingPanel->RemoveFromParent(); TrainingPanel=nullptr; }
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -56,6 +59,7 @@ void AArenaPlayerController::HandleAppActivationChanged(bool bActive)
 void AArenaPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
+	InputComponent->BindKey(EKeys::F1,IE_Pressed,this,&AArenaPlayerController::ToggleTrainingPanel);
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
@@ -100,6 +104,7 @@ void AArenaPlayerController::SetupInputComponent()
 void AArenaPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+	SetCombatInputEnabled(bCombatInputEnabled);
 	UE_LOG(LogTemp, Log, TEXT("[ArenaPC] %s 接管 %s"), *GetName(), *GetNameSafe(InPawn));
 }
 
@@ -338,6 +343,7 @@ void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
  // 先应用待处理死亡/强制中断，再按 Shift > 松键 > 新动作排序，与映射迭代顺序无关。
  Fighter->ProcessCombatEvents();
  const bool Dodged = bDodgePressed && Fighter->RequestDodge(Fighter->GetLastDodgeDirection());
+ if(bDodgePressed) if(auto* GM=GetTrainingGameMode()) GM->RecordInput(Fighter,Dodged ? TEXT("闪避：执行") : TEXT("闪避：拒绝"));
  if (!Dodged)
  {
   if (bAttackPressed) Input->NotifyAttackPressed();
@@ -347,4 +353,36 @@ void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
   if (bStancePressed) Input->NotifyStanceSwitchPressed();
  }
  ClearFrameInput();
+}
+
+void AArenaPlayerController::SetTrainingPanelOpen(bool bOpen)
+{
+ auto* GM=GetTrainingGameMode(); if(!GM) return;
+ if(bOpen==GM->IsTrainingMenuOpen() && (!bOpen || (TrainingPanel && TrainingPanel->IsInViewport()))) return;
+ GM->SetTrainingMenuOpen(bOpen);
+ ResetIgnoreMoveInput(); ResetIgnoreLookInput();
+ SetIgnoreMoveInput(bOpen); SetIgnoreLookInput(bOpen);
+ bShowMouseCursor=bOpen;
+ if(bOpen)
+ {
+  if(!TrainingPanel) TrainingPanel=CreateWidget<UTrainingPanelWidget>(this,TrainingPanelClass ? TrainingPanelClass.Get() : UTrainingPanelWidget::StaticClass());
+  if(TrainingPanel)
+  {
+   TrainingPanel->AddToViewport(50);
+   FInputModeGameAndUI Mode; Mode.SetWidgetToFocus(TrainingPanel->TakeWidget()); Mode.SetHideCursorDuringCapture(false); Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); SetInputMode(Mode); TrainingPanel->SetKeyboardFocus();
+  }
+ }
+ else
+ {
+  if(TrainingPanel) TrainingPanel->RemoveFromParent();
+  SetInputMode(FInputModeGameOnly());
+ }
+ FlushPressedKeys();
+}
+void AArenaPlayerController::ToggleTrainingPanel() { if(auto* GM=GetTrainingGameMode()) SetTrainingPanelOpen(!GM->IsTrainingMenuOpen()); }
+void AArenaPlayerController::RebuildTrainingPanel()
+{
+ auto* GM=GetTrainingGameMode(); const bool bWasOpen=GM && GM->IsTrainingMenuOpen();
+ SetTrainingPanelOpen(false); TrainingPanel=nullptr;
+ if(bWasOpen) SetTrainingPanelOpen(true);
 }

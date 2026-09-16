@@ -19,6 +19,7 @@ public class JJK_theHiddenOnes : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
+			"SlateCore",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks"
@@ -45,7 +46,7 @@ public class JJK_theHiddenOnes : ModuleRules
 		});
 
 		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+		// Slate and SlateCore are already included above for the training UMG panel.
 
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
