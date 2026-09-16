@@ -69,6 +69,10 @@ void AArenaPlayerController::SetupInputComponent()
 			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleAttackPressed);
 			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AArenaPlayerController::HandleAttackReleased);
 		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("[ArenaPC] AttackAction 未配置，攻击输入无法绑定；请检查 BP_ArenaPlayerController 与 IA_Attack 资产"));
+		}
 	}
 }
 

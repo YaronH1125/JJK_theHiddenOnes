@@ -100,42 +100,9 @@ if melee_default is None:
 EAL.save_asset(fighter_da_path, only_if_is_dirty=False)
 log("DA_Fighter_Ishigori 已关联攻击定义")
 
-# ---------- 输入：IA_Attack + IMC 映射 ----------
-ia_path = "/Game/Training/IA_Attack"
-if not EAL.does_asset_exist(ia_path):
-    EAL.duplicate_asset("/Game/Input/Actions/IA_Jump", ia_path)
-    log("创建 IA_Attack")
-ia_attack = EAL.load_asset(ia_path)
-
-imc = EAL.load_asset("/Game/Training/IMC_Training")
-try:
-    mappings = list(imc.get_editor_property("default_key_mappings").get_editor_property("mappings"))
-    have = {m.get_editor_property("action").get_path_name() for m in mappings if m.get_editor_property("action")}
-    if ia_attack.get_path_name() not in have:
-        m = unreal.EnhancedActionKeyMapping()
-        m.set_editor_property("action", ia_attack)
-        key = unreal.Key()
-        key.set_editor_property("key_name", "LeftMouseButton")
-        m.set_editor_property("key", key)
-        mappings.append(m)
-        dkm = imc.get_editor_property("default_key_mappings")
-        dkm.set_editor_property("mappings", mappings)
-        imc.set_editor_property("default_key_mappings", dkm)
-        log("追加映射 LeftMouseButton -> IA_Attack")
-    else:
-        log("IA_Attack 映射已存在")
-    EAL.save_asset("/Game/Training/IMC_Training", only_if_is_dirty=False)
-except Exception as e:
-    log(f"IMC 映射写入失败: {e}")
-
-# ---------- 控制器 CDO 绑定攻击输入 ----------
-try:
-    bp_pc = EAL.load_asset("/Game/Training/BP_ArenaPlayerController")
-    pc_cdo = unreal.get_default_object(bp_pc.generated_class())
-    pc_cdo.set_editor_property("attack_action", ia_attack)
-    EAL.save_asset("/Game/Training/BP_ArenaPlayerController", only_if_is_dirty=False)
-    log("BP_ArenaPlayerController 攻击输入已绑定")
-except Exception as e:
-    log(f"控制器绑定失败: {e}")
-
+# ---------- 输入：使用同一套幂等创建、保存与落盘检查 ----------
+from pathlib import Path
+import runpy
+runpy.run_path(str(Path(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()))
+                   / 'Scripts/M2_fix_inputs.py'))
 log("M2 资产创建完成")

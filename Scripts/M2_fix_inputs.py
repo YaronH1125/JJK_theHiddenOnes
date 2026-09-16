@@ -1,70 +1,44 @@
 # -*- coding: utf-8 -*-
-"""重建 IA_Attack、修复 IMC 映射与控制器绑定。"""
+"""幂等修复攻击输入：保存现有内存资产，缺失时用专用工厂创建；失败立即终止。"""
+from pathlib import Path
+import subprocess
 import unreal
 
-TAG = "[M2FixInput]"
-
-
-def log(m):
-    unreal.log(f"{TAG} {m}")
-
-
+assert unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_game_world() is None, 'Stop PIE first'
 EAL = unreal.EditorAssetLibrary
-AT = unreal.AssetToolsHelpers.get_asset_tools()
-
-ia_path = "/Game/Training/IA_Attack"
-log(f"does_asset_exist: {EAL.does_asset_exist(ia_path)}")
-log(f"does_directory_exist /Game/Training: {EAL.does_directory_exist('/Game/Training')}")
-
-if not EAL.does_directory_exist("/Game/Training"):
-    EAL.make_directory("/Game/Training")
-if EAL.does_asset_exist(ia_path):
-    EAL.delete_asset(ia_path)
-    log("删除残留 IA_Attack")
-
-dup = EAL.duplicate_asset("/Game/Input/Actions/IA_Jump", ia_path)
-log(f"duplicate -> {dup}")
-if dup is None:
-    # 备选：AssetTools 创建
-    ia_class = unreal.load_object(None, "/Script/EnhancedInput.InputAction")
-    log(f"InputAction class = {ia_class}")
-    dup = AT.create_asset("IA_Attack", "/Game/Training", ia_class, None)
-    log(f"create_asset fallback -> {dup}")
-
-ia_attack = unreal.load_object(None, "/Game/Training/IA_Attack.IA_Attack")
-log(f"ia_attack loaded: {ia_attack}")
+ia_path = '/Game/Training/IA_Attack'
+# 不删除已有对象：删除再重建会使 IMC/CDO 的引用失效。
+ia_attack = unreal.load_object(None, ia_path + '.IA_Attack')
 if ia_attack is None:
-    raise RuntimeError("IA_Attack 创建失败")
+    ia_attack = unreal.AssetToolsHelpers.get_asset_tools().create_asset(
+        'IA_Attack', '/Game/Training', unreal.InputAction, unreal.InputAction_Factory())
+assert ia_attack is not None, 'IA_Attack creation failed'
+ia_attack.set_editor_property('value_type', unreal.InputActionValueType.BOOLEAN)
+ia_attack.set_editor_property('triggers', [])
+ia_attack.set_editor_property('modifiers', [])
+assert EAL.save_loaded_asset(ia_attack, only_if_is_dirty=False), 'IA_Attack save failed'
+disk = Path(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_content_dir())) / 'Training/IA_Attack.uasset'
+assert disk.is_file() and disk.stat().st_size > 0, f'Asset did not reach Content: {disk}'
+git_check = subprocess.run(['git', 'check-ignore', '--no-index', str(disk)], cwd=disk.parents[2],
+                           capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+assert git_check.returncode == 1, f'Asset is ignored or Git check failed: {git_check.stdout}{git_check.stderr}'
 
-EAL.save_asset(ia_path, only_if_is_dirty=False)
-
-# IMC 映射（构造器模式）
-imc = unreal.load_object(None, "/Game/Training/IMC_Training.IMC_Training")
-mapping_data = imc.get_editor_property("default_key_mappings")
-mappings = list(mapping_data.get_editor_property("mappings"))
-cleaned = []
-for m in mappings:
-    action = m.get_editor_property("action")
-    key_name = str(m.get_editor_property("key").get_editor_property("key_name"))
-    if action is None or key_name == "LeftMouseButton":
-        continue
-    cleaned.append(m)
+imc = EAL.load_asset('/Game/Training/IMC_Training')
+data = imc.get_editor_property('default_key_mappings')
+mappings = [m for m in data.get_editor_property('mappings')
+            if str(m.key.get_editor_property('key_name')) != 'LeftMouseButton'
+            and m.get_editor_property('action') != ia_attack]
 key = unreal.Key()
-key.set_editor_property("key_name", "LeftMouseButton")
-cleaned.append(unreal.EnhancedActionKeyMapping(action=ia_attack, key=key))
-mapping_data.set_editor_property("mappings", cleaned)
-imc.set_editor_property("default_key_mappings", mapping_data)
-EAL.save_loaded_asset(imc, only_if_is_dirty=False)
+key.set_editor_property('key_name', 'LeftMouseButton')
+mappings.append(unreal.EnhancedActionKeyMapping(action=ia_attack, key=key))
+data.set_editor_property('mappings', mappings)
+imc.set_editor_property('default_key_mappings', data)
+assert EAL.save_loaded_asset(imc, only_if_is_dirty=False), 'IMC save failed'
 
-final = {str(m.get_editor_property("key").get_editor_property("key_name")): m.action.get_name()
-         for m in imc.get_editor_property("default_key_mappings").get_editor_property("mappings")
-         if m.get_editor_property("action")}
-log(f"最终映射: LeftMouseButton -> {final.get('LeftMouseButton')}")
-
-# 控制器 CDO 绑定
-bp_pc = EAL.load_asset("/Game/Training/BP_ArenaPlayerController")
-pc_cdo = unreal.get_default_object(bp_pc.generated_class())
-pc_cdo.set_editor_property("attack_action", ia_attack)
-EAL.save_asset("/Game/Training/BP_ArenaPlayerController", only_if_is_dirty=False)
-bound = pc_cdo.get_editor_property("attack_action")
-log(f"PC attack_action = {bound}")
+bp = EAL.load_asset('/Game/Training/BP_ArenaPlayerController')
+unreal.BlueprintEditorLibrary.compile_blueprint(bp)
+unreal.get_default_object(bp.generated_class()).set_editor_property('attack_action', ia_attack)
+unreal.BlueprintEditorLibrary.compile_blueprint(bp)
+assert EAL.save_loaded_asset(bp, only_if_is_dirty=False), 'Controller save failed'
+assert unreal.get_default_object(bp.generated_class()).get_editor_property('attack_action') == ia_attack
+print('[M2FixInput] Saved input action, mapping and compiled Controller:', str(disk))
