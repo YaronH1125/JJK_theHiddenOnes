@@ -20,11 +20,13 @@
 #include "Training/TargetingComponent.h"
 #include "Training/TrainingProbeAbility.h"
 #include "Training/DomainOrb.h"
+#include "Training/ArenaCrosshairHud.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ATrainingGameMode::ATrainingGameMode()
 {
+	HUDClass = AArenaCrosshairHud::StaticClass();
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 擂台默认出生配置：24m 擂台上 P1(-500,0) 朝 +X，P2(500,0) 朝 -X（07_擂台与视觉参考.md）

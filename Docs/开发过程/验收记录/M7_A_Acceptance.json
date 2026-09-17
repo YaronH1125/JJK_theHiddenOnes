@@ -38,7 +38,7 @@
       "name": "A03_below_min_exact45",
       "passed": true,
       "details": {
-        "held": 0.6670787036418915,
+        "held": 0.6666712164878845,
         "cost": 45.0
       }
     },
@@ -51,18 +51,18 @@
       "name": "A03_just_past_gate_damage",
       "passed": true,
       "details": {
-        "held": 1.6666678190231323,
+        "held": 1.6666679978370667,
         "damage": 177.2222900390625,
-        "expect": 177.22228944301605
+        "expect": 177.2222998738289
       }
     },
     {
       "name": "A03_just_past_gate_cost",
       "passed": true,
       "details": {
-        "held": 1.6666678190231323,
-        "cost": 49.777793884277344,
-        "expect": 49.77779698371887
+        "held": 1.6666679978370667,
+        "cost": 49.77779769897461,
+        "expect": 49.77779996395111
       }
     },
     {
@@ -70,14 +70,14 @@
       "passed": true,
       "details": {
         "damage": 167.5,
-        "curse": 5.000001907348633
+        "curse": 3.0
       }
     },
     {
       "name": "A03_exhausted_no_negative",
       "passed": true,
       "details": {
-        "curse": 5.000001907348633
+        "curse": 3.0
       }
     },
     {
@@ -147,7 +147,7 @@
       "passed": true,
       "details": {
         "energy": 0.0,
-        "curse": 43.000003814697266
+        "curse": 43.000431060791016
       }
     },
     {
@@ -175,6 +175,6 @@
       }
     }
   ],
-  "started_at": 1789638267.2429428,
-  "duration_seconds": 55.0
+  "started_at": 1789655362.8210764,
+  "duration_seconds": 57.75
 }

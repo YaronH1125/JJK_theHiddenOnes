@@ -25,6 +25,8 @@ protected:
 	virtual float GetRange() const override;
 	virtual float GetRecoveryTime() const override;
 	virtual bool HasMinChargeGate() const override { return true; }
+	virtual float GetProjectileSpeed() const override { return 4500.f; }
+	virtual float GetProjectileRadius() const override { return 22.f; }
 	virtual float GetMinChargeTime() const override;
 	virtual float GetCooldown() const override;
 	virtual float GetMoveSpeedScale() const override { return 0.f; }

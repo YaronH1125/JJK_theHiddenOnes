@@ -1311,6 +1311,11 @@ bool AFighterCharacter::IsBlastCharging() const
 	return ActiveBlast.IsValid() && ActiveBlast->IsCharging();
 }
 
+float AFighterCharacter::GetBlastChargeAlpha() const
+{
+	return ActiveBlast.IsValid() ? ActiveBlast->GetPaidQ() : 0.f;
+}
+
 void AFighterCharacter::CancelActiveBlast()
 {
 	if (ActiveBlast.IsValid()) ActiveBlast->CancelFromOutside();

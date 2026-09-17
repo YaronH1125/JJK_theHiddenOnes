@@ -384,8 +384,20 @@ void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
  auto* Input = Fighter->GetCombatInput();
  // 先应用待处理死亡/强制中断，再按 Shift > 松键 > 新动作排序，与映射迭代顺序无关。
  Fighter->ProcessCombatEvents();
- const bool Dodged = bDodgePressed && Fighter->RequestDodge(Fighter->GetLastDodgeDirection());
- if(Dodged) Fighter->SetSprintHeld(bDodgeHeld && !Fighter->LastMoveInputDirection.IsNearlyZero());
+ // 移动中 Shift = 直接加速跑（不前扑）；原地 Shift = 后撤闪避（现状保留）
+ bool Dodged=false;
+ if(bDodgePressed)
+ {
+  if(Fighter->LastMoveInputDirection.IsNearlyZero())
+  {
+   Dodged=Fighter->RequestDodge(Fighter->GetLastDodgeDirection());
+   if(Dodged) Fighter->SetSprintHeld(bDodgeHeld);
+  }
+  else
+  {
+   Fighter->SetSprintHeld(true);
+  }
+ }
  Fighter->RefreshMovementControl();
  if(bDodgePressed) if(auto* GM=GetTrainingGameMode()) GM->RecordInput(Fighter,Dodged ? TEXT("闪避：执行") : TEXT("闪避：拒绝"));
  if (!Dodged)

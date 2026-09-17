@@ -151,6 +151,8 @@ public:
  UFUNCTION(BlueprintCallable, Category = "Combat|Aim")
  void RestoreAimCamera();
  bool IsBlastCharging() const;
+ /** 当前蓄力进度 0..1（准星收拢用；未蓄力为 0） */
+ float GetBlastChargeAlpha() const;
  void CancelActiveBlast();
  void NotifyCurseFlowActivity();
  void OnCursedEnergyChanged(const FOnAttributeChangeData& Data);

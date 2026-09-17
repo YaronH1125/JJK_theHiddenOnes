@@ -39,6 +39,9 @@ public:
 
 	/** 外部中止（切形态等）：已扣不退，超级炮按中断进冷却（08 A03） */
 	void CancelFromOutside();
+	/** M7 表现占位：投射体参数 */
+	virtual float GetProjectileSpeed() const { return 5000.f; }
+	virtual float GetProjectileRadius() const { return 12.f; }
 
 	/** 阶段与强度查询（调试显示与验收） */
 	EBlastPhase GetPhase() const { return Phase; }

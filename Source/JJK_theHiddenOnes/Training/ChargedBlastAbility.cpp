@@ -11,6 +11,7 @@
 #include "Training/CombatTypes.h"
 #include "Training/DamageGameplayEffect.h"
 #include "Training/TargetingComponent.h"
+#include "Training/BlastProjectile.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
 #include "Training/FighterCharacter.h"
@@ -335,67 +336,44 @@ void UChargedBlastAbilityBase::FireOnce()
 	FCollisionQueryParams QP(SCENE_QUERY_STAT(JJKBlast));
 	QP.AddIgnoredActor(Fighter);
 
-	// 全路径遮挡（A02）：世界阻挡（Visibility，胶囊不受影响）与 Pawn 命中（对象类型扫掠）取更近者
-	FHitResult WallHit;
-	const bool bWall = GetWorld()->LineTraceSingleByChannel(WallHit, Muzzle, AimPoint, ECC_Visibility, QP)
-		&& !Cast<AFighterCharacter>(WallHit.GetActor());
-	const float WallDist = bWall ? static_cast<float>(FVector::Dist(Muzzle, WallHit.ImpactPoint)) : TNumericLimits<float>::Max();
-
-	// 炮口嵌墙安全拒绝：墙在炮口 30cm 内直接拒绝发射
-	if (bWall && WallDist < 30.f)
+	// 炮口嵌墙安全拒绝：墙在炮口 30cm 内直接拒绝发射（其余遮挡由投射体飞行处理）
 	{
-		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮口嵌墙安全拒绝"), *GetNameSafe(Fighter));
-		return;
-	}
-
-	FHitResult FireHit;
-	AFighterCharacter* HitFighter = nullptr;
-	FVector EndPoint = AimPoint;
-	{
-		FCollisionObjectQueryParams ObjectParams(ECC_Pawn);
-		const FCollisionShape Sphere = FCollisionShape::MakeSphere(15.f);
-		if (GetWorld()->SweepSingleByObjectType(FireHit, Muzzle, AimPoint, FQuat::Identity, ObjectParams, Sphere, QP))
+		FHitResult MuzzleHit;
+		if (GetWorld()->LineTraceSingleByChannel(MuzzleHit, Muzzle,
+			Muzzle + (AimPoint - Muzzle).GetSafeNormal() * 30.f, ECC_Visibility, QP))
 		{
-			const float PawnDist = static_cast<float>(FVector::Dist(Muzzle, FireHit.ImpactPoint));
-			if (!bWall || PawnDist < WallDist)
+			if (!Cast<AFighterCharacter>(MuzzleHit.GetActor()))
 			{
-				EndPoint = FireHit.ImpactPoint;
-				HitFighter = Cast<AFighterCharacter>(FireHit.GetActor());
+				UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮口嵌墙安全拒绝"), *GetNameSafe(Fighter));
+				return;
 			}
-			else
-			{
-				EndPoint = WallHit.ImpactPoint; // 中间墙体截断：命中无效
-			}
-		}
-		else if (bWall)
-		{
-			EndPoint = WallHit.ImpactPoint;
 		}
 	}
 
 	if (BlastDebugEnabled() > 0.f && GetWorld())
-		DrawDebugLine(GetWorld(), Muzzle, EndPoint, FColor::Cyan, false, 2.f, 0, 2.f);
+		DrawDebugLine(GetWorld(), Muzzle, AimPoint, FColor::Cyan, false, 1.5f, 0, 2.f);
 
-	// 共享攻防结算（A02）：闪避免疫/正面防御/命中与近战同口径，特效终点与结算一致
-	if (HitFighter)
+	// M7 表现占位：发射可见小圆球投射体；结算走共享攻防口径（闪避/防御/命中）
+	const FVector Dir = (AimPoint - Muzzle).GetSafeNormal();
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = Fighter;
+	SpawnParams.Instigator = Fighter;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	FRangedHitSettle Settle;
+	Settle.Damage = Damage;
+	Settle.bDodgeable = true;
+	Settle.bBlockable = true;
+	Settle.bGrantCurse = true;
+	Settle.GuardStunDuration = GetGuardStunDuration();
+	Settle.HitStunDuration = GetHitStunDuration();
+	Settle.InterruptLevel = GetInterruptLevel();
+	Settle.KnockbackStrength = GetKnockbackStrength();
+	Settle.AttackInstanceId = (static_cast<uint64>(GetUniqueID()) << 20) | (++ShotCounter);
+	if (auto* Proj = GetWorld()->SpawnActor<ABlastProjectile>(ABlastProjectile::StaticClass(),
+		Muzzle, Dir.Rotation(), SpawnParams))
 	{
-		FRangedHitSettle Settle;
-		Settle.Damage = Damage;
-		Settle.bDodgeable = true;
-		Settle.bBlockable = true;
-		Settle.bGrantCurse = true;
-		Settle.GuardStunDuration = GetGuardStunDuration();
-		Settle.HitStunDuration = GetHitStunDuration();
-		Settle.InterruptLevel = GetInterruptLevel();
-		Settle.KnockbackStrength = GetKnockbackStrength();
-		Settle.AttackInstanceId = (static_cast<uint64>(GetUniqueID()) << 20) | (++ShotCounter);
-		const ETrainingContact Result = Fighter->SettleRangedHitOn(HitFighter, Settle);
-		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮击命中 %s（伤害 %.0f q=%.2f 结果=%d）"),
-			*GetNameSafe(Fighter), *GetNameSafe(HitFighter), Damage, PaidQ, static_cast<int32>(Result));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮击空放"), *GetNameSafe(Fighter));
+		Proj->InitBlast(Fighter, Dir, GetProjectileSpeed(), GetProjectileRadius(), 3.f, Settle);
+		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 发射弹体（伤害 %.0f q=%.2f）"), *GetNameSafe(Fighter), Damage, PaidQ);
 	}
 }
 
