@@ -11,23 +11,23 @@
       "name": "M6-T04_mobile_partial_curve",
       "passed": true,
       "details": {
-        "damage": 46.66668701171875,
-        "cost": 9.444442749023438
+        "damage": 42.5040283203125,
+        "cost": 8.334403991699219
       }
     },
     {
       "name": "M6-T04_mobile_partial_cost",
       "passed": true,
       "details": {
-        "damage": 46.66668701171875,
-        "cost": 9.444442749023438
+        "damage": 42.5040283203125,
+        "cost": 8.334403991699219
       }
     },
     {
       "name": "M6-T16_hold_cap_no_fire",
       "passed": true,
       "details": {
-        "held_hp": 953.3333129882812
+        "held_hp": 957.4959716796875
       }
     },
     {
@@ -41,7 +41,7 @@
       "name": "M6-T16_full_cost_cap",
       "passed": true,
       "details": {
-        "cost": 21.0
+        "cost": 20.99999237060547
       }
     },
     {
@@ -150,7 +150,7 @@
       "passed": true,
       "details": {
         "orbs": 0,
-        "curse": 39.000003814697266
+        "curse": 37.701473236083984
       }
     },
     {
@@ -184,7 +184,7 @@
       "name": "M6-T11_energy_gain_resumes",
       "passed": true,
       "details": {
-        "energy": 2.333333969116211
+        "energy": 2.250063419342041
       }
     },
     {
@@ -220,14 +220,16 @@
       "name": "M6-T14_ai_ranged_hit",
       "passed": true,
       "details": {
-        "hp": 936.6666259765625,
+        "hp": 944.166259765625,
         "log": [
-          "47.335 Started BT_Arena / BB_Arena",
-          "48.335 Branch=Domain Distance=1000.0 ObservedFor=-1.00",
-          "48.668 Request=Executed",
-          "50.001 Branch=RangedAttack Distance=1400.0 ObservedFor=-1.00",
-          "50.335 Request=Executed",
-          "51.001 Blast: released"
+          "42.150 Wait: combat control",
+          "42.200 Branch completed",
+          "42.283 Branch=Wait Distance=1400.0 ObservedFor=-1.00",
+          "42.300 Wait: combat control",
+          "42.350 Branch completed",
+          "42.416 Branch=RangedAttack Distance=1400.0 ObservedFor=-1.00",
+          "42.433 Request=Executed",
+          "42.950 Blast: released"
         ]
       }
     },
@@ -237,8 +239,8 @@
       "details": null
     }
   ],
-  "started_at": 1789638439.589531,
-  "duration_seconds": 47.98500000000058,
+  "started_at": 1789650042.5552857,
+  "duration_seconds": 41.68800000000192,
   "snapshot": {
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
@@ -333,11 +335,11 @@
     "Source/JJK_theHiddenOnes/Training/DamageGameplayEffect.cpp": "0e5aa9a3b8b3646f0ff81f301fb25c0905ddb308ea572a6a0f246b0f7e85cc9d",
     "Source/JJK_theHiddenOnes/Training/DodgeAbility.cpp": "58aea6535d21e5b0a6d9ce74e238c625ff88f2ff2184f07872566a20bd70c421",
     "Source/JJK_theHiddenOnes/Training/DomainExpansionAbility.cpp": "e46630d62706c414c83b4a8fa813f8fcd02e00801a626fd9cc34b1950e6cc356",
-    "Source/JJK_theHiddenOnes/Training/DomainOrb.cpp": "7c93be56020f663f320c1bfaadd06c6dfc048027140a941f52f0598659dc36f7",
+    "Source/JJK_theHiddenOnes/Training/DomainOrb.cpp": "cadf88c1432bf499d5b56b75c83a7e003dd8732b5b83a401a5c222401099e454",
     "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.cpp": "19b14d58bd5375864eb1f8d125bde8750273fc499a6dfd32086d981a9184350b",
-    "Source/JJK_theHiddenOnes/Training/FighterAIController.cpp": "2068deeed602bf505468af855b9e53fc07371d6ff415bce244fe866496f2b015",
+    "Source/JJK_theHiddenOnes/Training/FighterAIController.cpp": "d542567e4221cac4283d43c899b95b574b348e66f3427360b60de0be571bbc07",
     "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.cpp": "d28cfa82791db303d0ecd47fb0ae195d3265715aa776e37b041abc3ab2b315dc",
-    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "8787bdbc88b9546f9b54f1b0f6ef89dc5e4cdd8d68b1f6e5fcf054f1d1abb1cc",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "98800e5162f6dcb905abdb628206ca3e12b4896923283fabdd721440d42e6951",
     "Source/JJK_theHiddenOnes/Training/FighterDefinition.cpp": "49ff2e8200676d920005a8d2d212b3aa4104bea1622b35b5036d1edcba8d51a2",
     "Source/JJK_theHiddenOnes/Training/M5SmokeHarness.cpp": "5d5f7f11987e3400227742322a53f81356daee4e5399699bda2e5d8fcc5b4e06",
     "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.cpp": "753565f48a4d3e8527d9df043c78def89a16d793c6ca2cf591a2db254e4cc548",
@@ -394,14 +396,14 @@
     "Content/Training/BP_ArenaPlayerController.uasset": "bdcbe8e54d9fa309abb32c17d201e98df0ff711b085709770605f306f670366e",
     "Content/Training/BP_Fighter.uasset": "c8cdf5f49b2d2b6822a896c41afcd38b9b89ff154cc8f488cf9456315202d50d",
     "Content/Training/BP_TrainingGameMode.uasset": "f910744af48cb75f3fec16d4d5be767e208e88f3a0d17a63b8c5be14c123091d",
-    "Content/Training/DA_Fighter_Ishigori.uasset": "42272aa45fbda6869052da8755aefb8e4ac6725ff82deb24782e20fe0358cff7",
+    "Content/Training/DA_Fighter_Ishigori.uasset": "f891237370841efa80e761b66ab343a6e2ffec23ed8442abde8d88c951741ecc",
     "Content/Training/DA_M2_Attack_A1.uasset": "341ca0f636487d5b729b0c0c3fd2ebb84f17443e59fbf0db3c5aa1ecb1633788",
-    "Content/Training/DA_M3_A1.uasset": "5d18059d22229d779e4447ddd56c6006ad82c35141ece173143c5c207871f9c8",
+    "Content/Training/DA_M3_A1.uasset": "b9039b76ef423aa6de26baf2ae3a841d57edc825ab7a8b90ee67f05b4fb39a95",
     "Content/Training/DA_M3_A2.uasset": "6c6fef14c55fa1128937ad5fa4d15f89fdec6db1ff77c5af1610809ac744e34d",
     "Content/Training/DA_M3_A3.uasset": "355063b12c5979f19808ffe76456f67d94338c1ed9d9acd82b9eedef2e8cd4d1",
     "Content/Training/DA_M3_HeavyKick.uasset": "d13626a6631d94a5d89ba0f1c437f212b2bff7b0d4ae9ae0d6f85388525a7064",
-    "Content/Training/DA_M3_HeavyPunch.uasset": "d4b4f5528f7e4585f7ff53b76217a968ce8b7e10cc134e528bab3cb5c55cf1b7",
-    "Content/Training/DA_M3_Kick.uasset": "f8cad4167bd8593bd5386e32b818a2876b497f7dc31e70ca478c59e3f14dc1fb",
+    "Content/Training/DA_M3_HeavyPunch.uasset": "f8383f74bd8edb153fbe2b2f6dd3b19073f89c6d24fc5084b6d2f4a698e1b1c0",
+    "Content/Training/DA_M3_Kick.uasset": "1113ad12c94fa2d24a8e89aeff9540162b89575ce6029a689d545714c8c647a9",
     "Content/Training/IA_Aim.uasset": "217638e83a2e488afc9981a4b9a286a671a7796d05b7c2f375ee436a1530679b",
     "Content/Training/IA_Attack.uasset": "42796a5b9f070b20b9653ecc26567511f61637899e4d4a085af57a06699a175c",
     "Content/Training/IA_Dodge.uasset": "945dc3535306f6fbfba4007cf4c4184b83950903f5e1709429f86e49d9ea38ff",

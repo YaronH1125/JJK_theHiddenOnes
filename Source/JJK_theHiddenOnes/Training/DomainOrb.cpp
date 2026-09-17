@@ -54,6 +54,8 @@ void ADomainOrb::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	if (bHasHit || bPausedMovement) return;
 
+	// 卡帧/大帧距下限制单步积分（≤0.1s），防止轨迹穿透或坠地误判（T21 帧率无关性）
+	DeltaSeconds = FMath::Min(DeltaSeconds, 0.1f);
 	LifeRemaining -= DeltaSeconds;
 	if (LifeRemaining <= 0.f)
 	{

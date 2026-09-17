@@ -1519,7 +1519,7 @@ void AFighterCharacter::TickAimCamera(float DeltaSeconds)
 void AFighterCharacter::TickCurseRegen(float DeltaSeconds)
 {
 	if (!AbilitySystem || !AttributeSet || IsDead()) return;
-	if (IsBlastCharging()) return; // 蓄力期暂停回咒
+	if (ActiveBlast.IsValid()) return; // 炮击全生命周期（蓄力/前摇/恢复）暂停回咒（08：持蓄不回咒）
 	const double Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
 	if (Now - LastCurseFlowActivityTime < (Definition ? Definition->ResourceFlow.CurseRegenDelay : 2.0)) return;
 	const float Curse = AttributeSet->GetCursedEnergy();

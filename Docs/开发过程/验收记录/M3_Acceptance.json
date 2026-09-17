@@ -141,7 +141,7 @@
     {
       "name": "M3-T15_cost_(True, False)",
       "passed": true,
-      "details": 1.25
+      "details": 1.5
     },
     {
       "name": "M3-T15_old_action_(True, False)",
@@ -166,7 +166,7 @@
     {
       "name": "M3-T11_direction_displacement",
       "passed": true,
-      "details": 225.00261180102825
+      "details": 226.26260966062546
     },
     {
       "name": "M3-T16_recovery_rejects_E_attack",
@@ -336,7 +336,7 @@
     {
       "name": "M3-T11_dodge_wall",
       "passed": true,
-      "details": 1082.148471670676
+      "details": 1082.1903650428333
     },
     {
       "name": "M3-T12_armor_damage_no_interrupt",
@@ -591,7 +591,7 @@
       "name": "M3-T13_narrow_cancel_30",
       "passed": true,
       "details": {
-        "elapsed": 0.2333350032567978,
+        "elapsed": 0.23782089352607727,
         "result": true
       }
     },
@@ -608,7 +608,7 @@
       "name": "M3-T13_narrow_cancel_60",
       "passed": true,
       "details": {
-        "elapsed": 0.2333361953496933,
+        "elapsed": 0.23335859179496765,
         "result": true
       }
     },
@@ -625,7 +625,7 @@
       "name": "M3-T13_narrow_cancel_120",
       "passed": true,
       "details": {
-        "elapsed": 0.22465690970420837,
+        "elapsed": 0.22604019939899445,
         "result": true
       }
     }
@@ -633,24 +633,24 @@
   "fps": [
     {
       "requested": 30,
-      "measured": 29.999354248551647,
+      "measured": 29.999605285197443,
       "min_delta": 0.03333339840173721,
-      "max_delta": 0.03336099907755852
+      "max_delta": 0.03334080055356026
     },
     {
       "requested": 60,
-      "measured": 59.972283285712145,
+      "measured": 58.68941001529905,
       "min_delta": 0.016666699200868607,
-      "max_delta": 0.017178498208522797
+      "max_delta": 0.03305469825863838
     },
     {
       "requested": 120,
-      "measured": 87.59706815992762,
-      "min_delta": 0.009383399039506912,
-      "max_delta": 0.015243902802467346
+      "measured": 92.79435567478669,
+      "min_delta": 0.008447300642728806,
+      "max_delta": 0.015620499849319458
     }
   ],
-  "duration_seconds": 99.53099999999904,
+  "duration_seconds": 99.59400000000096,
   "snapshot": {
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
@@ -745,11 +745,11 @@
     "Source/JJK_theHiddenOnes/Training/DamageGameplayEffect.cpp": "0e5aa9a3b8b3646f0ff81f301fb25c0905ddb308ea572a6a0f246b0f7e85cc9d",
     "Source/JJK_theHiddenOnes/Training/DodgeAbility.cpp": "58aea6535d21e5b0a6d9ce74e238c625ff88f2ff2184f07872566a20bd70c421",
     "Source/JJK_theHiddenOnes/Training/DomainExpansionAbility.cpp": "e46630d62706c414c83b4a8fa813f8fcd02e00801a626fd9cc34b1950e6cc356",
-    "Source/JJK_theHiddenOnes/Training/DomainOrb.cpp": "7c93be56020f663f320c1bfaadd06c6dfc048027140a941f52f0598659dc36f7",
+    "Source/JJK_theHiddenOnes/Training/DomainOrb.cpp": "cadf88c1432bf499d5b56b75c83a7e003dd8732b5b83a401a5c222401099e454",
     "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.cpp": "19b14d58bd5375864eb1f8d125bde8750273fc499a6dfd32086d981a9184350b",
-    "Source/JJK_theHiddenOnes/Training/FighterAIController.cpp": "2068deeed602bf505468af855b9e53fc07371d6ff415bce244fe866496f2b015",
+    "Source/JJK_theHiddenOnes/Training/FighterAIController.cpp": "d542567e4221cac4283d43c899b95b574b348e66f3427360b60de0be571bbc07",
     "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.cpp": "d28cfa82791db303d0ecd47fb0ae195d3265715aa776e37b041abc3ab2b315dc",
-    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "8ae09b20de47d512b8ab715c0b35b86beeea1c3b8e49558c18c51f42d1b3e98c",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "98800e5162f6dcb905abdb628206ca3e12b4896923283fabdd721440d42e6951",
     "Source/JJK_theHiddenOnes/Training/FighterDefinition.cpp": "49ff2e8200676d920005a8d2d212b3aa4104bea1622b35b5036d1edcba8d51a2",
     "Source/JJK_theHiddenOnes/Training/M5SmokeHarness.cpp": "5d5f7f11987e3400227742322a53f81356daee4e5399699bda2e5d8fcc5b4e06",
     "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.cpp": "753565f48a4d3e8527d9df043c78def89a16d793c6ca2cf591a2db254e4cc548",
