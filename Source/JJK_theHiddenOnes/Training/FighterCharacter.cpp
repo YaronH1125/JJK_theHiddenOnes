@@ -441,9 +441,16 @@ bool AFighterCharacter::RequestDodge(FVector Direction)
 
 bool AFighterCharacter::RequestStanceSwitch()
 {
-	if (!CombatInput->AreRequestsEnabled() || CombatInput->IsSessionActive() || CombatInput->IsKickSessionActive() || !Definition || !AbilitySystem || !CanAct() || HasCombatTag(TAG_State_GuardStun) || IsDead() || IsAttacking() || HasCombatTag(TAG_State_HitStun)
-		|| HasCombatTag(TAG_State_KnockedDown) || HasCombatTag(TAG_State_StanceSwitching)
-		|| IsThrowPaired())
+	// 自由切换：窗口内再按 = 立即反向翻转（0.1s 表现窗口只拒绝攻击，不拒绝切换）
+	if (HasCombatTag(TAG_State_StanceSwitching))
+	{
+		DoFlipStance();
+		return true;
+	}
+	if (!CombatInput->AreRequestsEnabled() || CombatInput->IsSessionActive() || CombatInput->IsKickSessionActive()
+		|| !CanAct() || !Definition || !AbilitySystem || HasCombatTag(TAG_State_GuardStun) || IsDead()
+		|| IsAttacking() || HasCombatTag(TAG_State_HitStun)
+		|| HasCombatTag(TAG_State_KnockedDown) || IsThrowPaired())
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 切形态被拒：动作/状态限制"), *GetName());
 		return false;
@@ -457,7 +464,6 @@ bool AFighterCharacter::RequestStanceSwitch()
 
 	CombatInput->InvalidateSession(FText::FromString(TEXT("切换形态")));
 	CombatInput->ReleaseContinuousInputs();
-	// A03：切形态先中止持炮（已扣不退，超级炮按中断进冷却，无免费满蓄留存）
 	CancelActiveBlast();
 	bPendingStanceSwitch = true;
 	return AbilitySystem != nullptr
@@ -605,10 +611,21 @@ void AFighterCharacter::EndThrowPair(bool bRestore)
  }
 }
 
+void AFighterCharacter::DoFlipStance()
+{
+	SetAimIntent(false); // 切形态清除瞄准，恢复需新按下
+	Stance = Stance == EFighterStance::Melee ? EFighterStance::Ranged : EFighterStance::Melee;
+	if (AbilitySystem)
+	{
+		const bool bToRanged = Stance == EFighterStance::Ranged;
+		AbilitySystem->SetLooseGameplayTagCount(TAG_Stance_Melee, bToRanged ? 0 : 1);
+		AbilitySystem->SetLooseGameplayTagCount(TAG_Stance_Ranged, bToRanged ? 1 : 0);
+	}
+}
+
 void AFighterCharacter::NotifyStanceSwitched()
 {
-	SetAimIntent(false); // 08：切形态清除瞄准，恢复需新按下
-	Stance = Stance == EFighterStance::Melee ? EFighterStance::Ranged : EFighterStance::Melee;
+	DoFlipStance();
 	LastStanceSwitchTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
 }
 

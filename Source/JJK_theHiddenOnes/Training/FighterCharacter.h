@@ -134,6 +134,8 @@ public:
 
 	/** 切形态完成回调（StanceSwitchAbility 调用）：切换 Stance 并记录时间戳 */
 	void NotifyStanceSwitched();
+	/** 翻转近战/远程（形态字段 + 标签 + 清瞄准）；自由切换由 RequestStanceSwitch 驱动 */
+	void DoFlipStance();
 
 	/** 消耗行动资源（GE 扣除）；不足返回 false */
 	UFUNCTION(BlueprintPure, Category = "Fighter|GAS")

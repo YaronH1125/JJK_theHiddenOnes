@@ -204,7 +204,7 @@ public:
 
 	/** 再次切形态的最小间隔 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Stance", meta = (ClampMin = "0.0", ForceUnits = "s"))
-	float StanceSwitchInterval = 0.1f;
+	float StanceSwitchInterval = 0.f;
 
 	/** 防御规则 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Guard")
@@ -279,7 +279,7 @@ public:
 
 	/** 右键瞄准镜头臂长（枪战 TPS：收到右肩上方，避免模型挡准星） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "50.0", ForceUnits = "cm"))
-	float AimArmLength = 150.f;
+	float AimArmLength = 130.f;
 
 	/** 普通镜头臂长（松开右键恢复） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "50.0", ForceUnits = "cm"))
@@ -291,11 +291,11 @@ public:
 
 	/** 瞄准右肩偏移（Boom SocketOffset.Y：相机从右肩上方越过头顶看） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
-	float AimSocketOffsetY = 60.f;
+	float AimSocketOffsetY = 70.f;
 
 	/** 瞄准上抬偏移（Boom SocketOffset.Z：相机略高于头） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
-	float AimSocketOffsetZ = 25.f;
+	float AimSocketOffsetZ = 28.f;
 
 	/** 待机右肩偏移（TPS 惯例：非瞄准相机也不在正后方，人物常驻屏幕左侧） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))

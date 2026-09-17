@@ -19,7 +19,7 @@ UStanceSwitchAbility::UStanceSwitchAbility()
 	ActivationBlockedTags.AddTag(TAG_State_Dead);
 	ActivationBlockedTags.AddTag(TAG_State_HitStun);
 	ActivationBlockedTags.AddTag(TAG_State_KnockedDown);
-	ActivationBlockedTags.AddTag(TAG_State_StanceSwitching);
+	// 注：StanceSwitching 不阻断再切——窗口内再按 E 由 RequestStanceSwitch 直接反向翻转（自由切换）
 }
 
 void UStanceSwitchAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -34,6 +34,9 @@ void UStanceSwitchAbility::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 		return;
 	}
 	CachedFighter = Fighter;
+
+	// 自由切换：按下瞬间立即翻转形态（0 等待）；0.1s 标签仅作攻击拒绝的表现窗口
+	Fighter->NotifyStanceSwitched();
 
 	if (UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent())
 	{
@@ -55,19 +58,8 @@ void UStanceSwitchAbility::HandleSwitchFinished()
 		if (UAbilitySystemComponent* ASC = Fighter->GetFighterAbilitySystemComponent())
 		{
 			ASC->RemoveLooseGameplayTag(TAG_State_StanceSwitching);
-			if (ASC->HasMatchingGameplayTag(TAG_Stance_Melee))
-			{
-				ASC->RemoveLooseGameplayTag(TAG_Stance_Melee);
-				ASC->AddLooseGameplayTag(TAG_Stance_Ranged);
-			}
-			else
-			{
-				ASC->RemoveLooseGameplayTag(TAG_Stance_Ranged);
-				ASC->AddLooseGameplayTag(TAG_Stance_Melee);
-			}
 		}
-		Fighter->NotifyStanceSwitched();
-		UE_LOG(LogTemp, Log, TEXT("[Stance] %s 切换完成，当前形态=%s"), *GetNameSafe(Fighter),
+		UE_LOG(LogTemp, Log, TEXT("[Stance] %s 切换表现结束，当前形态=%s"), *GetNameSafe(Fighter),
 			Fighter->GetStance() == EFighterStance::Melee ? TEXT("近战") : TEXT("远程"));
 	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
