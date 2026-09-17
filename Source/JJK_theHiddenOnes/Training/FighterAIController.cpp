@@ -156,13 +156,19 @@ void AFighterAIController::Decide()
   else if (bDomainReady && D<=CaptureRange && Roll<Params.DomainChance) Next=EAIBranch::Domain;
   else if (bRanged)
   {
-   if (D>Params.RetreatDistance && D<=BlastRange) Next=Roll<Params.RangedBlastChance ? EAIBranch::RangedAttack : EAIBranch::Strafe;
-   else if (D>Params.RetreatDistance) Next=EAIBranch::Approach;
+   if (D>BlastRange) Next=EAIBranch::Approach;
+   else if (D>900.f) Next=Roll<.5f ? EAIBranch::RangedAttack : EAIBranch::Approach; // 远处边打边收
+   else if (D>Params.RetreatDistance)
+   {
+    // 进入炮击范围内有概率切回近战（自然近远节奏）；不炮击时继续逼近
+    if (D<=400.f && Roll<.35f && Self->RequestStanceSwitch()) LogDecision(TEXT("Ranged close: switch to melee"));
+    Next=Roll<Params.RangedBlastChance ? EAIBranch::RangedAttack : (D>Params.AttackRange ? EAIBranch::Approach : EAIBranch::Strafe);
+   }
    else
    {
-    // 贴脸远程：切回近战并后撤拉开
-    if (Params.bEnableRangedCombat && Self->RequestStanceSwitch()) LogDecision(TEXT("Ranged close: switch to melee"));
-    Next=EAIBranch::Retreat;
+    // 近距离远程：切回近战（攻击范围内即贴脸，不只 120 内）
+    if (Params.bEnableRangedCombat && D<=Params.AttackRange && Self->RequestStanceSwitch()) LogDecision(TEXT("Ranged close: switch to melee"));
+    Next=D<=Params.AttackRange ? EAIBranch::Retreat : EAIBranch::Retreat;
    }
   }
   else if (D<Params.RetreatDistance) Next=EAIBranch::Retreat;
@@ -171,7 +177,7 @@ void AFighterAIController::Decide()
   {
    Next=EAIBranch::Approach;
    // 中远距离：概率切入远程形态（下轮决策生效；仅远程开关开启时）
-   if (Params.bEnableRangedCombat && D>600.f && RandomFraction()<Params.StanceSwitchChance && Self->RequestStanceSwitch())
+   if (Params.bEnableRangedCombat && D>Params.AttackRangeExit+120.f && RandomFraction()<.6f && Self->RequestStanceSwitch())
     LogDecision(TEXT("Long range: switch to ranged"));
   }
   else Next=EAIBranch::Strafe;
