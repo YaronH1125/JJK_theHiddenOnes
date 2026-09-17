@@ -95,8 +95,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	bool IsAttacking() const;
-	/** 近战软锁（异人之下式）：攻击中自动面向索敌目标；返回是否发生朝向修正 */
-	void TickMeleeSoftLock(float DeltaSeconds);
+	/** 索敌键硬锁：锁定时持续面向目标（平滑插值，不抢移动） */
+	void TickMeleeFacing(float DeltaSeconds);
+	bool IsHardLocked() const;
 
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	bool IsGuardIntent() const;

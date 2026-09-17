@@ -305,21 +305,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
 	float NormalSocketOffsetZ = 35.f;
 
-	/** 近战软锁：自动面向目标的距离（异人之下式索敌） */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm"))
-	float MeleeAutoFaceRange = 600.f;
+	/** 近战形态右肩偏移（异人之下式：人物基本居中） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ForceUnits = "cm"))
+	float MeleeSocketOffsetY = 0.f;
 
-	/** 近战软锁总开关（M3/M5 方向性近战回归显式钉住 false） */
+	/** 近战形态上抬偏移 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ForceUnits = "cm"))
+	float MeleeSocketOffsetZ = 35.f;
+
+	/** 柔性锁定：镜头辅助的最大偏航速率（度/秒；鸣潮式缓慢回正，鼠标输入立即让位） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0"))
+	float SoftLockYawAssistRate = 90.f;
+
+	/** 柔性锁定：辅助生效的目标距离 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm"))
+	float MeleeAutoFaceRange = 900.f;
+
+	/** 软锁总开关（M3/M5 方向性近战回归显式钉住 false） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee")
 	bool MeleeAutoFace = true;
 
-	/** 近战软锁：攻击中持续转向目标的速率（FInterpTo） */
+	/** 索敌键硬锁：锁定时面向目标的速率（FInterpTo） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "1.0"))
-	float MeleeFaceInterpSpeed = 18.f;
-
-	/** 近战软锁：攻击中镜头偏向目标的限速（度/秒；玩家鼠标可随时覆盖） */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0"))
-	float MeleeCameraDriftRate = 60.f;
+	float MeleeFaceInterpSpeed = 10.f;
 
 	/** 瞄准 FOV（收窄视场：PUBG ADS 归一化 ≈70 vFOV） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "30.0", ClampMax = "120.0"))

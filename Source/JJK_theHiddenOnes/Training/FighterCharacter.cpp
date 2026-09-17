@@ -1479,7 +1479,9 @@ void AFighterCharacter::RestoreAimCamera()
 		if (GetCameraBoom())
 		{
 			GetCameraBoom()->TargetArmLength = Definition->NormalArmLength;
-			GetCameraBoom()->SocketOffset = FVector(0.f, Definition->NormalSocketOffsetY, Definition->NormalSocketOffsetZ);
+			GetCameraBoom()->SocketOffset = FVector(0.f,
+				GetStance() == EFighterStance::Melee ? Definition->MeleeSocketOffsetY : Definition->NormalSocketOffsetY,
+				GetStance() == EFighterStance::Melee ? Definition->MeleeSocketOffsetZ : Definition->NormalSocketOffsetZ);
 		}
 		if (auto* Cam = GetFollowCamera())
 			Cam->SetFieldOfView(Definition->NormalFOV);
@@ -1514,22 +1516,35 @@ void AFighterCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	ProcessCombatEvents();
 	TickAimCamera(DeltaSeconds);
-	TickMeleeSoftLock(DeltaSeconds);
+	TickMeleeFacing(DeltaSeconds);
 	TickCurseRegen(DeltaSeconds);
 	TickThrowPair();
 }
 
-void AFighterCharacter::TickMeleeSoftLock(float DeltaSeconds)
+void AFighterCharacter::TickMeleeFacing(float DeltaSeconds)
 {
-	// 攻击中且目标在索敌范围 → 持续转向目标（异人之下式柔性锁定）
-	if (GetStance() != EFighterStance::Melee || !IsAttacking() || !Definition || !Definition->MeleeAutoFace) return;
-	auto* Target = GetPreferredTargetFighter();
+	// 仅索敌键硬锁时持续面向目标；柔性镜头辅助不转角色（避免与 OrientRotationToMovement 抢朝向）
+	auto* TargetingComp = GetTargeting();
+	const bool bLocked = TargetingComp && TargetingComp->GetCurrentTarget() && !IsDead();
+	if (Definition)
+	{
+		auto* Move = GetCharacterMovement();
+		if (Move && Move->bOrientRotationToMovement == bLocked)
+			Move->bOrientRotationToMovement = !bLocked;
+	}
+	if (!bLocked || GetStance() != EFighterStance::Melee || !Definition) return;
+	auto* Target = TargetingComp->GetCurrentTarget();
 	if (!Target || Target->IsDead()) return;
 	const FVector D = Target->GetActorLocation() - GetActorLocation();
-	const float Dist = D.Size2D();
-	if (Dist > Definition->MeleeAutoFaceRange || Dist < 1.f) return;
+	if (D.Size2D() < 1.f) return;
 	const float TargetYaw = FVector(D.X, D.Y, 0.f).GetSafeNormal().Rotation().Yaw;
 	SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(0.f, TargetYaw, 0.f), DeltaSeconds, Definition->MeleeFaceInterpSpeed));
+}
+
+bool AFighterCharacter::IsHardLocked() const
+{
+	auto* TargetingComp = GetTargeting();
+	return TargetingComp && TargetingComp->GetCurrentTarget() != nullptr;
 }
 
 void AFighterCharacter::TickAimCamera(float DeltaSeconds)
@@ -1546,9 +1561,14 @@ void AFighterCharacter::TickAimCamera(float DeltaSeconds)
 	Boom->TargetArmLength = FMath::FInterpTo(Boom->TargetArmLength,
 		bAiming ? Definition->AimArmLength : Definition->NormalArmLength, DeltaSeconds, Speed);
 	FVector Offset = Boom->SocketOffset;
-	// TPS 惯例：待机即常驻右肩偏移（人物左侧），瞄准收紧到贴肩
-	Offset.Y = FMath::FInterpTo(Offset.Y, bAiming ? Definition->AimSocketOffsetY : Definition->NormalSocketOffsetY, DeltaSeconds, Speed);
-	Offset.Z = FMath::FInterpTo(Offset.Z, bAiming ? Definition->AimSocketOffsetZ : Definition->NormalSocketOffsetZ, DeltaSeconds, Speed);
+	// 异人之下式：近战人物居中；远程待机右肩；瞄准贴肩收紧
+	const bool bMelee = GetStance() == EFighterStance::Melee;
+	const float TargetY = bAiming ? Definition->AimSocketOffsetY
+		: (bMelee ? Definition->MeleeSocketOffsetY : Definition->NormalSocketOffsetY);
+	const float TargetZ = bAiming ? Definition->AimSocketOffsetZ
+		: (bMelee ? Definition->MeleeSocketOffsetZ : Definition->NormalSocketOffsetZ);
+	Offset.Y = FMath::FInterpTo(Offset.Y, TargetY, DeltaSeconds, Speed);
+	Offset.Z = FMath::FInterpTo(Offset.Z, TargetZ, DeltaSeconds, Speed);
 	Boom->SocketOffset = Offset;
 	// 瞄准收窄 FOV（PUBG/COD ADS 观感）
 	if (auto* Cam = GetFollowCamera())

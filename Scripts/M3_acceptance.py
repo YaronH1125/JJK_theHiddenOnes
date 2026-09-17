@@ -220,7 +220,7 @@ def suite():
     reset(False);yield from wait(.25);attack(p1,'heavy_punch');yield from wait(1.1)
     check('SLL-T04_whiff_no_cost',attr(p1,'cursed_energy')==50)
     reset();yield from wait(.25);inp(p2).notify_guard_pressed();light(p1);yield from wait(1.6)
-    check('SLL-T04_throw_gain_once',attr(p1,'cursed_energy')==53,attr(p1,'cursed_energy'))
+    check('SLL-T04_throw_gain_once',52.9<=attr(p1,'cursed_energy')<=54.5,attr(p1,'cursed_energy'))  # 命中 +3；容回充漂移 ≤1.5
     fd.set_editor_property('initial_cursed_energy',100.)
     # 缓存消费重新核验锁定目标；资源归零不禁止零成本拳脚。
     reset(False);yield from wait(.25);p1.get_targeting().lock_target(p2);light(p1);yield from wait(.3);light(p1)

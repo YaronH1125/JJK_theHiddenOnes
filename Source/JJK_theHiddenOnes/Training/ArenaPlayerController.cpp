@@ -400,24 +400,43 @@ void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
   }
  }
  Fighter->RefreshMovementControl();
- // 近战软锁镜头：攻击中镜头以限速偏向目标（玩家鼠标可随时覆盖；总开关同角色侧）
- if (Fighter->GetStance() == EFighterStance::Melee && Fighter->IsAttacking() && !bGamePaused
+ const double Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+ // 柔性镜头辅助（鸣潮式回正）：近战 + 范围内目标 + 玩家未动鼠标 → 镜头缓慢把目标带回画面；
+ // 索敌键硬锁时增强。远程瞄准的镜头由玩家全权控制，不做辅助。
+ if (Fighter->GetStance() == EFighterStance::Melee && !bGamePaused
   && Fighter->GetDefinition() && Fighter->GetDefinition()->MeleeAutoFace)
  {
   if (auto* Target = Fighter->GetPreferredTargetFighter())
   {
-   const auto FaceParams = Fighter->GetDefinition()->MeleeCameraDriftRate;
    const FVector D = Target->GetActorLocation() - Fighter->GetActorLocation();
-   if (D.Size2D() > 1.f && D.Size2D() <= Fighter->GetDefinition()->MeleeAutoFaceRange)
+   const bool bHard = Fighter->IsHardLocked();
+   if (!Target->IsDead() && (bHard || D.Size2D() <= Fighter->GetDefinition()->MeleeAutoFaceRange))
    {
+    const float Cur = GetControlRotation().Yaw;
+    if (bPrevYawValid)
+    {
+     const float FrameDelta = FMath::FindDeltaAngleDegrees(PrevControlYaw, Cur);
+     const float PlayerDelta = FrameDelta - LastAssistYaw;
+     if (FMath::Abs(PlayerDelta) > 0.4f) LastLookTime = Now;
+    }
+    const float Since = static_cast<float>(Now - LastLookTime);
     const float TargetYaw = FVector(D.X, D.Y, 0.f).GetSafeNormal().Rotation().Yaw;
-    float Cur = GetControlRotation().Yaw;
-    float Delta = FMath::FindDeltaAngleDegrees(Cur, TargetYaw);
-    if (FMath::Abs(Delta) <= 90.f)
-     AddYawInput(FMath::Clamp(Delta, -FaceParams*DeltaTime, FaceParams*DeltaTime));
+    const float Delta = FMath::FindDeltaAngleDegrees(Cur, TargetYaw);
+    const float MaxRate = bHard ? 240.f : Fighter->GetDefinition()->SoftLockYawAssistRate;
+    const float Deadzone = bHard ? 2.f : 8.f;
+    const float Ramp = FMath::Clamp(Since / 0.4f, 0.f, 1.f);
+    float Step = 0.f;
+    if (FMath::Abs(Delta) > Deadzone && Ramp > 0.f)
+     Step = FMath::Clamp(Delta * 2.f * DeltaTime, -MaxRate * Ramp * DeltaTime, MaxRate * Ramp * DeltaTime);
+    if (Step != 0.f) AddYawInput(Step);
+    LastAssistYaw = Step;
+    PrevControlYaw = Cur + Step;
+    bPrevYawValid = true;
    }
+   else { LastAssistYaw = 0.f; bPrevYawValid = false; }
   }
  }
+ else { bPrevYawValid = false; }
  if(bDodgePressed) if(auto* GM=GetTrainingGameMode()) GM->RecordInput(Fighter,Dodged ? TEXT("闪避：执行") : TEXT("闪避：拒绝"));
  if (!Dodged)
  {
