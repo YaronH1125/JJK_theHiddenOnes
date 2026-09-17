@@ -1,246 +1,397 @@
 {
-  "status": "passed",
+  "status": "failed",
   "engine": "5.8.2-56702186+++UE5+Release-5.8",
   "checks": [
     {
-      "name": "M6-T04_mobile_charging_tag",
+      "name": "M5-T01_enable",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T04_mobile_partial_curve",
+      "name": "M5-T01_native_tree",
       "passed": true,
-      "details": {
-        "damage": 43.5001220703125,
-        "cost": 8.600021362304688
-      }
+      "details": "BT Running | Approach | Stopped | bindings=0"
     },
     {
-      "name": "M6-T04_mobile_partial_cost",
-      "passed": true,
-      "details": {
-        "damage": 43.5001220703125,
-        "cost": 8.600021362304688
-      }
-    },
-    {
-      "name": "M6-T16_hold_cap_no_fire",
-      "passed": true,
-      "details": {
-        "held_hp": 956.4998779296875
-      }
-    },
-    {
-      "name": "M6-T04_mobile_full_damage",
-      "passed": true,
-      "details": {
-        "damage": 90.0
-      }
-    },
-    {
-      "name": "M6-T16_full_cost_cap",
-      "passed": true,
-      "details": {
-        "cost": 21.00000762939453
-      }
-    },
-    {
-      "name": "M6-T04_insufficient_no_charge",
+      "name": "M5-T01_blackboard_target",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T04_insufficient_no_damage",
+      "name": "M5-T02_nav_ready",
+      "passed": true,
+      "details": "<Struct 'Vector' (0x00000180FC2B0DD0) {x: 500.000000, y: 0.000000, z: 98.150000}>"
+    },
+    {
+      "name": "M5-T02_capsule_agent",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T05_below_min_no_damage",
+      "name": "M5-T02_interior_coverage",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T02_reject_outside",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T02_approach",
+      "passed": true,
+      "details": 215.46624489963062
+    },
+    {
+      "name": "M5-T01_fixed_guard",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T01_static_stop",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T06_menu_tree_stopped",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T06_menu_no_movement",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T06_menu_resume",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T07_shared_damage",
       "passed": true,
       "details": {
-        "hp": 1000.0
+        "before": 1000.0,
+        "after": 965.0
       }
     },
     {
-      "name": "M6-T05_below_min_cost_kept",
+      "name": "M5-T07_GAS_task",
+      "passed": true,
+      "details": [
+        "12.001 Started BT_Arena / BB_Arena",
+        "12.668 Branch=Attack Distance=150.0 ObservedFor=-1.00",
+        "13.001 Request=Executed"
+      ]
+    },
+    {
+      "name": "M5-T06_task_abort_cleanup",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T05_hit_stops_path",
+      "passed": true,
+      "details": "<Struct 'Vector' (0x00000180FC305960) {x: 0.000000, y: 0.000000, z: 0.000000}>"
+    },
+    {
+      "name": "M5-T05_recovery",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T03_hit_blocked",
+      "passed": false,
+      "details": [
+        "16.007 Started BT_Arena / BB_Arena"
+      ]
+    },
+    {
+      "name": "M5-T04_rejection_cleanup_False",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T03_missing",
+      "passed": false,
+      "details": [
+        "16.341 Started BT_Arena / BB_Arena"
+      ]
+    },
+    {
+      "name": "M5-T04_rejection_cleanup_True",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T03_resource_rejected",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M5-T03_guard_without_resource",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M5-T06_guard_abort",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T04_cached_consumed",
+      "passed": false,
+      "details": [
+        "17.341 Started BT_Arena / BB_Arena"
+      ]
+    },
+    {
+      "name": "M5-T04_consumed",
+      "passed": false,
+      "details": [
+        "17.341 Started BT_Arena / BB_Arena",
+        "18.007 Branch=Attack Distance=880.1 ObservedFor=-1.00",
+        "18.341 Request=Executed",
+        "19.343 Ability completed",
+        "20.343 Branch=Approach Distance=698.8 ObservedFor=-1.00"
+      ]
+    },
+    {
+      "name": "M5-T04_task_ends_consumed",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T04_cached_expired",
+      "passed": false,
+      "details": [
+        "20.343 Started BT_Arena / BB_Arena"
+      ]
+    },
+    {
+      "name": "M5-T04_expired",
+      "passed": false,
+      "details": [
+        "20.343 Started BT_Arena / BB_Arena",
+        "21.010 Branch=Attack Distance=880.1 ObservedFor=-1.00",
+        "21.343 Request=Executed",
+        "22.343 Ability completed"
+      ]
+    },
+    {
+      "name": "M5-T04_task_ends_expired",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T04_cached_superseded",
+      "passed": false,
+      "details": [
+        "22.343 Started BT_Arena / BB_Arena"
+      ]
+    },
+    {
+      "name": "M5-T04_keep_newer_cache",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T04_cached_abort",
+      "passed": false,
+      "details": [
+        "23.010 Started BT_Arena / BB_Arena"
+      ]
+    },
+    {
+      "name": "M5-T06_cached_abort",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T04_instant_completion",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M5-T03_real_cooldown",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M5-T06_target_destroyed",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T06_target_rebind",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T08_no_input_read_1.0",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T08_reaction_1.0",
+      "passed": true,
+      "details": [
+        "25.010 Started BT_Arena / BB_Arena",
+        "25.677 Branch=Strafe Distance=276.4 ObservedFor=0.00"
+      ]
+    },
+    {
+      "name": "M5-T08_no_input_read_0.0",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T08_reaction_0.0",
+      "passed": true,
+      "details": [
+        "25.677 Started BT_Arena / BB_Arena",
+        "26.343 Branch=Defend Distance=276.4 ObservedFor=0.00"
+      ]
+    },
+    {
+      "name": "M5-T02_<AIBranch.RETREAT: 3>",
+      "passed": false,
+      "details": "<Struct 'Vector' (0x00000180FC25B1C0) {x: 500.000000, y: 0.000000, z: 98.150000}>"
+    },
+    {
+      "name": "M5-T02_<AIBranch.STRAFE: 2>",
+      "passed": false,
+      "details": "<Struct 'Vector' (0x00000180FBF9C150) {x: 500.000000, y: 0.000000, z: 98.150000}>"
+    },
+    {
+      "name": "M5-T02_wall_fallback",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M5-T05_heavy_punch",
       "passed": true,
       "details": {
-        "cost": 45.0
+        "hp": 910.0,
+        "peak": 0.0,
+        "status": "<PathFollowingStatus.IDLE: 0>"
       }
     },
     {
-      "name": "M6-T05_below_min_cooldown",
+      "name": "M5-T05_knockback_preserved",
+      "passed": false,
+      "details": 0.0
+    },
+    {
+      "name": "M5-T05_resume_heavy_punch",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T19_cooldown_cleared_by_reset",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T05_full_damage",
+      "name": "M5-T05_heavy_kick",
       "passed": true,
       "details": {
-        "damage": 220.0
+        "hp": 900.0,
+        "peak": 0.0,
+        "status": "<PathFollowingStatus.IDLE: 0>"
       }
     },
     {
-      "name": "M6-T05_full_cost",
+      "name": "M5-T05_knockdown",
       "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T05_resume_heavy_kick",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T05_condition_throw",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M5-T05_throw_path_idle",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T05_throw_release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M5-T07_equal_melee_damage",
+      "passed": false,
       "details": {
-        "cost": 62.0
+        "player": 35.0,
+        "ai": 0.0
       }
     },
     {
-      "name": "M6-T19_cooldown_after_fire",
+      "name": "M5-T09_player",
+      "passed": true,
+      "details": "<MatchOutcome.PLAYER_WIN: 1>"
+    },
+    {
+      "name": "M5-T09_once_player",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T19_cooldown_blocks_second",
-      "passed": true,
-      "details": {
-        "hp": 780.0
-      }
-    },
-    {
-      "name": "M6-T07_out_of_range_rejected",
+      "name": "M5-T09_frozen_player",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T07_casting_tag",
+      "name": "M5-T10_restart_player",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T07_interrupt_no_domain",
+      "name": "M5-T09_opponent",
+      "passed": true,
+      "details": "<MatchOutcome.OPPONENT_WIN: 2>"
+    },
+    {
+      "name": "M5-T09_once_opponent",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T07_domain_open",
+      "name": "M5-T09_frozen_opponent",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T20_orb_cost_charged",
-      "passed": true,
-      "details": {
-        "curse": 35.0
-      }
-    },
-    {
-      "name": "M6-T08_orb_tracks_moved_target",
-      "passed": true,
-      "details": {
-        "hp": 780.0
-      }
-    },
-    {
-      "name": "M6-T11_no_energy_gain_in_domain",
-      "passed": true,
-      "details": {
-        "energy": 0.0
-      }
-    },
-    {
-      "name": "M6-T20_insufficient_skip",
-      "passed": true,
-      "details": {
-        "orbs": 0,
-        "curse": 37.68667221069336
-      }
-    },
-    {
-      "name": "M6-T23_manual_blast_disabled",
+      "name": "M5-T10_restart_opponent",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T09_domain_expiry",
+      "name": "M5-T09_draw",
+      "passed": true,
+      "details": "<MatchOutcome.DRAW: 3>"
+    },
+    {
+      "name": "M5-T09_once_draw",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T09_expiry_clears_orbs",
-      "passed": true,
-      "details": {
-        "orbs": 0
-      }
-    },
-    {
-      "name": "M6-T23_manual_blast_restored",
+      "name": "M5-T09_frozen_draw",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T23_manual_blast_fires_after",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T11_energy_gain_resumes",
-      "passed": true,
-      "details": {
-        "energy": 2.269702672958374
-      }
-    },
-    {
-      "name": "M6-T10_dual_active",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T10_suppressed_no_orbs",
-      "passed": true,
-      "details": {
-        "orbs": 0
-      }
-    },
-    {
-      "name": "M6-T10_first_expires",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T10_remaining_resumes",
-      "passed": true,
-      "details": {
-        "orbs": 1
-      }
-    },
-    {
-      "name": "M6-T14_ai_switched_ranged",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T14_ai_ranged_hit",
-      "passed": true,
-      "details": {
-        "hp": 943.081298828125,
-        "log": [
-          "41.757 Request=Executed",
-          "42.836 Ability completed",
-          "42.985 Branch=Wait Distance=1400.0 ObservedFor=-1.00",
-          "43.003 Wait: combat control",
-          "43.086 Branch completed",
-          "43.254 Branch=RangedAttack Distance=1400.0 ObservedFor=-1.00",
-          "43.299 Request=Executed",
-          "43.838 Blast: released"
-        ]
-      }
-    },
-    {
-      "name": "M6-T14_ai_ranged_branch",
+      "name": "M5-T10_restart_draw",
       "passed": true,
       "details": null
     }
   ],
-  "started_at": 1789660205.028249,
-  "duration_seconds": 42.95300000000134,
+  "started_at": 1789659028.4910836,
+  "duration_seconds": 43.04699999999866,
   "snapshot": {
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
@@ -267,7 +418,7 @@
     "Source/JJK_theHiddenOnes/Training/FighterAIController.h": "485b1a347c2965b2328707bcbfc1bbac543e40d0bdea97891f25316471244880",
     "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.h": "4c64f213a89374e62ba88eeec6250d0f03dfc77d325d3b144f902a21471cf665",
     "Source/JJK_theHiddenOnes/Training/FighterCharacter.h": "d0cbfa986f029f3b490d252e6c4bac5939062e144209700adc86e1a26e016e89",
-    "Source/JJK_theHiddenOnes/Training/FighterDefinition.h": "1d7c25a0b6c2760aea5ea5cfc2dc54a952e32c00273a5b189e251ad6b2f1fbd5",
+    "Source/JJK_theHiddenOnes/Training/FighterDefinition.h": "bc159c47da1c8f6f48eb6ee7e990e000c2d2da87d4ac2043cce9fd5534516312",
     "Source/JJK_theHiddenOnes/Training/M5SmokeHarness.h": "054a19287b3c593be33b56915fd0edc5cd2a78c7e0a3e9bceffd002a1b7df4dc",
     "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.h": "b51cd81e1c8938637fcdfff158c1feb6b445f3b6ee5733c4c3d735351f2b0f25",
     "Source/JJK_theHiddenOnes/Training/MobileChargedBlastAbility.h": "58e3be91c260d98828c5327bea332000d1d2661e2d22d1aa09995bb1f16b15ad",
@@ -326,7 +477,7 @@
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesPlayerController.cpp": "b64de10d70454574f6370874e941714b3598ca4dc5162ad15b0a13629381840b",
     "Source/JJK_theHiddenOnes/Training/ArenaBTNodes.cpp": "4053892aa9531f1e0aedf22608b2ff75ca258b7731f4cc967a34fe7f9c651a52",
     "Source/JJK_theHiddenOnes/Training/ArenaCrosshairHud.cpp": "b4e1edaecdc892f66ce93e41e9802cf2247eaddaba4975c2b265afa70c3946df",
-    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.cpp": "acf9619b91cb2857194af3ed4d8e60c643993a8eb51d408dec29bb03062ec596",
+    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.cpp": "0b35210c27abe1ee07e3cce7d060bf9e55f8f20b46319d0d0da5923e5bc19d29",
     "Source/JJK_theHiddenOnes/Training/AttackDefinition.cpp": "50956bb857f8fd5f2ccb5a87f53a30c8c4a483bedb4cb47c225efae239de314a",
     "Source/JJK_theHiddenOnes/Training/AttackWindowAnimNotify.cpp": "bc904edee603933554b06f5c263eb846a64587fd6263dbd33fa26bbc0a7f9f1c",
     "Source/JJK_theHiddenOnes/Training/BlastProjectile.cpp": "9d97ec02be24718bfa01d6f94825deaa44aee78ebc534af485a52f7ff4671144",
@@ -343,7 +494,7 @@
     "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.cpp": "19b14d58bd5375864eb1f8d125bde8750273fc499a6dfd32086d981a9184350b",
     "Source/JJK_theHiddenOnes/Training/FighterAIController.cpp": "d542567e4221cac4283d43c899b95b574b348e66f3427360b60de0be571bbc07",
     "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.cpp": "d28cfa82791db303d0ecd47fb0ae195d3265715aa776e37b041abc3ab2b315dc",
-    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "48a4a9c7bb62e798c3abede4c5fa177f7786abb2d02a26b2b80f23201bff168c",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "13c754e185a78870c60064319775f8a8ebbcbbcddb9b1b2dccd549dfe9e0f1bc",
     "Source/JJK_theHiddenOnes/Training/FighterDefinition.cpp": "49ff2e8200676d920005a8d2d212b3aa4104bea1622b35b5036d1edcba8d51a2",
     "Source/JJK_theHiddenOnes/Training/M5SmokeHarness.cpp": "ab2f2224288bab703874c6fa0c374dcbd7fad4736a28940ee2200d12f2f625ec",
     "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.cpp": "753565f48a4d3e8527d9df043c78def89a16d793c6ca2cf591a2db254e4cc548",
@@ -428,7 +579,12 @@
     "Content/Training/Movement/A_Backstep.uasset": "2b7666decec0bb3571485cd86e5a715c6bde19121fc7c6a185123c6b4e20e1b9",
     "Content/Training/Movement/A_Dodge.uasset": "f023f0daa3a1936da3ac4513b12a168541c5ac9c5d91edbfd41f652e1e795858",
     "Content/Maps/L_TrainingArena.umap": "eed2b270390005cb8f20d142488c4265dd062694e5c13217c1d5ad7862492904",
-    "Scripts/M6_acceptance.py": "73ba2741f7c2ea18f34805f26151e9ca303ef22afc8ff8a97b996475efe12f52",
-    "Scripts/M6_setup_assets.py": "0dd839daab6490bcb69d3b7b7241c148d676da3ac83f7690b9e737bab7101687"
+    "Scripts/M5_acceptance.py": "950a760aef59e435b9c9fced116145c61e83ef7a390401151dfe0a90c08f1715",
+    "Scripts/M5_demo.py": "f35aadeeb6588b8e78be8492d894b2a2c551258f1749997296d09b32d31f7eef",
+    "Scripts/M5_followup.py": "f5023c90853a9897b9488a7a8414a946127320f1abc590132eeba366f83f8faa",
+    "Scripts/M5_followup_assets.py": "05a8c4b8ce1c0385f9e72136bda13a9dc527e42609da469b328e0f2c74b758bb",
+    "Scripts/M5_followup_validate_assets.py": "3c9c0664ea608283b628bf1161fefc5819505fae77f7a80d8ae128507d4b9f19",
+    "Scripts/M5_reentry.py": "80c3ca12304cbed0afea97f8ba42de4c0b0076db5bb86a43bd7b65333b83941d",
+    "Scripts/M5_setup_nav.py": "4c1575b45ab4c54bfc5c6093efbb91219133e7d397826363629d76874f3f5886"
   }
 }

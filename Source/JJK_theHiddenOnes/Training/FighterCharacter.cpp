@@ -232,6 +232,19 @@ bool AFighterCharacter::RequestAttackSequence(ECachedAction Action)
 	}
 
 	PendingSegmentIndex = 0;
+	// 近战软锁（异人之下式索敌）：出招瞬间面向目标（MeleeAutoFace 总开关）
+	if (GetStance() == EFighterStance::Melee && Definition && Definition->MeleeAutoFace)
+	{
+		if (auto* Target = GetPreferredTargetFighter())
+		{
+			const float Range = Definition ? Definition->MeleeAutoFaceRange : 600.f;
+			const FVector D = Target->GetActorLocation() - GetActorLocation();
+			if (Target->IsDead() == false && D.Size2D() <= Range && D.Size2D() > 1.f)
+			{
+				SetActorRotation(FVector(D.X, D.Y, 0.f).GetSafeNormal().Rotation());
+			}
+		}
+	}
 	const bool Activated = AbilitySystem != nullptr && AbilitySystem->TryActivateAbilityByClass(GetMeleeAttackAbilityClass());
 	if (!Activated) PendingSequence.Reset();
 	return Activated;
@@ -1501,8 +1514,22 @@ void AFighterCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	ProcessCombatEvents();
 	TickAimCamera(DeltaSeconds);
+	TickMeleeSoftLock(DeltaSeconds);
 	TickCurseRegen(DeltaSeconds);
 	TickThrowPair();
+}
+
+void AFighterCharacter::TickMeleeSoftLock(float DeltaSeconds)
+{
+	// 攻击中且目标在索敌范围 → 持续转向目标（异人之下式柔性锁定）
+	if (GetStance() != EFighterStance::Melee || !IsAttacking() || !Definition || !Definition->MeleeAutoFace) return;
+	auto* Target = GetPreferredTargetFighter();
+	if (!Target || Target->IsDead()) return;
+	const FVector D = Target->GetActorLocation() - GetActorLocation();
+	const float Dist = D.Size2D();
+	if (Dist > Definition->MeleeAutoFaceRange || Dist < 1.f) return;
+	const float TargetYaw = FVector(D.X, D.Y, 0.f).GetSafeNormal().Rotation().Yaw;
+	SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(0.f, TargetYaw, 0.f), DeltaSeconds, Definition->MeleeFaceInterpSpeed));
 }
 
 void AFighterCharacter::TickAimCamera(float DeltaSeconds)

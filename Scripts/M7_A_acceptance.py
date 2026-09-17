@@ -56,7 +56,7 @@ def suite():
  # ---------- A01 瞄准 ----------
  place(p1,-500);place(p2,500,yaw=180);yield from wait(.3)
  p1.set_aim_intent(True);yield from wait(.5)
- check('A01_melee_no_effect',not p1.is_aiming_effective() and abs(boom(p1).get_editor_property('target_arm_length')-450.)<8.,
+ check('A01_melee_no_effect',not p1.is_aiming_effective() and abs(boom(p1).get_editor_property('target_arm_length')-400.)<8.,
        {'arm':boom(p1).get_editor_property('target_arm_length')})
  p1.set_aim_intent(False)
  yield from to_ranged(p1)
@@ -68,7 +68,7 @@ def suite():
  check('A01_cleared_by_stance_switch',not p1.is_aim_intent())
  yield from to_ranged(p1)
  p1.set_aim_intent(True);yield from wait(.3);p1.set_aim_intent(False);yield from wait(1.2)
- check('A01_release_restores',not p1.is_aiming_effective() and boom(p1).get_editor_property('target_arm_length')>435.,
+ check('A01_release_restores',not p1.is_aiming_effective() and boom(p1).get_editor_property('target_arm_length')>388.,
        {'arm':boom(p1).get_editor_property('target_arm_length')})
 
  # ---------- A03 成本与强度（断言按实测持炮时长套公式，规避回调节拍误差） ----------

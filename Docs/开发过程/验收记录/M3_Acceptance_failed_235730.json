@@ -1,246 +1,652 @@
 {
-  "status": "passed",
+  "status": "failed",
   "engine": "5.8.2-56702186+++UE5+Release-5.8",
+  "command_line": "",
   "checks": [
     {
-      "name": "M6-T04_mobile_charging_tag",
+      "name": "M3-T01_single_A1",
+      "passed": false,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T02_dedup_single",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T01_A2",
+      "passed": true,
+      "details": 1
+    },
+    {
+      "name": "M3-T01_A3",
+      "passed": true,
+      "details": 2
+    },
+    {
+      "name": "M3-T01_chain_end",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T04_mobile_partial_curve",
-      "passed": true,
-      "details": {
-        "damage": 43.5001220703125,
-        "cost": 8.600021362304688
-      }
+      "name": "M3-T01_three_damage",
+      "passed": false,
+      "details": 905.0
     },
     {
-      "name": "M6-T04_mobile_partial_cost",
-      "passed": true,
-      "details": {
-        "damage": 43.5001220703125,
-        "cost": 8.600021362304688
-      }
-    },
-    {
-      "name": "M6-T16_hold_cap_no_fire",
-      "passed": true,
-      "details": {
-        "held_hp": 956.4998779296875
-      }
-    },
-    {
-      "name": "M6-T04_mobile_full_damage",
-      "passed": true,
-      "details": {
-        "damage": 90.0
-      }
-    },
-    {
-      "name": "M6-T16_full_cost_cap",
-      "passed": true,
-      "details": {
-        "cost": 21.00000762939453
-      }
-    },
-    {
-      "name": "M6-T04_insufficient_no_charge",
+      "name": "M3-T02_expired",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T04_insufficient_no_damage",
+      "name": "M3-T02_latest_wins",
+      "passed": true,
+      "details": 4
+    },
+    {
+      "name": "M3-T02_consumed_once",
       "passed": true,
       "details": null
     },
     {
-      "name": "M6-T05_below_min_no_damage",
+      "name": "M3-T02_forbidden_A1_heavy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T03_cache_clear_jjk_debug_force_hit_react",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T03_cache_clear_jjk_debug_kill",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T03_cache_clear_reset_to_initial_state",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T04_front_guard",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T05_guard_stun_release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T04_back_hit",
+      "passed": true,
+      "details": 955.0
+    },
+    {
+      "name": "M3-T06_invulnerable_contact",
+      "passed": false,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T06_recovery_vulnerable",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T14_no_late_bypass",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T06_new_attack_hits",
+      "passed": true,
+      "details": 955.0
+    },
+    {
+      "name": "M3-T07_cancel_(False, False)",
+      "passed": true,
+      "details": false
+    },
+    {
+      "name": "M3-T15_cost_(False, False)",
+      "passed": true,
+      "details": 1.25
+    },
+    {
+      "name": "M3-T15_old_action_(False, False)",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T07_cancel_(False, True)",
+      "passed": false,
+      "details": true
+    },
+    {
+      "name": "M3-T15_cost_(False, True)",
+      "passed": true,
+      "details": 3.0
+    },
+    {
+      "name": "M3-T15_old_action_(False, True)",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T07_cancel_(True, False)",
+      "passed": true,
+      "details": false
+    },
+    {
+      "name": "M3-T15_cost_(True, False)",
+      "passed": true,
+      "details": 1.75
+    },
+    {
+      "name": "M3-T15_old_action_(True, False)",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T07_cancel_(True, True)",
+      "passed": true,
+      "details": true
+    },
+    {
+      "name": "M3-T15_cost_(True, True)",
+      "passed": true,
+      "details": 3.0
+    },
+    {
+      "name": "M3-T15_old_action_(True, True)",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T11_direction_displacement",
+      "passed": true,
+      "details": 324.643337354064
+    },
+    {
+      "name": "M3-T16_recovery_rejects_E_attack",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T06_dodge_restores",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T08_reject_jjk_debug_force_hit_react",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T08_reject_jjk_debug_kill",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T09_pair_started",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T09_no_double_damage",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T08_throw_rejects_actions",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "M3-T09_pair_damage_release",
+      "passed": false,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_1_death",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_1_death",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_1_death",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_1_reset",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_1_reset",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_1_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_1_stop",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_1_stop",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_1_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_1_destroy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_1_destroy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_1_destroy",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_2_death",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_2_death",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_2_death",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_2_reset",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_2_reset",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_2_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_2_stop",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_2_stop",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_2_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T10_setup_2_destroy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_release_2_destroy",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T10_no_delayed_damage_2_destroy",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T11_boundary_throw_falls_back",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T11_dodge_wall",
+      "passed": true,
+      "details": 1081.9795115498066
+    },
+    {
+      "name": "M3-T12_armor_damage_no_interrupt",
+      "passed": true,
+      "details": 965.0
+    },
+    {
+      "name": "M3-T12_high_interrupt_knockdown",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T12_knockdown",
+      "passed": true,
+      "details": 900.0
+    },
+    {
+      "name": "M3-T12_knockdown_protection",
+      "passed": true,
+      "details": 900.0
+    },
+    {
+      "name": "M3-T12_getup_action",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T14_guard_dedup",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T16_hold_shift_one_dodge",
+      "passed": true,
+      "details": 4.0
+    },
+    {
+      "name": "M3-T16_same_frame_success",
+      "passed": true,
+      "details": 3.0
+    },
+    {
+      "name": "M3-T16_failed_shift_keeps_release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T17_F_not_cancel",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T17_F_release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T17_SLL-T02_menu",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T17_SLL-T02_focus",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T01_Attack0.06",
+      "passed": false,
+      "details": 3
+    },
+    {
+      "name": "SLL-T01_Attack0.25",
+      "passed": false,
+      "details": 0
+    },
+    {
+      "name": "SLL-T01_Kick0.06",
+      "passed": true,
+      "details": 4
+    },
+    {
+      "name": "SLL-T01_Kick0.25",
+      "passed": true,
+      "details": 5
+    },
+    {
+      "name": "SLL-T03_hold_rejects_E",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T03_ranged",
+      "passed": true,
+      "details": "<FighterStance.RANGED: 1>"
+    },
+    {
+      "name": "SLL-T03_ranged_no_melee",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T03_back_melee",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T04_hit_gain_once",
+      "passed": true,
+      "details": 53.0
+    },
+    {
+      "name": "SLL-T04_block_no_gain",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T04_whiff_no_cost",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "SLL-T04_throw_gain_once",
+      "passed": true,
+      "details": 53.0
+    },
+    {
+      "name": "M3-T03_dead_cached_target",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T11_default_backstep",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "M3-T15_regen_clamped",
+      "passed": true,
+      "details": 5.0
+    },
+    {
+      "name": "M2-T08_trade_0",
+      "passed": true,
+      "details": [
+        965.0,
+        965.0
+      ]
+    },
+    {
+      "name": "M2-T08_trade_1",
+      "passed": true,
+      "details": [
+        965.0,
+        965.0
+      ]
+    },
+    {
+      "name": "M2-T08_trade_2",
+      "passed": true,
+      "details": [
+        965.0,
+        965.0
+      ]
+    },
+    {
+      "name": "M2-T08_trade_3",
+      "passed": true,
+      "details": [
+        965.0,
+        965.0
+      ]
+    },
+    {
+      "name": "M2-T08_trade_4",
+      "passed": true,
+      "details": [
+        965.0,
+        965.0
+      ]
+    },
+    {
+      "name": "M2-T05-T06_windup_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_windup_hit",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_windup_kill",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_windup_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_active_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_active_hit",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_active_kill",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_active_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_recovery_stop",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_recovery_hit",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_recovery_kill",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M2-T05-T06_recovery_reset",
+      "passed": true,
+      "details": 1000.0
+    },
+    {
+      "name": "M3-T13_combo_30",
+      "passed": true,
+      "details": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "M3-T13_narrow_cancel_30",
       "passed": true,
       "details": {
-        "hp": 1000.0
+        "elapsed": 0.28956499695777893,
+        "result": true
       }
     },
     {
-      "name": "M6-T05_below_min_cost_kept",
+      "name": "M3-T13_combo_60",
+      "passed": false,
+      "details": [
+        0
+      ]
+    },
+    {
+      "name": "M3-T13_narrow_cancel_60",
       "passed": true,
       "details": {
-        "cost": 45.0
+        "elapsed": 0.28671711683273315,
+        "result": true
       }
     },
     {
-      "name": "M6-T05_below_min_cooldown",
-      "passed": true,
-      "details": null
+      "name": "M3-T13_combo_120",
+      "passed": false,
+      "details": [
+        0
+      ]
     },
     {
-      "name": "M6-T19_cooldown_cleared_by_reset",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T05_full_damage",
+      "name": "M3-T13_narrow_cancel_120",
       "passed": true,
       "details": {
-        "damage": 220.0
+        "elapsed": 0.2764118015766144,
+        "result": true
       }
-    },
-    {
-      "name": "M6-T05_full_cost",
-      "passed": true,
-      "details": {
-        "cost": 62.0
-      }
-    },
-    {
-      "name": "M6-T19_cooldown_after_fire",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T19_cooldown_blocks_second",
-      "passed": true,
-      "details": {
-        "hp": 780.0
-      }
-    },
-    {
-      "name": "M6-T07_out_of_range_rejected",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T07_casting_tag",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T07_interrupt_no_domain",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T07_domain_open",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T20_orb_cost_charged",
-      "passed": true,
-      "details": {
-        "curse": 35.0
-      }
-    },
-    {
-      "name": "M6-T08_orb_tracks_moved_target",
-      "passed": true,
-      "details": {
-        "hp": 780.0
-      }
-    },
-    {
-      "name": "M6-T11_no_energy_gain_in_domain",
-      "passed": true,
-      "details": {
-        "energy": 0.0
-      }
-    },
-    {
-      "name": "M6-T20_insufficient_skip",
-      "passed": true,
-      "details": {
-        "orbs": 0,
-        "curse": 37.68667221069336
-      }
-    },
-    {
-      "name": "M6-T23_manual_blast_disabled",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T09_domain_expiry",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T09_expiry_clears_orbs",
-      "passed": true,
-      "details": {
-        "orbs": 0
-      }
-    },
-    {
-      "name": "M6-T23_manual_blast_restored",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T23_manual_blast_fires_after",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T11_energy_gain_resumes",
-      "passed": true,
-      "details": {
-        "energy": 2.269702672958374
-      }
-    },
-    {
-      "name": "M6-T10_dual_active",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T10_suppressed_no_orbs",
-      "passed": true,
-      "details": {
-        "orbs": 0
-      }
-    },
-    {
-      "name": "M6-T10_first_expires",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T10_remaining_resumes",
-      "passed": true,
-      "details": {
-        "orbs": 1
-      }
-    },
-    {
-      "name": "M6-T14_ai_switched_ranged",
-      "passed": true,
-      "details": null
-    },
-    {
-      "name": "M6-T14_ai_ranged_hit",
-      "passed": true,
-      "details": {
-        "hp": 943.081298828125,
-        "log": [
-          "41.757 Request=Executed",
-          "42.836 Ability completed",
-          "42.985 Branch=Wait Distance=1400.0 ObservedFor=-1.00",
-          "43.003 Wait: combat control",
-          "43.086 Branch completed",
-          "43.254 Branch=RangedAttack Distance=1400.0 ObservedFor=-1.00",
-          "43.299 Request=Executed",
-          "43.838 Blast: released"
-        ]
-      }
-    },
-    {
-      "name": "M6-T14_ai_ranged_branch",
-      "passed": true,
-      "details": null
     }
   ],
-  "started_at": 1789660205.028249,
-  "duration_seconds": 42.95300000000134,
+  "fps": [
+    {
+      "requested": 30,
+      "measured": 5.654401324620373,
+      "min_delta": 0.03333359956741333,
+      "max_delta": 0.2924126982688904
+    },
+    {
+      "requested": 60,
+      "measured": 5.203105016138844,
+      "min_delta": 0.05134740099310875,
+      "max_delta": 0.27361661195755005
+    },
+    {
+      "requested": 120,
+      "measured": 5.102053344622396,
+      "min_delta": 0.12273219972848892,
+      "max_delta": 0.2593429982662201
+    }
+  ],
+  "duration_seconds": 115.01600000000326,
   "snapshot": {
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
@@ -427,8 +833,8 @@
     "Content/Training/Movement/AM_Dodge.uasset": "7306fee6ab298d9fd2b89632f93b2661c641729b41610cca90cf8517bcfebab3",
     "Content/Training/Movement/A_Backstep.uasset": "2b7666decec0bb3571485cd86e5a715c6bde19121fc7c6a185123c6b4e20e1b9",
     "Content/Training/Movement/A_Dodge.uasset": "f023f0daa3a1936da3ac4513b12a168541c5ac9c5d91edbfd41f652e1e795858",
-    "Content/Maps/L_TrainingArena.umap": "eed2b270390005cb8f20d142488c4265dd062694e5c13217c1d5ad7862492904",
-    "Scripts/M6_acceptance.py": "73ba2741f7c2ea18f34805f26151e9ca303ef22afc8ff8a97b996475efe12f52",
-    "Scripts/M6_setup_assets.py": "0dd839daab6490bcb69d3b7b7241c148d676da3ac83f7690b9e737bab7101687"
+    "Scripts/M3_acceptance.py": "dad3b2b4ea31b6db9986411a8b25313f919a1dd48e3ecfaf2c095306ac58967a",
+    "Scripts/M3_create_assets.py": "56cfc6207e840a2b638cdf019d08921af5d32a216025790104c2bf7dde8848d3",
+    "Scripts/M3_demo.py": "6ee37a6bb5bc539a6600be445391aceb85ffa8267d312e4f049e0e3f0784180d"
   }
 }

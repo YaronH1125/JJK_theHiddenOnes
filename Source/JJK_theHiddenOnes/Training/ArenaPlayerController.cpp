@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Training/ArenaPlayerController.h"
+#include "Training/FighterDefinition.h"
 
 #include "EnhancedInputComponent.h"
 #include "InputCoreTypes.h"
@@ -399,6 +400,24 @@ void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
   }
  }
  Fighter->RefreshMovementControl();
+ // 近战软锁镜头：攻击中镜头以限速偏向目标（玩家鼠标可随时覆盖；总开关同角色侧）
+ if (Fighter->GetStance() == EFighterStance::Melee && Fighter->IsAttacking() && !bGamePaused
+  && Fighter->GetDefinition() && Fighter->GetDefinition()->MeleeAutoFace)
+ {
+  if (auto* Target = Fighter->GetPreferredTargetFighter())
+  {
+   const auto FaceParams = Fighter->GetDefinition()->MeleeCameraDriftRate;
+   const FVector D = Target->GetActorLocation() - Fighter->GetActorLocation();
+   if (D.Size2D() > 1.f && D.Size2D() <= Fighter->GetDefinition()->MeleeAutoFaceRange)
+   {
+    const float TargetYaw = FVector(D.X, D.Y, 0.f).GetSafeNormal().Rotation().Yaw;
+    float Cur = GetControlRotation().Yaw;
+    float Delta = FMath::FindDeltaAngleDegrees(Cur, TargetYaw);
+    if (FMath::Abs(Delta) <= 90.f)
+     AddYawInput(FMath::Clamp(Delta, -FaceParams*DeltaTime, FaceParams*DeltaTime));
+   }
+  }
+ }
  if(bDodgePressed) if(auto* GM=GetTrainingGameMode()) GM->RecordInput(Fighter,Dodged ? TEXT("闪避：执行") : TEXT("闪避：拒绝"));
  if (!Dodged)
  {

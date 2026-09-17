@@ -1,5 +1,5 @@
 {
-  "status": "passed",
+  "status": "failed",
   "engine": "5.8.2-56702186+++UE5+Release-5.8",
   "checks": [
     {
@@ -11,23 +11,23 @@
       "name": "M6-T04_mobile_partial_curve",
       "passed": true,
       "details": {
-        "damage": 43.5001220703125,
-        "cost": 8.600021362304688
+        "damage": 46.69921875,
+        "cost": 9.453125
       }
     },
     {
       "name": "M6-T04_mobile_partial_cost",
       "passed": true,
       "details": {
-        "damage": 43.5001220703125,
-        "cost": 8.600021362304688
+        "damage": 46.69921875,
+        "cost": 9.453125
       }
     },
     {
       "name": "M6-T16_hold_cap_no_fire",
       "passed": true,
       "details": {
-        "held_hp": 956.4998779296875
+        "held_hp": 953.30078125
       }
     },
     {
@@ -41,7 +41,7 @@
       "name": "M6-T16_full_cost_cap",
       "passed": true,
       "details": {
-        "cost": 21.00000762939453
+        "cost": 21.0
       }
     },
     {
@@ -147,10 +147,10 @@
     },
     {
       "name": "M6-T20_insufficient_skip",
-      "passed": true,
+      "passed": false,
       "details": {
         "orbs": 0,
-        "curse": 37.68667221069336
+        "curse": 45.092071533203125
       }
     },
     {
@@ -184,7 +184,7 @@
       "name": "M6-T11_energy_gain_resumes",
       "passed": true,
       "details": {
-        "energy": 2.269702672958374
+        "energy": 2.333333969116211
       }
     },
     {
@@ -220,16 +220,14 @@
       "name": "M6-T14_ai_ranged_hit",
       "passed": true,
       "details": {
-        "hp": 943.081298828125,
+        "hp": 936.6666259765625,
         "log": [
-          "41.757 Request=Executed",
-          "42.836 Ability completed",
-          "42.985 Branch=Wait Distance=1400.0 ObservedFor=-1.00",
-          "43.003 Wait: combat control",
-          "43.086 Branch completed",
-          "43.254 Branch=RangedAttack Distance=1400.0 ObservedFor=-1.00",
-          "43.299 Request=Executed",
-          "43.838 Blast: released"
+          "47.721 Started BT_Arena / BB_Arena",
+          "48.721 Branch=Domain Distance=1000.0 ObservedFor=-1.00",
+          "49.054 Request=Executed",
+          "50.388 Branch=RangedAttack Distance=1400.0 ObservedFor=-1.00",
+          "50.721 Request=Executed",
+          "51.388 Blast: released"
         ]
       }
     },
@@ -239,8 +237,8 @@
       "details": null
     }
   ],
-  "started_at": 1789660205.028249,
-  "duration_seconds": 42.95300000000134,
+  "started_at": 1789659637.0047708,
+  "duration_seconds": 49.11000000000058,
   "snapshot": {
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
@@ -428,7 +426,7 @@
     "Content/Training/Movement/A_Backstep.uasset": "2b7666decec0bb3571485cd86e5a715c6bde19121fc7c6a185123c6b4e20e1b9",
     "Content/Training/Movement/A_Dodge.uasset": "f023f0daa3a1936da3ac4513b12a168541c5ac9c5d91edbfd41f652e1e795858",
     "Content/Maps/L_TrainingArena.umap": "eed2b270390005cb8f20d142488c4265dd062694e5c13217c1d5ad7862492904",
-    "Scripts/M6_acceptance.py": "73ba2741f7c2ea18f34805f26151e9ca303ef22afc8ff8a97b996475efe12f52",
+    "Scripts/M6_acceptance.py": "55c2666ff4f845884034283e9439b0f7c9badae952a6a9b63d665d490576e13a",
     "Scripts/M6_setup_assets.py": "0dd839daab6490bcb69d3b7b7241c148d676da3ac83f7690b9e737bab7101687"
   }
 }

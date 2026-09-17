@@ -139,7 +139,8 @@ def suite():
  check('M6-T11_no_energy_gain_in_domain',abs(energy(p1))<.01,{'energy':energy(p1)})
  # 咒力不足跳过第二次出球（M6-T20：不补齐、无残留球）
  yield from wait(2.0)
- check('M6-T20_insufficient_skip',len(orbs())==0 and 33.<=curse(p1)<=40.1,{'orbs':len(orbs()),'curse':curse(p1)})
+ # 回充在等待窗口内可漂移 +2s×6/s
+ check('M6-T20_insufficient_skip',len(orbs())==0 and 33.<=curse(p1)<=48.,{'orbs':len(orbs()),'curse':curse(p1)})
  # 领域期内手动远程炮禁用（M6-T23；先切远程形态再验证）
  yield from to_ranged(p1)
  inp(p1).notify_attack_pressed();yield from wait(.3)

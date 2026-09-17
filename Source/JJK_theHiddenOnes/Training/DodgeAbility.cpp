@@ -69,19 +69,25 @@ void UDodgeAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
  }
  // A montage supplies the pose only; the single RootMotionSource below owns travel.
  if (!Dodge.Direction.IsNearlyZero()) Fighter->SetActorRotation(Dir.Rotation());
- const auto& Pose=Dodge.Direction.IsNearlyZero() ? Fighter->GetDefinition()->BackstepMontage : Fighter->GetDefinition()->DodgeMontage;
- if (auto* Montage=Pose.LoadSynchronous())
+ bRunDodge = !Dodge.Direction.IsNearlyZero(); // 移动闪避=加速跑（不播前扑，保留无敌/取消）
+ // 加速跑模式（移动闪避）：不播前扑 Montage，位移仍由 RootMotion 常力接管——
+ // 角色以跑动姿态（普通移动动画）沿输入方向冲出，即“按下直接加速跑”
+ if (!bRunDodge)
  {
-  PresentationMontage=Montage;
-  Fighter->PlayAnimMontage(Montage,Montage->GetPlayLength()/FMath::Max(.1f,Config.InvulnerableDuration+Config.RecoveryDuration));
-  if(auto* Instance=Fighter->GetMesh()->GetAnimInstance()->GetActiveInstanceForMontage(Montage))
-   Instance->PushDisableRootMotion(); // This montage instance owns only the pose, including its blend-out.
+  const auto& Pose=Fighter->GetDefinition()->BackstepMontage;
+  if (auto* Montage=Pose.LoadSynchronous())
+  {
+   PresentationMontage=Montage;
+   Fighter->PlayAnimMontage(Montage,Montage->GetPlayLength()/FMath::Max(.1f,Config.InvulnerableDuration+Config.RecoveryDuration));
+   if(auto* Instance=Fighter->GetMesh()->GetAnimInstance()->GetActiveInstanceForMontage(Montage))
+    Instance->PushDisableRootMotion(); // This montage instance owns only the pose, including its blend-out.
+  }
  }
- Fighter->RefreshMovementControl();
  MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
   this, TEXT("DodgeMove"), Dir, Config.DodgeSpeed, Config.InvulnerableDuration, false,
   nullptr, ERootMotionFinishVelocityMode::SetVelocity, FVector::ZeroVector, 0.f, true);
  MoveTask->ReadyForActivation();
+ Fighter->RefreshMovementControl();
 
 	GetWorld()->GetTimerManager().SetTimer(InvulnTimerHandle, this,
 		&UDodgeAbility::HandleInvulnEnd, Config.InvulnerableDuration, false);

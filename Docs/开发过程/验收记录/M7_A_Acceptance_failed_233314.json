@@ -1,10 +1,10 @@
 {
-  "status": "passed",
+  "status": "failed",
   "engine": "5.8.2-56702186+++UE5+Release-5.8",
   "checks": [
     {
       "name": "A01_melee_no_effect",
-      "passed": true,
+      "passed": false,
       "details": {
         "arm": 400.0
       }
@@ -29,7 +29,7 @@
     },
     {
       "name": "A01_release_restores",
-      "passed": true,
+      "passed": false,
       "details": {
         "arm": 400.0
       }
@@ -38,7 +38,7 @@
       "name": "A03_below_min_exact45",
       "passed": true,
       "details": {
-        "held": 0.6666673123836517,
+        "held": 0.666667103767395,
         "cost": 45.0
       }
     },
@@ -51,18 +51,18 @@
       "name": "A03_just_past_gate_damage",
       "passed": true,
       "details": {
-        "held": 1.6666852831840515,
-        "damage": 177.22332763671875,
-        "expect": 177.22330818573636
+        "held": 1.6667580306529999,
+        "damage": 177.2275390625,
+        "expect": 177.22755178809166
       }
     },
     {
       "name": "A03_just_past_gate_cost",
       "passed": true,
       "details": {
-        "held": 1.6666852831840515,
-        "cost": 49.7780876159668,
-        "expect": 49.77808805306753
+        "held": 1.6667580306529999,
+        "cost": 49.779300689697266,
+        "expect": 49.77930051088333
       }
     },
     {
@@ -147,7 +147,7 @@
       "passed": true,
       "details": {
         "energy": 0.0,
-        "curse": 43.00017166137695
+        "curse": 43.0
       }
     },
     {
@@ -175,6 +175,6 @@
       }
     }
   ],
-  "started_at": 1789659693.8064034,
-  "duration_seconds": 58.39100000000326
+  "started_at": 1789659136.248548,
+  "duration_seconds": 58.34300000000076
 }

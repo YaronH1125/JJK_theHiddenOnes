@@ -61,6 +61,10 @@ struct FDodgeConfig
 	/** 取消闪避总成本（替代普通成本扣一次，不叠加） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (ClampMin = "0.0"))
 	float CancelDodgeTotalCost = 2.f;
+
+	/** 移动闪避=加速跑：无敌/恢复期间的速度倍率（不播前扑，直接起跑） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (ClampMin = "1.0"))
+	float RunDodgeSpeedMultiplier = 2.2f;
 };
 
 /** 行动资源恢复（M3.4） */
@@ -300,6 +304,22 @@ public:
 	/** 待机上抬偏移 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
 	float NormalSocketOffsetZ = 35.f;
+
+	/** 近战软锁：自动面向目标的距离（异人之下式索敌） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm"))
+	float MeleeAutoFaceRange = 600.f;
+
+	/** 近战软锁总开关（M3/M5 方向性近战回归显式钉住 false） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee")
+	bool MeleeAutoFace = true;
+
+	/** 近战软锁：攻击中持续转向目标的速率（FInterpTo） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "1.0"))
+	float MeleeFaceInterpSpeed = 18.f;
+
+	/** 近战软锁：攻击中镜头偏向目标的限速（度/秒；玩家鼠标可随时覆盖） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0"))
+	float MeleeCameraDriftRate = 60.f;
 
 	/** 瞄准 FOV（收窄视场：PUBG ADS 归一化 ≈70 vFOV） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "30.0", ClampMax = "120.0"))

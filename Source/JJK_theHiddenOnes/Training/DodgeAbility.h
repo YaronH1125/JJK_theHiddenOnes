@@ -44,6 +44,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_ApplyRootMotionConstantForce> MoveTask;
 	FTimerHandle InvulnTimerHandle;
+	/** 移动闪避=加速跑模式（不播前扑；速度倍率临时生效） */
+	bool bRunDodge=false;
+	float PreDodgeMaxWalkSpeed=500.f;
 	FTimerHandle RecoveryTimerHandle;
 	TWeakObjectPtr<AFighterCharacter> CachedFighter;
  TWeakObjectPtr<UAnimMontage> PresentationMontage;

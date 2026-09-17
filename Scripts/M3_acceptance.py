@@ -18,6 +18,7 @@ old_throttle=perf.get_editor_property('bThrottleCPUWhenNotForeground');perf.set_
 original=[]
 config_snapshot={k:fd.get_editor_property(k).export_text() for k in ['dodge_config','throw_config']}
 def settemp(obj,key,value):
+# M3 方向性近战语义：钉住近战软锁关闭（游戏默认开）
     if not any(o==obj and k==key for o,k,v in original):original.append((obj,key,obj.get_editor_property(key)))
     obj.set_editor_property(key,value)
 def write():out.write_text(json.dumps(state,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -57,9 +58,15 @@ subsystem=unreal.get_default_object(unreal.load_class(None,'/Script/Engine.Subsy
 actions={n:unreal.load_asset('/Game/Training/IA_'+n) for n in ('Attack','Kick','Dodge','Guard','StanceSwitch')}
 
 def suite():
+    settemp(fd,'melee_auto_face',False)  # M3 方向性近战语义（软锁游戏默认开）
     global p1,p2,pc,subsystem
     unreal.SystemLibrary.execute_console_command(world,'t.MaxFPS 60')
     yield from wait(.5)
+    # 预热 EnhancedInput 注入路径（首次注入有 ~0.3s 初始化顿挫，会破坏后续精确时序）
+    warm=unreal.load_asset('/Game/Training/IA_RecenterCamera')
+    subsystem.inject_input_vector_for_action(warm,unreal.Vector(1,0,0),[],[])
+    subsystem.inject_input_vector_for_action(warm,unreal.Vector(0,0,0),[],[])
+    yield from wait(.3)
     # T01 / M2-T02: 一次伤害与完整三段。
     reset();yield from wait(.25);light(p1);yield from wait(1.15)
     check('M3-T01_single_A1',hp(p2)==965 and not hit(p1).has_active_attack(),hp(p2))

@@ -12,7 +12,8 @@ void AArenaCrosshairHud::DrawHUD()
 	if (Canvas == nullptr) return;
 	auto* PC = Cast<AArenaPlayerController>(PlayerOwner);
 	const auto* Fighter = PC ? PC->GetPlayerFighter() : nullptr;
-	if (Fighter == nullptr) return;
+	// 近战形态无准星（异人之下式）：索敌与镜头由软锁负责
+	if (Fighter == nullptr || Fighter->GetStance() != EFighterStance::Ranged) return;
 	DrawCrosshair(*Fighter);
 }
 

@@ -32,6 +32,7 @@ def dist():return (loc(p1)-loc(p2)).length()
 def place(f,x,y=0,yaw=0):
  f.character_movement.stop_movement_immediately();f.set_actor_location(unreal.Vector(x,y,100),False,True);f.set_actor_rotation(unreal.Rotator(0,yaw,0),False)
 def temp(o,k,v):
+# M5 近战回归语义：钉住近战软锁关闭（游戏默认开）
  if not any(a==o and b==k for a,b,c in original):original.append((o,k,o.get_editor_property(k)))
  o.set_editor_property(k,v)
 def params(ai,**kw):
@@ -43,6 +44,7 @@ def clean():
  pc.set_training_panel_open(False);gm.set_opponent_mode(unreal.OpponentMode.STATIC)
  gm.set_training_settings(unreal.TrainingSettings());gm.reset_training()
 def suite():
+ temp(fd,'melee_auto_face',False)  # M5 近战回归口径
  global p1,p2
  unreal.SystemLibrary.execute_console_command(world,'t.MaxFPS 60')
  clean();yield from wait(1)
