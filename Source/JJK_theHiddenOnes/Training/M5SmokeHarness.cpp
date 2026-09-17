@@ -10,6 +10,9 @@
 #include "Misc/Paths.h"
 #include "HAL/PlatformMisc.h"
 #include "UnrealClient.h"
+#include "EngineUtils.h"
+#include "Training/DomainOrb.h"
+#include "Training/TargetingComponent.h"
 
 UM5SmokeHarness::UM5SmokeHarness() { PrimaryComponentTick.bCanEverTick=true; }
 void UM5SmokeHarness::Check(bool Condition,const TCHAR* Name)
@@ -93,7 +96,69 @@ void UM5SmokeHarness::TickComponent(float Delta,ELevelTick Type,FActorComponentT
  case 10:
   if(Now-StageTime<1.) break;
   Check(AI && AI->IsAIActive() && AI->IsNavigationReady(),TEXT("AI reentry"));
-  Complete(); break;
+  // ---- M6：双炮/领域包内链路 ----
+  if(auto* Inp=P1->GetCombatInput()) Inp->NotifyStanceSwitchPressed();
+  Next(); break;
+ case 11:
+  if(!P1->HasCombatTag(TAG_Stance_Ranged)) break;
+  Check(true,TEXT("M6 stance switch in package"));
+  P1->GetTargeting()->LockBestTarget();
+  SuperHealthSnapshot=P2->GetFighterAttributeSet()->GetHealth();
+  if(auto* Inp=P1->GetCombatInput()) Inp->NotifyAttackPressed();
+  Next(); break;
+ case 12:
+  if(Now-StageTime<1.6f) break;
+  if(auto* Inp=P1->GetCombatInput()) Inp->NotifyAttackReleased();
+  Next(); break;
+ case 13:
+  if(Now-StageTime<1.0f) break; // 发射落点已结算（前摇 0.25 + 余量）
+  BlastHealthSnapshot=P2->GetFighterAttributeSet()->GetHealth();
+  Check(SuperHealthSnapshot-BlastHealthSnapshot>=80.f,TEXT("M6 mobile blast fires at cap"));
+  if(auto* Inp=P1->GetCombatInput()) Inp->NotifyKickPressed();
+  Next(); break;
+ case 14:
+  if(Now-StageTime<2.6f) break;
+  SuperHealthSnapshot=P2->GetFighterAttributeSet()->GetHealth();
+  if(auto* Inp=P1->GetCombatInput()) Inp->NotifyKickReleased();
+  Next(); break;
+ case 15:
+  if(Now-StageTime<1.2f) break; // 恢复 0.45s 结束后才打冷却标签，留足余量
+  Check(SuperHealthSnapshot-P2->GetFighterAttributeSet()->GetHealth()>=200.f,TEXT("M6 super blast fires at cap"));
+  Check(P1->HasCombatTag(TAG_State_SuperBlastCooldown),TEXT("M6 super cooldown in package"));
+  // 领域：给 P2 补满能量后由对手侧展开，验证球体链路
+  if(auto* P2F=GM->GetOpponentFighter()) P2F->ModifyEnergy(100.f);
+  if(auto* P2F=GM->GetOpponentFighter())
+   if(auto* Inp=P2F->GetCombatInput()) Inp->NotifyDomainPressed();
+  Next(); break;
+ case 16:
+  {
+   int32 OrbCount=0;
+   for(TActorIterator<ADomainOrb> It(GetWorld());It;++It) ++OrbCount;
+   auto* P2F=GM->GetOpponentFighter();
+   const bool bDom=(P2F&&P2F->HasCombatTag(TAG_State_DomainActive))||OrbCount>0;
+   if(!bDom) break;
+   OrbHealthSnapshot=P1->GetFighterAttributeSet()->GetHealth(); Next(); break;
+  }
+ case 17:
+  if(Now-StageTime<5.f && !P1->HasCombatTag(TAG_State_Dead))
+  {
+   if(P1->GetFighterAttributeSet()->GetHealth()<OrbHealthSnapshot)
+    Check(true,TEXT("M6 domain orb contact damage"));
+   else break;
+  }
+  else Check(P1->HasCombatTag(TAG_State_Dead),TEXT("M6 domain phase completed"));
+  GM->RestartMatch(); Next(); break;
+ case 18:
+  {
+   if(Now-StageTime<1.5f) break;
+   int32 OrbCount=0;
+   for(TActorIterator<ADomainOrb> It(GetWorld());It;++It) ++OrbCount;
+   auto* P2F=GM->GetOpponentFighter();
+   Check(OrbCount==0 && P2F && !P2F->HasCombatTag(TAG_State_DomainActive),TEXT("M6 domain cleanup after restart"));
+   // 包内实际 UMG 与角色画面；有图形运行才会生成此图。
+   FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("M5_PackageResult.png"),true,false);
+   Complete(); break;
+  }
  }
 #endif
 }

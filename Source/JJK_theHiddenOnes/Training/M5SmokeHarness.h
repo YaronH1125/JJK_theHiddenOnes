@@ -14,6 +14,8 @@ public:
 private:
  void Check(bool Condition,const TCHAR* Name);
  void Complete();
+ /** M6 包内验证：双炮与领域链路快照 */
+ float BlastHealthSnapshot=0., SuperHealthSnapshot=0., OrbHealthSnapshot=0.;
  int32 Stage=0, Checks=0, Failures=0;
  double StageTime=0., Started=0.;
  float InitialHealth=0.;
