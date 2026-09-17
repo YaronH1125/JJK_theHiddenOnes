@@ -1466,7 +1466,7 @@ void AFighterCharacter::RestoreAimCamera()
 		if (GetCameraBoom())
 		{
 			GetCameraBoom()->TargetArmLength = Definition->NormalArmLength;
-			GetCameraBoom()->SocketOffset = FVector::ZeroVector;
+			GetCameraBoom()->SocketOffset = FVector(0.f, Definition->NormalSocketOffsetY, Definition->NormalSocketOffsetZ);
 		}
 		if (auto* Cam = GetFollowCamera())
 			Cam->SetFieldOfView(Definition->NormalFOV);
@@ -1519,8 +1519,9 @@ void AFighterCharacter::TickAimCamera(float DeltaSeconds)
 	Boom->TargetArmLength = FMath::FInterpTo(Boom->TargetArmLength,
 		bAiming ? Definition->AimArmLength : Definition->NormalArmLength, DeltaSeconds, Speed);
 	FVector Offset = Boom->SocketOffset;
-	Offset.Y = FMath::FInterpTo(Offset.Y, bAiming ? Definition->AimSocketOffsetY : 0.f, DeltaSeconds, Speed);
-	Offset.Z = FMath::FInterpTo(Offset.Z, bAiming ? Definition->AimSocketOffsetZ : 0.f, DeltaSeconds, Speed);
+	// TPS 惯例：待机即常驻右肩偏移（人物左侧），瞄准收紧到贴肩
+	Offset.Y = FMath::FInterpTo(Offset.Y, bAiming ? Definition->AimSocketOffsetY : Definition->NormalSocketOffsetY, DeltaSeconds, Speed);
+	Offset.Z = FMath::FInterpTo(Offset.Z, bAiming ? Definition->AimSocketOffsetZ : Definition->NormalSocketOffsetZ, DeltaSeconds, Speed);
 	Boom->SocketOffset = Offset;
 	// 瞄准收窄 FOV（PUBG/COD ADS 观感）
 	if (auto* Cam = GetFollowCamera())

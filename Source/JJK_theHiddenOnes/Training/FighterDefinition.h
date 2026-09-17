@@ -293,6 +293,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
 	float AimSocketOffsetZ = 25.f;
 
+	/** 待机右肩偏移（TPS 惯例：非瞄准相机也不在正后方，人物常驻屏幕左侧） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
+	float NormalSocketOffsetY = 75.f;
+
+	/** 待机上抬偏移 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
+	float NormalSocketOffsetZ = 35.f;
+
 	/** 瞄准 FOV（收窄视场：PUBG ADS 归一化 ≈70 vFOV） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "30.0", ClampMax = "120.0"))
 	float AimFOV = 65.f;
