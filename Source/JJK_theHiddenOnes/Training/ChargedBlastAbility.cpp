@@ -116,6 +116,20 @@ void UChargedBlastAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle 
 	UE_LOG(LogTemp, Log, TEXT("[Blast] %s 开始蓄力（成本 %.0f）"), *GetNameSafe(Fighter), GetMinCost());
 }
 
+float UChargedBlastAbilityBase::ComputeChargeQ(float ElapsedSeconds) const
+{
+	if (!HasMinChargeGate())
+	{
+		const float Cap = GetChargeCapTime();
+		return Cap > KINDA_SMALL_NUMBER ? FMath::Clamp(ElapsedSeconds / Cap, 0.f, 1.f) : 1.f;
+	}
+	// 超级炮：最低门槛前进度为 0（只保持基础成本），之后按剩余时长增长
+	const float MinT = GetMinChargeTime();
+	const float Span = GetChargeCapTime() - MinT;
+	if (ElapsedSeconds <= MinT) return 0.f;
+	return Span > KINDA_SMALL_NUMBER ? FMath::Clamp((ElapsedSeconds - MinT) / Span, 0.f, 1.f) : 1.f;
+}
+
 void UChargedBlastAbilityBase::StartChargeTick()
 {
 	GetWorld()->GetTimerManager().SetTimer(ChargeTickHandle, this,
@@ -130,11 +144,21 @@ void UChargedBlastAbilityBase::HandleChargeTick()
 	if (LocksMovementWhileCharging())
 		Fighter->GetCharacterMovement()->StopMovementImmediately();
 
-	const double Elapsed = Now() - ChargeStartTime;
-	float q = FMath::Clamp(static_cast<float>(Elapsed) / GetChargeCapTime(), 0.f, 1.f);
+	UpdateChargeProgress();
+}
 
+void UChargedBlastAbilityBase::UpdateChargeProgress()
+{
+	auto* Fighter = CachedFighter.Get();
+	if (!Fighter || Phase != EBlastPhase::Charging) return;
+
+	const double Elapsed = Now() - ChargeStartTime;
+	const float q = ComputeChargeQ(static_cast<float>(Elapsed));
+
+	// 只支付累计目标成本与已支付成本的正差；资源耗尽时余额计入 PaidCost（强度与实际支付一致）
 	const float TargetCost = GetMinCost() + (GetMaxCost() - GetMinCost()) * q;
 	const float Increment = TargetCost - PaidCost;
+	const float CostSpan = GetMaxCost() - GetMinCost();
 	if (Increment > 0.01f)
 	{
 		const float Curse = Fighter->GetCursedEnergy();
@@ -145,13 +169,16 @@ void UChargedBlastAbilityBase::HandleChargeTick()
 		}
 		else
 		{
-			if (Curse > 0.f) Fighter->ModifyCursedEnergy(-Curse);
-			const float CostSpan = GetMaxCost() - GetMinCost();
+			if (Curse > 0.f)
+			{
+				Fighter->ModifyCursedEnergy(-Curse);
+				PaidCost += Curse; // 余额全部计入累计成本，不吞掉
+			}
 			PaidQ = CostSpan > 1.f ? FMath::Clamp((PaidCost - GetMinCost()) / CostSpan, 0.f, 1.f) : 0.f;
 			return;
 		}
 	}
-	PaidQ = q;
+	PaidQ = CostSpan > 1.f ? FMath::Clamp((PaidCost - GetMinCost()) / CostSpan, 0.f, 1.f) : 1.f;
 }
 
 void UChargedBlastAbilityBase::NotifyExternalRelease()
@@ -169,6 +196,13 @@ void UChargedBlastAbilityBase::HandleExternalRelease()
 		AbortBlast(TEXT("低于最低蓄力门槛"), true);
 		return;
 	}
+	// 方向解耦：发射方向在松开瞬间固定，前摇不继续瞬时追随
+	LockedAimPoint = ResolveAimPoint();
+	bAimPointCaptured = true;
+	// 松开瞬间补齐最后一段成本与强度（帧针脱落时保证成本=强度口径一致）
+	UpdateChargeProgress();
+	UE_LOG(LogTemp, Log, TEXT("[BlastDebug] %s 松开：Elapsed=%.3f PaidCost=%.3f PaidQ=%.3f"),
+		*GetNameSafe(CachedFighter.Get()), Now() - ChargeStartTime, PaidCost, PaidQ);
 	StartWindup();
 }
 
@@ -184,6 +218,8 @@ void UChargedBlastAbilityBase::StartWindup()
 void UChargedBlastAbilityBase::HandleWindupDone()
 {
 	if (Phase != EBlastPhase::Windup) return;
+	UE_LOG(LogTemp, Log, TEXT("[BlastDebug] %s 发射：Elapsed=%.3f PaidCost=%.3f PaidQ=%.3f"),
+		*GetNameSafe(CachedFighter.Get()), Now() - ChargeStartTime, PaidCost, PaidQ);
 	FireOnce();
 	if (HasMinChargeGate()) bSuperBlastFired = true;
 	Phase = EBlastPhase::Recovery;
@@ -197,6 +233,14 @@ void UChargedBlastAbilityBase::HandleRecoveryDone()
 	if (CachedFighter.IsValid())
 		ClearChargeStateTags(CachedFighter->GetFighterAbilitySystemComponent());
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+}
+
+void UChargedBlastAbilityBase::CancelFromOutside()
+{
+	if (Phase == EBlastPhase::Charging || Phase == EBlastPhase::Windup)
+	{
+		AbortBlast(TEXT("切形态中止持炮"), true);
+	}
 }
 
 void UChargedBlastAbilityBase::AbortBlast(const TCHAR* Reason, bool bPaidInterrupt)
@@ -284,12 +328,89 @@ void UChargedBlastAbilityBase::FireOnce()
 			Muzzle = Mesh->GetSocketLocation(Fighter->GetMuzzleSocketName());
 	}
 
+	// 方向解耦（A02）：松开瞬间已捕获瞄准点；AI 非 held 路径实时解析
+	FVector AimPoint = bAimPointCaptured ? LockedAimPoint : ResolveAimPoint();
+	AimPoint = Muzzle + (AimPoint - Muzzle).GetSafeNormal() * FMath::Min(Range, FVector::Dist(Muzzle, AimPoint) + 1.f);
+
+	FCollisionQueryParams QP(SCENE_QUERY_STAT(JJKBlast));
+	QP.AddIgnoredActor(Fighter);
+
+	// 全路径遮挡（A02）：世界阻挡（Visibility，胶囊不受影响）与 Pawn 命中（对象类型扫掠）取更近者
+	FHitResult WallHit;
+	const bool bWall = GetWorld()->LineTraceSingleByChannel(WallHit, Muzzle, AimPoint, ECC_Visibility, QP)
+		&& !Cast<AFighterCharacter>(WallHit.GetActor());
+	const float WallDist = bWall ? static_cast<float>(FVector::Dist(Muzzle, WallHit.ImpactPoint)) : TNumericLimits<float>::Max();
+
+	// 炮口嵌墙安全拒绝：墙在炮口 30cm 内直接拒绝发射
+	if (bWall && WallDist < 30.f)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮口嵌墙安全拒绝"), *GetNameSafe(Fighter));
+		return;
+	}
+
+	FHitResult FireHit;
+	AFighterCharacter* HitFighter = nullptr;
+	FVector EndPoint = AimPoint;
+	{
+		FCollisionObjectQueryParams ObjectParams(ECC_Pawn);
+		const FCollisionShape Sphere = FCollisionShape::MakeSphere(15.f);
+		if (GetWorld()->SweepSingleByObjectType(FireHit, Muzzle, AimPoint, FQuat::Identity, ObjectParams, Sphere, QP))
+		{
+			const float PawnDist = static_cast<float>(FVector::Dist(Muzzle, FireHit.ImpactPoint));
+			if (!bWall || PawnDist < WallDist)
+			{
+				EndPoint = FireHit.ImpactPoint;
+				HitFighter = Cast<AFighterCharacter>(FireHit.GetActor());
+			}
+			else
+			{
+				EndPoint = WallHit.ImpactPoint; // 中间墙体截断：命中无效
+			}
+		}
+		else if (bWall)
+		{
+			EndPoint = WallHit.ImpactPoint;
+		}
+	}
+
+	if (BlastDebugEnabled() > 0.f && GetWorld())
+		DrawDebugLine(GetWorld(), Muzzle, EndPoint, FColor::Cyan, false, 2.f, 0, 2.f);
+
+	// 共享攻防结算（A02）：闪避免疫/正面防御/命中与近战同口径，特效终点与结算一致
+	if (HitFighter)
+	{
+		FRangedHitSettle Settle;
+		Settle.Damage = Damage;
+		Settle.bDodgeable = true;
+		Settle.bBlockable = true;
+		Settle.bGrantCurse = true;
+		Settle.GuardStunDuration = GetGuardStunDuration();
+		Settle.HitStunDuration = GetHitStunDuration();
+		Settle.InterruptLevel = GetInterruptLevel();
+		Settle.KnockbackStrength = GetKnockbackStrength();
+		Settle.AttackInstanceId = (static_cast<uint64>(GetUniqueID()) << 20) | (++ShotCounter);
+		const ETrainingContact Result = Fighter->SettleRangedHitOn(HitFighter, Settle);
+		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮击命中 %s（伤害 %.0f q=%.2f 结果=%d）"),
+			*GetNameSafe(Fighter), *GetNameSafe(HitFighter), Damage, PaidQ, static_cast<int32>(Result));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮击空放"), *GetNameSafe(Fighter));
+	}
+}
+
+FVector UChargedBlastAbilityBase::ResolveAimPoint() const
+{
+	auto* Fighter = CachedFighter.Get();
+	if (!Fighter) return FVector::ZeroVector;
+
+	FVector Muzzle = Fighter->GetActorLocation() + FVector(0, 0, 60);
 	FVector CamLoc = Muzzle;
 	FRotator CamRot = Fighter->GetActorRotation();
-	FVector AimPoint = Muzzle + Fighter->GetActorForwardVector() * Range;
+	FVector AimPoint = Muzzle + Fighter->GetActorForwardVector() * GetRange();
 	if (auto* PC = Cast<APlayerController>(Fighter->GetController()))
 	{
-		if (PC->PlayerCameraManager) { PC->GetPlayerViewPoint(CamLoc, CamRot); AimPoint = CamLoc + CamRot.Vector() * Range; }
+		if (PC->PlayerCameraManager) { PC->GetPlayerViewPoint(CamLoc, CamRot); AimPoint = CamLoc + CamRot.Vector() * GetRange(); }
 		// 锁定即瞄准：有效锁定目标优先于相机射线
 		if (auto* Targeting = Fighter->GetTargeting())
 			if (Targeting->IsTargetValid())
@@ -299,56 +420,7 @@ void UChargedBlastAbilityBase::FireOnce()
 	{
 		AimPoint = Target->GetActorLocation() + FVector(0, 0, 30);
 	}
-
-	FCollisionQueryParams QP(SCENE_QUERY_STAT(JJKBlast));
-	QP.AddIgnoredActor(Fighter);
-
-	// 主命中：与近战检测同语义，按 Pawn 对象类型做球形扫掠
-	//（胶囊不阻挡 Visibility 通道，直接 LineTrace 会穿人）
-	FHitResult FireHit;
-	AFighterCharacter* HitFighter = nullptr;
-	FVector EndPoint = AimPoint;
-	{
-		FCollisionObjectQueryParams ObjectParams(ECC_Pawn);
-		const FCollisionShape Sphere = FCollisionShape::MakeSphere(15.f);
-		if (GetWorld()->SweepSingleByObjectType(FireHit, Muzzle, AimPoint, FQuat::Identity, ObjectParams, Sphere, QP))
-		{
-			EndPoint = FireHit.ImpactPoint;
-			HitFighter = Cast<AFighterCharacter>(FireHit.GetActor());
-		}
-	}
-
-	// 炮口嵌墙安全拒绝：墙等世界几何按 Visibility 通道检测（胶囊不受影响）
-	FHitResult MuzzleHit;
-	if (GetWorld()->LineTraceSingleByChannel(MuzzleHit, Muzzle,
-		Muzzle + (EndPoint - Muzzle).GetSafeNormal() * 30.f, ECC_Visibility, QP))
-	{
-		if (!Cast<AFighterCharacter>(MuzzleHit.GetActor()))
-		{
-			UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮口嵌墙安全拒绝"), *GetNameSafe(Fighter));
-			return;
-		}
-	}
-
-	if (BlastDebugEnabled() > 0.f && GetWorld())
-		DrawDebugLine(GetWorld(), Muzzle, EndPoint, FColor::Cyan, false, 2.f, 0, 2.f);
-
-	auto* AtkASC = Fighter->GetFighterAbilitySystemComponent();
-	if (HitFighter && !HitFighter->IsDead() && AtkASC && HitFighter->GetFighterAbilitySystemComponent())
-	{
-		auto Spec = AtkASC->MakeOutgoingSpec(UDamageGameplayEffect::StaticClass(), 1.f, AtkASC->MakeEffectContext());
-		if (Spec.IsValid())
-		{
-			Spec.Data->SetSetByCallerMagnitude(TAG_Data_Damage, -Damage);
-			AtkASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, HitFighter->GetFighterAbilitySystemComponent());
-		}
-		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮击命中 %s（伤害 %.0f q=%.2f）"),
-			*GetNameSafe(Fighter), *GetNameSafe(HitFighter), Damage, PaidQ);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮击空放"), *GetNameSafe(Fighter));
-	}
+	return AimPoint;
 }
 
 void UChargedBlastAbilityBase::EndAbility(const FGameplayAbilitySpecHandle Handle,

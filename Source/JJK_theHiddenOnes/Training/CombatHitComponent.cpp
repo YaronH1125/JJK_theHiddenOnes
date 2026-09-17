@@ -352,6 +352,8 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		if (!bCursedEnergyGranted) { Attacker->RestoreCursedEnergyOnHit(); bCursedEnergyGranted = true; }
 		// 普通命中：伤害经 GE 生效（SetByCaller Data.Damage，负值扣减生命）
 		Attacker->ApplyCombatDamage(Target,Def->Damage,Def->Damage,ETrainingContact::Hit);
+		// 非领域期有效结算伤害 5% 转能量；实例+段合成实例键去重（A04）
+		Attacker->GainDomainEnergy(Def->Damage, ActiveInstanceId * 1000ULL + static_cast<uint64>(SegmentId));
 		++HitCountThisAttack;
 
 		if (CVarJJKDebugHitFX.GetValueOnGameThread() != 0 && GetWorld() != nullptr)

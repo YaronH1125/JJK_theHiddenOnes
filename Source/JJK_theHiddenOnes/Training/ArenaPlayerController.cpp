@@ -107,6 +107,12 @@ void AArenaPlayerController::SetupInputComponent()
 		{
 			EnhancedInputComponent->BindAction(StanceSwitchAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleStanceSwitchPressed);
 		}
+		if (AimAction != nullptr)
+		{
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AArenaPlayerController::HandleAimPressed);
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AArenaPlayerController::HandleAimReleased);
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Canceled, this, &AArenaPlayerController::HandleAimReleased);
+		}
 		if (!AttackAction)
 		{
 			UE_LOG(LogTemp, Error, TEXT("[ArenaPC] AttackAction 未配置，攻击输入无法绑定；请检查 BP_ArenaPlayerController 与 IA_Attack 资产"));
@@ -203,6 +209,18 @@ void AArenaPlayerController::HandleStanceSwitchPressed()
 void AArenaPlayerController::HandleDomainPressed()
 {
  if (bCombatInputEnabled) bDomainPressed = true;
+}
+
+void AArenaPlayerController::HandleAimPressed()
+{
+	// 瞄准是镜头状态，不占用攻击槽；有效性与形态/状态校验在角色侧
+	if (bCombatInputEnabled)
+		if (auto* F = GetPlayerFighter()) F->SetAimIntent(true);
+}
+
+void AArenaPlayerController::HandleAimReleased()
+{
+	if (auto* F = GetPlayerFighter()) F->SetAimIntent(false);
 }
 
 void AArenaPlayerController::ToggleLock()

@@ -1,5 +1,5 @@
 {
-  "status": "passed",
+  "status": "failed",
   "engine": "5.8.2-56702186+++UE5+Release-5.8",
   "checks": [
     {
@@ -12,7 +12,7 @@
       "passed": true,
       "details": {
         "damage": 46.66668701171875,
-        "cost": 9.444442749023438
+        "cost": 9.444450378417969
       }
     },
     {
@@ -20,7 +20,7 @@
       "passed": true,
       "details": {
         "damage": 46.66668701171875,
-        "cost": 9.444442749023438
+        "cost": 9.444450378417969
       }
     },
     {
@@ -39,9 +39,9 @@
     },
     {
       "name": "M6-T16_full_cost_cap",
-      "passed": true,
+      "passed": false,
       "details": {
-        "cost": 21.0
+        "cost": 21.00000762939453
       }
     },
     {
@@ -87,7 +87,7 @@
     },
     {
       "name": "M6-T05_full_cost",
-      "passed": true,
+      "passed": false,
       "details": {
         "cost": 62.0
       }
@@ -150,7 +150,7 @@
       "passed": true,
       "details": {
         "orbs": 0,
-        "curse": 39.000003814697266
+        "curse": 39.00000762939453
       }
     },
     {
@@ -222,11 +222,11 @@
       "details": {
         "hp": 936.6666259765625,
         "log": [
-          "47.335 Started BT_Arena / BB_Arena",
-          "48.335 Branch=Domain Distance=1000.0 ObservedFor=-1.00",
+          "47.334 Started BT_Arena / BB_Arena",
+          "48.334 Branch=Domain Distance=1000.0 ObservedFor=-1.00",
           "48.668 Request=Executed",
           "50.001 Branch=RangedAttack Distance=1400.0 ObservedFor=-1.00",
-          "50.335 Request=Executed",
+          "50.334 Request=Executed",
           "51.001 Blast: released"
         ]
       }
@@ -237,8 +237,8 @@
       "details": null
     }
   ],
-  "started_at": 1789638439.589531,
-  "duration_seconds": 47.98500000000058,
+  "started_at": 1789638353.23943,
+  "duration_seconds": 48.0,
   "snapshot": {
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
@@ -422,7 +422,7 @@
     "Content/Training/Movement/A_Backstep.uasset": "2b7666decec0bb3571485cd86e5a715c6bde19121fc7c6a185123c6b4e20e1b9",
     "Content/Training/Movement/A_Dodge.uasset": "f023f0daa3a1936da3ac4513b12a168541c5ac9c5d91edbfd41f652e1e795858",
     "Content/Maps/L_TrainingArena.umap": "eed2b270390005cb8f20d142488c4265dd062694e5c13217c1d5ad7862492904",
-    "Scripts/M6_acceptance.py": "55c2666ff4f845884034283e9439b0f7c9badae952a6a9b63d665d490576e13a",
+    "Scripts/M6_acceptance.py": "8b5c2bd1b411af3aca2852aeeb346927242615c90326e5f308ed027f47827a1e",
     "Scripts/M6_setup_assets.py": "0dd839daab6490bcb69d3b7b7241c148d676da3ac83f7690b9e737bab7101687"
   }
 }

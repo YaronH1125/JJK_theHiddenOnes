@@ -145,6 +145,13 @@ public:
 	UFUNCTION(Exec, Category = "Training|Debug")
 	void JJKOpponentAction(int32 Action);
 
+	/** 验证用阻挡墙：生成临时立方体墙（只存在于当前 PIE 会话） */
+	UFUNCTION(Exec, BlueprintCallable, Category = "Training|Debug")
+	void JJKSpawnBlocker(float X, float Y, float SX, float SY, float SZ);
+	/** 清除全部验证阻挡墙 */
+	UFUNCTION(Exec, BlueprintCallable, Category = "Training|Debug")
+	void JJKClearBlockers();
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -185,6 +192,9 @@ protected:
 		TArray<TWeakObjectPtr<class ADomainOrb>> Orbs;
 	};
 	TArray<FDomainSessionData> DomainSessions;
+	/** 验证用临时阻挡墙 */
+	UPROPERTY()
+	TArray<TObjectPtr<AActor>> TestBlockers;
 	int32 NextDomainSessionId = 0;
 	void TickDomainSessions();
 	void EndDomainSession(int32 SessionId);

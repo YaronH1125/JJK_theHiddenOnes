@@ -284,4 +284,8 @@ public:
 	/** 瞄准插值速度（FInterpTo 参数，参考旧工程 10） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "1.0"))
 	float AimInterpSpeed = 10.f;
+
+	/** 瞄准右肩偏移（Boom SocketOffset.Y；松开/近战归零） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
+	float AimSocketOffsetY = 45.f;
 };

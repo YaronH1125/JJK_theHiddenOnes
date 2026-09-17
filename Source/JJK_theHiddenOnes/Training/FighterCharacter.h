@@ -138,11 +138,20 @@ public:
  void GainDomainEnergy(float ResolvedDamage, uint64 AttackInstanceId);
  bool ModifyEnergy(float SignedAmount);
  void ApplyCombatDamage(AFighterCharacter* Target, float RawDamage, float ResolvedDamage, ETrainingContact Kind);
+ /** 远程命中共享结算（A02）：保护→闪避免疫→正面防御→命中；返回实际分类，保护性跳过返回 Whiff */
+ ETrainingContact SettleRangedHitOn(AFighterCharacter* Target, const FRangedHitSettle& Settle);
  FName GetMuzzleSocketName() const;
  AFighterCharacter* GetPreferredTargetFighter() const;
+ UFUNCTION(BlueprintCallable, Category = "Combat|Aim")
  void SetAimIntent(bool bAiming);
+ UFUNCTION(BlueprintPure, Category = "Combat|Aim")
  bool IsAimIntent() const { return bAimIntent; }
+ UFUNCTION(BlueprintPure, Category = "Combat|Aim")
+ bool IsAimingEffective() const;
+ UFUNCTION(BlueprintCallable, Category = "Combat|Aim")
+ void RestoreAimCamera();
  bool IsBlastCharging() const;
+ void CancelActiveBlast();
  void NotifyCurseFlowActivity();
  void OnCursedEnergyChanged(const FOnAttributeChangeData& Data);
  void RegisterActiveBlast(class UChargedBlastAbilityBase* Blast);
@@ -378,6 +387,8 @@ private:
 	bool bAimIntent = false;
 	bool bAiming = false;
 	bool bDomainActive = false;
+	/** 领域能量获取的攻击实例去重（08：非领域期有效结算伤害的 5% 转能量） */
+	uint64 LastGainInstanceId = 0;
 	double LastCurseFlowActivityTime = -1000.0;
 
 	void TickAimCamera(float DeltaSeconds);

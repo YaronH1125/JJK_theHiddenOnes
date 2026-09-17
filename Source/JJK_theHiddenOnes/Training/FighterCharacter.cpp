@@ -455,6 +455,8 @@ bool AFighterCharacter::RequestStanceSwitch()
 
 	CombatInput->InvalidateSession(FText::FromString(TEXT("切换形态")));
 	CombatInput->ReleaseContinuousInputs();
+	// A03：切形态先中止持炮（已扣不退，超级炮按中断进冷却，无免费满蓄留存）
+	CancelActiveBlast();
 	bPendingStanceSwitch = true;
 	return AbilitySystem != nullptr
 		&& AbilitySystem->TryActivateAbilityByClass(Definition ? Definition->StanceSwitchAbility : nullptr);
@@ -603,6 +605,7 @@ void AFighterCharacter::EndThrowPair(bool bRestore)
 
 void AFighterCharacter::NotifyStanceSwitched()
 {
+	SetAimIntent(false); // 08：切形态清除瞄准，恢复需新按下
 	Stance = Stance == EFighterStance::Melee ? EFighterStance::Ranged : EFighterStance::Melee;
 	LastStanceSwitchTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
 }
@@ -830,6 +833,8 @@ void AFighterCharacter::Die(AActor* InInstigator)
 		return;
 	}
 	bDead = true;
+	SetAimIntent(false);
+	RestoreAimCamera();
 
 	if (AbilitySystem != nullptr)
 	{
@@ -1120,6 +1125,10 @@ void AFighterCharacter::ResetToInitialState()
 
 	LastMoveInputDirection = FVector::ZeroVector;
 	SetSprintHeld(false);
+	SetAimIntent(false);
+	RestoreAimCamera();
+	// 重置后回咒延迟重新计时：无活动窗口内不发生自然回充（M3 精确数值口径）
+	LastCurseFlowActivityTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
 	LastDodgeSuccessTime = -1000.;
 	LastStanceSwitchTime = -1000;
 	LastResourceSpendTime = -1000;
@@ -1302,6 +1311,11 @@ bool AFighterCharacter::IsBlastCharging() const
 	return ActiveBlast.IsValid() && ActiveBlast->IsCharging();
 }
 
+void AFighterCharacter::CancelActiveBlast()
+{
+	if (ActiveBlast.IsValid()) ActiveBlast->CancelFromOutside();
+}
+
 void AFighterCharacter::RegisterActiveBlast(UChargedBlastAbilityBase* Blast)
 {
 	ActiveBlast = Blast;
@@ -1342,9 +1356,74 @@ void AFighterCharacter::SetDomainActive(bool bActive)
 	}
 }
 
+ETrainingContact AFighterCharacter::SettleRangedHitOn(AFighterCharacter* Target, const FRangedHitSettle& Settle)
+{
+	// 保护：死亡/倒地/被投不进入普通结算（与近战口径一致）
+	if (!IsValid(Target) || Target == this || Target->IsDead() || Target->IsThrowPaired()
+		|| Target->HasCombatTag(TAG_State_KnockedDown))
+	{
+		return ETrainingContact::Whiff;
+	}
+	auto* GM = GetWorld() ? GetWorld()->GetAuthGameMode<ATrainingGameMode>() : nullptr;
+
+	// 闪避无敌窗（仅可闪避攻击；领域球不可闪避）
+	if (Settle.bDodgeable && Target->HasCombatTag(TAG_State_DodgeInvulnerable))
+	{
+		Target->NotifyDodgeAvoided();
+		if (GM) GM->RecordContact(this, Target, ETrainingContact::Immune, Settle.Damage, 0.f, 0.f);
+		UE_LOG(LogTemp, Log, TEXT("[RangedHit] %s 的远程命中被 %s 闪避免疫"), *GetNameSafe(this), *GetNameSafe(Target));
+		return ETrainingContact::Immune;
+	}
+
+	// 正面防御：chip 伤 + 防御硬直；背面防御不生效
+	const bool bFront = Target->IsAttackFromFront(this, Target->GetGuardFrontArcHalfAngle());
+	const bool bGuarded = Target->IsGuarding() && Settle.bBlockable && bFront;
+	if (bGuarded)
+	{
+		const FGuardConfig& Guard = Target->GetDefinition()->GuardConfig;
+		ApplyCombatDamage(Target, Settle.Damage, Guard.bChipDamage ? Settle.Damage * Guard.ChipDamageRatio : 0.f, ETrainingContact::Guard);
+		FCombatEvent GuardEvent;
+		GuardEvent.Type = FCombatEvent::EType::GuardStun;
+		GuardEvent.Instigator = this;
+		GuardEvent.StunDuration = Settle.GuardStunDuration;
+		GuardEvent.HitLocation = Target->GetActorLocation();
+		Target->QueueCombatEvent(GuardEvent);
+		UE_LOG(LogTemp, Log, TEXT("[RangedHit] %s 的远程命中被 %s 防御"), *GetNameSafe(this), *GetNameSafe(Target));
+		return ETrainingContact::Guard;
+	}
+
+	// 普通命中：伤害 + 受击反应（致死入受击方延迟队列）
+	if (Settle.bGrantCurse) RestoreCursedEnergyOnHit();
+	ApplyCombatDamage(Target, Settle.Damage, Settle.Damage, ETrainingContact::Hit);
+	// 非领域期有效结算伤害 5% 转领域能量（领域期由 GainDomainEnergy 拒绝）
+	GainDomainEnergy(Settle.Damage, Settle.AttackInstanceId);
+	const bool bLethal = Target->GetFighterAttributeSet()->GetHealth() <= 0.f;
+	FCombatEvent Event;
+	Event.Type = FCombatEvent::EType::HitReact;
+	Event.Instigator = this;
+	Event.InterruptLevel = Settle.InterruptLevel;
+	Event.StunDuration = Settle.HitStunDuration;
+	Event.bLethal = bLethal;
+	Event.HitLocation = Target->GetActorLocation();
+	Event.KnockbackStrength = Settle.KnockbackStrength;
+	Event.KnockbackDirection = (Target->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+	Target->QueueCombatEvent(Event);
+	UE_LOG(LogTemp, Log, TEXT("[RangedHit] %s 远程命中 %s（伤害 %.0f，致死=%d）"),
+		*GetNameSafe(this), *GetNameSafe(Target), Settle.Damage, bLethal ? 1 : 0);
+	return ETrainingContact::Hit;
+}
+
 void AFighterCharacter::GainDomainEnergy(float ResolvedDamage, uint64 AttackInstanceId)
 {
 	if (!Definition || !AbilitySystem) return;
+	// 08 §182：领域期间暂停领域能量获取，不允许领域自己充满下一次领域
+	if (IsDomainActive()) return;
+	// 同一攻击实例只结算一次（每实例封顶由 Cap 保证）
+	if (AttackInstanceId != 0)
+	{
+		if (LastGainInstanceId == AttackInstanceId) return;
+		LastGainInstanceId = AttackInstanceId;
+	}
 	const float Gain = FMath::Min(ResolvedDamage * Definition->ResourceFlow.DomainEnergyGainRatio,
 		Definition->ResourceFlow.DomainEnergyGainPerInstanceCap);
 	if (Gain <= 0.f) return;
@@ -1358,7 +1437,32 @@ FName AFighterCharacter::GetMuzzleSocketName() const
 
 void AFighterCharacter::SetAimIntent(bool bNewAiming)
 {
+	if (bAimIntent == bNewAiming) return;
 	bAimIntent = bNewAiming;
+	UE_LOG(LogTemp, Log, TEXT("[Aim] %s 右键瞄准意图=%s（需远程形态生效）"), *GetName(), bNewAiming ? TEXT("开") : TEXT("关"));
+}
+
+bool AFighterCharacter::IsAimingEffective() const
+{
+	// 瞄准只是镜头状态（08 §127）：近战/死亡/倒地/闪避期/请求关闭均不生效；切形态清除意图需新按下
+	return bAimIntent && GetStance() == EFighterStance::Ranged && !IsDead()
+		&& !HasCombatTag(TAG_State_KnockedDown)
+		&& !HasCombatTag(TAG_State_DodgeInvulnerable) && !HasCombatTag(TAG_State_DodgeRecovery)
+		&& CombatInput && CombatInput->AreRequestsEnabled();
+}
+
+void AFighterCharacter::RestoreAimCamera()
+{
+	bAimIntent = false;
+	bAiming = false;
+	bUseControllerRotationYaw = false;
+	if (Definition && GetCameraBoom())
+	{
+		GetCameraBoom()->TargetArmLength = Definition->NormalArmLength;
+		FVector Offset = GetCameraBoom()->SocketOffset;
+		Offset.Y = 0.f;
+		GetCameraBoom()->SocketOffset = Offset;
+	}
 }
 
 AFighterCharacter* AFighterCharacter::GetPreferredTargetFighter() const
@@ -1371,6 +1475,7 @@ AFighterCharacter* AFighterCharacter::GetPreferredTargetFighter() const
 bool AFighterCharacter::ModifyEnergy(float SignedAmount)
 {
 	if (!AbilitySystem) return false;
+	if (SignedAmount < 0.f && AbilitySystem->HasInfiniteResources()) return true;
 	const float Current = AttributeSet ? AttributeSet->GetEnergy() : 0.f;
 	if (SignedAmount < 0.f && Current + SignedAmount < -0.01f) return false;
 	auto Spec = AbilitySystem->MakeOutgoingSpec(UModifyDomainEnergyGameplayEffect::StaticClass(), 1.f, AbilitySystem->MakeEffectContext());
@@ -1395,10 +1500,19 @@ void AFighterCharacter::Tick(float DeltaSeconds)
 void AFighterCharacter::TickAimCamera(float DeltaSeconds)
 {
 	if (!Definition || !GetCameraBoom()) return;
-	float TargetLen = bAiming ? Definition->AimArmLength : Definition->NormalArmLength;
+	const bool bShouldAim = IsAimingEffective();
+	if (bShouldAim != bAiming)
+	{
+		bAiming = bShouldAim;
+		UE_LOG(LogTemp, Log, TEXT("[Aim] %s 有效瞄准=%s"), *GetName(), bAiming ? TEXT("开") : TEXT("关"));
+	}
 	auto* Boom = GetCameraBoom();
-	float Current = Boom->TargetArmLength;
-	Boom->TargetArmLength = FMath::FInterpTo(Current, TargetLen, DeltaSeconds, Definition ? Definition->AimInterpSpeed : 10.f);
+	const float Speed = Definition->AimInterpSpeed;
+	Boom->TargetArmLength = FMath::FInterpTo(Boom->TargetArmLength,
+		bAiming ? Definition->AimArmLength : Definition->NormalArmLength, DeltaSeconds, Speed);
+	FVector Offset = Boom->SocketOffset;
+	Offset.Y = FMath::FInterpTo(Offset.Y, bAiming ? Definition->AimSocketOffsetY : 0.f, DeltaSeconds, Speed);
+	Boom->SocketOffset = Offset;
 	bUseControllerRotationYaw = bAiming;
 }
 

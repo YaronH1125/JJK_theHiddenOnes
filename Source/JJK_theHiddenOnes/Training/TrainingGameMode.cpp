@@ -20,6 +20,7 @@
 #include "Training/TargetingComponent.h"
 #include "Training/TrainingProbeAbility.h"
 #include "Training/DomainOrb.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ATrainingGameMode::ATrainingGameMode()
@@ -253,6 +254,7 @@ void ATrainingGameMode::ResetTraining()
  if (bResetting) return;
  bResetting=true;
  ShutdownAllDomains();
+ JJKClearBlockers();
  if(IsValid(OpponentAI)) OpponentAI->DeactivateAI();
  EnsureFightersSpawned();
  GetWorldTimerManager().ClearTimer(PlayerRecoveryTimer);
@@ -576,6 +578,36 @@ void ATrainingGameMode::EndPlay(const EEndPlayReason::Type Reason)
  Super::EndPlay(Reason);
 }
 
+void ATrainingGameMode::JJKSpawnBlocker(float X, float Y, float SX, float SY, float SZ)
+{
+	if (!GetWorld()) return;
+	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+	if (!Cube) return;
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	FTransform T(FRotator::ZeroRotator, FVector(X, Y, SZ * 50.f));
+	AActor* Wall = GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), T, Params);
+	if (!Wall) return;
+	UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(Wall, TEXT("BlockerMesh"));
+	Mesh->SetStaticMesh(Cube);
+	Mesh->SetWorldScale3D(FVector(SX, SY, SZ));
+	Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+	Wall->SetRootComponent(Mesh);
+	Mesh->RegisterComponent();
+	TestBlockers.Add(Wall);
+	UE_LOG(LogTemp, Log, TEXT("[Blocker] 生成验证墙 (%.0f, %.0f) 尺度 %.1f x %.1f x %.1f"), X, Y, SX, SY, SZ);
+}
+
+void ATrainingGameMode::JJKClearBlockers()
+{
+	for (TObjectPtr<AActor>& Wall : TestBlockers)
+	{
+		if (IsValid(Wall)) Wall->Destroy();
+	}
+	TestBlockers.Reset();
+	UE_LOG(LogTemp, Log, TEXT("[Blocker] 清除全部验证墙"));
+}
+
 // ---------- M6 领域会话 ----------
 
 bool ATrainingGameMode::TryOpenDomain(AFighterCharacter* Caster)
@@ -596,11 +628,25 @@ bool ATrainingGameMode::TryOpenDomain(AFighterCharacter* Caster)
 
 	const UFighterDefinition* Def = Caster->GetDefinition();
 	const float CaptureRange = Def ? Def->DomainConfig.CaptureRange : 1200.f;
+	const FVector From = Caster->GetActorLocation() + FVector(0.f, 0.f, 60.f);
+	const FVector To = Victim->GetActorLocation() + FVector(0.f, 0.f, 30.f);
 	if (FVector::DistXY(Caster->GetActorLocation(), Victim->GetActorLocation()) > CaptureRange)
 	{
 		// 目标超出捕获范围：结印完成但领域不开（ability 走失败分支结束）
 		UE_LOG(LogTemp, Log, TEXT("[Domain] TryOpenDomain 拒绝：目标超出捕获范围 %.0f > %.0f"),
 			FVector::DistXY(Caster->GetActorLocation(), Victim->GetActorLocation()), CaptureRange);
+		return false;
+	}
+
+	// 捕获需视线可达：世界几何遮挡则无法捕获（A05）
+	FCollisionQueryParams VisionQP(SCENE_QUERY_STAT(DomainCapture));
+	VisionQP.AddIgnoredActor(Caster);
+	VisionQP.AddIgnoredActor(Victim);
+	FHitResult VisionHit;
+	if (GetWorld()->LineTraceSingleByChannel(VisionHit, From, To, ECC_Visibility, VisionQP))
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Domain] TryOpenDomain 拒绝：捕获视线被 %s 遮挡"),
+			*GetNameSafe(VisionHit.GetActor()));
 		return false;
 	}
 
@@ -647,12 +693,21 @@ void ATrainingGameMode::TickDomainSessions()
 		}
 
 		S.bSuppressed = bSuppressed;
-		for (const TWeakObjectPtr<ADomainOrb>& OrbPtr : S.Orbs)
+		// 压制（A05/SLL-T24）：销毁已在飞的球，保留原调度点；恢复后不补发
+		if (bSuppressed)
 		{
-			if (ADomainOrb* Orb = OrbPtr.Get()) Orb->SetOrbPaused(bSuppressed);
+			for (const TWeakObjectPtr<ADomainOrb>& OrbPtr : S.Orbs)
+			{
+				if (ADomainOrb* Orb = OrbPtr.Get()) Orb->Destroy();
+			}
+			S.Orbs.RemoveAll([](const TWeakObjectPtr<ADomainOrb>& P) { return !P.IsValid(); });
+			continue;
 		}
 
-		if (!bSuppressed && Now >= S.NextSpawnTime)
+		// 术者受击/倒地/被投 → 仅暂停新炮发射，已在飞球继续（08 §212）
+		const bool bCasterBusy = Caster->HasCombatTag(TAG_State_HitStun) || Caster->HasCombatTag(TAG_State_KnockedDown)
+			|| Caster->HasCombatTag(TAG_State_GuardStun) || Caster->IsThrowPaired();
+		if (!bCasterBusy && Now >= S.NextSpawnTime)
 		{
 			SpawnDomainOrb(S);
 			if (const UFighterDefinition* Def = Caster->GetDefinition())
@@ -700,7 +755,7 @@ void ATrainingGameMode::SpawnDomainOrb(FDomainSessionData& Session)
 	if (Session.Orbs.Num() >= Cfg.MaxOrbsInFlight) return;
 
 	// 咒力不足 → 本次跳过（不消耗；下次到期再试）
-	if (!Caster->ModifyCursedEnergy(-Cfg.OrbCost))
+	if (Caster->GetCursedEnergy() < Cfg.OrbCost)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Domain] 会话 %d 咒力不足，跳过出球"), Session.SessionId);
 		return;
@@ -712,8 +767,15 @@ void ATrainingGameMode::SpawnDomainOrb(FDomainSessionData& Session)
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	const FVector SpawnLoc = Caster->GetActorLocation() + FVector(0.f, 0.f, 80.f);
 	ADomainOrb* Orb = GetWorld()->SpawnActor<ADomainOrb>(ADomainOrb::StaticClass(), SpawnLoc, FRotator::ZeroRotator, Params);
-	if (!Orb) return;
+	if (!Orb)
+	{
+		// 生成失败不吞咒力：未扣费即失败（成本只在成功后提交一次）
+		UE_LOG(LogTemp, Log, TEXT("[Domain] 会话 %d 球体生成失败（未扣费）"), Session.SessionId);
+		return;
+	}
 
+	// 生成成功才最终提交成本
+	Caster->ModifyCursedEnergy(-Cfg.OrbCost);
 	Orb->InitOrb(Victim, Cfg.OrbDamage, Cfg.OrbLife, Cfg.OrbSpeed, Cfg.OrbRadius);
 	Session.Orbs.Add(Orb);
 }

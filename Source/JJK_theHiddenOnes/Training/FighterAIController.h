@@ -47,8 +47,8 @@ struct FArenaAIParams
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float RangedBlastChance = 0.7f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float DomainChance = 0.5f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float StanceSwitchChance = 0.4f;
-	/** M6 总开关：启用后 AI 才有远程炮/领域/切形态决策（默认关闭，保持 M5 近战行为不变） */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI") bool bEnableRangedCombat = false;
+	/** M6/A08 总开关：最终配置默认启用远程炮/领域/切形态决策；M5 近战回归显式钉住 false */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI") bool bEnableRangedCombat = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI") float DefendHoldTime = 0.8f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI") int32 RandomSeed = 1337;
 };

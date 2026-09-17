@@ -1,6 +1,7 @@
 {
   "status": "passed",
   "engine": "5.8.2-56702186+++UE5+Release-5.8",
+  "command_line": "",
   "checks": [
     {
       "name": "M3-T01_single_A1",
@@ -140,7 +141,7 @@
     {
       "name": "M3-T15_cost_(True, False)",
       "passed": true,
-      "details": 1.5
+      "details": 1.25
     },
     {
       "name": "M3-T15_old_action_(True, False)",
@@ -165,7 +166,7 @@
     {
       "name": "M3-T11_direction_displacement",
       "passed": true,
-      "details": 225.0330314040184
+      "details": 225.00261180102825
     },
     {
       "name": "M3-T16_recovery_rejects_E_attack",
@@ -335,7 +336,7 @@
     {
       "name": "M3-T11_dodge_wall",
       "passed": true,
-      "details": 1082.1890997120042
+      "details": 1082.148471670676
     },
     {
       "name": "M3-T12_armor_damage_no_interrupt",
@@ -590,7 +591,7 @@
       "name": "M3-T13_narrow_cancel_30",
       "passed": true,
       "details": {
-        "elapsed": 0.23345810174942017,
+        "elapsed": 0.2333350032567978,
         "result": true
       }
     },
@@ -607,7 +608,7 @@
       "name": "M3-T13_narrow_cancel_60",
       "passed": true,
       "details": {
-        "elapsed": 0.23347090184688568,
+        "elapsed": 0.2333361953496933,
         "result": true
       }
     },
@@ -624,7 +625,7 @@
       "name": "M3-T13_narrow_cancel_120",
       "passed": true,
       "details": {
-        "elapsed": 0.2250882089138031,
+        "elapsed": 0.22465690970420837,
         "result": true
       }
     }
@@ -632,48 +633,62 @@
   "fps": [
     {
       "requested": 30,
-      "measured": 29.978078113746363,
+      "measured": 29.999354248551647,
       "min_delta": 0.03333339840173721,
-      "max_delta": 0.03456899896264076
+      "max_delta": 0.03336099907755852
     },
     {
       "requested": 60,
-      "measured": 59.97998250799233,
+      "measured": 59.972283285712145,
       "min_delta": 0.016666699200868607,
-      "max_delta": 0.016783297061920166
+      "max_delta": 0.017178498208522797
     },
     {
       "requested": 120,
-      "measured": 119.85579451991136,
-      "min_delta": 0.008333399891853333,
-      "max_delta": 0.009623799473047256
+      "measured": 87.59706815992762,
+      "min_delta": 0.009383399039506912,
+      "max_delta": 0.015243902802467346
     }
   ],
-  "duration_seconds": 99.54699999999139,
+  "duration_seconds": 99.53099999999904,
   "snapshot": {
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesGameMode.h": "15a1d6d41e63aa19cdc91151e8afdb4eec7bdedae51b1b203c2d72a90b51d482",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesPlayerController.h": "cf492575628b8267432339c83c87dabd698239f723508511d44074d36f500d44",
-    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.h": "cdb31c7554db9a4fd9039d31c1127ba99cb79eb27b7b3b7ae470d4007fe0dc3c",
+    "Source/JJK_theHiddenOnes/Training/ArenaBTNodes.h": "f7803961a3cb4b348258df9372bcbb5895bb5d2759d916a3d3beeaec835d978b",
+    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.h": "26516c224cb9e08a7788648c8fbec85bbfe7445f32fdb993eafd06783a1c5215",
     "Source/JJK_theHiddenOnes/Training/AttackDefinition.h": "8eee2eac48a7fa93be8c70b60dc5f2ccaa90d998a3cd8bf407272c52bdf9ea1a",
     "Source/JJK_theHiddenOnes/Training/AttackWindowAnimNotify.h": "53f31c6d0d02b8c71dae8c85e12cb8286f23d7f0030c46475381ddf8d8da0886",
-    "Source/JJK_theHiddenOnes/Training/CombatHitComponent.h": "fb8362bfcfa9cd571897759ba2072b5f8d33bfe0ae916f820148f714a87144a0",
-    "Source/JJK_theHiddenOnes/Training/CombatInputComponent.h": "81a0e33cccce73b33817515f93fca120987b2c985033e4b1c238779b2afffe79",
+    "Source/JJK_theHiddenOnes/Training/BlastConfig.h": "5d9afe8c5b972b39c61b626f40f667b33842df850e1a00f8508e771e38b24f57",
+    "Source/JJK_theHiddenOnes/Training/ChargedBlastAbility.h": "28a468864a495c5cc0d4108a355d6ac3f66dc8e1323c89b402e4105a61f19462",
+    "Source/JJK_theHiddenOnes/Training/CombatHitComponent.h": "13963078f784d5ba6ae10bcb0fb53c262b4a884c64625746293524365fe5ef76",
+    "Source/JJK_theHiddenOnes/Training/CombatHudWidget.h": "f35c3b5cd36b13e3b79bf01be16ff1d670eabec6fa1ede9df2abfb65fd7b296b",
+    "Source/JJK_theHiddenOnes/Training/CombatInputComponent.h": "5f7a134fe4aed9468957e7a212afb6cf0023e08cc48d078537dffaf24a944705",
     "Source/JJK_theHiddenOnes/Training/CombatStateGameplayEffect.h": "3ca613f8121ecd83d816ce231f692a6975223d03169f6b319d75cefcfe516503",
-    "Source/JJK_theHiddenOnes/Training/CombatTypes.h": "e6c49a143f5613715b5b4fa5e98d245abd305d7e768a79f34b25ee129783f728",
+    "Source/JJK_theHiddenOnes/Training/CombatTypes.h": "d5bd6379c0a6605742126a7ac39daa5f027f1115f2d76308aaf20ef574ea3518",
     "Source/JJK_theHiddenOnes/Training/DamageGameplayEffect.h": "b25fde6ada9febed8a239d41e648ed3bdbf7fa46a6db41bdac3c85e1001887a6",
-    "Source/JJK_theHiddenOnes/Training/DodgeAbility.h": "625d5ec9b6c9b1031d1c75ae014c5611f955f4b0e498d45b42203ba610a0d9fa",
-    "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.h": "3e65f7aaf8410bef97f74c02a016d505db3c609b9eb39e3ccf2c0d4bdafb661f",
+    "Source/JJK_theHiddenOnes/Training/DodgeAbility.h": "915a17fc81e6c68fc88f309c420ce870a7e631f150c6b309be1743ff048bbd77",
+    "Source/JJK_theHiddenOnes/Training/DomainExpansionAbility.h": "26796c03ff26400f8b99dff1008747d91cd05f1fbb57d8f470ff73f5a5b8fa0f",
+    "Source/JJK_theHiddenOnes/Training/DomainOrb.h": "e03dfe92e8fdc2082a8a6bcb1e3b07be9d03f2367dde60381ba372432934c5cb",
+    "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.h": "51002cf86f772c378cdc59b05d2a32c8ae16bfaedf8a4ebb60445bde5bb6d3dc",
+    "Source/JJK_theHiddenOnes/Training/FighterAIController.h": "485b1a347c2965b2328707bcbfc1bbac543e40d0bdea97891f25316471244880",
     "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.h": "4c64f213a89374e62ba88eeec6250d0f03dfc77d325d3b144f902a21471cf665",
-    "Source/JJK_theHiddenOnes/Training/FighterCharacter.h": "bc1a0e2f60e281793c39017bfbb0f8ea55e4f289e7ffca197b2d30cada9bc126",
-    "Source/JJK_theHiddenOnes/Training/FighterDefinition.h": "f498a7c7f6289f96561ab46bb964f191b0107877e9c220e48c135d1d2b6968bd",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.h": "5227f5aa734f9a0966d1074cde3dff630077a00161a9f442a9538bd712e85d75",
+    "Source/JJK_theHiddenOnes/Training/FighterDefinition.h": "03c92f23a78e5f2978920928195a93370d0f5d3638518f8627f9ca872e3744bc",
+    "Source/JJK_theHiddenOnes/Training/M5SmokeHarness.h": "c3ccf63482e2895f3166383389f0d78c48d18ad07dfe90800e2c9c7e1a5c6b67",
     "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.h": "b51cd81e1c8938637fcdfff158c1feb6b445f3b6ee5733c4c3d735351f2b0f25",
+    "Source/JJK_theHiddenOnes/Training/MobileChargedBlastAbility.h": "58e3be91c260d98828c5327bea332000d1d2661e2d22d1aa09995bb1f16b15ad",
     "Source/JJK_theHiddenOnes/Training/ModifyActionResourceGameplayEffect.h": "181a554c30b8a3628726f2e9aa72d6cb831aef71d961c14f0e65972fe0780924",
+    "Source/JJK_theHiddenOnes/Training/ModifyAttributeGameplayEffect.h": "eff5e7ee23c6b85f6224dc481d6870b5cb42c0510eccfa17babded72cdc6d05d",
     "Source/JJK_theHiddenOnes/Training/RestoreCursedEnergyGameplayEffect.h": "155e997126c782308da99004c1a4d9ee1f32b4addb2a4d43639b925bcdb3ab76",
     "Source/JJK_theHiddenOnes/Training/StanceSwitchAbility.h": "604c5adc3c35c20391c80105caf2881340938234c03698a6504a697fdf070614",
+    "Source/JJK_theHiddenOnes/Training/StationaryChargedBlastAbility.h": "cb3a526cb32282ee09d70fd6e21b4b81a0da1a90178475c4e8c850032cb67317",
     "Source/JJK_theHiddenOnes/Training/TargetingComponent.h": "26aed88c8bbc75ded8b2ef64c97100a2c6e105ca4f5981eb3d498ed464395f10",
-    "Source/JJK_theHiddenOnes/Training/TrainingGameMode.h": "2dc74b6694da1756b32c5d16e4064f4941bdcf76486c748015e2b1fc4ae61533",
+    "Source/JJK_theHiddenOnes/Training/TrainingGameMode.h": "3d737f5e1175c9af8629036c1f69722f9709ea3c08191a70b175e325872da79f",
+    "Source/JJK_theHiddenOnes/Training/TrainingPanelWidget.h": "1371aa89f52e75f7f7f68da50cf829e843750eaa89e639de0060b8ea01b8d17d",
+    "Source/JJK_theHiddenOnes/Training/TrainingProbeAbility.h": "08a6663f86af7b0c9bdb745c1b6dda072788c8a728a27ebf5b61ccbd3de386c9",
+    "Source/JJK_theHiddenOnes/Training/TrainingSettings.h": "d57b556b5707875f10715d9b4101cd8458af0cadc5f1c017bfc0fa4847514a0a",
     "Source/JJK_theHiddenOnes/Training/TrainingTypes.h": "bb8960b501ffad053b9cbd796abd31ae116d0d7882216371a2a4d7a2b9cd7f9e",
     "Source/JJK_theHiddenOnes/Variant_Combat/CombatCharacter.h": "8c5e9d20f8930ac3a334ade19d3213c230c92a6f8696b564497145f9f68387e8",
     "Source/JJK_theHiddenOnes/Variant_Combat/CombatGameMode.h": "0d22d9e00aae9544f29d81f73588870e77c7339de6f2277482ca002d12f208d6",
@@ -717,25 +732,37 @@
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.cpp": "6f0f77f28bcad3004a73eeacbbdfaa95cebe661987d39f90cb22c8c959482982",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesGameMode.cpp": "23e98df25dc1d0d28179f4c6d5fe176e15ede6f226495adc0004296badfad776",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesPlayerController.cpp": "b64de10d70454574f6370874e941714b3598ca4dc5162ad15b0a13629381840b",
-    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.cpp": "77b6f500285c905168fca0c95da3f89c36700ce717e1fd2d743764aea460c911",
+    "Source/JJK_theHiddenOnes/Training/ArenaBTNodes.cpp": "4053892aa9531f1e0aedf22608b2ff75ca258b7731f4cc967a34fe7f9c651a52",
+    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.cpp": "f495c05acbfbe41cffa92bcc26e209d11b613e5eb8a1b61da841929afca76cd6",
     "Source/JJK_theHiddenOnes/Training/AttackDefinition.cpp": "50956bb857f8fd5f2ccb5a87f53a30c8c4a483bedb4cb47c225efae239de314a",
     "Source/JJK_theHiddenOnes/Training/AttackWindowAnimNotify.cpp": "bc904edee603933554b06f5c263eb846a64587fd6263dbd33fa26bbc0a7f9f1c",
-    "Source/JJK_theHiddenOnes/Training/CombatHitComponent.cpp": "b84529a1084de4de71d5db5e8188bd1bdb14027b3cc54d3f4e0c0661e26eca13",
-    "Source/JJK_theHiddenOnes/Training/CombatInputComponent.cpp": "8f5c95ceb657eb48c22f77067f7e59196f964c21adb966542753546523b7b36d",
-    "Source/JJK_theHiddenOnes/Training/CombatNativeTags.cpp": "70fa6bfcfcc1dd50ce6718cbc66427eee0540081f77795b3da2e54413e9e292d",
+    "Source/JJK_theHiddenOnes/Training/ChargedBlastAbility.cpp": "565df78163e28dad98ece4455731d2d39ca8b8053e465e8cfed98d00285d497a",
+    "Source/JJK_theHiddenOnes/Training/CombatHitComponent.cpp": "4ac2e988fcc41b97755ab19fa4c5e24361ec99da0d270758855a1bbfcd7309a3",
+    "Source/JJK_theHiddenOnes/Training/CombatHudWidget.cpp": "6383348a9086b5a743c4ac3b18b329b8df3333a2fbcbc8f7b6f143ddb81bf857",
+    "Source/JJK_theHiddenOnes/Training/CombatInputComponent.cpp": "3a70b219d620d780a145d0d345f8adb38795cc46f707c42e92800c35c379d88f",
+    "Source/JJK_theHiddenOnes/Training/CombatNativeTags.cpp": "d14aab5dcdfda468693cfcbe468a619dbf3f859680d1c53fc46c4c68960c2fbc",
     "Source/JJK_theHiddenOnes/Training/CombatStateGameplayEffect.cpp": "322abf52b5e678afe34b814ddd2438a445051f7078e59b2f5870d52ac3376c14",
     "Source/JJK_theHiddenOnes/Training/DamageGameplayEffect.cpp": "0e5aa9a3b8b3646f0ff81f301fb25c0905ddb308ea572a6a0f246b0f7e85cc9d",
-    "Source/JJK_theHiddenOnes/Training/DodgeAbility.cpp": "14adce4e8ccff19be27206406b5a0d45b2962234b963ca97977fdef745212cd3",
-    "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.cpp": "5badea26f5f3a6c117b0225a768def173880bcd4aa5d1d5ca630fb4dc9cf2c01",
-    "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.cpp": "86cb9b64c17080d27ffff7c47e650f0ad9ffbf8dcc5c77e60d179c629804886f",
-    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "d0bdcc729a0fe93ee7462b7a1b19f0b9cf8f9739be32793e522da9e4ca79ff4e",
+    "Source/JJK_theHiddenOnes/Training/DodgeAbility.cpp": "58aea6535d21e5b0a6d9ce74e238c625ff88f2ff2184f07872566a20bd70c421",
+    "Source/JJK_theHiddenOnes/Training/DomainExpansionAbility.cpp": "e46630d62706c414c83b4a8fa813f8fcd02e00801a626fd9cc34b1950e6cc356",
+    "Source/JJK_theHiddenOnes/Training/DomainOrb.cpp": "7c93be56020f663f320c1bfaadd06c6dfc048027140a941f52f0598659dc36f7",
+    "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.cpp": "19b14d58bd5375864eb1f8d125bde8750273fc499a6dfd32086d981a9184350b",
+    "Source/JJK_theHiddenOnes/Training/FighterAIController.cpp": "2068deeed602bf505468af855b9e53fc07371d6ff415bce244fe866496f2b015",
+    "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.cpp": "d28cfa82791db303d0ecd47fb0ae195d3265715aa776e37b041abc3ab2b315dc",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "8ae09b20de47d512b8ab715c0b35b86beeea1c3b8e49558c18c51f42d1b3e98c",
     "Source/JJK_theHiddenOnes/Training/FighterDefinition.cpp": "49ff2e8200676d920005a8d2d212b3aa4104bea1622b35b5036d1edcba8d51a2",
-    "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.cpp": "41fd049f50103497c61274f905055c9d8215d5ee9584b6f0277eb7f90ad9014f",
+    "Source/JJK_theHiddenOnes/Training/M5SmokeHarness.cpp": "5d5f7f11987e3400227742322a53f81356daee4e5399699bda2e5d8fcc5b4e06",
+    "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.cpp": "753565f48a4d3e8527d9df043c78def89a16d793c6ca2cf591a2db254e4cc548",
+    "Source/JJK_theHiddenOnes/Training/MobileChargedBlastAbility.cpp": "1a4064893dce6751e8734729876976c3f1e0d57ec69e2605c95a67b63c4d3ce5",
     "Source/JJK_theHiddenOnes/Training/ModifyActionResourceGameplayEffect.cpp": "4aeedbb19b448c8049f1776819256c18040db33ea0bef56e982569ebfd44329e",
+    "Source/JJK_theHiddenOnes/Training/ModifyAttributeGameplayEffect.cpp": "eec559ca673dfe62e3c867f30d63672c4cb1bee5f8fb1bbc08949cba2feedcc4",
     "Source/JJK_theHiddenOnes/Training/RestoreCursedEnergyGameplayEffect.cpp": "b87a299190aced827339ec0aee1eb4aed5d76bd3a830b5b697c9fb7539e5375c",
     "Source/JJK_theHiddenOnes/Training/StanceSwitchAbility.cpp": "2bb0436cd2a410159fc115be8119e33916508e532d289879e9ec5f66b3a800ff",
+    "Source/JJK_theHiddenOnes/Training/StationaryChargedBlastAbility.cpp": "932783ca5d631a74edc174755bb149586593d44d63e72a0c632130b067d9c466",
     "Source/JJK_theHiddenOnes/Training/TargetingComponent.cpp": "b77031d07acaccf56ee1f134a864a81ef3f640715344628042129d8fa190e563",
-    "Source/JJK_theHiddenOnes/Training/TrainingGameMode.cpp": "abfd72351da05b237d46c8f930ca80bd5981fee062dcb1af02bc980bd52a1fe0",
+    "Source/JJK_theHiddenOnes/Training/TrainingGameMode.cpp": "4102a339ae1e3757146a386f5507969b41bbda97c29d885eb011574ba1ba0200",
+    "Source/JJK_theHiddenOnes/Training/TrainingPanelWidget.cpp": "bf5a82a3f4f5da791e08d0cc001f4d90c4425504f92254cf498e7fbd3ad398cc",
+    "Source/JJK_theHiddenOnes/Training/TrainingProbeAbility.cpp": "088023486a33e59e2ea01acc1452d296bdcfba722054cf679471b608a4458ccd",
     "Source/JJK_theHiddenOnes/Variant_Combat/CombatCharacter.cpp": "6bdd232c5ac4b1b3fb8814ba6d08565f8db7dc955f733a497841948c330713ba",
     "Source/JJK_theHiddenOnes/Variant_Combat/CombatGameMode.cpp": "868f294ce822f060b44261a1b73a71c52e6bc2b745eb2db572a1a1de8bcc4ef8",
     "Source/JJK_theHiddenOnes/Variant_Combat/CombatPlayerController.cpp": "130b5195621f53094cb8124f91d96fa443b4679565e45dbbc8ad8fbfa79719c0",
@@ -776,17 +803,18 @@
     "Source/JJK_theHiddenOnes/Variant_Combat/UI/CombatLifeBar.cpp": "66072f80a18fd2b36ff7ed9d2360129dfe3665f810209d8cda47e097d51a501e",
     "Content/Training/AM_M2_A1.uasset": "22a9b53a1a960f49f9e4c19791f78f5be4dd0cbd8b3528cc277bfa8ca2b8c5b0",
     "Content/Training/AM_M2_HitReact.uasset": "fe873b563f03691b2dd7a0c6a9af38a1c208a1bb73e483475f6d279adb3969e1",
-    "Content/Training/BP_ArenaPlayerController.uasset": "f208651297986ea2fa3a4fa83def80b58dd4b78c9561cf41e616b14b95ffc5a6",
+    "Content/Training/BP_ArenaPlayerController.uasset": "bdcbe8e54d9fa309abb32c17d201e98df0ff711b085709770605f306f670366e",
     "Content/Training/BP_Fighter.uasset": "c8cdf5f49b2d2b6822a896c41afcd38b9b89ff154cc8f488cf9456315202d50d",
     "Content/Training/BP_TrainingGameMode.uasset": "f910744af48cb75f3fec16d4d5be767e208e88f3a0d17a63b8c5be14c123091d",
-    "Content/Training/DA_Fighter_Ishigori.uasset": "8885d50c43b0050748b9db9ed9bcfe91731cec7d164e513a2bc06824910c3d0c",
+    "Content/Training/DA_Fighter_Ishigori.uasset": "f891237370841efa80e761b66ab343a6e2ffec23ed8442abde8d88c951741ecc",
     "Content/Training/DA_M2_Attack_A1.uasset": "341ca0f636487d5b729b0c0c3fd2ebb84f17443e59fbf0db3c5aa1ecb1633788",
-    "Content/Training/DA_M3_A1.uasset": "5d18059d22229d779e4447ddd56c6006ad82c35141ece173143c5c207871f9c8",
+    "Content/Training/DA_M3_A1.uasset": "b9039b76ef423aa6de26baf2ae3a841d57edc825ab7a8b90ee67f05b4fb39a95",
     "Content/Training/DA_M3_A2.uasset": "6c6fef14c55fa1128937ad5fa4d15f89fdec6db1ff77c5af1610809ac744e34d",
     "Content/Training/DA_M3_A3.uasset": "355063b12c5979f19808ffe76456f67d94338c1ed9d9acd82b9eedef2e8cd4d1",
     "Content/Training/DA_M3_HeavyKick.uasset": "d13626a6631d94a5d89ba0f1c437f212b2bff7b0d4ae9ae0d6f85388525a7064",
-    "Content/Training/DA_M3_HeavyPunch.uasset": "d4b4f5528f7e4585f7ff53b76217a968ce8b7e10cc134e528bab3cb5c55cf1b7",
-    "Content/Training/DA_M3_Kick.uasset": "f8cad4167bd8593bd5386e32b818a2876b497f7dc31e70ca478c59e3f14dc1fb",
+    "Content/Training/DA_M3_HeavyPunch.uasset": "f8383f74bd8edb153fbe2b2f6dd3b19073f89c6d24fc5084b6d2f4a698e1b1c0",
+    "Content/Training/DA_M3_Kick.uasset": "1113ad12c94fa2d24a8e89aeff9540162b89575ce6029a689d545714c8c647a9",
+    "Content/Training/IA_Aim.uasset": "217638e83a2e488afc9981a4b9a286a671a7796d05b7c2f375ee436a1530679b",
     "Content/Training/IA_Attack.uasset": "42796a5b9f070b20b9653ecc26567511f61637899e4d4a085af57a06699a175c",
     "Content/Training/IA_Dodge.uasset": "945dc3535306f6fbfba4007cf4c4184b83950903f5e1709429f86e49d9ea38ff",
     "Content/Training/IA_Guard.uasset": "c6de860d89829541a6820a685642b6d995dbdd14beed3f58a5a7293d21b9000c",
@@ -794,15 +822,19 @@
     "Content/Training/IA_LockTarget.uasset": "c3f9569adc1a4278a1edc3b47f6d895d9fe55f19d6db111a5ff78cf867de8bc0",
     "Content/Training/IA_RecenterCamera.uasset": "1e7d8a4f9f0d8ceeda4fe9eee9d83a45a6e69d103c194230c4d1fb9f3857a7f3",
     "Content/Training/IA_StanceSwitch.uasset": "c34328426d561c89bc23153de803e87345a7673c33c9361800464614cd7cac2a",
-    "Content/Training/IMC_Training.uasset": "e1608e23c0ccd981be7e2363bb532c793380f858392648e8b7c4f9d1f67b851f",
+    "Content/Training/IMC_Training.uasset": "e293e78a9518d43235e073e3411762e0755f3068e1392b68b1b709c8d3e06762",
     "Content/Training/M_FighterTint.uasset": "2ce60f32b1328348adbee5136a4f7f6f5a96f98422ced8ab9cc5facaf0109d73",
     "Content/Training/ArtReview/A_Ishigori_Idle_Review.uasset": "c485db1b6c3a981fa3f3940ce4742e82cc60550f9047f5a93db1880a1df816c2",
     "Content/Training/ArtReview/A_Ishigori_Run_Review.uasset": "ad84c678a3c47da13a9786f652cd97f3a6a4980a6404b341ae0813468d64a414",
     "Content/Training/ArtReview/A_Ishigori_Walk_Review.uasset": "64bd9fd1ecd006953a467a47ad91bb40244f69ed90e54c883196dba94803e0f1",
     "Content/Training/ArtReview/SK_Ishigori_Review.uasset": "1e5b1de442a356494100fcfc27906b066e8d39b8ab76f5b27b2a7b066fdc5e5c",
     "Content/Training/ArtReview/SK_Ishigori_Review_Skeleton.uasset": "133bf0aa418dd5b7ada0a2af7f6efce192ab14690b0682c142f1528b9b5bd446",
-    "Scripts/M3_acceptance.py": "34289f6d8908dff6fbdd9e2a1a023086d3b5d5e3265dc3384f5f980a4e69c64e",
-    "Scripts/M3_create_assets.py": "56cfc6207e840a2b638cdf019d08921af5d32a216025790104c2bf7dde8848d3"
-  },
-  "execution_note": "UE 5.8.2 Editor Development，PIE；启动参数 -NoSplash -NoSound -nullrhi。真实骨骼/物理/Enhanced Input/GAS 运行，关闭图形渲染；不表示图形性能。"
+    "Content/Training/Movement/AM_Backstep.uasset": "9a6194141d58666263419badcc5548eb1bae4974c671cc040806a7ab3087269b",
+    "Content/Training/Movement/AM_Dodge.uasset": "7306fee6ab298d9fd2b89632f93b2661c641729b41610cca90cf8517bcfebab3",
+    "Content/Training/Movement/A_Backstep.uasset": "2b7666decec0bb3571485cd86e5a715c6bde19121fc7c6a185123c6b4e20e1b9",
+    "Content/Training/Movement/A_Dodge.uasset": "f023f0daa3a1936da3ac4513b12a168541c5ac9c5d91edbfd41f652e1e795858",
+    "Scripts/M3_acceptance.py": "72c8c109e7da955cd0dc290d2a23269934cd659b873a45ee636650b641e1147f",
+    "Scripts/M3_create_assets.py": "56cfc6207e840a2b638cdf019d08921af5d32a216025790104c2bf7dde8848d3",
+    "Scripts/M3_demo.py": "6ee37a6bb5bc539a6600be445391aceb85ffa8267d312e4f049e0e3f0784180d"
+  }
 }

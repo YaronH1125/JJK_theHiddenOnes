@@ -71,7 +71,8 @@ def suite():
  inp(p1).notify_attack_released();yield from until(lambda:hp(p2)<h0,2);yield from wait(.2)
  dmg=h0-hp(p2);cost=c0-curse(p1)
  check('M6-T04_mobile_full_damage',88.<=dmg<=92.,{'damage':dmg})
- check('M6-T16_full_cost_cap',22.<=cost<=24.5,{'cost':cost})
+ # 命中回咒 +3：净消耗 = 满蓄成本 24 - 3（A02 共享口径）
+ check('M6-T16_full_cost_cap',19.<=cost<=21.5,{'cost':cost})
  # 咒力不足起手拒绝（M6-T04）
  clean()
  temp(fd,'initial_cursed_energy',5.);clean();p1=gm.get_player_fighter();p2=gm.get_opponent_fighter();yield from wait(1)
@@ -101,7 +102,8 @@ def suite():
  inp(p1).notify_kick_released();yield from until(lambda:hp(p2)<h0,2);yield from wait(.2)
  dmg=h0-hp(p2)
  check('M6-T05_full_damage',215.<=dmg<=225.,{'damage':dmg})
- check('M6-T05_full_cost',63.<=c0-curse(p1)<=66.,{'cost':c0-curse(p1)})
+ # 命中回咒 +3：净消耗 = 65 - 3
+ check('M6-T05_full_cost',60.<=c0-curse(p1)<=63.,{'cost':c0-curse(p1)})
  yield from until(lambda:tag(p1,'State.SuperBlastCooldown'),1.5)
  check('M6-T19_cooldown_after_fire',tag(p1,'State.SuperBlastCooldown'))
  h1=hp(p2)
@@ -133,8 +135,8 @@ def suite():
  check('M6-T20_orb_cost_charged',33.<=curse(p1)<=40.,{'curse':curse(p1)})
  yield from until(lambda:hp(p2)<999.9,3)
  check('M6-T08_orb_tracks_moved_target',hp(p2)<999.9,{'hp':hp(p2)})
- # 领域能量按命中获得（M6-T11：不自充，命中 +10 封顶）
- check('M6-T11_energy_gain_from_hit',4.<=energy(p1)<=10.,{'energy':energy(p1)})
+ # 领域期不自充（A04 修正口径：领域内命中能量增量必须为 0）
+ check('M6-T11_no_energy_gain_in_domain',abs(energy(p1))<.01,{'energy':energy(p1)})
  # 咒力不足跳过第二次出球（M6-T20：不补齐、无残留球）
  yield from wait(2.0)
  check('M6-T20_insufficient_skip',len(orbs())==0 and 33.<=curse(p1)<=40.1,{'orbs':len(orbs()),'curse':curse(p1)})
@@ -149,11 +151,13 @@ def suite():
  yield from wait(.5)
  check('M6-T09_expiry_clears_orbs',len(orbs())==0,{'orbs':len(orbs())})
  # 领域结束后手动炮恢复（需新按下；M6-T23）
- c0=curse(p1);h0=hp(p2)
+ c0=curse(p1);h0=hp(p2);lock(p1)
  inp(p1).notify_attack_pressed();yield from wait(.3)
  check('M6-T23_manual_blast_restored',tag(p1,'State.RangedBlastCharging'))
  inp(p1).notify_attack_released();yield from wait(.6)
  check('M6-T23_manual_blast_fires_after',curse(p1)<c0)
+ # 领域结束后普通命中恢复 5% 转能量（A04：不自充但正常积累）
+ check('M6-T11_energy_gain_resumes',energy(p1)>0.5,{'energy':energy(p1)})
  # ---------- 场景 E：双领域压制（M6-T10/T09） ----------
  clean();yield from wait(1)
  p1=gm.get_player_fighter();p2=gm.get_opponent_fighter()
@@ -186,6 +190,11 @@ def suite():
 
 gen=suite();started=time.monotonic()
 def finish():
+ try:
+  _finish_body()
+ except Exception:
+  state['status']='failed';state['error']=traceback.format_exc();write()
+def _finish_body():
  unreal.unregister_slate_post_tick_callback(handle)
  for o,k,v in reversed(original):o.set_editor_property(k,v)
  clean()

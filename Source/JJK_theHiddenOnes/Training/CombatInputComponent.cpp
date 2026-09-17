@@ -85,7 +85,7 @@ void UCombatInputComponent::NotifyAttackPressed()
 
 void UCombatInputComponent::NotifyAttackReleased()
 {
-	// 远程路径：松开 = 发射（无会话模型）
+	// 远程路径：松开 = 发射（按当前形态+蓄力状态路由，不依赖按下标记）
 	if (bRangedLmbSession)
 	{
 		bRangedLmbSession = false;
@@ -153,12 +153,12 @@ void UCombatInputComponent::NotifyKickPressed()
 
 void UCombatInputComponent::NotifyKickReleased()
 {
-	// 远程路径：松开 = 发射
-	if (bRangedQSession)
+	// 远程路径：松开 = 发射（按当前形态+蓄力状态路由；形态切换等清标记不丢松开）
 	{
-		bRangedQSession = false;
-		if (AFighterCharacter* Fighter = GetOwnerFighter())
+		AFighterCharacter* Fighter = GetOwnerFighter();
+		if (Fighter && Fighter->GetStance() == EFighterStance::Ranged && !bKickSessionActive)
 		{
+			bRangedQSession = false;
 			if (Fighter->IsBlastCharging())
 			{
 				Fighter->NotifyBlastRelease();
@@ -167,8 +167,8 @@ void UCombatInputComponent::NotifyKickReleased()
 			{
 				UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 远程 Q 松开：无在蓄炮（激活已被拒）"), *GetNameSafe(GetOwner()));
 			}
+			return;
 		}
-		return;
 	}
 
 	if (!bKickSessionActive)
@@ -245,6 +245,9 @@ void UCombatInputComponent::InvalidateSession(const FText& Reason)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s Q 会话失效：%s"), *GetNameSafe(GetOwner()), *Reason.ToString());
 	}
+	UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 会话失效（%s）：LMB=%d Q会话=%d 远程标记=%d/%d"),
+		*GetNameSafe(GetOwner()), *Reason.ToString(), bSessionActive ? 1 : 0, bKickSessionActive ? 1 : 0,
+		bRangedLmbSession ? 1 : 0, bRangedQSession ? 1 : 0);
 	bSessionActive = false;
 	ActiveSessionId = 0;
 	bKickSessionActive = false;
@@ -269,6 +272,8 @@ void UCombatInputComponent::ReleaseContinuousInputs()
 		if (auto* F = GetOwnerFighter()) F->RefreshMovementControl();
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 持续防御意图被释放（菜单/失焦/重置）"), *GetNameSafe(GetOwner()));
 	}
+	// 瞄准意图一并清除（菜单/失焦/请求关闭）；恢复需新按下
+	if (auto* F = GetOwnerFighter()) F->SetAimIntent(false);
 }
 
 ECachedAction UCombatInputComponent::PeekCachedAction() const

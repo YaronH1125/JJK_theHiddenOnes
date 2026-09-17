@@ -37,6 +37,9 @@ public:
 	/** 外部松开信号（输入组件按形态路由） */
 	void NotifyExternalRelease();
 
+	/** 外部中止（切形态等）：已扣不退，超级炮按中断进冷却（08 A03） */
+	void CancelFromOutside();
+
 	/** 阶段与强度查询（调试显示与验收） */
 	EBlastPhase GetPhase() const { return Phase; }
 	float GetPaidQ() const { return PaidQ; }
@@ -63,6 +66,17 @@ protected:
 	virtual float GetRecoveryTime() const { return 0.f; }
 	virtual bool HasMinChargeGate() const { return false; }
 	virtual float GetMinChargeTime() const { return 0.f; }
+	/** 蓄力进度：超级炮按 clamp((t-门槛)/(cap-门槛))（08 A03），普通炮按 t/cap */
+	virtual float ComputeChargeQ(float ElapsedSeconds) const;
+	/** A02：与近战共享攻防口径的结算参数 */
+	virtual float GetGuardStunDuration() const { return 0.6f; }
+	virtual float GetHitStunDuration() const { return 0.4f; }
+	virtual float GetInterruptLevel() const { return 1.f; }
+	virtual float GetKnockbackStrength() const { return 500.f; }
+	/** 解析当前瞄准点（锁定目标 > 相机 > 朝向）；松开时捕获固定 */
+	FVector ResolveAimPoint() const;
+	/** 按当前蓄力时长结算一次成本/强度（帧指针挂时由松开补齐最后一段） */
+	void UpdateChargeProgress();
 	virtual float GetCooldown() const { return 0.f; }
 	virtual float GetMoveSpeedScale() const { return 0.f; }
 	virtual bool LocksMovementWhileCharging() const { return false; }
@@ -101,6 +115,11 @@ protected:
 	float PaidQ = 0.f;
 	bool bReleaseSignaled = false;
 	bool bCooldownTagApplied = false;
+	/** A02 方向解耦：松开时捕获瞄准点，前摇期不继续瞬时追随目标 */
+	FVector LockedAimPoint = FVector::ZeroVector;
+	bool bAimPointCaptured = false;
+	/** 领域能量实例键：每发递增（08：每攻击实例封顶） */
+	uint64 ShotCounter = 0;
 	/** 超级炮成功发射后同样进入完整冷却（08：发射或中断后完整冷却） */
 	bool bSuperBlastFired = false;
 	float StoredBaseMoveSpeed = 500.f;

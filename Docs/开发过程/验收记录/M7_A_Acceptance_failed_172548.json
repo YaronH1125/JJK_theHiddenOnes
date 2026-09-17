@@ -1,0 +1,118 @@
+{
+  "status": "failed",
+  "engine": "5.8.2-56702186+++UE5+Release-5.8",
+  "checks": [
+    {
+      "name": "A01_melee_no_effect",
+      "passed": true,
+      "details": {
+        "arm": 450.0
+      }
+    },
+    {
+      "name": "A01_ranged_effective",
+      "passed": true,
+      "details": {
+        "arm": 250.0,
+        "off": 45.0
+      }
+    },
+    {
+      "name": "A01_right_shoulder_offset",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "A01_cleared_by_stance_switch",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "A01_release_restores",
+      "passed": true,
+      "details": {
+        "arm": 450.0
+      }
+    },
+    {
+      "name": "A03_below_min_exact45",
+      "passed": true,
+      "details": {
+        "held": 0.6666670143604279,
+        "cost": 45.0
+      }
+    },
+    {
+      "name": "A03_below_min_no_damage",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "A03_just_past_gate_damage",
+      "passed": true,
+      "details": {
+        "held": 1.666668027639389,
+        "damage": 177.2222900390625,
+        "expect": 177.2223016122977
+      }
+    },
+    {
+      "name": "A03_just_past_gate_cost",
+      "passed": true,
+      "details": {
+        "held": 1.666668027639389,
+        "cost": 49.777801513671875,
+        "expect": 49.777800460656486
+      }
+    },
+    {
+      "name": "A03_exhausted_partial_strength",
+      "passed": true,
+      "details": {
+        "damage": 167.5,
+        "curse": 5.000001907348633
+      }
+    },
+    {
+      "name": "A03_exhausted_no_negative",
+      "passed": true,
+      "details": {
+        "curse": 5.000001907348633
+      }
+    },
+    {
+      "name": "A03_infinite_energy_domain",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "A02_front_guard_blocked",
+      "passed": true,
+      "details": {
+        "drop": 0.0
+      }
+    },
+    {
+      "name": "A02_front_guard_stun",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "A02_blast_full_after_guard_drop",
+      "passed": true,
+      "details": {
+        "drop": 90.0
+      }
+    },
+    {
+      "name": "A02_blast_dodge_immune",
+      "passed": false,
+      "details": {
+        "immortal_seen": false,
+        "drop": 0.0
+      }
+    }
+  ],
+  "started_at": 1789637115.4777684,
+  "error": "Traceback (most recent call last):\n  File \"F:/GameStudy/JJK_theHiddenOnes/Scripts/M7_A_acceptance.py\", line 207, in tick\n    next(gen)\n  File \"F:/GameStudy/JJK_theHiddenOnes/Scripts/M7_A_acceptance.py\", line 135, in suite\n    pc.get_training_game_mode().jjk_spawn_blocker(0.,0.,0.5,20.,4.)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'TrainingGameMode' object has no attribute 'jjk_spawn_blocker'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"F:/GameStudy/JJK_theHiddenOnes/Scripts/M7_A_acceptance.py\", line 196, in finish\n    _finish_body()\n  File \"F:/GameStudy/JJK_theHiddenOnes/Scripts/M7_A_acceptance.py\", line 202, in _finish_body\n    clean();gm.jjk_clear_blockers()\n            ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'TrainingGameMode' object has no attribute 'jjk_clear_blockers'\n"
+}

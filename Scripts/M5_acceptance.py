@@ -35,7 +35,8 @@ def temp(o,k,v):
  if not any(a==o and b==k for a,b,c in original):original.append((o,k,o.get_editor_property(k)))
  o.set_editor_property(k,v)
 def params(ai,**kw):
- p=ai.get_params()
+ # M5 回归口径为近战 AI；A08 起默认配置启用远程，这里显式钉住 False 保持原语义（B06 记录）
+ p=ai.get_params();p.set_editor_property('enable_ranged_combat',False)
  for k,v in kw.items():p.set_editor_property(k,v)
  ai.set_params(p)
 def clean():

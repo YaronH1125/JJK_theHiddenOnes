@@ -50,6 +50,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
 	TObjectPtr<UInputAction> StanceSwitchAction;
 
+	/** 右键按住瞄准（远程形态生效；镜头状态，不占用攻击槽） */
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
+	TObjectPtr<UInputAction> AimAction;
+
  UPROPERTY(EditDefaultsOnly, Category="Training|UI") TSubclassOf<UTrainingPanelWidget> TrainingPanelClass;
  UPROPERTY(BlueprintReadOnly, Category="Training|UI") TObjectPtr<UTrainingPanelWidget> TrainingPanel;
  UPROPERTY(BlueprintReadOnly, Category="Training|UI") TObjectPtr<UCombatHudWidget> CombatHud;
@@ -102,6 +106,8 @@ private:
 	void HandleKickReleased();
 	void HandleStanceSwitchPressed();
 	void HandleDomainPressed();
+	void HandleAimPressed();
+	void HandleAimReleased();
 
 	/** 应用失焦：清攻击会话，恢复后要求重新按下（08 第 4.2 节） */
 	UFUNCTION(BlueprintCallable, Category = "Training|Input")

@@ -117,6 +117,20 @@ struct FCombatHitDedupKey
 	}
 };
 
+/** 远程命中共享结算参数（A02：手动炮/领域球与近战同口径） */
+struct FRangedHitSettle
+{
+	float Damage = 0.f;
+	bool bDodgeable = true;   /* 可被闪避无敌窗免疫 */
+	bool bBlockable = true;   /* 可被正面防御（chip 伤 + 防御硬直） */
+	bool bGrantCurse = true;  /* 命中回咒（领域球不回咒） */
+	uint64 AttackInstanceId = 0; /* 领域能量按攻击实例去重（08 §178/182） */
+	float GuardStunDuration = 0.6f;
+	float HitStunDuration = 0.4f;
+	float InterruptLevel = 1.f;
+	float KnockbackStrength = 500.f;
+};
+
 /** 本模块原生 GameplayTag（定义见 CombatNativeTags.cpp） */
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_GettingUp);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_ThrowPaired);
