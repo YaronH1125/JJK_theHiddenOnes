@@ -273,19 +273,31 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Blast")
 	FName MuzzleSocket = TEXT("Muzzle_Head_Review");
 
-	/** 右键瞄准镜头臂长 */
+	/** 右键瞄准镜头臂长（枪战 TPS：收到右肩上方，避免模型挡准星） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "50.0", ForceUnits = "cm"))
-	float AimArmLength = 250.f;
+	float AimArmLength = 150.f;
 
 	/** 普通镜头臂长（松开右键恢复） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "50.0", ForceUnits = "cm"))
-	float NormalArmLength = 450.f;
+	float NormalArmLength = 400.f;
 
 	/** 瞄准插值速度（FInterpTo 参数，参考旧工程 10） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "1.0"))
-	float AimInterpSpeed = 10.f;
+	float AimInterpSpeed = 12.f;
 
-	/** 瞄准右肩偏移（Boom SocketOffset.Y；松开/近战归零） */
+	/** 瞄准右肩偏移（Boom SocketOffset.Y：相机从右肩上方越过头顶看） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
-	float AimSocketOffsetY = 45.f;
+	float AimSocketOffsetY = 60.f;
+
+	/** 瞄准上抬偏移（Boom SocketOffset.Z：相机略高于头） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ForceUnits = "cm"))
+	float AimSocketOffsetZ = 25.f;
+
+	/** 瞄准 FOV（收窄视场：PUBG ADS 归一化 ≈70 vFOV） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "30.0", ClampMax = "120.0"))
+	float AimFOV = 65.f;
+
+	/** 普通 FOV */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "30.0", ClampMax = "120.0"))
+	float NormalFOV = 90.f;
 };

@@ -1461,12 +1461,15 @@ void AFighterCharacter::RestoreAimCamera()
 	bAimIntent = false;
 	bAiming = false;
 	bUseControllerRotationYaw = false;
-	if (Definition && GetCameraBoom())
+	if (Definition)
 	{
-		GetCameraBoom()->TargetArmLength = Definition->NormalArmLength;
-		FVector Offset = GetCameraBoom()->SocketOffset;
-		Offset.Y = 0.f;
-		GetCameraBoom()->SocketOffset = Offset;
+		if (GetCameraBoom())
+		{
+			GetCameraBoom()->TargetArmLength = Definition->NormalArmLength;
+			GetCameraBoom()->SocketOffset = FVector::ZeroVector;
+		}
+		if (auto* Cam = GetFollowCamera())
+			Cam->SetFieldOfView(Definition->NormalFOV);
 	}
 }
 
@@ -1517,7 +1520,14 @@ void AFighterCharacter::TickAimCamera(float DeltaSeconds)
 		bAiming ? Definition->AimArmLength : Definition->NormalArmLength, DeltaSeconds, Speed);
 	FVector Offset = Boom->SocketOffset;
 	Offset.Y = FMath::FInterpTo(Offset.Y, bAiming ? Definition->AimSocketOffsetY : 0.f, DeltaSeconds, Speed);
+	Offset.Z = FMath::FInterpTo(Offset.Z, bAiming ? Definition->AimSocketOffsetZ : 0.f, DeltaSeconds, Speed);
 	Boom->SocketOffset = Offset;
+	// 瞄准收窄 FOV（PUBG/COD ADS 观感）
+	if (auto* Cam = GetFollowCamera())
+	{
+		Cam->SetFieldOfView(FMath::FInterpTo(Cam->FieldOfView,
+			bAiming ? Definition->AimFOV : Definition->NormalFOV, DeltaSeconds, Speed));
+	}
 	bUseControllerRotationYaw = bAiming;
 }
 
