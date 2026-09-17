@@ -20,7 +20,11 @@ enum class EAIBranch : uint8
 	Retreat,
 	Attack,
 	Defend,
-	Dodge
+	Dodge,
+	/** 远程形态：移动蓄力炮（M6） */
+	RangedAttack,
+	/** 领域展开（M6：能量满且目标在捕获范围） */
+	Domain
 };
 
 /** 行为参数（反应延迟/决策间隔/距离阈值/保持时间/动作偏好） */
@@ -40,6 +44,11 @@ struct FArenaAIParams
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float HeavyChance = 0.25f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float DefendChance = 0.35f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float DodgeChance = 0.25f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float RangedBlastChance = 0.7f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float DomainChance = 0.5f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0.0", ClampMax = "1.0")) float StanceSwitchChance = 0.4f;
+	/** M6 总开关：启用后 AI 才有远程炮/领域/切形态决策（默认关闭，保持 M5 近战行为不变） */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI") bool bEnableRangedCombat = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI") float DefendHoldTime = 0.8f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI") int32 RandomSeed = 1337;
 };

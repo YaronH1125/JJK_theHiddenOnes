@@ -49,4 +49,7 @@ private:
  double Deadline = 0.;
  uint64 CacheId = 0;
  bool bEnded = false, bCancelled = false, bGuardOwned = false;
+ /** M6 蓄力炮：激活后定时松开发射 */
+ bool bBlastArmed = false;
+ double BlastReleaseAt = 0.;
 };

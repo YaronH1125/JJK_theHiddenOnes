@@ -104,10 +104,13 @@ void ADomainOrb::CheckContact()
 		FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(Radius), QP))
 	{
 		auto* HitFighter = Cast<AFighterCharacter>(SweepHit.GetActor());
-		if (HitFighter && HitFighter != GetInstigator() && !HitFighter->IsDead())
+		auto* Caster = GetInstigator() ? Cast<AFighterCharacter>(GetInstigator()) : nullptr;
+		// 倒地/死亡保护仍生效（08：实际接触前不扣血，接触后按保护分支跳过）
+		const bool bProtected = !HitFighter || HitFighter->IsDead() || HitFighter->HasCombatTag(TAG_State_KnockedDown);
+		if (HitFighter && HitFighter != Caster && !bProtected && !bHasHit)
 		{
 			bHasHit = true;
-			auto* ASC = GetInstigator() ? Cast<APawn>(GetInstigator())->FindComponentByClass<UFighterAbilitySystemComponent>() : nullptr;
+			auto* ASC = Caster ? Caster->GetFighterAbilitySystemComponent() : nullptr;
 			if (ASC && HitFighter->GetFighterAbilitySystemComponent())
 			{
 				auto Spec = ASC->MakeOutgoingSpec(UDamageGameplayEffect::StaticClass(), 1.f, ASC->MakeEffectContext());
@@ -116,6 +119,8 @@ void ADomainOrb::CheckContact()
 					Spec.Data->SetSetByCallerMagnitude(TAG_Data_Damage, -Damage);
 					ASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, HitFighter->GetFighterAbilitySystemComponent());
 				}
+				// 命中获得领域能量（按比例、按实例封顶）
+				Caster->GainDomainEnergy(Damage, GetUniqueID());
 			}
 			UE_LOG(LogTemp, Log, TEXT("[Orb] 命中 %s（伤害 %.0f）"), *GetNameSafe(HitFighter), Damage);
 			DestroySelf();

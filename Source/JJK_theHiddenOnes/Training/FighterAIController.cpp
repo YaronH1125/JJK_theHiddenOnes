@@ -3,6 +3,7 @@
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
 #include "Training/FighterAbilitySystemComponent.h"
+#include "Training/FighterAttributeSet.h"
 #include "Training/CombatInputComponent.h"
 #include "Training/TrainingGameMode.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -47,7 +48,7 @@ void AFighterAIController::BuildTree()
  FBTCompositeChild DecideChild; DecideChild.ChildTask=NewObject<UBTTask_ArenaDecide>(Root); Root->Children.Add(DecideChild);
  auto* Selector=NewObject<UBTComposite_Selector>(Root,TEXT("CombatBranches"));
  FBTCompositeChild SelectChild; SelectChild.ChildComposite=Selector; Root->Children.Add(SelectChild);
- for (EAIBranch Branch : {EAIBranch::Approach,EAIBranch::Strafe,EAIBranch::Retreat,EAIBranch::Attack,EAIBranch::Defend,EAIBranch::Dodge,EAIBranch::Wait})
+ for (EAIBranch Branch : {EAIBranch::Approach,EAIBranch::Strafe,EAIBranch::Retreat,EAIBranch::Attack,EAIBranch::Defend,EAIBranch::Dodge,EAIBranch::RangedAttack,EAIBranch::Domain,EAIBranch::Wait})
  {
   FBTCompositeChild Child;
   auto* Task=NewObject<UBTTask_ArenaAction>(Selector); Task->Branch=Branch; Child.ChildTask=Task;
@@ -134,17 +135,45 @@ void AFighterAIController::Observe()
 void AFighterAIController::Decide()
 {
  Observe(); const EAIBranch Previous=GetCurrentBranch(); EAIBranch Next=EAIBranch::Wait;
- if (CanRun() && Blackboard->GetValueAsBool(TEXT("CanAct")))
+ auto* Self=GetSelf();
+ if (CanRun() && Blackboard->GetValueAsBool(TEXT("CanAct")) && Self)
  {
   const float D=Blackboard->GetValueAsFloat(TEXT("Distance"));
   const bool Threat=ObservedAttackAt>=0. && Now()-ObservedAttackAt>=Params.ReactionDelay && D<=Params.AttackRangeExit+80.f;
   const float Roll=RandomFraction();
   const bool CanPayDodge=GetSelf()->GetFighterAbilitySystemComponent()->HasInfiniteResources() || Blackboard->GetValueAsFloat(TEXT("ActionResource"))>=GetSelf()->GetDefinition()->DodgeConfig.DodgeCost;
+  // M6：远程/领域决策输入（总开关默认关：保持 M5 近战行为）
+  const bool bRanged = Params.bEnableRangedCombat && Self->GetStance()==EFighterStance::Ranged;
+  const UFighterDefinition* Def=Self->GetDefinition();
+  const float BlastRange = Def ? Def->MobileBlast.Range : 1800.f;
+  const float CaptureRange = Def ? Def->DomainConfig.CaptureRange : 1200.f;
+  const auto* ASC=Self->GetFighterAbilitySystemComponent();
+  const bool bDomainReady = Params.bEnableRangedCombat && ASC && !Self->IsDomainActive()
+   && ASC->GetNumericAttribute(UFighterAttributeSet::GetEnergyAttribute())
+      >= ASC->GetNumericAttribute(UFighterAttributeSet::GetMaxEnergyAttribute()) - 1.f;
   if (Threat && Roll<Params.DodgeChance && CanPayDodge) Next=EAIBranch::Dodge;
   else if (Threat && Roll<Params.DodgeChance+Params.DefendChance) Next=EAIBranch::Defend;
+  else if (bDomainReady && D<=CaptureRange && Roll<Params.DomainChance) Next=EAIBranch::Domain;
+  else if (bRanged)
+  {
+   if (D>Params.RetreatDistance && D<=BlastRange) Next=Roll<Params.RangedBlastChance ? EAIBranch::RangedAttack : EAIBranch::Strafe;
+   else if (D>Params.RetreatDistance) Next=EAIBranch::Approach;
+   else
+   {
+    // 贴脸远程：切回近战并后撤拉开
+    if (Params.bEnableRangedCombat && Self->RequestStanceSwitch()) LogDecision(TEXT("Ranged close: switch to melee"));
+    Next=EAIBranch::Retreat;
+   }
+  }
   else if (D<Params.RetreatDistance) Next=EAIBranch::Retreat;
   else if (D<=(Previous==EAIBranch::Attack ? Params.AttackRangeExit : Params.AttackRange)) Next=Roll<Params.AttackChance ? EAIBranch::Attack : EAIBranch::Strafe;
-  else if (D>Params.AttackRangeExit+80.f) Next=EAIBranch::Approach;
+  else if (D>Params.AttackRangeExit+80.f)
+  {
+   Next=EAIBranch::Approach;
+   // 中远距离：概率切入远程形态（下轮决策生效；仅远程开关开启时）
+   if (Params.bEnableRangedCombat && D>600.f && RandomFraction()<Params.StanceSwitchChance && Self->RequestStanceSwitch())
+    LogDecision(TEXT("Long range: switch to ranged"));
+  }
   else Next=EAIBranch::Strafe;
   const bool WasMoving=Previous==EAIBranch::Approach || Previous==EAIBranch::Strafe || Previous==EAIBranch::Retreat;
   if (!Threat && WasMoving && Next!=Previous && Now()-LastBranchSwitch<Params.MinBranchHoldTime) Next=Previous;

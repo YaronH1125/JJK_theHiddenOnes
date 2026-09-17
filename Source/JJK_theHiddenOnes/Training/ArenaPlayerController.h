@@ -87,7 +87,7 @@ protected:
 private:
  bool bCombatInputEnabled = true;
  bool bAttackPressed = false, bAttackReleased = false, bKickPressed = false, bKickReleased = false;
- bool bDodgePressed = false, bStancePressed = false;
+ bool bDodgePressed = false, bStancePressed = false, bDomainPressed = false;
  bool bDodgeHeld = false;
  void ClearFrameInput();
 	void HandleLockInput();
@@ -101,6 +101,7 @@ private:
 	void HandleKickPressed();
 	void HandleKickReleased();
 	void HandleStanceSwitchPressed();
+	void HandleDomainPressed();
 
 	/** 应用失焦：清攻击会话，恢复后要求重新按下（08 第 4.2 节） */
 	UFUNCTION(BlueprintCallable, Category = "Training|Input")

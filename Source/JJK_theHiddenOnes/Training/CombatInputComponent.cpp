@@ -57,6 +57,19 @@ namespace
 void UCombatInputComponent::NotifyAttackPressed()
 {
 	if (!bRequestsEnabled) return;
+
+	// 远程形态：按下即激活蓄力炮（开始蓄力），松开发射
+	if (AFighterCharacter* Fighter = GetOwnerFighter())
+	{
+		if (Fighter->GetStance() == EFighterStance::Ranged)
+		{
+			if (bRangedLmbSession) return;
+			bRangedLmbSession = true;
+			Fighter->RequestBlast(ECachedAction::MobileBlast);
+			return;
+		}
+	}
+
 	if (bSessionActive)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 忽略重复左键按下（会话 %d 活跃）"),
@@ -72,6 +85,24 @@ void UCombatInputComponent::NotifyAttackPressed()
 
 void UCombatInputComponent::NotifyAttackReleased()
 {
+	// 远程路径：松开 = 发射（无会话模型）
+	if (bRangedLmbSession)
+	{
+		bRangedLmbSession = false;
+		if (AFighterCharacter* Fighter = GetOwnerFighter())
+		{
+			if (Fighter->IsBlastCharging())
+			{
+				Fighter->NotifyBlastRelease();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 远程松开：无在蓄炮（激活已被拒）"), *GetNameSafe(GetOwner()));
+			}
+		}
+		return;
+	}
+
 	if (!bSessionActive)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 左键松开被拒：无活跃会话（旧松键不补攻击）"), *GetNameSafe(GetOwner()));
@@ -98,6 +129,19 @@ void UCombatInputComponent::NotifyAttackReleased()
 void UCombatInputComponent::NotifyKickPressed()
 {
 	if (!bRequestsEnabled) return;
+
+	// 远程形态：Q 按下即激活原地超蓄力炮
+	if (AFighterCharacter* Fighter = GetOwnerFighter())
+	{
+		if (Fighter->GetStance() == EFighterStance::Ranged)
+		{
+			if (bRangedQSession) return;
+			bRangedQSession = true;
+			Fighter->RequestBlast(ECachedAction::SuperBlast);
+			return;
+		}
+	}
+
 	if (bKickSessionActive)
 	{
 		return;
@@ -109,6 +153,24 @@ void UCombatInputComponent::NotifyKickPressed()
 
 void UCombatInputComponent::NotifyKickReleased()
 {
+	// 远程路径：松开 = 发射
+	if (bRangedQSession)
+	{
+		bRangedQSession = false;
+		if (AFighterCharacter* Fighter = GetOwnerFighter())
+		{
+			if (Fighter->IsBlastCharging())
+			{
+				Fighter->NotifyBlastRelease();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 远程 Q 松开：无在蓄炮（激活已被拒）"), *GetNameSafe(GetOwner()));
+			}
+		}
+		return;
+	}
+
 	if (!bKickSessionActive)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s Q 松开被拒：无会话"), *GetNameSafe(GetOwner()));
@@ -186,7 +248,17 @@ void UCombatInputComponent::InvalidateSession(const FText& Reason)
 	bSessionActive = false;
 	ActiveSessionId = 0;
 	bKickSessionActive = false;
+	bRangedLmbSession = false;
+	bRangedQSession = false;
 	ConsumeCache();
+}
+
+void UCombatInputComponent::NotifyDomainPressed()
+{
+	if (!bRequestsEnabled) return;
+	AFighterCharacter* Fighter = GetOwnerFighter();
+	if (Fighter == nullptr) return;
+	Fighter->RequestDomain();
 }
 
 void UCombatInputComponent::ReleaseContinuousInputs()

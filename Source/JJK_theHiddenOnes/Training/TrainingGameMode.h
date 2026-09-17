@@ -12,6 +12,8 @@
 
 class AFighterCharacter;
 class AController;
+class AFighterAIController;
+class ADomainOrb;
 class UFighterDefinition;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTrainingChanged);
 
@@ -126,6 +128,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Training")
 	void ResetTraining();
 
+	/** 领域展开：结印完成后由 DomainExpansionAbility 调用 */
+	bool TryOpenDomain(AFighterCharacter* Caster);
+	/** 清所有领域会话（训练重置用） */
+	void ShutdownAllDomains();
+
 	/** 调试：对手经共享请求入口提交一段轻拳（合法性与玩家一致） */
 	UFUNCTION(Exec, Category = "Training|Debug")
 	void JJKOpponentAttack();
@@ -164,6 +171,24 @@ protected:
  UFUNCTION() void OnPlayerRecovered();
  UFUNCTION() void OnOpponentRecovered();
  UFUNCTION() void OnFighterDestroyed(AActor* Actor);
+
+	// ---------- M6 领域会话 ----------
+	struct FDomainSessionData
+	{
+		int32 SessionId = 0;
+		TWeakObjectPtr<AFighterCharacter> Caster;
+		TWeakObjectPtr<AFighterCharacter> Victim;
+		double EndTime = 0.0;
+		double NextSpawnTime = 0.0;
+		bool bSuppressed = false;
+		/** 在飞咒球（弱引用：球自然销毁/被打掉后自动剔除） */
+		TArray<TWeakObjectPtr<class ADomainOrb>> Orbs;
+	};
+	TArray<FDomainSessionData> DomainSessions;
+	int32 NextDomainSessionId = 0;
+	void TickDomainSessions();
+	void EndDomainSession(int32 SessionId);
+	void SpawnDomainOrb(FDomainSessionData& Session);
 
 
 	AFighterCharacter* SpawnFighter(EFighterRole InRole, const FTransform& GroundTransform);

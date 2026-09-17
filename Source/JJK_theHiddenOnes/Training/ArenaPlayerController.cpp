@@ -70,6 +70,7 @@ void AArenaPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	InputComponent->BindKey(EKeys::F1,IE_Pressed,this,&AArenaPlayerController::ToggleTrainingPanel);
+	InputComponent->BindKey(EKeys::R,IE_Pressed,this,&AArenaPlayerController::HandleDomainPressed);
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
@@ -197,6 +198,11 @@ void AArenaPlayerController::HandleKickReleased()
 void AArenaPlayerController::HandleStanceSwitchPressed()
 {
  if (bCombatInputEnabled) bStancePressed = true;
+}
+
+void AArenaPlayerController::HandleDomainPressed()
+{
+ if (bCombatInputEnabled) bDomainPressed = true;
 }
 
 void AArenaPlayerController::ToggleLock()
@@ -343,7 +349,7 @@ void AArenaPlayerController::JJKRespawnFighters()
 
 void AArenaPlayerController::ClearFrameInput()
 {
- bAttackPressed = bAttackReleased = bKickPressed = bKickReleased = bDodgePressed = bStancePressed = false;
+ bAttackPressed = bAttackReleased = bKickPressed = bKickReleased = bDodgePressed = bStancePressed = bDomainPressed = false;
 }
 void AArenaPlayerController::SetCombatInputEnabled(bool bEnabled)
 {
@@ -371,6 +377,7 @@ void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
   if (bAttackReleased) Input->NotifyAttackReleased();
   if (bKickReleased) Input->NotifyKickReleased();
   if (bStancePressed) Input->NotifyStanceSwitchPressed();
+  if (bDomainPressed) Input->NotifyDomainPressed();
  }
  ClearFrameInput();
 }

@@ -2,6 +2,7 @@
 
 #include "Training/MobileChargedBlastAbility.h"
 
+#include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
 
@@ -53,6 +54,15 @@ float UMobileChargedBlastAbility::GetMoveSpeedScale() const
 {
 	auto* F = GetFighter();
 	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MoveSpeedScale : 0.55f;
+}
+
+void UMobileChargedBlastAbility::ApplyChargeStateTags(class UFighterAbilitySystemComponent* ASC)
+{
+	if (ASC)
+	{
+		ASC->AddLooseGameplayTag(TAG_State_BlastCharging);
+		ASC->AddLooseGameplayTag(TAG_State_RangedBlastCharging);
+	}
 }
 
 void UMobileChargedBlastAbility::FireBlast(float q, float Damage)

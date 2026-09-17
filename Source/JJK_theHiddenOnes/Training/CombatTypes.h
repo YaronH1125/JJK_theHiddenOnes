@@ -87,7 +87,13 @@ enum class ECachedAction : uint8
 	/** 腿击（Q 点按） */
 	Kick,
 	/** 重踢（Q 长按；造成倒地） */
-	HeavyKick
+	HeavyKick,
+	/** 移动蓄力炮（远形态 LMB：按下开始蓄力，松开发射） */
+	MobileBlast,
+	/** 原地超蓄力炮（远形态 Q：按下开始蓄力，松开发射） */
+	SuperBlast,
+	/** 领域展开（R：瞬发结印） */
+	Domain
 };
 
 /** 命中去重键：攻击实例 + 命中段 + 目标，保持到该段结束 */
@@ -134,6 +140,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Stance_Ranged);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_MeleeAttack);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_Blast);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_Dodge);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_Domain);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_StanceSwitch);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Data_Damage);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Data_Amount);

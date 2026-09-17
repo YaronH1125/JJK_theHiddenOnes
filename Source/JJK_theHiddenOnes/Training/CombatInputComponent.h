@@ -60,6 +60,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void NotifyStanceSwitchPressed();
 
+	/** R 按下：领域展开（瞬发结印；近远程形态均可） */
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void NotifyDomainPressed();
+
 	/** 会话失效：死亡/中断/失焦/重置调用；旧松键不再提交 */
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void InvalidateSession(const FText& Reason);
@@ -67,9 +71,13 @@ public:
 	/** 释放持续输入意图（防御等）；菜单/失焦/重置调用 */
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ReleaseContinuousInputs();
- bool AreRequestsEnabled() const { return bRequestsEnabled; }
+	bool AreRequestsEnabled() const { return bRequestsEnabled; }
  void SetRequestsEnabled(bool bEnabled);
 	bool IsKickSessionActive() const { return bKickSessionActive; }
+
+	/** 远程路径在按：左键/Q 按下已走蓄力炮，松开走发射而非近战分流 */
+	bool IsRangedLmbSession() const { return bRangedLmbSession; }
+	bool IsRangedQSession() const { return bRangedQSession; }
 
 	/** 提交一段轻拳攻击（共享入口；连击中自动进缓存） */
 	UFUNCTION(BlueprintCallable, Category = "Combat")
@@ -134,10 +142,12 @@ protected:
 	int32 SessionCounter = 0;
 	int32 ActiveSessionId = 0;
 	double PressGameTime = 0.0;
-
 	/** Q 会话 */
 	bool bKickSessionActive = false;
 	double KickPressGameTime = 0.0;
+	/** 远程形态按下标记：LMB/Q 走蓄力炮，松开只负责发射 */
+	bool bRangedLmbSession = false;
+	bool bRangedQSession = false;
 
 	/** 防御意图（按住 F） */
 	bool bGuardIntent = false;

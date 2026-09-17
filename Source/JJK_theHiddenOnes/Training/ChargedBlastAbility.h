@@ -68,6 +68,9 @@ protected:
 	virtual bool LocksMovementWhileCharging() const { return false; }
 	virtual void FireBlast(float q, float Damage) { }
 	virtual bool IsStationaryBlast() const { return false; }
+	/** 蓄力期状态标签：基类打 BlastCharging；移动炮叠加 RangedBlastCharging */
+	virtual void ApplyChargeStateTags(class UFighterAbilitySystemComponent* ASC);
+	virtual void ClearChargeStateTags(class UFighterAbilitySystemComponent* ASC);
 
 private:
 	void ClearTimers();
@@ -98,6 +101,8 @@ protected:
 	float PaidQ = 0.f;
 	bool bReleaseSignaled = false;
 	bool bCooldownTagApplied = false;
+	/** 超级炮成功发射后同样进入完整冷却（08：发射或中断后完整冷却） */
+	bool bSuperBlastFired = false;
 	float StoredBaseMoveSpeed = 500.f;
 	bool bMoveSpeedModified = false;
 	FTimerHandle ChargeTickHandle;

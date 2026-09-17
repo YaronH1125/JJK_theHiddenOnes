@@ -19,6 +19,7 @@
 #include "Training/FighterDefinition.h"
 #include "Training/TargetingComponent.h"
 #include "Training/TrainingProbeAbility.h"
+#include "Training/DomainOrb.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ATrainingGameMode::ATrainingGameMode()
@@ -54,6 +55,7 @@ void ATrainingGameMode::Tick(float DeltaSeconds)
 		DrawCombatDebug();
 	}
 	CheckMatchOutcome();
+	TickDomainSessions();
 }
 
 void ATrainingGameMode::DrawCombatDebug() const
@@ -250,6 +252,7 @@ void ATrainingGameMode::ResetTraining()
 {
  if (bResetting) return;
  bResetting=true;
+ ShutdownAllDomains();
  if(IsValid(OpponentAI)) OpponentAI->DeactivateAI();
  EnsureFightersSpawned();
  GetWorldTimerManager().ClearTimer(PlayerRecoveryTimer);
@@ -424,6 +427,8 @@ void ATrainingGameMode::ClearTrainingCooldowns(AFighterCharacter* F)
  if(!IsValid(F)) return;
  FGameplayTagContainer CooldownTags; CooldownTags.AddTag(TAG_Cooldown_TrainingProbe);
  F->GetFighterAbilitySystemComponent()->RemoveActiveEffects(FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTags));
+ // 超级炮冷却走松标签+能力计时器：重置时能力已取消，计时器不会回落，直接摘标签
+ F->GetFighterAbilitySystemComponent()->RemoveLooseGameplayTag(TAG_State_SuperBlastCooldown);
 }
 void ATrainingGameMode::SetTrainingSettings(FTrainingSettings Value)
 {
@@ -569,4 +574,155 @@ void ATrainingGameMode::EndPlay(const EEndPlayReason::Type Reason)
  ShutdownOpponentAI();
  UnbindFighters(); GetWorldTimerManager().ClearAllTimersForObject(this);
  Super::EndPlay(Reason);
+}
+
+// ---------- M6 领域会话 ----------
+
+bool ATrainingGameMode::TryOpenDomain(AFighterCharacter* Caster)
+{
+	if (!IsValid(Caster) || Caster->IsDead())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Domain] TryOpenDomain 拒绝：施法者无效或已死亡"));
+		return false;
+	}
+
+	// 捕获目标：与身份一致（玩家↔对手）
+	AFighterCharacter* Victim = (Caster == PlayerFighter.Get()) ? OpponentFighter.Get() : PlayerFighter.Get();
+	if (!IsValid(Victim) || Victim->IsDead())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Domain] TryOpenDomain 拒绝：目标无效或已死亡"));
+		return false;
+	}
+
+	const UFighterDefinition* Def = Caster->GetDefinition();
+	const float CaptureRange = Def ? Def->DomainConfig.CaptureRange : 1200.f;
+	if (FVector::DistXY(Caster->GetActorLocation(), Victim->GetActorLocation()) > CaptureRange)
+	{
+		// 目标超出捕获范围：结印完成但领域不开（ability 走失败分支结束）
+		UE_LOG(LogTemp, Log, TEXT("[Domain] TryOpenDomain 拒绝：目标超出捕获范围 %.0f > %.0f"),
+			FVector::DistXY(Caster->GetActorLocation(), Victim->GetActorLocation()), CaptureRange);
+		return false;
+	}
+
+	// 同一施法者已有领域则不重复开启
+	if (DomainSessions.ContainsByPredicate([&Caster](const FDomainSessionData& S) { return S.Caster.Get() == Caster; }))
+	{
+		return true;
+	}
+
+	FDomainSessionData Session;
+	Session.SessionId = ++NextDomainSessionId;
+	Session.Caster = Caster;
+	Session.Victim = Victim;
+	const double Now = GetWorld()->GetTimeSeconds();
+	Session.EndTime = Now + (Def ? Def->DomainConfig.Duration : 6.f);
+	Session.NextSpawnTime = Now + (Def ? Def->DomainConfig.FirstOrbDelay : 0.3f);
+	DomainSessions.Add(Session);
+
+	Caster->SetDomainActive(true);
+	UE_LOG(LogTemp, Log, TEXT("[Domain] 会话 %d 开启：Caster=%s Victim=%s 持续 %.1fs"),
+		Session.SessionId, *Caster->GetName(), *Victim->GetName(), Session.EndTime - Now);
+	return true;
+}
+
+void ATrainingGameMode::TickDomainSessions()
+{
+	if (DomainSessions.Num() == 0) return;
+	const double Now = GetWorld()->GetTimeSeconds();
+
+	// ≥2 领域并存 → 相互压制：全部暂停出球与球体移动
+	const bool bSuppressed = DomainSessions.Num() >= 2;
+
+	for (int32 i = DomainSessions.Num() - 1; i >= 0; --i)
+	{
+		FDomainSessionData& S = DomainSessions[i];
+		AFighterCharacter* Caster = S.Caster.Get();
+		AFighterCharacter* Victim = S.Victim.Get();
+
+		// 任一方死亡 / 引用失效 / 到期 → 结束会话
+		if (!IsValid(Caster) || Caster->IsDead() || !IsValid(Victim) || Victim->IsDead() || Now >= S.EndTime)
+		{
+			EndDomainSession(S.SessionId);
+			continue;
+		}
+
+		S.bSuppressed = bSuppressed;
+		for (const TWeakObjectPtr<ADomainOrb>& OrbPtr : S.Orbs)
+		{
+			if (ADomainOrb* Orb = OrbPtr.Get()) Orb->SetOrbPaused(bSuppressed);
+		}
+
+		if (!bSuppressed && Now >= S.NextSpawnTime)
+		{
+			SpawnDomainOrb(S);
+			if (const UFighterDefinition* Def = Caster->GetDefinition())
+			{
+				S.NextSpawnTime = Now + Def->DomainConfig.OrbInterval;
+			}
+		}
+	}
+}
+
+void ATrainingGameMode::EndDomainSession(int32 SessionId)
+{
+	const int32 Idx = DomainSessions.IndexOfByPredicate(
+		[SessionId](const FDomainSessionData& S) { return S.SessionId == SessionId; });
+	if (Idx == INDEX_NONE) return;
+
+	const FDomainSessionData S = DomainSessions[Idx];
+	DomainSessions.RemoveAt(Idx);
+
+	// 剩余在飞球体直接销毁
+	for (const TWeakObjectPtr<ADomainOrb>& OrbPtr : S.Orbs)
+	{
+		if (ADomainOrb* Orb = OrbPtr.Get()) Orb->Destroy();
+	}
+
+	if (AFighterCharacter* Caster = S.Caster.Get())
+	{
+		Caster->SetDomainActive(false);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[Domain] 会话 %d 结束"), SessionId);
+}
+
+void ATrainingGameMode::SpawnDomainOrb(FDomainSessionData& Session)
+{
+	AFighterCharacter* Caster = Session.Caster.Get();
+	AFighterCharacter* Victim = Session.Victim.Get();
+	if (!IsValid(Caster) || !IsValid(Victim)) return;
+	const UFighterDefinition* Def = Caster->GetDefinition();
+	if (!Def) return;
+
+	const FDomainConfig& Cfg = Def->DomainConfig;
+
+	// 在飞上限（剔除已销毁的弱引用后计数）
+	Session.Orbs.RemoveAll([](const TWeakObjectPtr<ADomainOrb>& P) { return !P.IsValid(); });
+	if (Session.Orbs.Num() >= Cfg.MaxOrbsInFlight) return;
+
+	// 咒力不足 → 本次跳过（不消耗；下次到期再试）
+	if (!Caster->ModifyCursedEnergy(-Cfg.OrbCost))
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Domain] 会话 %d 咒力不足，跳过出球"), Session.SessionId);
+		return;
+	}
+
+	FActorSpawnParameters Params;
+	Params.Owner = Caster;
+	Params.Instigator = Caster;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	const FVector SpawnLoc = Caster->GetActorLocation() + FVector(0.f, 0.f, 80.f);
+	ADomainOrb* Orb = GetWorld()->SpawnActor<ADomainOrb>(ADomainOrb::StaticClass(), SpawnLoc, FRotator::ZeroRotator, Params);
+	if (!Orb) return;
+
+	Orb->InitOrb(Victim, Cfg.OrbDamage, Cfg.OrbLife, Cfg.OrbSpeed, Cfg.OrbRadius);
+	Session.Orbs.Add(Orb);
+}
+
+void ATrainingGameMode::ShutdownAllDomains()
+{
+	if (DomainSessions.Num() == 0) return;
+	TArray<int32> Ids;
+	for (const FDomainSessionData& S : DomainSessions) Ids.Add(S.SessionId);
+	for (int32 Id : Ids) EndDomainSession(Id);
+	DomainSessions.Reset();
 }

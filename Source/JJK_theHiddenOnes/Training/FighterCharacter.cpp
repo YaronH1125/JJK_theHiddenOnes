@@ -97,6 +97,9 @@ void AFighterCharacter::BeginPlay()
 	{
 		AbilitySystem->GetGameplayAttributeValueChangeDelegate(UFighterAttributeSet::GetHealthAttribute())
 			.AddUObject(this, &AFighterCharacter::OnHealthChanged);
+		// 咒力消耗视为咒力流动活动：重启回咒延迟（M6；恢复/自然回复不重启）
+		AbilitySystem->GetGameplayAttributeValueChangeDelegate(UFighterAttributeSet::GetCursedEnergyAttribute())
+			.AddUObject(this, &AFighterCharacter::OnCursedEnergyChanged);
 		// 默认近战形态
 		AbilitySystem->SetLooseGameplayTagCount(TAG_Stance_Melee, 1);
 	}
@@ -231,6 +234,86 @@ bool AFighterCharacter::RequestAttackSequence(ECachedAction Action)
 	PendingSegmentIndex = 0;
 	const bool Activated = AbilitySystem != nullptr && AbilitySystem->TryActivateAbilityByClass(GetMeleeAttackAbilityClass());
 	if (!Activated) PendingSequence.Reset();
+	return Activated;
+}
+
+EActionRequestResult AFighterCharacter::ValidateRangedRequest() const
+{
+	if (!CombatInput->AreRequestsEnabled()) return EActionRequestResult::RejectedBlocked;
+	if (IsDead()) return EActionRequestResult::RejectedDead;
+	if (!IsStatsInitialized() || AbilitySystem == nullptr) return EActionRequestResult::RejectedNotInitialized;
+	if (GetStance() != EFighterStance::Ranged) return EActionRequestResult::RejectedBlocked;
+	if (IsBlastCharging()) return EActionRequestResult::RejectedAlreadyActive;
+	if (HasCombatTag(TAG_State_HitStun) || HasCombatTag(TAG_State_KnockedDown)
+		|| HasCombatTag(TAG_State_StanceSwitching) || HasCombatTag(TAG_State_GuardStun)
+		|| HasCombatTag(TAG_State_DodgeInvulnerable) || HasCombatTag(TAG_State_DodgeRecovery) || IsThrowPaired())
+	{
+		return EActionRequestResult::RejectedBlocked;
+	}
+	return EActionRequestResult::Executed;
+}
+
+bool AFighterCharacter::RequestBlast(ECachedAction Action)
+{
+	if (IsDomainActive())
+	{
+		// 领域期内禁用手动远程炮（08：结束需新按下恢复）
+		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 领域期内禁用手动炮"), *GetName());
+		return false;
+	}
+	if (ValidateRangedRequest() != EActionRequestResult::Executed)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 蓄力炮请求被拒（%d）"), *GetName(), static_cast<int32>(Action));
+		return false;
+	}
+
+	const UFighterDefinition* Def = GetDefinition();
+	TSubclassOf<UGameplayAbility> AbilityClass = nullptr;
+	if (Action == ECachedAction::MobileBlast && Def != nullptr)
+	{
+		AbilityClass = Def->MobileBlastAbility;
+	}
+	else if (Action == ECachedAction::SuperBlast && Def != nullptr)
+	{
+		AbilityClass = Def->StationaryBlastAbility;
+	}
+	if (AbilityClass == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 蓄力炮能力未配置（%d）"), *GetName(), static_cast<int32>(Action));
+		return false;
+	}
+
+	// 冷却/咒力不足由 GA 自身激活规则拒绝（TryActivate 返回 false）
+	const bool Activated = AbilitySystem->TryActivateAbilityByClass(AbilityClass);
+	if (!Activated)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 蓄力炮激活失败（冷却/资源不足）"), *GetName());
+	}
+	return Activated;
+}
+
+bool AFighterCharacter::RequestDomain()
+{
+	if (IsDead()) return false;
+	if (!IsStatsInitialized() || AbilitySystem == nullptr) return false;
+	if (IsDomainActive())
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 领域已开启，忽略重复请求"), *GetName());
+		return false;
+	}
+
+	const UFighterDefinition* Def = GetDefinition();
+	if (Def == nullptr || Def->DomainExpansionAbility == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 领域能力未配置"), *GetName());
+		return false;
+	}
+
+	const bool Activated = AbilitySystem->TryActivateAbilityByClass(Def->DomainExpansionAbility);
+	if (!Activated)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 领域展开激活失败（能量不足/冷却）"), *GetName());
+	}
 	return Activated;
 }
 
@@ -914,6 +997,18 @@ void AFighterCharacter::GrantAbilities()
 	{
 		Abilities.AddUnique(Definition->StanceSwitchAbility);
 	}
+	if (Definition->MobileBlastAbility != nullptr)
+	{
+		Abilities.AddUnique(Definition->MobileBlastAbility);
+	}
+	if (Definition->StationaryBlastAbility != nullptr)
+	{
+		Abilities.AddUnique(Definition->StationaryBlastAbility);
+	}
+	if (Definition->DomainExpansionAbility != nullptr)
+	{
+		Abilities.AddUnique(Definition->DomainExpansionAbility);
+	}
 
 	for (const TSubclassOf<UGameplayAbility>& AbilityClass : Abilities)
 	{
@@ -1228,6 +1323,15 @@ void AFighterCharacter::NotifyCurseFlowActivity()
 	LastCurseFlowActivityTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
 }
 
+void AFighterCharacter::OnCursedEnergyChanged(const FOnAttributeChangeData& Data)
+{
+	// 仅消耗（含 GE 成本路径）重启回咒延迟；恢复/自然回复不重启
+	if (Data.NewValue < Data.OldValue)
+	{
+		NotifyCurseFlowActivity();
+	}
+}
+
 void AFighterCharacter::SetDomainActive(bool bActive)
 {
 	bDomainActive = bActive;
@@ -1264,15 +1368,19 @@ AFighterCharacter* AFighterCharacter::GetPreferredTargetFighter() const
 }
 
 
-void AFighterCharacter::ModifyEnergy(float SignedAmount)
+bool AFighterCharacter::ModifyEnergy(float SignedAmount)
 {
-	if (!AbilitySystem) return;
+	if (!AbilitySystem) return false;
+	const float Current = AttributeSet ? AttributeSet->GetEnergy() : 0.f;
+	if (SignedAmount < 0.f && Current + SignedAmount < -0.01f) return false;
 	auto Spec = AbilitySystem->MakeOutgoingSpec(UModifyDomainEnergyGameplayEffect::StaticClass(), 1.f, AbilitySystem->MakeEffectContext());
 	if (Spec.IsValid())
 	{
 		Spec.Data->SetSetByCallerMagnitude(TAG_Data_Amount, SignedAmount);
 		AbilitySystem->ApplyGameplayEffectSpecToSelf(*Spec.Data);
+		return true;
 	}
+	return false;
 }
 
 void AFighterCharacter::Tick(float DeltaSeconds)
@@ -1314,7 +1422,7 @@ void UChargedBlastAbilityBase::ClearTimers()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ChargeTickHandle);
 		GetWorld()->GetTimerManager().ClearTimer(PhaseTimerHandle);
-		GetWorld()->GetTimerManager().ClearTimer(CooldownTimerHandle);
+		// 冷却计时器须在能力结束后继续走完（08：发射/中断后完整冷却），不在此清除
 	}
 }
 

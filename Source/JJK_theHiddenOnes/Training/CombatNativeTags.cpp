@@ -27,6 +27,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Stance_Ranged, "Stance.Ranged");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_MeleeAttack, "Ability.Melee.Attack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Blast, "Ability.Blast");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dodge, "Ability.Dodge");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Domain, "Ability.Domain");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_StanceSwitch, "Ability.StanceSwitch");
 
 // GE SetByCaller 数据键

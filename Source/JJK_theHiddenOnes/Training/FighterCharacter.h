@@ -108,6 +108,15 @@ public:
 	/** 请求一段攻击序列（输入入口；连击中则该请求来自缓存消费路径） */
 	bool RequestAttackSequence(ECachedAction Action);
 
+	/** 请求蓄力炮（远形态 LMB/Q：按下激活即开始蓄力）；返回是否成功激活 */
+	bool RequestBlast(ECachedAction Action);
+
+	/** 请求领域展开（R：瞬发结印）；返回是否成功激活 */
+	bool RequestDomain();
+
+	/** 远程动作请求通用校验（死亡/未初始化/硬直/倒地/蓄力中） */
+	EActionRequestResult ValidateRangedRequest() const;
+
 	/** 闪避请求（含取消变招判定）；返回是否成功激活 */
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool RequestDodge(FVector Direction);
@@ -127,7 +136,7 @@ public:
  bool TrySpendActionResource(float Amount);
  void GainCursedEnergy(float Amount);
  void GainDomainEnergy(float ResolvedDamage, uint64 AttackInstanceId);
- void ModifyEnergy(float SignedAmount);
+ bool ModifyEnergy(float SignedAmount);
  void ApplyCombatDamage(AFighterCharacter* Target, float RawDamage, float ResolvedDamage, ETrainingContact Kind);
  FName GetMuzzleSocketName() const;
  AFighterCharacter* GetPreferredTargetFighter() const;
@@ -135,6 +144,7 @@ public:
  bool IsAimIntent() const { return bAimIntent; }
  bool IsBlastCharging() const;
  void NotifyCurseFlowActivity();
+ void OnCursedEnergyChanged(const FOnAttributeChangeData& Data);
  void RegisterActiveBlast(class UChargedBlastAbilityBase* Blast);
  void NotifyBlastRelease();
  void NotifyBlastEnded(class UChargedBlastAbilityBase* Blast);

@@ -45,7 +45,11 @@ EBTNodeResult::Type UBTTask_ArenaAction::ExecuteTask(UBehaviorTreeComponent& Own
   AI->SetTaskStatus(TEXT("Guard: holding")); return EBTNodeResult::InProgress;
  }
  ASC=Self->GetFighterAbilitySystemComponent();
- const TSubclassOf<UGameplayAbility> Class=Branch==EAIBranch::Attack ? Self->GetMeleeAttackAbilityClass() : Self->GetDefinition()->DodgeAbility;
+ TSubclassOf<UGameplayAbility> Class=nullptr;
+ if (Branch==EAIBranch::Attack) Class=Self->GetMeleeAttackAbilityClass();
+ else if (Branch==EAIBranch::RangedAttack) Class=Self->GetDefinition()->MobileBlastAbility;
+ else if (Branch==EAIBranch::Domain) Class=Self->GetDefinition()->DomainExpansionAbility;
+ else Class=Self->GetDefinition()->DodgeAbility;
  if (!Class || !ASC.IsValid()) { AI->SetTaskStatus(TEXT("Rejected: ability missing")); return EBTNodeResult::Failed; }
  // 先捕获已有实例（缓存路径），再在请求前绑定新激活与结束事件。
  if (auto* Spec=ASC->FindAbilitySpecFromClass(Class)) if (Spec->IsActive()) Ability=Spec->GetPrimaryInstance();
@@ -59,6 +63,21 @@ EBTNodeResult::Type UBTTask_ArenaAction::ExecuteTask(UBehaviorTreeComponent& Own
  {
   const float Roll=AI->RandomFraction();
   Result=Roll<AI->Params.HeavyChance ? Input->SubmitHeavyPunch() : (Roll>.8f ? Input->SubmitKick() : Input->SubmitLightAttack());
+ }
+ else if (Branch==EAIBranch::RangedAttack)
+ {
+  Result=Self->RequestBlast(ECachedAction::MobileBlast) ? EActionRequestResult::Executed : EActionRequestResult::RejectedBlocked;
+  if (Result==EActionRequestResult::Executed)
+  {
+   // 蓄力随机时长后松开（不小于最短蓄力手感，不超过满蓄）
+   const float Cap=Self->GetDefinition()->MobileBlast.CapTime;
+   bBlastArmed=true;
+   BlastReleaseAt=AI->Now()+FMath::Clamp(AI->RandomFraction()*Cap,0.35f,Cap);
+  }
+ }
+ else if (Branch==EAIBranch::Domain)
+ {
+  Result=Self->RequestDomain() ? EActionRequestResult::Executed : EActionRequestResult::RejectedBlocked;
  }
  else Result=Self->RequestDodge(FVector::ZeroVector) ? EActionRequestResult::Executed : EActionRequestResult::RejectedBlocked;
  AI->SetTaskStatus(FString::Printf(TEXT("Request=%s"),*StaticEnum<EActionRequestResult>()->GetNameStringByValue(int64(Result))));
@@ -82,6 +101,24 @@ void UBTTask_ArenaAction::TickTask(UBehaviorTreeComponent& Owner,uint8*,float)
   { AI->SetTaskStatus(TEXT("Cache expired/discarded/superseded")); FinishLatentTask(Owner,EBTNodeResult::Failed); return; }
  }
  if (bEnded) { AI->SetTaskStatus(bCancelled ? TEXT("Ability interrupted") : TEXT("Ability completed")); FinishLatentTask(Owner,bCancelled ? EBTNodeResult::Failed : EBTNodeResult::Succeeded); return; }
+ // M6 蓄力炮：到点松开发射（激活被拒/已被打断则不补发）
+ if (bBlastArmed)
+ {
+  if (AI->Now()>=BlastReleaseAt)
+  {
+   bBlastArmed=false;
+   if (Self->IsBlastCharging())
+   {
+    Self->NotifyBlastRelease();
+    AI->SetTaskStatus(TEXT("Blast: released"));
+   }
+   else
+   {
+    AI->SetTaskStatus(TEXT("Blast: not charging on release"));
+    FinishLatentTask(Owner,EBTNodeResult::Failed); return;
+   }
+  }
+ }
  const bool Moving=Branch==EAIBranch::Approach || Branch==EAIBranch::Strafe || Branch==EAIBranch::Retreat;
  if ((Moving || Branch==EAIBranch::Defend) && !Self->CanAct()) { AI->StopPathKeepingVelocity(); FinishLatentTask(Owner,EBTNodeResult::Failed); return; }
  if (AI->Now()>=Deadline)
@@ -104,6 +141,7 @@ void UBTTask_ArenaAction::Cleanup()
 
  }
  ActivatedHandle.Reset(); EndedHandle.Reset(); ASC.Reset(); Ability.Reset(); Controller.Reset(); CacheId=0; bGuardOwned=false;
+ bBlastArmed=false; BlastReleaseAt=0.;
 }
 EBTNodeResult::Type UBTTask_ArenaAction::AbortTask(UBehaviorTreeComponent&,uint8*) { if (Controller.IsValid()) Controller->StopPathKeepingVelocity(); Cleanup(); return EBTNodeResult::Aborted; }
 void UBTTask_ArenaAction::OnTaskFinished(UBehaviorTreeComponent& Owner,uint8* Memory,EBTNodeResult::Type Result)

@@ -10,6 +10,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Training/CombatTypes.h"
 #include "Training/DamageGameplayEffect.h"
+#include "Training/TargetingComponent.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterAttributeSet.h"
 #include "Training/FighterCharacter.h"
@@ -104,8 +105,7 @@ void UChargedBlastAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle 
 	PaidQ = 0.f;
 	ChargeStartTime = Now();
 
-	if (auto* ASC = Fighter->GetFighterAbilitySystemComponent())
-		ASC->AddLooseGameplayTag(TAG_State_BlastCharging);
+	ApplyChargeStateTags(Fighter->GetFighterAbilitySystemComponent());
 
 	StoredBaseMoveSpeed = Fighter->GetCharacterMovement()->MaxWalkSpeed;
 	ApplyMoveSpeedScale(GetMoveSpeedScale());
@@ -185,6 +185,7 @@ void UChargedBlastAbilityBase::HandleWindupDone()
 {
 	if (Phase != EBlastPhase::Windup) return;
 	FireOnce();
+	if (HasMinChargeGate()) bSuperBlastFired = true;
 	Phase = EBlastPhase::Recovery;
 	ApplyMoveSpeedScale(1.f);
 	GetWorld()->GetTimerManager().SetTimer(PhaseTimerHandle, this,
@@ -193,8 +194,8 @@ void UChargedBlastAbilityBase::HandleWindupDone()
 
 void UChargedBlastAbilityBase::HandleRecoveryDone()
 {
-	if (auto* ASC = CachedFighter.IsValid() ? CachedFighter->GetFighterAbilitySystemComponent() : nullptr)
-		ASC->RemoveLooseGameplayTag(TAG_State_BlastCharging);
+	if (CachedFighter.IsValid())
+		ClearChargeStateTags(CachedFighter->GetFighterAbilitySystemComponent());
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
@@ -205,18 +206,35 @@ void UChargedBlastAbilityBase::AbortBlast(const TCHAR* Reason, bool bPaidInterru
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
 }
 
+void UChargedBlastAbilityBase::ApplyChargeStateTags(class UFighterAbilitySystemComponent* ASC)
+{
+	if (ASC) ASC->AddLooseGameplayTag(TAG_State_BlastCharging);
+}
+
+void UChargedBlastAbilityBase::ClearChargeStateTags(class UFighterAbilitySystemComponent* ASC)
+{
+	if (ASC)
+	{
+		ASC->RemoveLooseGameplayTag(TAG_State_BlastCharging);
+		ASC->RemoveLooseGameplayTag(TAG_State_RangedBlastCharging);
+	}
+}
+
 void UChargedBlastAbilityBase::ApplySuperBlastCooldown()
 {
-	if (bCooldownTagApplied || GetCooldown() <= 0.f) return;
+	if (GetCooldown() <= 0.f) return;
+	auto* Fighter = CachedFighter.Get();
+	auto* ASC = Fighter ? Fighter->GetFighterAbilitySystemComponent() : nullptr;
+	if (!ASC || !GetWorld()) return;
+	// 以 ASC 实际标签为准（训练重置会摘标签并清实例残留状态）；已在冷却不刷新
+	if (bCooldownTagApplied && !ASC->HasMatchingGameplayTag(TAG_State_SuperBlastCooldown))
+		bCooldownTagApplied = false;
+	if (bCooldownTagApplied) return;
 	bCooldownTagApplied = true;
-	if (auto* Fighter = CachedFighter.Get())
-	{
-		if (auto* ASC = Fighter->GetFighterAbilitySystemComponent())
-			ASC->AddLooseGameplayTag(TAG_State_SuperBlastCooldown);
-		GetWorld()->GetTimerManager().SetTimer(CooldownTimerHandle, this,
-			&UChargedBlastAbilityBase::HandleCooldownDone, GetCooldown(), false);
-		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 超级炮冷却 %.0fs"), *GetNameSafe(Fighter), GetCooldown());
-	}
+	ASC->AddLooseGameplayTag(TAG_State_SuperBlastCooldown);
+	GetWorld()->GetTimerManager().SetTimer(CooldownTimerHandle, this,
+		&UChargedBlastAbilityBase::HandleCooldownDone, GetCooldown(), false);
+	UE_LOG(LogTemp, Log, TEXT("[Blast] %s 超级炮冷却 %.0fs"), *GetNameSafe(Fighter), GetCooldown());
 }
 
 void UChargedBlastAbilityBase::HandleCooldownDone()
@@ -272,6 +290,10 @@ void UChargedBlastAbilityBase::FireOnce()
 	if (auto* PC = Cast<APlayerController>(Fighter->GetController()))
 	{
 		if (PC->PlayerCameraManager) { PC->GetPlayerViewPoint(CamLoc, CamRot); AimPoint = CamLoc + CamRot.Vector() * Range; }
+		// 锁定即瞄准：有效锁定目标优先于相机射线
+		if (auto* Targeting = Fighter->GetTargeting())
+			if (Targeting->IsTargetValid())
+				AimPoint = Targeting->GetCurrentTarget()->GetActorLocation() + FVector(0, 0, 30);
 	}
 	else if (auto* Target = Fighter->GetPreferredTargetFighter())
 	{
@@ -281,26 +303,31 @@ void UChargedBlastAbilityBase::FireOnce()
 	FCollisionQueryParams QP(SCENE_QUERY_STAT(JJKBlast));
 	QP.AddIgnoredActor(Fighter);
 
-	FHitResult AimHit;
-	FVector TargetPoint = AimPoint;
-	if (GetWorld()->LineTraceSingleByChannel(AimHit, CamLoc, AimPoint, ECC_Visibility, QP))
-		TargetPoint = AimHit.ImpactPoint;
-
-	FHitResult MuzzleHit;
-	if (GetWorld()->LineTraceSingleByChannel(MuzzleHit, Muzzle,
-		Muzzle + (TargetPoint - Muzzle).GetSafeNormal() * 30.f, ECC_Visibility, QP))
-	{
-		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮口嵌墙安全拒绝"), *GetNameSafe(Fighter));
-		return;
-	}
-
+	// 主命中：与近战检测同语义，按 Pawn 对象类型做球形扫掠
+	//（胶囊不阻挡 Visibility 通道，直接 LineTrace 会穿人）
 	FHitResult FireHit;
 	AFighterCharacter* HitFighter = nullptr;
-	FVector EndPoint = TargetPoint;
-	if (GetWorld()->LineTraceSingleByChannel(FireHit, Muzzle, TargetPoint, ECC_Visibility, QP))
+	FVector EndPoint = AimPoint;
 	{
-		EndPoint = FireHit.ImpactPoint;
-		HitFighter = Cast<AFighterCharacter>(FireHit.GetActor());
+		FCollisionObjectQueryParams ObjectParams(ECC_Pawn);
+		const FCollisionShape Sphere = FCollisionShape::MakeSphere(15.f);
+		if (GetWorld()->SweepSingleByObjectType(FireHit, Muzzle, AimPoint, FQuat::Identity, ObjectParams, Sphere, QP))
+		{
+			EndPoint = FireHit.ImpactPoint;
+			HitFighter = Cast<AFighterCharacter>(FireHit.GetActor());
+		}
+	}
+
+	// 炮口嵌墙安全拒绝：墙等世界几何按 Visibility 通道检测（胶囊不受影响）
+	FHitResult MuzzleHit;
+	if (GetWorld()->LineTraceSingleByChannel(MuzzleHit, Muzzle,
+		Muzzle + (EndPoint - Muzzle).GetSafeNormal() * 30.f, ECC_Visibility, QP))
+	{
+		if (!Cast<AFighterCharacter>(MuzzleHit.GetActor()))
+		{
+			UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮口嵌墙安全拒绝"), *GetNameSafe(Fighter));
+			return;
+		}
 	}
 
 	if (BlastDebugEnabled() > 0.f && GetWorld())
@@ -333,9 +360,8 @@ void UChargedBlastAbilityBase::EndAbility(const FGameplayAbilitySpecHandle Handl
 	RestoreMoveSpeed();
 	if (auto* Fighter = CachedFighter.Get())
 	{
-		if (auto* ASC = Fighter->GetFighterAbilitySystemComponent())
-			ASC->RemoveLooseGameplayTag(TAG_State_BlastCharging);
-		if (bWasCancelled) ApplySuperBlastCooldown();
+		ClearChargeStateTags(Fighter->GetFighterAbilitySystemComponent());
+		if (bWasCancelled || bSuperBlastFired) ApplySuperBlastCooldown();
 		Fighter->NotifyBlastEnded(this);
 	}
 	CachedFighter = nullptr;

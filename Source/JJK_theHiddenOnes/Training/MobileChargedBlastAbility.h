@@ -30,4 +30,5 @@ protected:
 	virtual float GetMoveSpeedScale() const override;
 	virtual bool LocksMovementWhileCharging() const override { return false; }
 	virtual void FireBlast(float q, float Damage) override;
+	virtual void ApplyChargeStateTags(class UFighterAbilitySystemComponent* ASC) override;
 };
