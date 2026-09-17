@@ -204,7 +204,7 @@ public:
 
 	/** 再次切形态的最小间隔 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Stance", meta = (ClampMin = "0.0", ForceUnits = "s"))
-	float StanceSwitchInterval = 0.5f;
+	float StanceSwitchInterval = 0.1f;
 
 	/** 防御规则 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Guard")

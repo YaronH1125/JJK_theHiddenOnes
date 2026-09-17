@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="'Microsoft YaHei',sans-serif">
+  <rect width="900" height="560" fill="#fafbfc"/>
+  <text x="450" y="34" text-anchor="middle" font-size="20" font-weight="bold" fill="#24292f">相机三档（俯视示意）：近战居中 / 远程过肩 / 瞄准贴肩</text>
+
+  <!-- 面板一：近战居中 -->
+  <g>
+    <rect x="30" y="60" width="260" height="430" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+    <text x="160" y="92" text-anchor="middle" font-size="16" font-weight="bold" fill="#24292f">近战 · 居中</text>
+    <line x1="160" y1="500" x2="160" y2="210" stroke="#24292f" stroke-width="2"/>
+    <circle cx="160" cy="500" r="11" fill="#24292f"/>
+    <rect x="148" y="300" width="24" height="42" rx="12" fill="#1f883d"/>
+    <!-- FOV 90° -->
+    <path d="M 160 320 L 60 130 A 210 210 0 0 1 260 130 Z" fill="#1f883d" opacity="0.08"/>
+    <text x="160" y="130" text-anchor="middle" font-size="13" fill="#1f883d">FOV 90</text>
+    <text x="176" y="220" font-size="13" fill="#24292f">臂长 400</text>
+    <text x="120" y="286" text-anchor="end" font-size="13" fill="#24292f">偏移 (0, 35)</text>
+    <text x="160" y="530" text-anchor="middle" font-size="13" fill="#57606a">人物居中 · 无准星 · 镜头全玩家控制</text>
+  </g>
+
+  <!-- 面板二：远程过肩 -->
+  <g>
+    <rect x="320" y="60" width="260" height="430" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+    <text x="450" y="92" text-anchor="middle" font-size="16" font-weight="bold" fill="#24292f">远程 · 过肩</text>
+    <line x1="450" y1="500" x2="450" y2="210" stroke="#24292f" stroke-width="2"/>
+    <circle cx="450" cy="500" r="11" fill="#24292f"/>
+    <rect x="560" y="300" width="24" height="42" rx="12" fill="#1f883d"/>
+    <path d="M 540 320 L 452 150 A 210 210 0 0 1 640 142 Z" fill="#1f883d" opacity="0.08"/>
+    <text x="450" y="130" text-anchor="middle" font-size="13" fill="#1f883d">FOV 90</text>
+    <text x="466" y="220" font-size="13" fill="#24292f">臂长 400</text>
+    <line x1="572" y1="318" x2="505" y2="478" stroke="#0969da" stroke-width="2"/>
+    <text x="580" y="400" font-size="13" fill="#0969da">右肩 (75, 35)</text>
+    <text x="450" y="530" text-anchor="middle" font-size="13" fill="#57606a">人物左移 · 让出右侧射击走廊</text>
+  </g>
+
+  <!-- 面板三：瞄准贴肩 -->
+  <g>
+    <rect x="610" y="60" width="260" height="430" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+    <text x="740" y="92" text-anchor="middle" font-size="16" font-weight="bold" fill="#24292f">瞄准 · 贴肩</text>
+    <line x1="740" y1="470" x2="740" y2="270" stroke="#24292f" stroke-width="2"/>
+    <circle cx="740" cy="470" r="11" fill="#24292f"/>
+    <rect x="806" y="330" width="24" height="42" rx="12" fill="#1f883d"/>
+    <path d="M 796 350 L 742 250 A 130 130 0 0 1 852 246 Z" fill="#d73a49" opacity="0.10"/>
+    <text x="740" y="236" text-anchor="middle" font-size="13" fill="#d73a49">FOV 65</text>
+    <text x="756" y="330" font-size="13" fill="#24292f">臂长 130</text>
+    <line x1="818" y1="348" x2="756" y2="452" stroke="#0969da" stroke-width="2"/>
+    <text x="826" y="410" font-size="13" fill="#0969da">贴肩 (60, 28)</text>
+    <text x="740" y="530" text-anchor="middle" font-size="13" fill="#57606a">角分离 ≈ 28° · 弹道 = 准星</text>
+  </g>
+
+  <!-- 底部箭头：切换平滑插值 -->
+  <line x1="160" y1="545" x2="740" y2="545" stroke="#0969da" stroke-width="2.5" marker-end="url(#arrS)"/>
+  <line x1="740" y1="545" x2="160" y2="545" stroke="#0969da" stroke-width="2.5" marker-end="url(#arrS)"/>
+  <text x="450" y="538" text-anchor="middle" font-size="13" fill="#0969da">E / 右键切换：FInterpTo 12 平滑插值（不打断移动 · 无 CD）</text>
+
+  <defs>
+    <marker id="arrS" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 Z" fill="#0969da"/>
+    </marker>
+  </defs>
+</svg>

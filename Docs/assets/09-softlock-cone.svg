@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 640" font-family="'Microsoft YaHei',sans-serif">
+  <rect width="860" height="640" fill="#fafbfc"/>
+  <text x="430" y="34" text-anchor="middle" font-size="20" font-weight="bold" fill="#24292f">近战出招磁吸（俯视）：三段式吸附</text>
+  <text x="430" y="58" text-anchor="middle" font-size="13" fill="#57606a">人物在圆心，面朝上方；阴影区 = 前半球（吸附生效区）；背后目标不吸附</text>
+
+  <!-- 前半球阴影 -->
+  <path d="M 430 480 L 430 90 A 390 390 0 0 0 40 480 Z" fill="#ddf4ff" opacity="0.55"/>
+
+  <!-- 三圈 -->
+  <circle cx="430" cy="480" r="90" fill="none" stroke="#1f883d" stroke-width="2.5"/>
+  <circle cx="430" cy="480" r="175" fill="none" stroke="#0969da" stroke-width="2.5" stroke-dasharray="9 7"/>
+  <circle cx="430" cy="480" r="300" fill="none" stroke="#8250df" stroke-width="2.5" stroke-dasharray="3 7"/>
+
+  <!-- 圈标注 -->
+  <text x="430" y="402" text-anchor="middle" font-size="13" fill="#1f883d">攻击有效距离 180</text>
+  <text x="120" y="305" text-anchor="middle" font-size="13" fill="#0969da">磁吸滑步 ≤350</text>
+  <text x="120" y="325" text-anchor="middle" font-size="12" fill="#0969da">（滑步 50–120cm 贴近）</text>
+  <text x="700" y="180" text-anchor="middle" font-size="13" fill="#8250df">面向吸附 ≤600</text>
+  <text x="700" y="200" text-anchor="middle" font-size="12" fill="#8250df">（仅转向，不位移）</text>
+
+  <!-- 人物 -->
+  <circle cx="430" cy="480" r="16" fill="#24292f"/>
+  <polygon points="430,458 420,474 440,474" fill="#24292f"/>
+
+  <!-- 目标 A：180–350 之间 → 转向 + 滑步 -->
+  <circle cx="255" cy="330" r="13" fill="#d73a49"/>
+  <text x="255" y="306" text-anchor="middle" font-size="13" fill="#d73a49">目标 A（250）</text>
+  <text x="255" y="352" text-anchor="middle" font-size="12" fill="#d73a49">转向 + 滑步贴近</text>
+  <line x1="430" y1="480" x2="262" y2="336" stroke="#d73a49" stroke-width="2" stroke-dasharray="5 5" opacity="0.6"/>
+
+  <!-- 目标 B：350–600 之间 → 仅转向 -->
+  <circle cx="640" cy="230" r="13" fill="#8250df"/>
+  <text x="668" y="222" font-size="13" fill="#8250df">目标 B（520）</text>
+  <text x="668" y="240" font-size="12" fill="#8250df">仅面向（不滑步）</text>
+
+  <!-- 目标 C：背后 → 不吸附 -->
+  <circle cx="540" cy="580" r="13" fill="#57606a"/>
+  <text x="566" y="585" font-size="13" fill="#57606a">背后目标：不吸附</text>
+
+  <!-- 朝向箭头 -->
+  <line x1="430" y1="452" x2="430" y2="392" stroke="#24292f" stroke-width="2.5" marker-end="url(#arrF)"/>
+  <text x="442" y="404" font-size="13" fill="#24292f">面向</text>
+
+  <defs>
+    <marker id="arrF" markerWidth="10" markerHeight="10" refX="4" refY="8" orient="auto">
+      <path d="M0,10 L4,0 L8,10 Z" fill="#24292f"/>
+    </marker>
+  </defs>
+</svg>

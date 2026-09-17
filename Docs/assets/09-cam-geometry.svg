@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 640" font-family="'Microsoft YaHei',sans-serif">
+  <rect width="860" height="640" fill="#fafbfc"/>
+  <text x="430" y="34" text-anchor="middle" font-size="20" font-weight="bold" fill="#24292f">瞄准相机几何（俯视）：过肩角分离 ≈ 28°</text>
+
+  <!-- 地面网格（淡） -->
+  <g stroke="#eef0f2" stroke-width="1">
+    <line x1="60" y1="90" x2="60" y2="600"/><line x1="200" y1="90" x2="200" y2="600"/>
+    <line x1="340" y1="90" x2="340" y2="600"/><line x1="480" y1="90" x2="480" y2="600"/>
+    <line x1="620" y1="90" x2="620" y2="600"/><line x1="760" y1="90" x2="760" y2="600"/>
+    <line x1="60" y1="140" x2="800" y2="140"/><line x1="60" y1="250" x2="800" y2="250"/>
+    <line x1="60" y1="360" x2="800" y2="360"/><line x1="60" y1="470" x2="800" y2="470"/>
+  </g>
+
+  <!-- 目标（准星方向） -->
+  <circle cx="430" cy="110" r="14" fill="#d73a49"/>
+  <text x="430" y="80" text-anchor="middle" font-size="15" fill="#d73a49">目标 = 准星方向</text>
+
+  <!-- 旧方案：臂150 / 偏移60（角分离 21.8°） -->
+  <line x1="380" y1="560" x2="380" y2="150" stroke="#bdbdbd" stroke-width="2" stroke-dasharray="7 6"/>
+  <circle cx="380" cy="150" r="10" fill="#bdbdbd"/>
+  <text x="330" y="150" text-anchor="end" font-size="13" fill="#8b949e">旧：臂150 / 偏移60</text>
+  <text x="330" y="168" text-anchor="end" font-size="13" fill="#8b949e">角分离 ≈ 21.8°（人物贴准星）</text>
+
+  <!-- 角分离标注 -->
+  <path d="M 380 130 A 320 320 0 0 1 430 118" fill="none" stroke="#0969da" stroke-width="1.5"/>
+  <text x="405" y="108" font-size="13" fill="#0969da">21.8°</text>
+
+  <!-- 人物（俯视：胶囊） -->
+  <rect x="404" y="440" width="52" height="88" rx="26" fill="#1f883d" opacity="0.92"/>
+  <polygon points="430,432 418,452 442,452" fill="#1f883d"/>
+  <text x="452" y="486" font-size="14" fill="#1f883d">人物（让出准星线）</text>
+
+  <!-- 相机 -->
+  <circle cx="500" cy="596" r="13" fill="#24292f"/>
+  <text x="522" y="601" font-size="14" fill="#24292f">相机</text>
+
+  <!-- 臂长连线 -->
+  <line x1="430" y1="484" x2="500" y2="596" stroke="#24292f" stroke-width="2"/>
+  <text x="478" y="548" font-size="13" fill="#24292f">臂长 130</text>
+
+  <!-- 右肩偏移箭头 -->
+  <line x1="430" y1="560" x2="500" y2="560" stroke="#0969da" stroke-width="2" marker-end="url(#arrB)"/>
+  <text x="510" y="564" font-size="13" fill="#0969da">右肩偏移 Y = 70</text>
+
+  <!-- 上抬偏移注释 -->
+  <text x="540" y="586" font-size="13" fill="#57606a">上抬 Z = 28（侧视图方向）</text>
+
+  <!-- 瞄准射线 -->
+  <line x1="500" y1="596" x2="430" y2="124" stroke="#d73a49" stroke-width="2.5"/>
+  <text x="560" y="330" font-size="14" fill="#d73a49">瞄准射线（准星）</text>
+  <text x="560" y="350" font-size="13" fill="#57606a">从相机中心穿过准星，越过右肩</text>
+
+  <!-- 新方案角分离弧 -->
+  <path d="M 430 560 A 130 130 0 0 1 471 445" fill="none" stroke="#0969da" stroke-width="2"/>
+  <text x="482" y="470" font-size="15" font-weight="bold" fill="#0969da">28.3°</text>
+  <text x="470" y="452" font-size="12" fill="#57606a">atan(70 / 130)</text>
+
+  <!-- 侧栏说明 -->
+  <rect x="620" y="120" width="212" height="150" rx="8" fill="#ddf4ff"/>
+  <text x="636" y="148" font-size="14" font-weight="bold" fill="#0969da">经验口径</text>
+  <text x="636" y="172" font-size="13" fill="#24292f">臂长 ≈ 120–130</text>
+  <text x="636" y="194" font-size="13" fill="#24292f">右肩偏移 ≈ 60–75</text>
+  <text x="636" y="216" font-size="13" fill="#24292f">上抬 ≈ 25–30</text>
+  <text x="636" y="238" font-size="13" fill="#24292f">角分离目标 26–30°</text>
+  <text x="636" y="258" font-size="12" fill="#57606a">（PUBG/COD 式过肩）</text>
+
+  <defs>
+    <marker id="arrB" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#0969da"/>
+    </marker>
+  </defs>
+</svg>
