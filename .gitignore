@@ -27,3 +27,13 @@ __pycache__/
 
 # Cook 生成的文件访问顺序日志
 Build/*/FileOpenOrder/
+
+# 开发过程文档（本地保留，不进公开仓库；构建/验收证据随本地归档）
+Docs/开发过程/
+Docs/求救信/
+Docs/02_架构设计.md
+Docs/03_开发约束与决策记录.md
+Docs/04_旧项目评估与复用方案.md
+Docs/05_开发计划与验收.md
+Docs/06_石流龙角色方案.md
+Docs/07_擂台与视觉参考.md

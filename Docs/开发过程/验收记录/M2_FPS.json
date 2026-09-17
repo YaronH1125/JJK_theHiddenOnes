@@ -1,1 +1,0 @@
-{"status": "passed", "results": [{"target_fps": 30, "measured_fps": 30, "damage": 35.0, "hits": 1, "passed": true}, {"target_fps": 60, "measured_fps": 60, "damage": 35.0, "hits": 1, "passed": true}, {"target_fps": 120, "measured_fps": 99, "damage": 35.0, "hits": 1, "passed": true}]}
