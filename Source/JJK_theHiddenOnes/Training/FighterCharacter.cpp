@@ -79,7 +79,8 @@ void AFighterCharacter::DoMove(float Right, float Forward)
 		}
 	}
  UpdateSprintMovement();
-	if (CanAct() || CanMoveDuringDodgeRecovery()) Super::DoMove(Right, Forward);
+	// 切形态不锁移动（用户需求：边移动边切换）
+	if (CanAct() || CanMoveDuringDodgeRecovery() || HasCombatTag(TAG_State_StanceSwitching)) Super::DoMove(Right, Forward);
 }
 
 void AFighterCharacter::BeginPlay()
@@ -232,19 +233,7 @@ bool AFighterCharacter::RequestAttackSequence(ECachedAction Action)
 	}
 
 	PendingSegmentIndex = 0;
-	// 近战软锁（异人之下式索敌）：出招瞬间面向目标（MeleeAutoFace 总开关）
-	if (GetStance() == EFighterStance::Melee && Definition && Definition->MeleeAutoFace)
-	{
-		if (auto* Target = GetPreferredTargetFighter())
-		{
-			const float Range = Definition ? Definition->MeleeAutoFaceRange : 600.f;
-			const FVector D = Target->GetActorLocation() - GetActorLocation();
-			if (Target->IsDead() == false && D.Size2D() <= Range && D.Size2D() > 1.f)
-			{
-				SetActorRotation(FVector(D.X, D.Y, 0.f).GetSafeNormal().Rotation());
-			}
-		}
-	}
+	ApplyMeleeMagnetism();
 	const bool Activated = AbilitySystem != nullptr && AbilitySystem->TryActivateAbilityByClass(GetMeleeAttackAbilityClass());
 	if (!Activated) PendingSequence.Reset();
 	return Activated;
@@ -1176,7 +1165,8 @@ void AFighterCharacter::RefreshMovementControl()
   if (IsGuarding() && !GuardEffect.IsValid()) GuardEffect = ApplyCombatState(TAG_State_Guarding, -1.f);
   else if (!IsGuarding() && GuardEffect.IsValid()) { AbilitySystem->RemoveActiveGameplayEffect(GuardEffect); GuardEffect.Invalidate(); }
  }
- const bool Locked = !CanAct() && !CanMoveDuringDodgeRecovery();
+ // 切形态不锁移动（用户需求：边移动边切换；攻击请求仍被 StanceSwitching 拒绝）
+ const bool Locked = !CanAct() && !CanMoveDuringDodgeRecovery() && !HasCombatTag(TAG_State_StanceSwitching);
  if (Locked && !bMovementLocked)
  {
   SavedMaxWalkSpeed = Move->MaxWalkSpeed;
@@ -1517,8 +1507,57 @@ void AFighterCharacter::Tick(float DeltaSeconds)
 	ProcessCombatEvents();
 	TickAimCamera(DeltaSeconds);
 	TickMeleeFacing(DeltaSeconds);
+	TickRangedFacing(DeltaSeconds);
 	TickCurseRegen(DeltaSeconds);
 	TickThrowPair();
+}
+
+void AFighterCharacter::ApplyMeleeMagnetism()
+{
+	// 近战磁吸（业界三段式）：范围内前半球目标 → 转向；攻击距离外 → 滑步贴近（瞬移感）
+	if (GetStance() != EFighterStance::Melee || !Definition || !Definition->MeleeAutoFace) return;
+	auto* Target = GetPreferredTargetFighter();
+	if (!Target || Target->IsDead()) return;
+	const FVector D = Target->GetActorLocation() - GetActorLocation();
+	FVector Dir(D.X, D.Y, 0.f);
+	const float Dist = Dir.Size();
+	if (Dist < 1.f || Dist > Definition->MeleeAutoFaceRange) return;
+	Dir = Dir.GetSafeNormal();
+
+	// 前半球内才转向（背后目标不吸附）
+	const float AngleDeg = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(GetActorForwardVector(), Dir)));
+	if (AngleDeg <= 90.f)
+	{
+		SetActorRotation(Dir.Rotation());
+	}
+
+	// 位移吸附：攻击有效距离外、磁吸范围内的空隙 → 一次滑步补上
+	auto* Move = GetCharacterMovement();
+	if (AngleDeg <= 90.f && Move && Dist > Definition->AttackReach && Dist <= Definition->MagnetismRange)
+	{
+		const float Lunge = FMath::Clamp(Dist - Definition->AttackReach, 0.f, Definition->MagnetismLunge);
+		FHitResult Hit;
+		SetActorLocation(GetActorLocation() + Dir * Lunge, true, &Hit);
+	}
+}
+
+void AFighterCharacter::TickRangedFacing(float DeltaSeconds)
+{
+	// 远程开火朝向（PUBG 开火转身）：炮击全生命周期内平滑转向镜头 yaw；
+	// 非瞄准时角色原本朝移动方向，开火瞬间由本函数限速接管（无跳变）
+	if (GetStance() != EFighterStance::Ranged || !Definition) return;
+	if (!IsBlastCharging() && !ActiveBlast.IsValid()) return;
+	auto* PC = GetController() ? Cast<APlayerController>(GetController()) : nullptr;
+	if (!PC) return; // AI 的朝向由自身行为树负责
+
+	auto* Move = GetCharacterMovement();
+	if (Move) Move->bOrientRotationToMovement = false; // 开火期间不朝移动方向
+
+	const float TargetYaw = PC->GetControlRotation().Yaw;
+	const float Current = GetActorRotation().Yaw;
+	const float Delta = FMath::FindDeltaAngleDegrees(Current, TargetYaw);
+	const float Step = FMath::Clamp(Delta, -Definition->FireFaceYawRate * DeltaSeconds, Definition->FireFaceYawRate * DeltaSeconds);
+	SetActorRotation(FRotator(0.f, Current + Step, 0.f));
 }
 
 void AFighterCharacter::TickMeleeFacing(float DeltaSeconds)
@@ -1526,11 +1565,14 @@ void AFighterCharacter::TickMeleeFacing(float DeltaSeconds)
 	// 仅索敌键硬锁时持续面向目标；柔性镜头辅助不转角色（避免与 OrientRotationToMovement 抢朝向）
 	auto* TargetingComp = GetTargeting();
 	const bool bLocked = TargetingComp && TargetingComp->GetCurrentTarget() && !IsDead();
+	const bool bRangedFiring = GetStance() == EFighterStance::Ranged && (IsBlastCharging() || ActiveBlast.IsValid());
 	if (Definition)
 	{
 		auto* Move = GetCharacterMovement();
-		if (Move && Move->bOrientRotationToMovement == bLocked)
-			Move->bOrientRotationToMovement = !bLocked;
+		// 硬锁或远程开火期间关闭朝移动方向，由面向逻辑接管
+		const bool bWantNoOrient = bLocked || bRangedFiring;
+		if (Move && Move->bOrientRotationToMovement == bWantNoOrient)
+			Move->bOrientRotationToMovement = !bWantNoOrient;
 	}
 	if (!bLocked || GetStance() != EFighterStance::Melee || !Definition) return;
 	auto* Target = TargetingComp->GetCurrentTarget();

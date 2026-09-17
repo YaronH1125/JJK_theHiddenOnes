@@ -92,11 +92,7 @@ private:
  bool bCombatInputEnabled = true;
  bool bAttackPressed = false, bAttackReleased = false, bKickPressed = false, bKickReleased = false;
  bool bDodgePressed = false, bStancePressed = false, bDomainPressed = false;
- /** 柔性镜头辅助状态（鸣潮式回正；鼠标输入立即让位） */
- float PrevControlYaw = 0.f;
- float LastAssistYaw = 0.f;
- double LastLookTime = -10.0;
- bool bPrevYawValid = false;
+
  bool bDodgeHeld = false;
  void ClearFrameInput();
 	void HandleLockInput();

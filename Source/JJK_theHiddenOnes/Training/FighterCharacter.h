@@ -98,6 +98,10 @@ public:
 	/** 索敌键硬锁：锁定时持续面向目标（平滑插值，不抢移动） */
 	void TickMeleeFacing(float DeltaSeconds);
 	bool IsHardLocked() const;
+	/** 出招磁吸（异人之下/鸣潮式）：面向 + 位移吸附；在出招前调用 */
+	void ApplyMeleeMagnetism();
+	/** 远程开火朝向：蓄力/发射期间平滑转向镜头 yaw（PUBG 开火转身） */
+	void TickRangedFacing(float DeltaSeconds);
 
 	UFUNCTION(BlueprintPure, Category = "Fighter")
 	bool IsGuardIntent() const;

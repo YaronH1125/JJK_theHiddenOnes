@@ -20,7 +20,7 @@
     {
       "name": "M5-T02_nav_ready",
       "passed": true,
-      "details": "<Struct 'Vector' (0x0000019B48E10880) {x: 273.592193, y: 0.000000, z: 98.150000}>"
+      "details": "<Struct 'Vector' (0x000001CE9F0D6BD0) {x: 294.965472, y: 0.000000, z: 98.150000}>"
     },
     {
       "name": "M5-T02_capsule_agent",
@@ -40,7 +40,7 @@
     {
       "name": "M5-T02_approach",
       "passed": true,
-      "details": 292.74669337246803
+      "details": 299.87382101835874
     },
     {
       "name": "M5-T01_fixed_guard",
@@ -79,9 +79,9 @@
       "name": "M5-T07_GAS_task",
       "passed": true,
       "details": [
-        "9.617 Started BT_Arena / BB_Arena",
-        "9.784 Branch=Attack Distance=150.0 ObservedFor=-1.00",
-        "9.801 Request=Executed"
+        "9.390 Started BT_Arena / BB_Arena",
+        "9.576 Branch=Attack Distance=150.0 ObservedFor=-1.00",
+        "9.594 Request=Executed"
       ]
     },
     {
@@ -92,7 +92,7 @@
     {
       "name": "M5-T05_hit_stops_path",
       "passed": true,
-      "details": "<Struct 'Vector' (0x0000019B48E70D80) {x: 0.000000, y: 0.000000, z: 0.000000}>"
+      "details": "<Struct 'Vector' (0x000001CE9F147C10) {x: 0.000000, y: 0.000000, z: 0.000000}>"
     },
     {
       "name": "M5-T05_recovery",
@@ -103,12 +103,11 @@
       "name": "M5-T03_hit_blocked",
       "passed": true,
       "details": [
-        "11.969 Started BT_Arena / BB_Arena",
-        "12.062 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
-        "12.082 Request=RejectedBlocked",
-        "12.180 Branch=Wait Distance=1000.0 ObservedFor=-1.00",
-        "12.196 Wait: combat control",
-        "12.254 Branch completed"
+        "11.789 Started BT_Arena / BB_Arena",
+        "11.891 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
+        "11.908 Request=RejectedBlocked",
+        "12.023 Branch=Wait Distance=1000.0 ObservedFor=-1.00",
+        "12.041 Wait: combat control"
       ]
     },
     {
@@ -120,12 +119,12 @@
       "name": "M5-T03_missing",
       "passed": true,
       "details": [
-        "12.277 Started BT_Arena / BB_Arena",
-        "12.351 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
-        "12.367 Rejected: ability missing",
-        "12.467 Branch=Approach Distance=1000.0 ObservedFor=-1.00",
-        "12.484 MoveRequested",
-        "12.535 Branch completed"
+        "12.090 Started BT_Arena / BB_Arena",
+        "12.188 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
+        "12.205 Rejected: ability missing",
+        "12.309 Branch=Approach Distance=1000.0 ObservedFor=-1.00",
+        "12.338 MoveRequested",
+        "12.403 Branch completed"
       ]
     },
     {
@@ -152,31 +151,34 @@
       "name": "M5-T04_cached_consumed",
       "passed": true,
       "details": [
-        "13.051 Started BT_Arena / BB_Arena",
-        "13.129 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
-        "13.146 Request=Cached"
+        "12.889 Started BT_Arena / BB_Arena",
+        "12.972 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
+        "12.990 Request=Cached"
       ]
     },
     {
       "name": "M5-T04_consumed",
       "passed": true,
       "details": [
-        "13.051 Started BT_Arena / BB_Arena",
-        "13.129 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
-        "13.146 Request=Cached",
-        "13.829 Cache consumed: awaiting same ability end",
-        "14.834 Ability completed",
-        "14.918 Branch=Approach Distance=711.5 ObservedFor=-1.00",
-        "14.938 MoveRequested",
-        "15.006 Branch completed",
-        "15.150 Branch=Approach Distance=658.9 ObservedFor=-1.00",
-        "15.232 MoveRequested",
-        "15.313 Branch completed",
-        "15.486 Branch=Approach Distance=490.8 ObservedFor=-1.00",
-        "15.503 MoveRequested",
-        "15.595 Branch completed",
-        "15.729 Branch=Approach Distance=369.3 ObservedFor=-1.00",
-        "15.762 MoveRequested"
+        "12.889 Started BT_Arena / BB_Arena",
+        "12.972 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
+        "12.990 Request=Cached",
+        "13.667 Cache consumed: awaiting same ability end",
+        "14.692 Ability completed",
+        "14.792 Branch=Approach Distance=710.8 ObservedFor=-1.00",
+        "14.823 MoveRequested",
+        "14.892 Branch completed",
+        "14.992 Branch=Approach Distance=677.1 ObservedFor=-1.00",
+        "15.022 MoveRequested",
+        "15.073 Branch completed",
+        "15.205 Branch=Approach Distance=574.6 ObservedFor=-1.00",
+        "15.223 MoveRequested",
+        "15.274 Branch completed",
+        "15.387 Branch=Approach Distance=483.6 ObservedFor=-1.00",
+        "15.405 MoveRequested",
+        "15.456 Branch completed",
+        "15.569 Branch=Approach Distance=392.2 ObservedFor=-1.00",
+        "15.587 MoveRequested"
       ]
     },
     {
@@ -188,40 +190,40 @@
       "name": "M5-T04_cached_expired",
       "passed": true,
       "details": [
-        "15.762 Started BT_Arena / BB_Arena",
-        "15.843 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
-        "15.863 Request=Cached"
+        "15.606 Started BT_Arena / BB_Arena",
+        "15.691 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
+        "15.711 Request=Cached"
       ]
     },
     {
       "name": "M5-T04_expired",
       "passed": true,
       "details": [
-        "15.762 Started BT_Arena / BB_Arena",
-        "15.843 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
-        "15.863 Request=Cached",
-        "15.898 Cache expired/discarded/superseded",
-        "16.032 Branch=Wait Distance=999.4 ObservedFor=-1.00",
-        "16.079 Wait: combat control",
-        "16.144 Branch completed",
-        "16.262 Branch=Wait Distance=935.5 ObservedFor=-1.00",
-        "16.294 Wait: combat control",
-        "16.347 Branch completed",
-        "16.478 Branch=Wait Distance=866.7 ObservedFor=-1.00",
-        "16.497 Wait: combat control",
-        "16.576 Branch completed",
-        "16.693 Branch=Wait Distance=851.0 ObservedFor=-1.00",
-        "16.718 Wait: combat control",
-        "16.810 Branch completed",
-        "16.927 Branch=Approach Distance=851.0 ObservedFor=-1.00",
-        "16.947 MoveRequested",
-        "17.013 Branch completed",
-        "17.129 Branch=Approach Distance=810.6 ObservedFor=-1.00",
-        "17.163 MoveRequested",
-        "17.228 Branch completed",
-        "17.358 Branch=Approach Distance=698.0 ObservedFor=-1.00",
-        "17.403 MoveRequested",
-        "17.455 Branch completed"
+        "15.606 Started BT_Arena / BB_Arena",
+        "15.691 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
+        "15.711 Request=Cached",
+        "15.754 Cache expired/discarded/superseded",
+        "15.874 Branch=Wait Distance=999.9 ObservedFor=-1.00",
+        "15.905 Wait: combat control",
+        "15.956 Branch completed",
+        "16.088 Branch=Wait Distance=941.8 ObservedFor=-1.00",
+        "16.106 Wait: combat control",
+        "16.157 Branch completed",
+        "16.290 Branch=Wait Distance=875.3 ObservedFor=-1.00",
+        "16.321 Wait: combat control",
+        "16.389 Branch completed",
+        "16.510 Branch=Wait Distance=852.7 ObservedFor=-1.00",
+        "16.539 Wait: combat control",
+        "16.608 Branch completed",
+        "16.740 Branch=Approach Distance=852.7 ObservedFor=-1.00",
+        "16.760 MoveRequested",
+        "16.821 Branch completed",
+        "16.924 Branch=Approach Distance=820.8 ObservedFor=-1.00",
+        "16.957 MoveRequested",
+        "17.007 Branch completed",
+        "17.137 Branch=Approach Distance=718.6 ObservedFor=-1.00",
+        "17.156 MoveRequested",
+        "17.236 Branch completed"
       ]
     },
     {
@@ -233,9 +235,9 @@
       "name": "M5-T04_cached_superseded",
       "passed": true,
       "details": [
-        "17.498 Started BT_Arena / BB_Arena",
-        "17.596 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
-        "17.618 Request=Cached"
+        "17.324 Started BT_Arena / BB_Arena",
+        "17.406 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
+        "17.424 Request=Cached"
       ]
     },
     {
@@ -247,9 +249,9 @@
       "name": "M5-T04_cached_abort",
       "passed": true,
       "details": [
-        "17.736 Started BT_Arena / BB_Arena",
-        "17.825 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
-        "17.842 Request=Cached"
+        "17.527 Started BT_Arena / BB_Arena",
+        "17.622 Branch=Attack Distance=1000.0 ObservedFor=-1.00",
+        "17.654 Request=Cached"
       ]
     },
     {
@@ -286,11 +288,14 @@
       "name": "M5-T08_reaction_1.0",
       "passed": true,
       "details": [
-        "19.029 Started BT_Arena / BB_Arena",
-        "19.145 Branch=Strafe Distance=290.0 ObservedFor=-1.00",
-        "19.193 MoveRequested",
-        "19.295 Branch completed",
-        "19.497 Branch=Strafe Distance=299.9 ObservedFor=0.29"
+        "18.790 Started BT_Arena / BB_Arena",
+        "18.860 Branch=Strafe Distance=290.0 ObservedFor=-1.00",
+        "18.877 MoveRequested",
+        "18.972 Branch completed",
+        "19.073 Branch=Strafe Distance=293.5 ObservedFor=0.10",
+        "19.092 MoveRequested",
+        "19.143 Branch completed",
+        "19.259 Branch=Strafe Distance=300.6 ObservedFor=0.29"
       ]
     },
     {
@@ -302,23 +307,23 @@
       "name": "M5-T08_reaction_0.0",
       "passed": true,
       "details": [
-        "19.497 Started BT_Arena / BB_Arena",
-        "19.594 Branch=Strafe Distance=290.0 ObservedFor=-1.00",
-        "19.633 MoveRequested",
-        "19.742 Branch completed",
-        "19.899 Branch=Defend Distance=300.9 ObservedFor=0.22",
-        "19.960 Guard: holding"
+        "19.259 Started BT_Arena / BB_Arena",
+        "19.342 Branch=Strafe Distance=290.0 ObservedFor=-1.00",
+        "19.360 MoveRequested",
+        "19.425 Branch completed",
+        "19.540 Branch=Defend Distance=292.7 ObservedFor=0.11",
+        "19.561 Guard: holding"
       ]
     },
     {
       "name": "M5-T02_<AIBranch.RETREAT: 3>",
       "passed": true,
-      "details": "<Struct 'Vector' (0x0000019B48DC7A30) {x: 525.885216, y: 0.000000, z: 98.150000}>"
+      "details": "<Struct 'Vector' (0x000001CE9F147A30) {x: 533.379450, y: 0.000000, z: 98.150000}>"
     },
     {
       "name": "M5-T02_<AIBranch.STRAFE: 2>",
       "passed": true,
-      "details": "<Struct 'Vector' (0x0000019B48E2BBC0) {x: 500.000000, y: -33.055751, z: 98.150000}>"
+      "details": "<Struct 'Vector' (0x000001CE9F178470) {x: 500.000000, y: -22.385592, z: 98.150000}>"
     },
     {
       "name": "M5-T02_wall_fallback",
@@ -330,14 +335,14 @@
       "passed": true,
       "details": {
         "hp": 910.0,
-        "peak": 524.8803070435484,
+        "peak": 570.0967394324042,
         "status": "<PathFollowingStatus.IDLE: 0>"
       }
     },
     {
       "name": "M5-T05_knockback_preserved",
       "passed": true,
-      "details": 524.8803070435484
+      "details": 570.0967394324042
     },
     {
       "name": "M5-T05_resume_heavy_punch",
@@ -349,7 +354,7 @@
       "passed": true,
       "details": {
         "hp": 900.0,
-        "peak": 417.2954231241477,
+        "peak": 417.54632614924725,
         "status": "<PathFollowingStatus.IDLE: 0>"
       }
     },
@@ -447,8 +452,8 @@
       "details": null
     }
   ],
-  "started_at": 1789666490.4596903,
-  "duration_seconds": 31.312999999994645,
+  "started_at": 1789670879.3267126,
+  "duration_seconds": 30.92199999999866,
   "snapshot": {
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnes.h": "c4e970344d898b0a680f93ef9d83624c20e4a87da676ea0ea4741c50bec7eca8",
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesCharacter.h": "005720565b10d37db07aa7c27b33bf63983924a6f3045d44740c0a8a82aac384",
@@ -456,7 +461,7 @@
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesPlayerController.h": "cf492575628b8267432339c83c87dabd698239f723508511d44074d36f500d44",
     "Source/JJK_theHiddenOnes/Training/ArenaBTNodes.h": "f7803961a3cb4b348258df9372bcbb5895bb5d2759d916a3d3beeaec835d978b",
     "Source/JJK_theHiddenOnes/Training/ArenaCrosshairHud.h": "dfddb033be181d71368b477d89ae14084969702aceb7388f5abb94d93b160ab6",
-    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.h": "4c9d0881f3f25a8a1b348d71fab59b19109b20076fa14d8c96194557078a6d44",
+    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.h": "7bb1212c99028c112b9c0e240f9434f32f3f912daff2051574e6146b1c5fd0dc",
     "Source/JJK_theHiddenOnes/Training/AttackDefinition.h": "8eee2eac48a7fa93be8c70b60dc5f2ccaa90d998a3cd8bf407272c52bdf9ea1a",
     "Source/JJK_theHiddenOnes/Training/AttackWindowAnimNotify.h": "53f31c6d0d02b8c71dae8c85e12cb8286f23d7f0030c46475381ddf8d8da0886",
     "Source/JJK_theHiddenOnes/Training/BlastConfig.h": "5d9afe8c5b972b39c61b626f40f667b33842df850e1a00f8508e771e38b24f57",
@@ -474,8 +479,8 @@
     "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.h": "51002cf86f772c378cdc59b05d2a32c8ae16bfaedf8a4ebb60445bde5bb6d3dc",
     "Source/JJK_theHiddenOnes/Training/FighterAIController.h": "485b1a347c2965b2328707bcbfc1bbac543e40d0bdea97891f25316471244880",
     "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.h": "4c64f213a89374e62ba88eeec6250d0f03dfc77d325d3b144f902a21471cf665",
-    "Source/JJK_theHiddenOnes/Training/FighterCharacter.h": "e27566eb63f9a8defe7f714138c9f7b913df688f484153e0da3b6ec24de3d3ea",
-    "Source/JJK_theHiddenOnes/Training/FighterDefinition.h": "2636cf5253ad7e3b6ad9fd4407f0e66ee9ef833a6ec14877eb9f95e1028fa872",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.h": "3899897b9fddcd5009690526730f1b6e1038b92885f0998139f14b49efdf04b0",
+    "Source/JJK_theHiddenOnes/Training/FighterDefinition.h": "5bc9d370285141246f5ab7dae71fcbcd12e6bf201c977f8b8351e70afcfa6338",
     "Source/JJK_theHiddenOnes/Training/M5SmokeHarness.h": "054a19287b3c593be33b56915fd0edc5cd2a78c7e0a3e9bceffd002a1b7df4dc",
     "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.h": "b51cd81e1c8938637fcdfff158c1feb6b445f3b6ee5733c4c3d735351f2b0f25",
     "Source/JJK_theHiddenOnes/Training/MobileChargedBlastAbility.h": "58e3be91c260d98828c5327bea332000d1d2661e2d22d1aa09995bb1f16b15ad",
@@ -534,7 +539,7 @@
     "Source/JJK_theHiddenOnes/JJK_theHiddenOnesPlayerController.cpp": "b64de10d70454574f6370874e941714b3598ca4dc5162ad15b0a13629381840b",
     "Source/JJK_theHiddenOnes/Training/ArenaBTNodes.cpp": "4053892aa9531f1e0aedf22608b2ff75ca258b7731f4cc967a34fe7f9c651a52",
     "Source/JJK_theHiddenOnes/Training/ArenaCrosshairHud.cpp": "b4e1edaecdc892f66ce93e41e9802cf2247eaddaba4975c2b265afa70c3946df",
-    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.cpp": "2188e418b8780a84e73379869be229478fcab6d8aa9adfb09d9cd4639c90d717",
+    "Source/JJK_theHiddenOnes/Training/ArenaPlayerController.cpp": "538125593b2cd250a89539c36d6e270d600d7db23138b85e89c8c812b781c9d3",
     "Source/JJK_theHiddenOnes/Training/AttackDefinition.cpp": "50956bb857f8fd5f2ccb5a87f53a30c8c4a483bedb4cb47c225efae239de314a",
     "Source/JJK_theHiddenOnes/Training/AttackWindowAnimNotify.cpp": "bc904edee603933554b06f5c263eb846a64587fd6263dbd33fa26bbc0a7f9f1c",
     "Source/JJK_theHiddenOnes/Training/BlastProjectile.cpp": "9d97ec02be24718bfa01d6f94825deaa44aee78ebc534af485a52f7ff4671144",
@@ -551,7 +556,7 @@
     "Source/JJK_theHiddenOnes/Training/FighterAbilitySystemComponent.cpp": "19b14d58bd5375864eb1f8d125bde8750273fc499a6dfd32086d981a9184350b",
     "Source/JJK_theHiddenOnes/Training/FighterAIController.cpp": "d542567e4221cac4283d43c899b95b574b348e66f3427360b60de0be571bbc07",
     "Source/JJK_theHiddenOnes/Training/FighterAttributeSet.cpp": "d28cfa82791db303d0ecd47fb0ae195d3265715aa776e37b041abc3ab2b315dc",
-    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "0a8ce159e07a81f695238adf4cd438a2be60c47cf211155b25e026c7a3b6b663",
+    "Source/JJK_theHiddenOnes/Training/FighterCharacter.cpp": "7852cefb72fe7e7f07698bf41f5fa1b84fc8f084ce120939fb4251e49b7bd8c7",
     "Source/JJK_theHiddenOnes/Training/FighterDefinition.cpp": "49ff2e8200676d920005a8d2d212b3aa4104bea1622b35b5036d1edcba8d51a2",
     "Source/JJK_theHiddenOnes/Training/M5SmokeHarness.cpp": "ab2f2224288bab703874c6fa0c374dcbd7fad4736a28940ee2200d12f2f625ec",
     "Source/JJK_theHiddenOnes/Training/MeleeComboAbility.cpp": "753565f48a4d3e8527d9df043c78def89a16d793c6ca2cf591a2db254e4cc548",

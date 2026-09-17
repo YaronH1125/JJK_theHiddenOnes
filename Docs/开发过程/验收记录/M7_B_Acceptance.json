@@ -24,7 +24,7 @@
       "passed": true,
       "details": {
         "orb_seen": false,
-        "curse": 53.16657257080078,
+        "curse": 54.010032653808594,
         "drop": 0.0
       }
     },
@@ -71,7 +71,7 @@
         "noFire": true,
         "noRegen": true,
         "damage": 90.0,
-        "net": 20.99999237060547
+        "net": 21.0
       }
     },
     {
@@ -81,7 +81,7 @@
         "hold": 10.0,
         "noFire": true,
         "damage": 195.50006103515625,
-        "expect": 195.50008010864258
+        "expect": 195.50005340576172
       }
     },
     {
@@ -138,7 +138,7 @@
       "name": "B05_fps_30",
       "passed": true,
       "details": {
-        "fps_measured": 30.0,
+        "fps_measured": 12.5,
         "blast_hit": true
       }
     },
@@ -146,7 +146,7 @@
       "name": "B05_fps_60",
       "passed": true,
       "details": {
-        "fps_measured": 60.0,
+        "fps_measured": 12.6,
         "blast_hit": true
       }
     },
@@ -154,11 +154,11 @@
       "name": "B05_fps_120",
       "passed": true,
       "details": {
-        "fps_measured": 85.6,
+        "fps_measured": 13.5,
         "blast_hit": true
       }
     }
   ],
-  "started_at": 1789655681.4124982,
-  "duration_seconds": 238.15600000000268
+  "started_at": 1789670932.8694968,
+  "duration_seconds": 243.45300000000134
 }

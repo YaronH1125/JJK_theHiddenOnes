@@ -200,7 +200,7 @@ public:
 
 	/** 切形态动作时长（E） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Stance", meta = (ClampMin = "0.05", ForceUnits = "s"))
-	float StanceSwitchDuration = 0.25f;
+	float StanceSwitchDuration = 0.1f;
 
 	/** 再次切形态的最小间隔 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Stance", meta = (ClampMin = "0.0", ForceUnits = "s"))
@@ -313,13 +313,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ForceUnits = "cm"))
 	float MeleeSocketOffsetZ = 35.f;
 
-	/** 柔性锁定：镜头辅助的最大偏航速率（度/秒；鸣潮式缓慢回正，鼠标输入立即让位） */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0"))
-	float SoftLockYawAssistRate = 90.f;
 
 	/** 柔性锁定：辅助生效的目标距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm"))
-	float MeleeAutoFaceRange = 900.f;
+	float MeleeAutoFaceRange = 600.f;
 
 	/** 软锁总开关（M3/M5 方向性近战回归显式钉住 false） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee")
@@ -328,6 +325,22 @@ public:
 	/** 索敌键硬锁：锁定时面向目标的速率（FInterpTo） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "1.0"))
 	float MeleeFaceInterpSpeed = 10.f;
+
+	/** 出招磁吸：此距离外不吸附（08 攻击距离 ~200 + 余量） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm"))
+	float MagnetismRange = 350.f;
+
+	/** 近战攻击有效距离（磁吸只补这段之外的空隙） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm"))
+	float AttackReach = 180.f;
+
+	/** 磁吸滑步最大距离（“瞬移到敌人面前”的吸引感，实测 50–120cm） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm"))
+	float MagnetismLunge = 100.f;
+
+	/** 远程开火朝向：蓄力/发射期间转向镜头 yaw 的限速（度/秒，PUBG 开火转身） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "0.0"))
+	float FireFaceYawRate = 540.f;
 
 	/** 瞄准 FOV（收窄视场：PUBG ADS 归一化 ≈70 vFOV） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "30.0", ClampMax = "120.0"))
