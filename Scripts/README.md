@@ -1,5 +1,19 @@
 # UE 自动化与 M1 / M2 验收
 
+## 道场修复与独立证据
+
+先按 [版本控制与素材依赖](../Docs/12_版本控制与素材依赖.md) 恢复两套外部原素材，执行 `python Scripts/check_external_assets.py`。基线清单随仓库提交，原素材与归档不提交。新验收 runner 自动创建本地证据目录；一次性状态探针移至 `Saved/DojoTools/`，不作为仓库工具。
+
+默认地图现为 `/Game/Maps/L_DojoArena`；白盒测试需显式打开 `L_TrainingArena`，不能依赖启动默认值。训练面板按 **F1**（F11 是编辑器视口全屏，不是训练菜单）。
+
+- `Dojo_fix_level.py`：停止 PIE 后，通过 `ue_python.py` 运行。仅保存道场玩法地图和 GameMode 子蓝图；隐藏四面代理墙、保留碰撞并设置矩形边界，不保存源素材包。
+- `run_dojo_acceptance.py`：当前地图应为道场；新 PIE 验证四角 AI 路径、物理边界、格挡绕背、双炮、20 次重置、三局正常资源 AI 对被动玩家以及性能采样。没有模拟人类操作，不等于真人听音/手感验收；运行中不要保存资产。
+- `run_dojo_smoke.py --editor --nullrhi --map L_DojoArena`：未 Cook 独立规则 smoke；白盒改为 `L_TrainingArena`。编辑器需先关闭。去掉 `--editor --nullrhi` 验证实际 Dojo 包，默认保留声音。
+- `Dojo_hash_check.py`：将道场 564 文件与 `Baselines/external_assets.json` 中已核对原导入基线的 SHA-256 比较，不再依赖被 Git 忽略的本地报告。
+- `build_dojo.ps1`：检查外部依赖后构建、Cook 并打包两张地图；仅代码更新可在确认 Cook 资产一致后使用 `-ReuseCook`。
+
+每次测试保留独立时间戳证据；失败不覆盖通过记录，也不能将白盒结果写成道场结果。独立包预期位于 `Saved/Packages/Dojo/Windows`。
+
 先打开本项目 UE 5.8.2 编辑器。以下命令在项目根目录执行，无需保持编辑器前台。
 
 ```powershell

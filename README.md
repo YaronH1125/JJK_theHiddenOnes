@@ -9,7 +9,7 @@
 ## 功能特性
 
 ### 双形态战斗
-- **近战**：轻拳三段连招、重拳、腿击、重踢（倒地）、条件投技；攻击带磁吸（范围内自动面向/滑步贴近目标）
+- **近战**：轻拳三段连招、重拳、腿击、重踢（倒地）；条件投技由地图规则控制（道场关闭，白盒保留）；攻击带磁吸（范围内自动面向/滑步贴近目标）
 - **远程**：移动蓄力炮 + 定点超级蓄力炮（最低 1.2s / 满蓄 2.4s / 冷却 10s），发射可见弹体，蓄力时长决定伤害与咒力成本
 
 ### 原创领域机制
@@ -29,7 +29,7 @@
 
 ### 自动化验收
 - 六套 PIE 验收套件，**294 项断言**（远程执行 Python 驱动，见 `Scripts/`）
-- Development 独立包 + 包内 smoke 20 项（退出码校验 + SHA256 归档）
+- Development 独立包 + 包内 smoke 20 项；道场回归额外检查两项高速弹体遮挡，道场与白盒均 22/22 通过（结果计数与 SHA256 归档）
 - 覆盖：规则回归、重新进入、图形闭环、打包验证
 
 ## 操作
@@ -48,11 +48,12 @@
 
 ## 构建与运行
 
-1. 安装 **Unreal Engine 5.8.2**
-2. 双击 `JJK_theHiddenOnes.uproject`（首次打开会自动编译 C++），或右键 → Generate Visual Studio project 后构建 `Development Editor`
-3. 打开地图 `L_TrainingArena`，PIE 运行；F1 打开训练面板
+1. 安装 **Unreal Engine 5.8.2** 和 C++ 编译工具链。
+2. 按 [素材恢复说明](Docs/12_版本控制与素材依赖.md) 恢复 `Content/Mishima_DOJO/`、`Content/EnergyBeam/`，运行 `python Scripts/check_external_assets.py`。**两套原素材独立归档，不随 Git 分发；clone 后不能直接运行完整道场。**
+3. 双击 `JJK_theHiddenOnes.uproject`，或右键 → Generate Visual Studio project 后构建 `Development Editor`。
+4. 默认打开 `L_DojoArena`，PIE 运行；F1 打开训练面板。白盒回归手动打开 `L_TrainingArena`。
 
-打包：`RunUAT BuildCookRun -platform=Win64 -clientconfig=Development -cook -map=/Game/Maps/L_TrainingArena -stage -pak -archive ...`（参考 `Scripts/run_m6_package.py`）
+打包：关闭编辑器后运行 `Scripts/build_dojo.ps1`（当前脚本引擎位置为 `F:/GameStudy/UE_5.8`，其他机器需调整）。输出在 `Saved/Packages/Dojo/Windows`，双击顶层 exe。运行 `python Scripts/run_dojo_smoke.py --default-map` 验证道场，`--map L_TrainingArena` 验证白盒。完整说明见 [Scripts](Scripts/README.md)。
 
 ## 架构一览
 
@@ -72,6 +73,8 @@ Source/JJK_theHiddenOnes/Training/
 
 - [01 需求说明](Docs/01_需求说明.md)
 - [08 石流龙战斗系统设计](Docs/08_石流龙战斗系统设计.md)
+- [11 道场场景接入](Docs/11_日式道场场景接入说明.md)
+- [12 版本控制与素材依赖](Docs/12_版本控制与素材依赖.md)
 - [Scripts 自动化说明](Scripts/README.md)
 
 ## 已知限制
