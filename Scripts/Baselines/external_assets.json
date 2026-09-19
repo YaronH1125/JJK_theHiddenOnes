@@ -1,0 +1,3935 @@
+{
+  "schema_version": 1,
+  "description": "User-imported runtime dependencies, archived separately from the public source repository. Paths relative to project root.",
+  "packages": {
+    "Mishima_DOJO": {
+      "root": "Content/Mishima_DOJO",
+      "file_count": 564,
+      "total_bytes": 7418223194,
+      "files": [
+        {
+          "path": "Content/Mishima_DOJO/Blueprints/BP_Briezer.uasset",
+          "bytes": 42471,
+          "sha256": "3caf2f073f02271ce39ed73d6801a45747f7896378feccb8113eec2213436039"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Blueprints/BP_Candle.uasset",
+          "bytes": 56012,
+          "sha256": "131883a7f9c5243cd20d2373284869020671ec57bbfd299eb65d0ff082845268"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Blueprints/BP_Lanter.uasset",
+          "bytes": 30421,
+          "sha256": "f9965bc7a5dcdac0c679709e0b6d15cf28669a61f6854d8ecb24481316e0766b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Blueprints/BP_Lanter_L.uasset",
+          "bytes": 28004,
+          "sha256": "658338f8d78b1612f234f721a653284f4e852a691a9859b116f84bc719b0cc07"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_01.uasset",
+          "bytes": 46270,
+          "sha256": "426f3e76453868867fc59beb0a011f713df062e41a206e166ca15478c083d7e6"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_02.uasset",
+          "bytes": 46642,
+          "sha256": "297eb1b07bad7b628a1fcd8c6978108d4c1907a7278b3ca57bdb81f5c19e36d4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_03.uasset",
+          "bytes": 33079,
+          "sha256": "d193c9dbda02e94accdfd66bf5f137c1eb9cdddac637f7c047fb8a17d83e0aeb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_04.uasset",
+          "bytes": 35285,
+          "sha256": "d7a84ca0287d3daa010f68f20e80f62a90ea0b2b79fbc792fa1f4d060b96c916"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_05.uasset",
+          "bytes": 31061,
+          "sha256": "3972d8e774fc59ab20b86503734702e13bbf36b8c8d7e97d1fcc4689dae7efa4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_06.uasset",
+          "bytes": 49401,
+          "sha256": "fd0aa0ab63f84380eb101454dbb9a49bb7e9b176d07919fe63485d7bf24b57a5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_07.uasset",
+          "bytes": 31770,
+          "sha256": "7c1f460738438d6b00b309aee8a35f2de091ed760c1f9aed9354f5f4e286b73d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_08.uasset",
+          "bytes": 45756,
+          "sha256": "0164413bb3806bc0406e47ba2c4f71c5a253294912db13de549a1792f8bdd965"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_09.uasset",
+          "bytes": 36388,
+          "sha256": "3553f0d2c86f93f43521abcafc96fd7ad3fa06a2ae724ed8a1d9702b983ad3bf"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_10.uasset",
+          "bytes": 40652,
+          "sha256": "6f3f30d328cf107734e653ac7aa886e4d5578d09609e1bdde986b4d49b32d522"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Cinematics/Shot_11.uasset",
+          "bytes": 5531,
+          "sha256": "c5dfe20cf3d45c091b8d325e748f142d268a5554a47a28a476f3fa276c77c802"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Levels/LandscapeLayer/Grass_LayerInfo.uasset",
+          "bytes": 1477,
+          "sha256": "437b2e3c185a8ed53c2ecf84b9ce48236615a46e8ccf094855c9b2289a07aa8b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Levels/LandscapeLayer/Mud_LayerInfo.uasset",
+          "bytes": 1465,
+          "sha256": "d2ccc3b5b531a0679cbc260dc8dbf4959c3e1c18450b46f9055ecb4e28226da4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Levels/LandscapeLayer/Rock_LayerInfo.uasset",
+          "bytes": 1471,
+          "sha256": "17f8b93d4448b06b588912b0de9ad851f9e165ed2cd74b725a85fc7b284dbc32"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Levels/LightVariations/Showcase_Day.umap",
+          "bytes": 9621003,
+          "sha256": "5863ad7b73969266e18c86621d5d8274fc7b4bb9e0bd81c8d21ff6b86e6776e1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Levels/Overview.umap",
+          "bytes": 523986,
+          "sha256": "dc869e67cabb9c96fabb1411c3a503bd3259bf9381a7f13dc64a1c658427ab89"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Levels/Overview_BuiltData.uasset",
+          "bytes": 14508383,
+          "sha256": "869023f32492ade3187f6e2f2cbd42c342169b5684158bbcdd0e96b717730d8d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Levels/Showcase.umap",
+          "bytes": 9762219,
+          "sha256": "55ad99a84fc64fc400b2d257425e3c96a903f3ada1ee0d4a9dfd03ea53358f82"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MF_Channel_Masks.uasset",
+          "bytes": 19857,
+          "sha256": "4d428174ba368957616f64bb689bc7aa46b29b7e65db190fcf9866f5de4a0eca"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MF_Channel_Masks_Emission.uasset",
+          "bytes": 13869,
+          "sha256": "1ca92da1c1ff4bf190951f345401ee94d8afcc4c7c25cb4a2f9f827fb6c28b8a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MF_RemapValues.uasset",
+          "bytes": 13043,
+          "sha256": "c44985c1bed29ae0e147d3c8ba47843e1dd553fd8c2468a104ef31690261f489"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MF_Secondary_Material.uasset",
+          "bytes": 18785,
+          "sha256": "97499946f6dd44a44bb0dc601f9cf3a973907902e507bb5c6d89e7a79f37e6e0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MF_UVs.uasset",
+          "bytes": 11337,
+          "sha256": "5348fbdc9a982109d47940d8d4e34877ce4b13de922feaec3160c3232c223b94"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MF_WPO.uasset",
+          "bytes": 74947,
+          "sha256": "fee7ddf738cc8f2c0c89f470d2106e7563fdfd3a4ace0b646375e3c3c3815c1c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Asura.uasset",
+          "bytes": 11945,
+          "sha256": "38e2b036d4e3d708de882ae1866adbff11c57a36d009c7deaec34d0d3a7f1560"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Asura_01.uasset",
+          "bytes": 12535,
+          "sha256": "f6892c129e36d076bbaea5abbea22141dad91f331097e6d6e7b245035fd5c730"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Asura_02.uasset",
+          "bytes": 12863,
+          "sha256": "62a09d054128edfa48e4b4257dcba3354d43d4087870471d29429fd4f03d2636"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Blinds.uasset",
+          "bytes": 11853,
+          "sha256": "10882d0f55fb2d63d84495e4b599427631d25ad8712f529f405f5ce13431f08d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Body.uasset",
+          "bytes": 12266,
+          "sha256": "806e7d8df1999df955a5c6ee767f048fb8040b58b91d6add3e622a249f98ecb6"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Brazer_Meta.uasset",
+          "bytes": 13808,
+          "sha256": "4fa277b5ae258043e876d61664345dadf159411223870b3f27e13eb92fa58541"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Brazer_Meta1.uasset",
+          "bytes": 15133,
+          "sha256": "f7ac089ec088fb9c19b12c41c8a01a96163d2f97e28199441496f134d9cdfc9c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Bull.uasset",
+          "bytes": 11788,
+          "sha256": "501e031006c2f13abc12d0203ff01ef36ddb10cca01e7ff80dfd02421c976bc1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Circle_Board.uasset",
+          "bytes": 13107,
+          "sha256": "3938734989507ef0c1f54c7aa75c73bd5ef685d09ee72e907fc4da498c811d86"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Clothes.uasset",
+          "bytes": 12642,
+          "sha256": "608369fdf130b7a499001c8eb25ce4d8ee5d868ec2d649f21b5d643ddcd3c129"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Clothes_01.uasset",
+          "bytes": 11604,
+          "sha256": "7407c0a0148dfb636406c358967ccf2a765a9c00da2976d2ec2b17302e3c6464"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_CLothes_02.uasset",
+          "bytes": 14069,
+          "sha256": "15db10057c6005dcb9ddc0a23732792b2677324de83af1debb9a64c6e4fa4cea"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Clouds_Mountain_Water.uasset",
+          "bytes": 16962,
+          "sha256": "ced61d7ea2618c8618650e83b4cd07aa035924c9c5974be52031cb3a9d1c9855"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Concrete.uasset",
+          "bytes": 13764,
+          "sha256": "4021b7af60ea05b0e8278dbfcb1561e21e8d2e485b2f3ab338f7aaa6a7d97aa2"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Concrete_02.uasset",
+          "bytes": 13258,
+          "sha256": "2d176bcd2cef5831c79e5c9717e78e057f3afef158e1023f8dde2285ef74cae0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Concrete_Tiled.uasset",
+          "bytes": 13987,
+          "sha256": "bd3ae57a585ed273fccfe364c5dc55b612a48ea6d035608d35b3932515d3f1c9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_CW_BG.uasset",
+          "bytes": 15755,
+          "sha256": "a22fad9b538278557ad00437c379f65677f17da11676ff14f5ce9c41aa840b80"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Decal_01.uasset",
+          "bytes": 10871,
+          "sha256": "f9b7a5d9d5025be07e9bee42338030d6e59126c56924d16443c273f3c3f5915a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Decal_02.uasset",
+          "bytes": 9584,
+          "sha256": "e8f798160689a4bf2a41c0da7341abef0c0abe239060322a804709123b035338"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Decal_03.uasset",
+          "bytes": 12179,
+          "sha256": "e9ce7151a3d37ea735c03caace6aea5a0e351b66f97af6f24818a890afadedf9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Decal_04.uasset",
+          "bytes": 11810,
+          "sha256": "7090d951e26447d168709383f0d6ac58c559fce2c83de2fe295bd47f3c800b67"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Door_M.uasset",
+          "bytes": 13794,
+          "sha256": "72bd1b40a6f462470a3a40347c1a675801b0201a90e587883ca5af501765cf0b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Dragon_Face_Fence.uasset",
+          "bytes": 14400,
+          "sha256": "3a5a135992bd9466e7be86bdb5b9694c63b2ce9bc88afa3c912cde0c700cd779"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Dragon_Tiger.uasset",
+          "bytes": 15664,
+          "sha256": "fe0346fb4f519874ee6304df6b7e445e4e4d1a2bce9615864390bbea1b225de2"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Dragon_Wall.uasset",
+          "bytes": 12152,
+          "sha256": "85f2163dd555df9676152790924307a9449580969101f06f61137fa219fd598c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Fence_Front.uasset",
+          "bytes": 12630,
+          "sha256": "7dfb8f67a6774f20c39fb8cf06313f08327e5e7093fc3c3e74577eb5c859af49"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Fire_Brazer.uasset",
+          "bytes": 14725,
+          "sha256": "b00f6b1572193966ac60cb4e0235b8504d249ed5b0bf709853b6f94456c2decc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Floor_Circle.uasset",
+          "bytes": 12846,
+          "sha256": "94a9fee6a108efc3acf1371d04f2a934b29f240a3f5ba2bbaf9f0fe230de9803"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Floor_Circle1.uasset",
+          "bytes": 12052,
+          "sha256": "f6f4cd6ba8283fe3234da3a4cf0e89c8e17020debfa89e89d60c726b6b6bbbd1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Floor_Metal.uasset",
+          "bytes": 12767,
+          "sha256": "c44d6fefa6348ec90db956713a145dfae1854d2a841093b1b74e8b78673d547f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Floor_Tilable.uasset",
+          "bytes": 13455,
+          "sha256": "96cb84eaa4e3b8830a9209ce841e43b80b4e8d0ef392260db165e594ba10820d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Floor_Tilable2.uasset",
+          "bytes": 12322,
+          "sha256": "97eb3ec5df144775b516701908fad87b53216085cf6eac4eb0aedd03abf1610e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Gaidian_01.uasset",
+          "bytes": 15395,
+          "sha256": "54fabd9f9a47d96e3d1e027ef939932f746c5a0f29cc780a2d5a9517caffef5e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Gaidian_02.uasset",
+          "bytes": 13358,
+          "sha256": "0c132b6b3b33187a6951936c348c0a8f4de2445aae36953d0b7020597ed25734"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Grass_02.uasset",
+          "bytes": 21906,
+          "sha256": "2e27ff11d13fd31770fd9879310dfb6a772d8de15763bbb41058e022e228c283"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Grill.uasset",
+          "bytes": 15666,
+          "sha256": "a395942e00f86701e379a3d057212da2416b3025aa51229f45ea651afe8ad91a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Hair.uasset",
+          "bytes": 12106,
+          "sha256": "56b33eaad493af8a85ce3cf2612a3a055484139a40845311c8838be9021bfa8b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Hair_02.uasset",
+          "bytes": 14278,
+          "sha256": "1f29d17bffb26704a7f95a5e3a4cb1c751babe766473f48b33f431256fafd7b9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Landscape.uasset",
+          "bytes": 9747,
+          "sha256": "7a85dd4546ee002c2295dd832b027e4a7e91519bd25792a3d9c52c831074d271"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Lantern_Inst.uasset",
+          "bytes": 16713,
+          "sha256": "a52024d553e492ba3eaca6be760072b1832d22420b0f9eb24f59a663cbb01185"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Leaf.uasset",
+          "bytes": 13427,
+          "sha256": "18a6be72f38be74888964551f47d8d5f1dc62a07da728adc4e8ecae3588ce68c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_LocustTree.uasset",
+          "bytes": 16837,
+          "sha256": "fdaca0c9d8a379fbf7ab88ea1ec69bb050f47b9b83b441328a03bdbba338cd75"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_LocustTree1.uasset",
+          "bytes": 21446,
+          "sha256": "830864939d148c6f68150a0c9a5f968c3b8126f744b729df537fa1eb14a16046"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Metal_02.uasset",
+          "bytes": 7069,
+          "sha256": "f2f44c3824f6e0127513fc824cf5a8cb8786649a19db173ea850987124c5def2"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Metal_1.uasset",
+          "bytes": 16894,
+          "sha256": "0d084164e75f1b9a04331bca3bb23551889c863ab69072fe60ce3bcc4f3f99e8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Metal_Front_Fence.uasset",
+          "bytes": 11071,
+          "sha256": "3bb1062bd518d8dc3a632bb185d29230262d9175da5a07c63390a8a24f5db640"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Moon.uasset",
+          "bytes": 17223,
+          "sha256": "b014d741ad6f2c06478f62ccbe817f9ecacffa6aa94b93925eb9e6ff627e9e56"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_MoonRed.uasset",
+          "bytes": 18224,
+          "sha256": "cb806951de42318216018a69ed700e92ad01689b55bb0ea87e208050f99d276b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Naag.uasset",
+          "bytes": 11755,
+          "sha256": "4b3be7674c41f9b9ba47b3c41a0aebe83054cd53b0c331fb33bf551d2e141d96"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Naag_02.uasset",
+          "bytes": 14768,
+          "sha256": "c7438fd58e597162606a93248c39a249f579e999a8b973ae916408eb404ac336"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Overview.uasset",
+          "bytes": 12623,
+          "sha256": "3cabcf17b2a9f60c40dbd0ce647522b710a5f1cbd3fd952a1d2f879e800a31b6"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Pillar.uasset",
+          "bytes": 13776,
+          "sha256": "8418222315203d133be139563025a0dad09288ba6479b5075db4c2b498b6ea60"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Plane.uasset",
+          "bytes": 9389,
+          "sha256": "3c9dd17abaca07f655f6837b062c7c73bde06d62025abe39d2b33500e882e6e1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Pot.uasset",
+          "bytes": 13098,
+          "sha256": "fef0ba0e285eb451bba7e1dda026f230fda201ecc7e62870469d8977f4b00608"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Sculpted_Wall.uasset",
+          "bytes": 15630,
+          "sha256": "f5f9b86af4411adc3506ddeab3f2882ef640dda243e01912e063725987ea5a88"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Statues_01.uasset",
+          "bytes": 11960,
+          "sha256": "82c21eaaaa64ce61160b51cf048e81f6cbe5acdfafc0b525213e8c65a684170d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Statues_02.uasset",
+          "bytes": 13982,
+          "sha256": "73a343aaa67c365d6967bc7bfd3d8ecf4e14302d6591920384dcf5c33f4111ec"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Statues_03.uasset",
+          "bytes": 16535,
+          "sha256": "db0243c2f2be69450e063cdc6e05408756bf48bac6d936bfc506ab32077502a1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_StoneMix.uasset",
+          "bytes": 16175,
+          "sha256": "1f155b9d3c2eb5e95f1464371ed0c536d4b4183c34279eff5ce1771bf555be78"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_TigerVSDRagon.uasset",
+          "bytes": 15132,
+          "sha256": "8925b42e3db55ce03b0d4f8df2880fe3ce7bb79cc72ce0e3235538f62d0c97ca"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Tilable_Texture.uasset",
+          "bytes": 12662,
+          "sha256": "1c0ff5cd2e0c52ec3c8e3c9ae4b53d5ab4cbb7d16da1dc35f9b06b0812cc3043"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Tilable_Texture1.uasset",
+          "bytes": 13912,
+          "sha256": "fcdf83a2e1395a9a0a630acd34e5a727542418169a848465713739ea1b37d331"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Trim_Sheet.uasset",
+          "bytes": 14679,
+          "sha256": "6a9f5073063be5b8dfba55b34afb47c96f408e25e305a4f8806f8b699d87cb5c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Trim_Sheet1.uasset",
+          "bytes": 16148,
+          "sha256": "de2d8f4c9409e2a3a97fa0eccb0e7a42208c86785ca3c2c6db05359632a42506"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Trim_Sheet2.uasset",
+          "bytes": 13003,
+          "sha256": "4b69dac1f9192fc48efa129d7ffa4e945e8d9960df983edae6c8a6c6897bd5a4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Weapons.uasset",
+          "bytes": 18149,
+          "sha256": "6357538dda02dca06b72a3593a6703183c44a173f2e42ac9bc899d3fb8bf103d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_White.uasset",
+          "bytes": 9665,
+          "sha256": "6d6763ca5ceac9f28646eebf0c3a13e74bdb907b2d713013d304eb03e6999196"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Wood.uasset",
+          "bytes": 13835,
+          "sha256": "42dfe3c7d1c8fb87b2a3732e58406b78b0d072a89abe24b59a19b7404e3d4bda"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Wood_Beams.uasset",
+          "bytes": 13771,
+          "sha256": "187f1cd1ca9e4d2d60699eeb4345dfd617964724c8768c9256a57db487beed41"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Wood_Pannels_1.uasset",
+          "bytes": 14221,
+          "sha256": "3d68662724d4cbe1f7e21388772d6c77d9a477e681bedecffd1a35fc36c490cc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_Wood_Pannels_2.uasset",
+          "bytes": 13771,
+          "sha256": "c86294f578c8c5225c4162ace1e58619d7da61e6cf3a5d4ff582bdc173f37054"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_WoodenBeams.uasset",
+          "bytes": 15151,
+          "sha256": "6ce22f0599caea9852ab4f7fcca48ea9e23ab497919a7cb25cc3f9df480eb7d3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_WoodenBeams_02.uasset",
+          "bytes": 13763,
+          "sha256": "e8379c03b81e14265ad99ce353d075cc714ed6771da149f9ad531c15f8778bd2"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_WoodenBeams_03.uasset",
+          "bytes": 14250,
+          "sha256": "61608d8d55691453ee02c4cb2a624ef84ab80cccb2b080b947da0f1835ad9a9a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_WoodenGaps.uasset",
+          "bytes": 15610,
+          "sha256": "c4d4715ecb0cd5f07e88161fe2c734069a17b93a03f56b500985ed61caa760fb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_WoodRotten.uasset",
+          "bytes": 14912,
+          "sha256": "abb24ba71c487b8fa23ee6b2e7682c61fe0e15a2806b9986577efc972f803915"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_WoodRotten1.uasset",
+          "bytes": 11935,
+          "sha256": "9d37255c35853290778f871875de35b1dfe4693d72355ab59ad3756e2ec60830"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MI_WoodRotten_02.uasset",
+          "bytes": 14157,
+          "sha256": "bea8dd2cab50fe914609db46fa42a5f692bbf59d52aa7e7253bafd83893410c5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Base_ORM.uasset",
+          "bytes": 29162,
+          "sha256": "5805eb800244ed27af59f3ba88155cd19a1d0380d8115e4362fb9075696b745d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_BaseOpacity_ORM.uasset",
+          "bytes": 29289,
+          "sha256": "07fd5a591fee063489ad46c2bcbf16c0ae5b03e3d74548c9e8d9ae8133038864"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Basic_PBR.uasset",
+          "bytes": 69335,
+          "sha256": "91647053593b76faeabf97bb8fbbcaf25c6a26dbcdea0321965f02afa503373d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Blinds.uasset",
+          "bytes": 15702,
+          "sha256": "27bb3e9cb83dd98fa9d7db364b5f370cdeb22dffcec1b892760e0b22d6703337"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Candle.uasset",
+          "bytes": 14421,
+          "sha256": "f8c184e96824f62b2bc750618fe8881fc293996abac1402b02ed3bcca8a95c1c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Candle_02.uasset",
+          "bytes": 11864,
+          "sha256": "8e3e0bc8a402351e7880cc3fecfc6a814663399b92acd06abf33ca5db06ba76b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Decal.uasset",
+          "bytes": 24435,
+          "sha256": "77ce3d5296a0bec7cf83a3d320e5b55f9346d21ececfd87a6a2a2213a5ea7721"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Dust.uasset",
+          "bytes": 11288,
+          "sha256": "072af7fa162e130ac3e0c8270a8f66b0a3a9635d484957cb5cc045b5803ed01a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Fire_SubUV.uasset",
+          "bytes": 19350,
+          "sha256": "d38350952fbf064ad670825b07024ca19c33ebe9e794bdeb2f8ad44b03df86bd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Grass_SMRSSC.uasset",
+          "bytes": 56712,
+          "sha256": "b9f48d31a0ec7ee52bc05681aadc401ab6e674e52f81b958c81407649358e607"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Grass_SMRSSC_2.uasset",
+          "bytes": 56344,
+          "sha256": "9db541501fade30c2ecca492c90fb904b63e4478151ffaa4eee9c3da8ab9b810"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Landscape.uasset",
+          "bytes": 22525,
+          "sha256": "d470fedb40b20c9eaa1a92253549d7a5a3af1c66f213390ad832c3b4fe377be4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Lantern.uasset",
+          "bytes": 19617,
+          "sha256": "541fa1548ec33c393a322c5c17da74600c8889a64b91e03e6409aa92431e58a4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Metal.uasset",
+          "bytes": 8370,
+          "sha256": "8553d43246f329a25a5fe8bbe0063d69a85c5b4408f697a6879ec36f53a4c303"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Metal_02.uasset",
+          "bytes": 20496,
+          "sha256": "88d4b13a4347b2a991b3851e9c044f8f4b6bf5e9576b7a6d185c376eda9efff1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Metal_03.uasset",
+          "bytes": 20421,
+          "sha256": "d41258e36fd68006ed6d227b3dd75d7d4585a44816eeb2a74e5868ef9a72a67c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Metal_04.uasset",
+          "bytes": 16705,
+          "sha256": "260b753c1c763ab9d8a0dbf4ad7e981ac014bfdc78a549fbb9cfcc266a1c8cb1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Metal_Gold.uasset",
+          "bytes": 26031,
+          "sha256": "f48c0ca5534fbc441f73a2f07abc94197d534098cc7119287766fd90dc1005e0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Metal_Steel.uasset",
+          "bytes": 23597,
+          "sha256": "b50d73495d9f72b1ba9297562f799fa09360ed879d0f39d9a54cb851bb8ff6c3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Sensie.uasset",
+          "bytes": 18754,
+          "sha256": "94e222c2b500d5580652b632e36ec5bfd778ab7e33b4ba3661a02604538db7fd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Materials/MM_Trim.uasset",
+          "bytes": 21771,
+          "sha256": "d4e6952e3ef8bf7e27e4fcdcc76809ae99ca13b3931477519b1640d4bb4cfcac"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/FolliageType/SM_Grass_01_FoliageType.uasset",
+          "bytes": 7629,
+          "sha256": "cab80003c5245cac87e7fdb164d240a4f64f99208f653c449bb389909840132f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Amulet_L.uasset",
+          "bytes": 187933,
+          "sha256": "a2adbf655c84dbb0c3ded8a7062e96553b45f3bda31fcc06a5490ff36954947e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_BackWall_01.uasset",
+          "bytes": 21234,
+          "sha256": "ada89152914fb301e42676a61eddab19570e8f730a2592dd7cf92b070ab9cd77"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_BackWall_02.uasset",
+          "bytes": 30291,
+          "sha256": "2cb5e4f64b17b92ee2694c04235852eab08ef18708dcd92ff1dacac72f62a0c4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_BackWall_03.uasset",
+          "bytes": 33785,
+          "sha256": "5f3a90679ef878b4926df2226a7ea1888752040190f197e52190fadf8a9e3103"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_BackWall_04.uasset",
+          "bytes": 312065,
+          "sha256": "5fc25628fb02586b95490eae08a3d0238ae675115b8282bf3a60d879a9ccddd8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_BackWall_06.uasset",
+          "bytes": 128998,
+          "sha256": "68e431cfe3f209e9116822d0653334ebc52cb70c96d70dc65c88fd4a125d3ee4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_BackWall_07.uasset",
+          "bytes": 191354,
+          "sha256": "158d4172ec343529089f703025a20e7c0a1a9d0398238156522191cc3e81bed9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_BackWall_08.uasset",
+          "bytes": 38188,
+          "sha256": "8def06e181628f4f3447ea86d0b787c0147f35e9afacc9bac9fa830e03a86536"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Blinds.uasset",
+          "bytes": 99183,
+          "sha256": "d7a615d1d9c8a7de1b9919848ef11d03f9e2e2df202fef76593fb08598b2879c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Candle.uasset",
+          "bytes": 143234,
+          "sha256": "95c64390d2e0a56e7f56eecc2eb8459c8ed68094b192821045696915ac40f9c5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Candle_Stand.uasset",
+          "bytes": 2599339,
+          "sha256": "a190ad69683d9489fbc253e35e98df88a16d9772d339bba0193ae8c6504fbc55"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Candle_Stand_Small.uasset",
+          "bytes": 2310999,
+          "sha256": "850fa2312f6328bf0d8da6b64ff9167e3fe5c9154feeef0c9ea4f1051ad8e470"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_CarvedWall.uasset",
+          "bytes": 30545,
+          "sha256": "ae75942270246d5f4047ed55b3bfda474e5c2f98f4430a18df9fd52d4593dea8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_CarvedWallDragon.uasset",
+          "bytes": 1044600,
+          "sha256": "49fa740966c148a8d98a90f7fa8d3c32e0a97be3d6bd6461560747fe80857787"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_CarvedWallFull.uasset",
+          "bytes": 211194,
+          "sha256": "44b3ae96eda9d35a230476e63c6ab56ac459314c96b852c25f43785aff45f60d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Carving_01.uasset",
+          "bytes": 6660100,
+          "sha256": "7fb726cc8a3d75c83c1833fe1fe4a54c3dd33d3327f7aa02392658bfcc0698df"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Chain.uasset",
+          "bytes": 434015,
+          "sha256": "00c82035ff6eb3d1fe53c2dabc617c32032f74a759f843d65a7781f647ece800"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Circle_Board.uasset",
+          "bytes": 124119,
+          "sha256": "9584f33406136cc232e18fa8264ed931cd3344bd505c5cea09d6263df20c3622"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_ConcreteWall_01.uasset",
+          "bytes": 17027,
+          "sha256": "9fa6bd7b05ffdfc14858e28c3e7516ef9531cf85b5eb16473d21d489f06af8cc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_ConcreteWall_03.uasset",
+          "bytes": 17601,
+          "sha256": "484e811878bd77ec0a5b5ddc26f57e7fe5cdf5779e57ffe31ff29aa4bf17f743"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_ConcreteWall_04.uasset",
+          "bytes": 4230530,
+          "sha256": "e2cf1e7824073af4d0b189012cd7e3ad81a1fddc263678f189a9690eec92822b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_ConcreteWall_05.uasset",
+          "bytes": 33598,
+          "sha256": "a2e46257c162c97edf4b2ac53e5b42f4fe4cc7bdca21c191baf484a016b89d23"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_ConcreteWall_06.uasset",
+          "bytes": 13358279,
+          "sha256": "e0732882e035d649c53f71e823651ae7b93f4f3541fc56f84a3d20905cddfbc6"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_ConcreteWall_07.uasset",
+          "bytes": 31975,
+          "sha256": "1888fcd9d4a23408a67576eb5008fe012bcf1f94cbad49c0ec40b0d9f3d5bacb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_ConcreteWall_08.uasset",
+          "bytes": 5261873,
+          "sha256": "da818ea93a6046eb59f33e8e2ad0d932298f6d7987a6ae93f1d8bd3ee02c8c13"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Corss.uasset",
+          "bytes": 31971,
+          "sha256": "c09a3f9b5edcc8e113ddfa2a76843347dd10172cf902acce0552dd143b6a6ccc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Corss_02.uasset",
+          "bytes": 31305,
+          "sha256": "6febce774e61d012c08aef89f27886f0b959f47bbb805622dc16dc15b3cb7d20"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Decors.uasset",
+          "bytes": 78067,
+          "sha256": "f7f6a8a9922ec04bca5841a38052a0f6eaf3d3bab5b9396de4f255ed77133bad"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Door.uasset",
+          "bytes": 29397981,
+          "sha256": "a3f41355636d553f16f59b0048e77bdd7007146202a6851f6d81fdba11d7c83d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Dragon_Wall.uasset",
+          "bytes": 1627809,
+          "sha256": "df118e44b6be689e7909b68cb60006ccabb43074bd4d8948feb2d7367b321789"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fence_01.uasset",
+          "bytes": 39427,
+          "sha256": "8fb4424e9ea168accf1db7d6a30e3ac9aa50440f7d84a6a918bbac999e07a07a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fence_02.uasset",
+          "bytes": 29769,
+          "sha256": "393810046a3afb216d651003b261da6fe0825858ee49a6b18765acad745811b5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fence_03.uasset",
+          "bytes": 33606,
+          "sha256": "501df7ed2c16808d9d59f151c817542860d45907b89a035d0e4fa007141f7a79"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fence_04.uasset",
+          "bytes": 35334,
+          "sha256": "8792bb2aa20f107e2da27a20f061ca2be5e61db8f671f430d6f3dc79dc99ff38"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fence_05.uasset",
+          "bytes": 41441,
+          "sha256": "36ebb632206b03b453e4241ae6011a4bb42d43c8a3d0ba48b698f0328bc50022"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fence_06.uasset",
+          "bytes": 114249,
+          "sha256": "51fc2ad1140c2903e3aef0139777663b93a695134a456ce8b384f51226ae1cc3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fence_07.uasset",
+          "bytes": 30369,
+          "sha256": "1c5e95fe3ee0e62b85cc2059060662b071ecb8d0fca8f6d562e55a9e1b81cb54"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fence_Dragon.uasset",
+          "bytes": 6772262,
+          "sha256": "eb4ad26b59f61cf12015625293b7cbd6ecbbc80d26640ad2c3a64046c28031a9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fire_Briezer_01.uasset",
+          "bytes": 1329821,
+          "sha256": "d6415d30c7f2c19cd333f945d68537ec6699d607852c80d4a6a0d111488045a8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fire_Briezer_02.uasset",
+          "bytes": 240655,
+          "sha256": "ed028767627faed2174fc9b7424f5e6661a7efd3ee6234d3fd89aab58943f9e4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Fire_Briezer_3.uasset",
+          "bytes": 240545,
+          "sha256": "2323297fed5b4cdcbe6b9dc828ed0d19f0f765c1653cca11ae89b9fef6c1e09e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Floor_metal.uasset",
+          "bytes": 94475,
+          "sha256": "cdf65d04a58f25061c274e2732d1340bf8a24452c5b3869b94785f1254b0d472"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Floor_metal1.uasset",
+          "bytes": 26303,
+          "sha256": "3ebdd0250c4ea27348e1d144142003f9d59f16442b019cd368731dbb5fc39ac7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Grass_01.uasset",
+          "bytes": 34274,
+          "sha256": "dffa782e61a8e66d95ef2c8753e7cf4ee19b273813b26a96226bbed9ad0551f4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Ground.uasset",
+          "bytes": 739321,
+          "sha256": "0326d0f9cfa244389e3bf67f318c0523e89c501c856c212d7e3212a82e4ea5be"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_GroundPattern.uasset",
+          "bytes": 36317,
+          "sha256": "9604678a24108bef19d7293852729daf2e7926178daa3a925c39c6dd0dc7da06"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Lanter_L.uasset",
+          "bytes": 475262,
+          "sha256": "592ef84f03570613fa645c7f74e942142891fb16dcb71251741c61d629306f1e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Lanter_L1.uasset",
+          "bytes": 88203,
+          "sha256": "a6c354885e19e9a173f6edfcc8a61e485b1ad59395d026b8c3ec43fe40faa167"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Leaf_01.uasset",
+          "bytes": 20871,
+          "sha256": "f74663bfecbe03ee2cd786cefb1d4ed13485405e3a4727eda3c68760edce0c53"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Leaf_02.uasset",
+          "bytes": 21492,
+          "sha256": "7d96bc8be041a2a7abc3a2221df7dae319e132c1e6057dfa0b90249ce5397803"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Leaf_03.uasset",
+          "bytes": 20920,
+          "sha256": "b9f3016734d43ae3354ce7b531d1a373430f9fc06ede1a62e23cc5de9b0e983e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Leaf_04.uasset",
+          "bytes": 20803,
+          "sha256": "e556d13c1588783f20aad6aaf0993994ad0acd397a03676e4961a1e01dd70224"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Leaf_05.uasset",
+          "bytes": 21698,
+          "sha256": "36b77e903c2dfc17e3a2ff5292d73ec8638b22c51bb1bdb9e37d495e96ea1c6b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Leaf_06.uasset",
+          "bytes": 21231,
+          "sha256": "7b2edf9eee86c87ca141aa0eb6156c091e5d1ebf5055cbf4162624a92a9379a8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_MetalPanel_02.uasset",
+          "bytes": 36637,
+          "sha256": "e8ac4a85d5fbafaea36889bb18f760f3f2388f4de42b8c53ace46979cc802475"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_MetalPanel_03.uasset",
+          "bytes": 78810,
+          "sha256": "85cfc70211e2ef358a5f318ce74fb499920db14bf721b9a5e8b0ed77f59a24ff"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_MetalPanel_04.uasset",
+          "bytes": 108465,
+          "sha256": "938dc582a920aa81ca1e5ed9f72e5344e7f1714bf6323f771b1c0720a328d2a7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_MetalPanel_05.uasset",
+          "bytes": 72955,
+          "sha256": "44cf84f75631005f5a8a3dff6c4466977bd87f27973a9f55e21417f876c5ed6e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_MetalPanel_06.uasset",
+          "bytes": 329115,
+          "sha256": "e6f00203f06ac3194058ac073bf433542053afbff8ea5fbbd6f60b3f5880ee5d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_MetalPanel_07.uasset",
+          "bytes": 84709,
+          "sha256": "db5f6c40b78af36b6cf73d3a96097d7afc6d2cf0dd735eeebecc4d3024721941"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_MetalPanel_08.uasset",
+          "bytes": 108138,
+          "sha256": "eda445fdc7bd88bfbcc8e63a679e6e424ae7bb67c8d08d9b630159a06e1a4fa0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_MetalPannel.uasset",
+          "bytes": 79763,
+          "sha256": "6b6eb82d4f0c5a13b1ebf8f6adf17619527311b4aa29df9f460d9850ae388211"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Moon.uasset",
+          "bytes": 164357,
+          "sha256": "ecc6aa1204fcdf52748ebe6be188f3ac7888ff6e969f887c11c39b970921339a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Pannel_Wall.uasset",
+          "bytes": 51632,
+          "sha256": "a506c5edb1fb3eab03ada7494a466800f1c0634ecb1c2f009d423897ef6c2c53"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Pillar.uasset",
+          "bytes": 263274,
+          "sha256": "29cf46d29fe6c3ad7c5489338363043f16a1a04daca1eb7818ecdedaf857c3f0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Pole_Large_01.uasset",
+          "bytes": 42277,
+          "sha256": "e97b0df68c3f9b4862e30bb7e422a5cd35494e724767e5997ab9a0d726e82952"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Pole_Large_02.uasset",
+          "bytes": 29959,
+          "sha256": "aa7b258c86c2a9ae80386f8751ba2020ac483af8cf94644593e420fcf1a61972"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Pole_Large_03.uasset",
+          "bytes": 46955,
+          "sha256": "dd741e833cb38773c4933ca3cd41e9227f0e7b1acc0cde6e4895f0da60a50a96"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Pole_Large_04.uasset",
+          "bytes": 43230,
+          "sha256": "8159e1d00ccfa162660e5b0a44892dc12a779953e093fbf9f2d911e006905dbd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Roof.uasset",
+          "bytes": 30982,
+          "sha256": "eb177f3bf4d9757f339585af6407d845e357c69075ffbde1ace478f96756f6f9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Roof_01.uasset",
+          "bytes": 509103,
+          "sha256": "63cac4a541b09bd7e6ec346edbaaf8e1e16decd3b4cfc1157f5c0b990459491a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Roof_02.uasset",
+          "bytes": 309129,
+          "sha256": "c2645742ee624f50defdc15fffa74e73c927e2aac5cbc096789f2dff10b24818"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Roof_Panel.uasset",
+          "bytes": 30850,
+          "sha256": "f37bb6e854ad54cd0fea2ebe614ae909462f6761f03eedab26ad170528531cc7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_RoofParts.uasset",
+          "bytes": 5108640,
+          "sha256": "2cba41df5b8c62a85e7e2aaffac5865526a99501ec2dc45fe75f628816a58fc0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Sensei_L.uasset",
+          "bytes": 9468062,
+          "sha256": "44ad930274828281fc0be3d8fe3fb3b8e9a3ad40106add729105177ff3934f58"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Side_Back_Wall.uasset",
+          "bytes": 47180,
+          "sha256": "a75374fc747a19e99c3575ad296390a674cb871e4fcb06a11296cce7df4c4109"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Statue_1.uasset",
+          "bytes": 4328508,
+          "sha256": "3d0b5d5a7a9f67fb6fee9b77e0a3734968ff37079f4f46e9a95d6693c68279f9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Statue_2.uasset",
+          "bytes": 13707812,
+          "sha256": "1a1ac8de4b6e6852ed6dcebc498163dc65e59d04f048cb0fb6a589027d50f153"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Statue_3.uasset",
+          "bytes": 12734589,
+          "sha256": "114dd4a30570e93fed8c555a9133c52e511b3b21456aa88e41585407336a9753"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Statue_4.uasset",
+          "bytes": 14711141,
+          "sha256": "182be3b01a00523ec9c768bf3cafff53a8cc09bd75c667b2871fe5e9724913c4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Top_Wall_Mesh_.uasset",
+          "bytes": 25324,
+          "sha256": "e55201915668387fdb627c10bdf8a66c6345495614296c9a50cca6580247dc9a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Tree.uasset",
+          "bytes": 710408,
+          "sha256": "cd62c808ef1330b3d7c0b0e92238448ede51ede63b63fc0853ffc866b72d269d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_01.uasset",
+          "bytes": 213859,
+          "sha256": "ce8a245d60ca28727c747e869d8de88d1003df50e2ab5a77439edb9e45b34cab"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_02.uasset",
+          "bytes": 27775,
+          "sha256": "83d13bd1bdb76ca6c6887d8c429733e2e689c2c86ff779e35a1261865fb4cd95"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_03.uasset",
+          "bytes": 26527,
+          "sha256": "ac910e91a1e92a9d2222904c89426327db03ca1a35b32c3126dcebcf69448ae0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Mesh.uasset",
+          "bytes": 23600024,
+          "sha256": "edfa58416b96183eb3ba973f1436475c4a16370f353df79ee9004e0513027b08"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_01.uasset",
+          "bytes": 94238,
+          "sha256": "100511d1b334dd0dc9766e429df802782cf17b950da26fa30c3112a6c0da16f9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_02.uasset",
+          "bytes": 63016,
+          "sha256": "a8873282fdfbcb6f895ba5a832ee79e903740fb8afb38028ed1a230fb682b287"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_04.uasset",
+          "bytes": 145767,
+          "sha256": "15578983d3949c43d2e4f9698ac43aeda853b062cfa3d4cace779e0a61e77c07"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_05.uasset",
+          "bytes": 76548,
+          "sha256": "d9233c9f379b71b8799b3a21fd33d1504c4f0e462c0c21328894a3570c74d352"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_06.uasset",
+          "bytes": 46194,
+          "sha256": "54c01b28b94fdd5c82e59d688ea926bf5641ebd543ae72a65178021898db3a1c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_07.uasset",
+          "bytes": 131620,
+          "sha256": "20782d18925f90a819660b9ed47a32107d1d7999d2a232c8ee683b51aaf938e6"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_08.uasset",
+          "bytes": 29215,
+          "sha256": "31bfae887033d1edec9f4a0cd026318c49696dfe66e0691b880d02100ccea736"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_09.uasset",
+          "bytes": 29199,
+          "sha256": "9dfd54b79bb16f5304e26895f56c43c598859b22dcb0486a5e3ec3427642d6c1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_10.uasset",
+          "bytes": 29119,
+          "sha256": "bd34fe026b213af778e0c48842fd6bd5bb0ad9b4ccdbef101422e2523fbaa443"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wall_Pannels_11.uasset",
+          "bytes": 164654,
+          "sha256": "a344c6514d64cf74d18bdd9da22f67fa515d5806e574bed385a381e41c165f35"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Weapons_01.uasset",
+          "bytes": 215633,
+          "sha256": "5bb81951cc1eb592822a2d55774da9979c87f3a35e28efbae013f92c7392b5bc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Weapons_02.uasset",
+          "bytes": 744759,
+          "sha256": "8aae3093cfb0b578ba370e018a037e3ea4e8b1db39262157db4baadf8513afca"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Weapons_Mesh_2.uasset",
+          "bytes": 53554,
+          "sha256": "5f05b160a789a8d18d3d3e8f090afb446d5cc2cb6b54ccd7c0b5500e3635d2db"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_01.uasset",
+          "bytes": 386556,
+          "sha256": "49bae3347b71eefe538e9645682fe075a91cf5f43fdded891889ebb39ac9bde1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_02.uasset",
+          "bytes": 293737,
+          "sha256": "84f7dbac0b96229c27c0a3f9fe452e76e6ede5d7cb74d76220d4312efe3e5a2b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_03.uasset",
+          "bytes": 1920642,
+          "sha256": "cabe298b2b2c1d30db7900a15f4db6817e71046bc3330952d3a45417422c5a4e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_04.uasset",
+          "bytes": 4573868,
+          "sha256": "3ecf8379baeab13f2f0a35ab38f98af4ef4fd03acd5a061dea7895de8fec526e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_05.uasset",
+          "bytes": 487545,
+          "sha256": "0d10eb925c26101c06548044db7e6db936741a7567e27da9a1c2c3eeabbf1ff5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_06.uasset",
+          "bytes": 3373924,
+          "sha256": "cf21b876af6494307534732faeb670dbd8ad63af6e1735ccbd1ab46d868fcf69"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_07.uasset",
+          "bytes": 733723,
+          "sha256": "396f54e389077c460bff70944514cda9d94f229b51fb83d35b83e13087acd8bb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_08.uasset",
+          "bytes": 151740,
+          "sha256": "0de68a74db0d8d23412e6d21b717faddb28be69f468c18351d324bf766e86d50"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_09.uasset",
+          "bytes": 2083860,
+          "sha256": "1872ac6d2951e727154806b470020b1be7b427f9d367aeb9c30a83f970faa56f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_Ground.uasset",
+          "bytes": 33527,
+          "sha256": "454a4c46f54ad7b74715539c6db567a1a574efc75f46ae8b3654bf4217a16266"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_Ground_02.uasset",
+          "bytes": 27882,
+          "sha256": "c685cabc2eef0aa2b835604e1a8cfd7932b2080bee297bfcf6ac76347a0bcc92"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_Ground_03.uasset",
+          "bytes": 34952,
+          "sha256": "b7ef2939d42d3097788b3e476375213e074eb79dedd10e4865f7a44c9797cffc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_Ground_04.uasset",
+          "bytes": 40969,
+          "sha256": "db9c12d38db02e3fe0ed0515783be652f598ec2ce036f306933ce94fc52835b5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_Ground_2.uasset",
+          "bytes": 33531,
+          "sha256": "195a6cef2b55e5310fa8aecb409c325c23061f0641aeb83c6e6b345dd7f37408"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_Wood_Ground_4.uasset",
+          "bytes": 34944,
+          "sha256": "15f0897ce0afc8c6cae690f1e1be9850fe9e3401700fbf787edbe9ba45621878"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_WoodenBroken_01.uasset",
+          "bytes": 447596,
+          "sha256": "eb0bb932748d6977731a38599adedad78d92aceafbfa315966fbf0b3c472180d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_WoodenBroken_02.uasset",
+          "bytes": 3057916,
+          "sha256": "12516aeb0a50e9c92e7b1f690eab327d67915745ff284b51b9aa4de8acb01027"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_WoodenCeiling.uasset",
+          "bytes": 28038,
+          "sha256": "fd50d45eb3e49391125376a39997b0549f55497271739e93cae4e04fd73df357"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_WoodPanel_01.uasset",
+          "bytes": 26937,
+          "sha256": "30f4f41cc01e1b1b91c65de7867270adff67fa669275ac66f336a325b7089914"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/SM_WoodPanel_02.uasset",
+          "bytes": 51065,
+          "sha256": "dc7fac05a118585c3e31d1e22b3d63a2cc909a0a3f7b8c3eb1e6d0c603616c62"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_01.uasset",
+          "bytes": 42128,
+          "sha256": "8d622442bf3c787b90e2c6456c3aff5788bf35330b73c8445424d4322697835c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_02.uasset",
+          "bytes": 45984,
+          "sha256": "386bf27549cb58924a7a97d0750bd3222ac5c5c33342fe119a3d5e11efb9020f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_03.uasset",
+          "bytes": 63798,
+          "sha256": "5fc7f80e8cf600aa33a641b04530af77c4a4718dba70ceffae33112cfa9f04cf"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_04.uasset",
+          "bytes": 40645,
+          "sha256": "568c350dd7a2099680b91210b68ae9282059cef7be8cac01059dabe501e5a5cf"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_05.uasset",
+          "bytes": 60057,
+          "sha256": "a38fca5aa868fed6b80a4a9237d6305b7a8de18dcf280fad808df1dbcf125252"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_06.uasset",
+          "bytes": 28413,
+          "sha256": "532de021a54137c47746a1fb10874c4b612a15ae3be06e35c6d080b4aba520a3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_07.uasset",
+          "bytes": 32229,
+          "sha256": "166ab5b061261216fb26f229f7978e3a8e637adc57b71c36e94faa8494829f8d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_08.uasset",
+          "bytes": 31210,
+          "sha256": "da5efbf5071c2f945e3b5306ef2953d6fee27e6cc13444bde7a592f3a0427770"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_09.uasset",
+          "bytes": 39876,
+          "sha256": "2a37a2c0854b752f13c73b625fc829f9c43ba8a98d2886650dce4d68ee7e4ff6"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_10.uasset",
+          "bytes": 35776,
+          "sha256": "b098ca7baed33476e668cb9ff0f473341833ac4592f565033427a99ae6207271"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_11.uasset",
+          "bytes": 42919,
+          "sha256": "21eb92c4bbacd4e30e2191fdbcfa74ad31aaaea41f4dff93447aa876482d4c55"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_12.uasset",
+          "bytes": 26122,
+          "sha256": "7098c06373b4f7c191b0db20df8ed07700dfe9c88bb13a27d14e6c1be1ee65cb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_13.uasset",
+          "bytes": 35796,
+          "sha256": "859be080a53356c330e60c4ba65e49823262fc7eaaafb604799e61482942976b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_14.uasset",
+          "bytes": 45402,
+          "sha256": "044a14d8984d9dde32dc8deb5ed956bc5112c787b76c11c408f49cdd0453f37a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_15.uasset",
+          "bytes": 35102,
+          "sha256": "ef26b3dd7f1b11e0093df54993ef01958450cead17ab1957651c1003afd03439"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_16.uasset",
+          "bytes": 82193,
+          "sha256": "3960582166f57e605c42b5a2c062e71f1573cd9842486d45fb20282b3d9de003"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_17.uasset",
+          "bytes": 64111,
+          "sha256": "c5b03a05c85fe793c5f5639d7231dfe90497edcf32d9e98f38b681352fb6c261"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_18.uasset",
+          "bytes": 27703,
+          "sha256": "c20cca9b54055d2d2f89c6e7cdb42654a8e0dd423781882ee53783e809683117"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_19.uasset",
+          "bytes": 50214,
+          "sha256": "e56a0ebdf82dbaa2712bf3865f47ddb0d8ab4d0c856eea633d9aa137fa41139f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_20.uasset",
+          "bytes": 31638,
+          "sha256": "1bf617d1cabccecab73492e3bd79b0b2a0b3e60c673af91278acb18c01a60443"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_21.uasset",
+          "bytes": 42418,
+          "sha256": "c894869eee11fc3d39d8bd85c6c70e2ce5681df38a26f77b14458ab033e774e8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_22.uasset",
+          "bytes": 30119,
+          "sha256": "cff4caeb357076215fb8bb89fd6cc2ab8bbd3de84b2621c5cbd867a549eb6274"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_23.uasset",
+          "bytes": 43847,
+          "sha256": "ffcbbefb4047057372fbf6e34b10d8be419fb5d3e7817a4ef27469fb60ef2485"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_24.uasset",
+          "bytes": 24821,
+          "sha256": "e0253c6180578e96c3baab0cfb60de02196788598883137cabc499d6d8ebf942"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_25.uasset",
+          "bytes": 36626,
+          "sha256": "c601ba2da2bab1f5c6a9cc65ebbb05e4c662b80b1026f8b7f98f86403b342643"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_26.uasset",
+          "bytes": 28816,
+          "sha256": "d52b17d2a494eb30aea0f0a1026edc222a35a106eba424d77afd5a6e140b6116"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_27.uasset",
+          "bytes": 30939,
+          "sha256": "9c6e3668ad343c9f32c3a17d7d29b3fd0bef9a02eee1a9fd028747bf50af0876"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_28.uasset",
+          "bytes": 70460,
+          "sha256": "1182817bfac524fc3c9a0a1a1f731599790ec5dcec583d42b027566ae9f43478"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_29.uasset",
+          "bytes": 43364,
+          "sha256": "a02b65ccba4c88464093f48212ee65494af659d0d40839d5d7a3549312a7dd9b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_30.uasset",
+          "bytes": 33444,
+          "sha256": "73aaa575028405dc0604a1a841324ca42c1891aeda1d2e12295d5ccbe540b0d5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_31.uasset",
+          "bytes": 33642,
+          "sha256": "e2d43d277c238a4c2332836d7652514f720706de3d48d29f8fe42c7134bdd9f2"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_32.uasset",
+          "bytes": 39570,
+          "sha256": "a52396497de542d14a445bd89a99d9f2a4e986746890cd29aa75a1e3cee5893e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_33.uasset",
+          "bytes": 37755,
+          "sha256": "c9c6edabada58551c5290a66867c9362ce060478469a20d3479486e1eea5db2d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_34.uasset",
+          "bytes": 26906,
+          "sha256": "c2aff0f1e3cfd9f73a5611069c76a047e78586657d55112974f757d0926e79a3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_35.uasset",
+          "bytes": 42542,
+          "sha256": "db2bdc9f1f042c650a0a7f785899ddd4b5f2354ed660c3d84c150547fc0b8cb3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_36.uasset",
+          "bytes": 37500,
+          "sha256": "f68bc65649b958c28c5b7dfdae7f3135bb8cc7d7fb248912d1fac74cf22e8aab"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_37.uasset",
+          "bytes": 25751,
+          "sha256": "53fad074289435407d9455d813e5a01d86b7d78215f3c5c22954bc600cf43c35"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_38.uasset",
+          "bytes": 38752,
+          "sha256": "cbf07082700d79d5a88637cc6862ee4071429b1f8bb9c1222605cf5240dbc2bb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_39.uasset",
+          "bytes": 35785,
+          "sha256": "956df56c48180f7cbe086e7611a3fc61cabc7fae91596b3ffda9ab98e29cfed3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_40.uasset",
+          "bytes": 27849,
+          "sha256": "d6d40799e2b76f11d5b67aaaad256b432516b054505a94bc421cee415a56350b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_41.uasset",
+          "bytes": 32956,
+          "sha256": "04a5c86a1d63b487e09322cf52f306bb37689b071957a869ff3daa312f7f9d2c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_42.uasset",
+          "bytes": 45924,
+          "sha256": "a8921efb4b6ee718cf005308d0912edbcc0b03ede366ed160a474e84bff88652"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_43.uasset",
+          "bytes": 30940,
+          "sha256": "09d391bb06c1a88fa4f7c61eb18a85901e915d39ebb059d9f9c4815835186dfc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_44.uasset",
+          "bytes": 22708,
+          "sha256": "fe2c2c44ef4a721b98c2dc8fdb83452acae581b8986ca94983904ff3d210bf36"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_45.uasset",
+          "bytes": 54288,
+          "sha256": "550738045b39970d2f75f0a77a216cc6f872827f6d83cd20db53be93887ed218"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_46.uasset",
+          "bytes": 70892,
+          "sha256": "193adcbecebebe18665fbf48027bef7ad78805429a386cf23ef55cc3d68c809e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_47.uasset",
+          "bytes": 36410,
+          "sha256": "8a83cb3ae54a64d31ebb1e12003c96e6b7ac4908c93454a4545f0a5d93b0f6bc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_48.uasset",
+          "bytes": 32984,
+          "sha256": "10afb27bbe4bb35800eb19bc6883d053c92a6b2bdc35dfb35042a8d062478659"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_49.uasset",
+          "bytes": 29904,
+          "sha256": "8a1bdaef33353d4645913c186f734fd549db978d1d456f5c2e853bcc45c578b9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_50.uasset",
+          "bytes": 33343,
+          "sha256": "a6c03c4969daba65cc553e8818c822c1d7993d5ea193e852b9df4a77dafe92af"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_51.uasset",
+          "bytes": 29040,
+          "sha256": "fab8877bbfd3b92f9c5a581781c10a0c99fe58893ba0e207dec29267219438fd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_52.uasset",
+          "bytes": 45984,
+          "sha256": "47ef92886c920eaf3bef757595faa437d263d59947321e302d49f59b5eb8e4d9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_53.uasset",
+          "bytes": 38591,
+          "sha256": "841cdcf76dd4e4ff097d2cab581937987740cb35f00da98d07db5cf6901b2c33"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_54.uasset",
+          "bytes": 26214,
+          "sha256": "8bbc989235a209b8cf2d7c1720e2ec5bebbb7a1b0a187c532d792268ec276ceb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_55.uasset",
+          "bytes": 31146,
+          "sha256": "3425ab94de6dfb5825ff9b13d86aacf7be5a3bd8e30a2a5abc8c4d2396a3f978"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_56.uasset",
+          "bytes": 42982,
+          "sha256": "8b4ea8291e590427ecb3ddd8692cb4be0c55a8e58fc00051671fc7d30333859e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_57.uasset",
+          "bytes": 52316,
+          "sha256": "009ba277b73d8e2c1ec4ef378fe606022d97723c85fba5729328b149869a1789"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_58.uasset",
+          "bytes": 46084,
+          "sha256": "4da0a1885ab3b8909de4488f2755335305e0a136c36602413f42b0929ccd642a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_59.uasset",
+          "bytes": 33923,
+          "sha256": "dbb22854fa30c97484a971e03ed9c3c42e671c11659b7874a93788bca3b06f4e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_60.uasset",
+          "bytes": 112430,
+          "sha256": "33681bb80011a19e0daa4bf89bef6c9c6430d3aa18edd72a9d9844229194c830"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_61.uasset",
+          "bytes": 35900,
+          "sha256": "12d5fef7cadb109816169380346002512156377d7d0174071cf32086263acd75"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Meshes/Stones/SM_Rock_62.uasset",
+          "bytes": 30557,
+          "sha256": "36d646fe91ad89f44a197784f65bf2f2ea4b561b53a2aba46d9221870f3b275e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Particle/NS_DUST.uasset",
+          "bytes": 818820,
+          "sha256": "83ae039303ba6b5b0fce239c48f74d4a2842d575665d420d96471580a9dd348b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Particle/P_Fire.uasset",
+          "bytes": 174437,
+          "sha256": "6cdbd8c1735c6bab77c6c01623d777ec76368fb2ffc68a97293f0f37d8df5090"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Particle/PS_Candle.uasset",
+          "bytes": 14316,
+          "sha256": "5229369f9ae5064e456ee67328b3f6cd4b9927c6d8e1514bc1d39dd1fd3c8375"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_02_B.uasset",
+          "bytes": 19684198,
+          "sha256": "926688c585981823ba8ffe2a7d9e7914dd6011a28716c124372c72eed5dec700"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_02_N.uasset",
+          "bytes": 31962357,
+          "sha256": "12a30df42d844c1f956f34fb771b52272efd12d0fa1cb565caa844cc4841746f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_02_ORM.uasset",
+          "bytes": 18697238,
+          "sha256": "6eda2b1558fe3daec6bb0bcd9b14e1b09d3525e343a22ef2718687c5660b4476"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_B.uasset",
+          "bytes": 65041953,
+          "sha256": "190ec98e53babe342850d7c4439b08ee9bfb416e6ebd0937d0f6b29064432094"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_N.uasset",
+          "bytes": 111097701,
+          "sha256": "7b2d041b8a728ee2936bea1fa136ff815d51522a3141edb7c88395115c645b00"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_ORM.uasset",
+          "bytes": 53727180,
+          "sha256": "649d32007c78ce10d2e2f330d4b4f28d8e4f96394ea547279b410d80def37c1f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_SKirt_B.uasset",
+          "bytes": 17377445,
+          "sha256": "e374c69b36bc6772f71dbd59b8470dba676368c22b1fda00800ffa4e646f6425"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_SKirt_N.uasset",
+          "bytes": 29060438,
+          "sha256": "055de41da24397194c49df3b8b006d1dee0d76215fc0a74b7c3cee0a9f38e245"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amaterasu_BL_SKirt_ORM.uasset",
+          "bytes": 15887612,
+          "sha256": "3a038b92e24293a02e5508e6d62c38d7fb9fcbd82781e779511f5f86c6592004"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amulet_L_Grill_B.uasset",
+          "bytes": 11725661,
+          "sha256": "63b7660f7bee3ca3af7772e8b63c0d4805be6618e9cc4c36f978d3b447ab24ac"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amulet_L_Grill_N.uasset",
+          "bytes": 17910251,
+          "sha256": "49716881085efb96577e590a8508dd6834d360d1d4986acbb6da969058180e0f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Amulet_L_Grill_ORM.uasset",
+          "bytes": 10546499,
+          "sha256": "82232f0828d03f7dae3ab9c2c2429e7b6c543672b3642ae4cb597e555593a88b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Body_B.uasset",
+          "bytes": 25549297,
+          "sha256": "bbc7da3ba7128ec479c9ebca0a5be1c6849b3ae22019f2623de3e5fe54ffdc9f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Body_N.uasset",
+          "bytes": 42112190,
+          "sha256": "1ebdf77bcbdcef11da28f22a6d62a9561e5ca9362e5765f8f19a18f7035cef0f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Body_ORM.uasset",
+          "bytes": 20063063,
+          "sha256": "2cc17a5fdb56c6a8dc06990251d130d06dc6ad26b73c22021657494ece957022"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Bull_B.uasset",
+          "bytes": 20269895,
+          "sha256": "c12066e98760afbcfc5f6b87d435edf95e0e698675f6f07f8ef89cb853f8f906"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Bull_N.uasset",
+          "bytes": 23682797,
+          "sha256": "fe336dba3b25feccdbcaaa4550f148b55c849245adb841b79fb39656b3c1ad1c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Bull_ORM.uasset",
+          "bytes": 18447544,
+          "sha256": "c7246215918fb514e9ce8c5488e229717a90a65c2e45d47f30219a8168f23064"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Cloth_B.uasset",
+          "bytes": 22566012,
+          "sha256": "c102f4d1889a9cbb19fd03a581e05ec81e55490b1983158f69efb9ea720c23cb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Cloth_N.uasset",
+          "bytes": 40682970,
+          "sha256": "0971a553da5919c3aca57aa7d5b0a1a6ba7d878f9d195d9dd921efb9914831dc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Cloth_ORM.uasset",
+          "bytes": 19234534,
+          "sha256": "b539ed7110359c413e95bbef7f6426899e6d4b66de67fc07367d76cd30b2c766"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Hair_Teeth_B.uasset",
+          "bytes": 19658569,
+          "sha256": "7e342a912d186ad7b62e0b1ed376550499cbc171a9d29393256411d551d6ae5c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Hair_Teeth_N.uasset",
+          "bytes": 30264881,
+          "sha256": "74a1d80e16a81b4049ded940171dcf3a5e72c7ab93fd84c42780f625571aeeab"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Asura_Hair_Teeth_ORM.uasset",
+          "bytes": 17282252,
+          "sha256": "976634bcd140b9857f1d37cd662bb70c86ec7362ced777842d17741266fe0fd7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_B.uasset",
+          "bytes": 12941,
+          "sha256": "1adaff94bc33c7b92bcd77eff72c11515843c275e457e6a4506ffcc8966b9dbb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Base01_N.uasset",
+          "bytes": 20160,
+          "sha256": "80276b6e879d8cb4a1bda5512ad11db6be846c2df9679df42e33ce0cfc52c1fa"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Base_B.uasset",
+          "bytes": 12961,
+          "sha256": "79aeac2c07f3ff6c75907de10d184a0073db0f390a4bac51d7d07e8e737e61a1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Base_BC.uasset",
+          "bytes": 4956,
+          "sha256": "b7dcea7243b6b5b4f6a3e537419b7f383d9fa436f7bf83e08673b5476fd8011d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Base_N.uasset",
+          "bytes": 20152,
+          "sha256": "6d745d732c7ecf4729e6113e742c6f695880573819a7f213eaf63111d50aaa4b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Base_SMRA.uasset",
+          "bytes": 5204,
+          "sha256": "fc0e6aee3aa23ff427d7641fbf7a6f1b2dc6e33ad7119ed04a73a0ca798137d5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Blinds_B.uasset",
+          "bytes": 21768653,
+          "sha256": "baa886c19bfe642377ed40098524fd7c9a21da9eadc1724938f9017d958722ee"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Blinds_N.uasset",
+          "bytes": 19425933,
+          "sha256": "6e31fcf1738253464ab557a4467342f5db40c99574c875ce44aa181c29f73b2b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Blinds_O.uasset",
+          "bytes": 25717394,
+          "sha256": "45fb815ce73071eadcdf9f4f2060cd881e4d5f321bb303679b06420921631812"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Blinds_ORM.uasset",
+          "bytes": 10845757,
+          "sha256": "960f9356cad4f5cbf61920b5f60fd31f873fec6cc050a146c0a4ee507e10fdca"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Body_M_AO.uasset",
+          "bytes": 7842150,
+          "sha256": "b50b14c749bf4113ab37e1871f8e43cf5a5a09b0df93e624a05bb201ad057982"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Body_M_M.uasset",
+          "bytes": 156917,
+          "sha256": "3ffbe11d235af71a9829b62ea09874a2f457dd57d8551293f3656ab66ffccf74"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Body_M_R.uasset",
+          "bytes": 12464289,
+          "sha256": "5ead075fddd65775daef7e2292da262976adfcb1f56badbaec3ab486cdbb5031"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Candle_B.uasset",
+          "bytes": 1420307,
+          "sha256": "d762e3239e1618b4f276d207560f38923be93674722334206b07d7d3a0466e5a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Candle_N.uasset",
+          "bytes": 1797096,
+          "sha256": "946d7a2b57b4424cac228fdb16b5c8b9679fa2f75c359f84d0ec15f8666a812b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Candle_ORM.uasset",
+          "bytes": 669986,
+          "sha256": "1734a557d6b0d8982f9a9c84468edd914a1d94b05811d7ee04c01e874a423aaf"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Candle_Scattering.uasset",
+          "bytes": 369912,
+          "sha256": "f84c6f480f4d4776237b97589ed4156264fbfe10f70fd60b2283a8d985099464"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Candle_SSS_Profile.uasset",
+          "bytes": 2758,
+          "sha256": "5aee82ad78d1d0babcaf246a9295fea23cdf541ee77b6c996ea6b3c4a402df93"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Circle_Board_B.uasset",
+          "bytes": 71414384,
+          "sha256": "b959ae47fc42c47c8153e0f587167023b517e04777ec583ef9cffedb4c8f0ec9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Circle_Board_N.uasset",
+          "bytes": 70246533,
+          "sha256": "81cabe631aa2302b4968c97d7f9a8b861d709a32ac7a5906ab3a7e0aacdf3a0c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Circle_Board_ORM.uasset",
+          "bytes": 34903804,
+          "sha256": "e66abe353de513e1a8afb81ce9832d954a91b38e7b6c56b9514cc8760eb17b80"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Clothes_1_AO.uasset",
+          "bytes": 6474603,
+          "sha256": "bff06b7cd0ed8f312ff602ddee4ea69b1783ed5233a0bf039604655739fa1c93"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Clothes_1_M.uasset",
+          "bytes": 156935,
+          "sha256": "5759d1e28824ab808337a938ceb1f5a7e5677d5db4a51763483fb5d0f8fd052a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Clothes_1_R.uasset",
+          "bytes": 11935212,
+          "sha256": "0301be3e2a875d25528fb8e558084fde17860815bd2860fbf5529183d31ce462"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Clouds_Mountain_AO.uasset",
+          "bytes": 4181530,
+          "sha256": "0c3ea8e01113cc7cc140091335b178f00a2000f23993dd11bc446c1a722525dd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Clouds_Mountain_B.uasset",
+          "bytes": 20651697,
+          "sha256": "4d6a84d9d252a4464a582892c20222f86a2ad33cef6474dd73123e19eb276f46"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Clouds_Mountain_M.uasset",
+          "bytes": 197972,
+          "sha256": "2a72bdf34db95d7dfc9a000283767adf17356ea3ac80c51aa35bbd038c5e7ef8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Clouds_Mountain_N.uasset",
+          "bytes": 70882611,
+          "sha256": "8877b4f1901edf335a047616c4d59d30d7cec284d430ede8091b22289f702955"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Clouds_Mountain_R.uasset",
+          "bytes": 6839688,
+          "sha256": "773d3810663b79bdaee94632e7f53cf5fde72bce0d53b62ea3f9386e4120a1e4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Concrete_B.uasset",
+          "bytes": 7576290,
+          "sha256": "061fad9d53daf8368afa80a0c59f0ec7b1429aa81ad68cba3a050b211f7ab346"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Concrete_N.uasset",
+          "bytes": 10595936,
+          "sha256": "a44a3ac16099f09e88ee59501a3b4f369f01ae4dab7a2d1a2218396dc66333b3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Concrete_ORM.uasset",
+          "bytes": 5053401,
+          "sha256": "7218ea64bb5dfa05cdc6c266099af9700589e3d97f5a8afdd17ea77a48ab34d4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Decal_01_B.uasset",
+          "bytes": 1144556,
+          "sha256": "d31c7eecbe8b1d6c7ef5cbe8dd3c99aa3a13655edd7511b57f1425e069255655"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Decal_01_N.uasset",
+          "bytes": 3776387,
+          "sha256": "2362a99edaa723137f5af51ccefc1fbf727931b34fa49cd899093a1f346a5ead"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Decal_01_O.uasset",
+          "bytes": 75491,
+          "sha256": "484f9c0ac4507d4f7fc0240040d22fb4d80c6f1df90b7a14a9ad4135049559ff"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Decal_01_ORM.uasset",
+          "bytes": 594370,
+          "sha256": "fb34591bac407568ae8d15a88d5a0bd218853b122966ccc7daae62997df5dee7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Decal_02_B.uasset",
+          "bytes": 671308,
+          "sha256": "abb9c90257cdee00c290eee24b17ea1979392837584da701c49393fd78cb194a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Decal_02_N.uasset",
+          "bytes": 3412692,
+          "sha256": "252a89bdd6309e8ed7397cf87b277694c47800908893e5dd64d568f2a47295de"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Decal_02_O.uasset",
+          "bytes": 64662,
+          "sha256": "e6c784c523888fc8ebae649cd12adbde859e6d3a2e505b527ec0e06d7aa34f50"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Decal_02_ORM.uasset",
+          "bytes": 358538,
+          "sha256": "aecc026b3c1fd82007dae05416eced47df24e26b14bc10a909afb6ec65579124"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Door_B.uasset",
+          "bytes": 56777693,
+          "sha256": "378716798053b31fe777a4d24dd19239a8fc8193b64e88fef74593bed9873127"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Door_N.uasset",
+          "bytes": 91977334,
+          "sha256": "037f3dacacd624bf6d3dc8036efff7c1bf5019aabf7aac51b866790380c649f8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Door_ORM.uasset",
+          "bytes": 43953810,
+          "sha256": "a31e132a6cb1b3d80895ec93996507a45fba31a259ce8253882bffeafe29f66d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Face_B.uasset",
+          "bytes": 15216920,
+          "sha256": "09b49f52a1eab4adf791a0b313e2c571a446e209fbdca603dcc9eb78a6f5f638"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Face_N.uasset",
+          "bytes": 24150733,
+          "sha256": "50a3b79d202bf6f0ba178105cbd631e5e56ec630858183080487a0bf8d9c451d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Face_ORM.uasset",
+          "bytes": 12475104,
+          "sha256": "aded308fb3cd9d67dfeeb38717ae07f29cc404dfb1e6b57d5a79eb8a5f2fa7b2"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Tiger_AO.uasset",
+          "bytes": 3188685,
+          "sha256": "c8abbd76d5fd4cceb694c7d33c49fd24998367437368fc1b88f8f8863a7fcae2"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Tiger_B.uasset",
+          "bytes": 16971624,
+          "sha256": "054e57202ad85b38ba81d115ed64761fb10d7aaaafd91350a74411380c8f992f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Tiger_M.uasset",
+          "bytes": 196196,
+          "sha256": "3e355baefcc446268a60457c1620ed4f29cc4ab28b2604e2ca100b076f15b804"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Tiger_N.uasset",
+          "bytes": 53145911,
+          "sha256": "aac68cf01ea596a546cac4bad5ea7014ad0d7924de8651dffa6271706fd65874"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Tiger_R.uasset",
+          "bytes": 5677053,
+          "sha256": "d7bb35e10fd063c6e98739b2da611fa513911f65914ed2bd37ab8940c4b4f9db"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Wall_B.uasset",
+          "bytes": 15186913,
+          "sha256": "f8410cb725c80c4bab7167a4f338314f75da3fb52285529b7a8671e619b50595"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Wall_N.uasset",
+          "bytes": 31724793,
+          "sha256": "69058b3800beaa391cd1acc5289c39fc16569eb0e256c92e47e24f6c0796672a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dragon_Wall_ORM.uasset",
+          "bytes": 15165053,
+          "sha256": "f1acfdfff20f6db50369e5f1aec4a466cba43189b70e5fe0b3bc4f0828c81cf9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Dust_B.uasset",
+          "bytes": 177902,
+          "sha256": "116f15f8abbdf2a1a5a74e8c5396f40c55b7147ad62f3aa674f652816c3bf062"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Front_B.uasset",
+          "bytes": 7873007,
+          "sha256": "00658eff36e2f7037477df9e6b71965a9a2b4eb1669a2ca7617dc4385453c842"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Front_Celtic_B.uasset",
+          "bytes": 7215414,
+          "sha256": "3a7db6d2586a007c9adcc6b65359fa0c106d14ab582922ac552e2c64150c8059"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Front_Celtic_N.uasset",
+          "bytes": 13957826,
+          "sha256": "880288f3958e1cd0dd2a3d9f5de3f04646efb5a38bb7d1fba6a7418ee3c97ab9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Front_Celtic_ORM.uasset",
+          "bytes": 4404029,
+          "sha256": "5884331f531c4033ebbdedf7f319d0ebd935069ab905075a5838744994120d2a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Front_N.uasset",
+          "bytes": 17022880,
+          "sha256": "d76bee6ec81ad7a0af07d4eedd4b18d076f89ee6f74e571845f3bb020d1a1ad6"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Front_ORM.uasset",
+          "bytes": 11844221,
+          "sha256": "87ce517c49d7fb716bd5b4b152cb56daf8fe3848796f062ee5dfecb71dbd9ae1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Wood_B.uasset",
+          "bytes": 90994039,
+          "sha256": "d2706923509355f731a854cb14826c549889351c61035aeb71fc6d5468b17bfe"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Wood_N.uasset",
+          "bytes": 145257926,
+          "sha256": "5edbfcd61408a0b9f1b9811cc3ec903f6d758aa9ebe23f19ad7ec434e5d8fd5d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fence_Wood_ORM.uasset",
+          "bytes": 63823091,
+          "sha256": "9fc1557a650b3f00d61a0250df0c14f43694b0dc1b7573ef07e22c21376ae090"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fill_B.uasset",
+          "bytes": 4615,
+          "sha256": "c88c33a0c3209d578b5f0ea246acc22c1805a792fd8a4c4e13ce54f2ec760189"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fill_Base.uasset",
+          "bytes": 5491,
+          "sha256": "2d64d5d56221fe6fb85b531bea394cfe91922dbca0bd2ec3d96d4c03440bd644"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fill_N.uasset",
+          "bytes": 4905,
+          "sha256": "6f31212613c2613fe3ade994f25241a0f069a90c0d55ee53fa58d02d11103b61"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fill_ORM.uasset",
+          "bytes": 4669,
+          "sha256": "ca003e56dd0e055031867c559d675e1a224423c68494ef86fb17a4cab821b27b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fire_Brazer_B.uasset",
+          "bytes": 47805615,
+          "sha256": "3b375ad91181972d3879e628cf3ec04d0f3935d4dd443f8e30f9990f87105828"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fire_Brazer_Metal_B.uasset",
+          "bytes": 70734621,
+          "sha256": "b0f7df8d5c7fc27c030b476f12f6dc5bca08b59d9a1f77f8c4e7380929985772"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fire_Brazer_Metal_N.uasset",
+          "bytes": 89458650,
+          "sha256": "e259d976ed85dfe9d42476f90092e70589fed969ed278985ab860b2c3a92ec12"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fire_Brazer_Metal_ORM.uasset",
+          "bytes": 56929139,
+          "sha256": "5df956a6bbd2c847b18ce6c2239d42b836e1044be89987d7d0e1be090620844c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fire_Brazer_N.uasset",
+          "bytes": 114944122,
+          "sha256": "003a48988e20553c801abaa18134749bdb8b17c27574479e8dcb930069e8da86"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fire_Brazer_ORM.uasset",
+          "bytes": 39464041,
+          "sha256": "f4a25960935a1114209bdcb0d905ecce7b7b269af248589154d7a9776c14e122"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fire_SubUV.uasset",
+          "bytes": 495105,
+          "sha256": "48a63f91b3498736b85a82abb2d42a7bfa56db969e606a81e0c94f5eb54a6f33"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Fire_Tiled_D.uasset",
+          "bytes": 500014,
+          "sha256": "e91089d0efe816e1c66869175ec87458dd1b36ad0207ddab82bd0c35e2cac205"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Flame_B.uasset",
+          "bytes": 54897,
+          "sha256": "19569fad03bfbb54d3da5727424ab6cf5dd26320fb859852c4b1759470116446"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Circle_B.uasset",
+          "bytes": 19512282,
+          "sha256": "4085bf737fe856e87bc5d28661839d221d20833590c7875e8fff1ccaec64df91"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Circle_N.uasset",
+          "bytes": 36060869,
+          "sha256": "ac71b27edfd54034e01b269142ebb37fa951f0ccce50ab864ffda9f2a25929ea"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Circle_ORM.uasset",
+          "bytes": 17165061,
+          "sha256": "5fb75d10c60e4652689eddf000c2800774b7bb625488f3581963604e82c65f3e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Cirlce_Tiger_B.uasset",
+          "bytes": 1847630,
+          "sha256": "30f0e5071bfd9f2185f2de6c706a0e0dc5b01162c00ca7bcc18813ed154b3feb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Cirlce_Tiger_N.uasset",
+          "bytes": 2293571,
+          "sha256": "3eebc17c91894d7c9a6d43f2e264d7a4983f01dbff681e9c654e98004753edf8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Cirlce_Tiger_ORM.uasset",
+          "bytes": 1436880,
+          "sha256": "4c08c4c20d60127ad81577b3dfd0e74daaf0042f67efc64f368f6e15f3e86f81"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Wood_A.uasset",
+          "bytes": 85148181,
+          "sha256": "a01973bd1d620de2a4b7138e3de61b774257a206c3c211d6121fb2e679204980"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Wood_N.uasset",
+          "bytes": 80108134,
+          "sha256": "e85a617084af096abdf22f2deca1f839bc57cf11861780e6a04c252163fdc8d9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Floor_Wood_ORM.uasset",
+          "bytes": 39510888,
+          "sha256": "492c8536bf059d3fd65fea4e13a509cc7c68d0ba529c1f033c28d36373bd40d4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_FloorMetal_Ao.uasset",
+          "bytes": 2808315,
+          "sha256": "c3769d1f776ac27ad04c49e58f19b7fd479988e931e4d962cfbf89c682b1ce91"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_FloorMetal_B.uasset",
+          "bytes": 26670889,
+          "sha256": "cf2f5ab161ecc4a8d2bc07c4cc8b5ebd59032343b7a8e61850d870e59c7464e0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_FloorMetal_M.uasset",
+          "bytes": 196144,
+          "sha256": "f170a8f97beb934eda61092864a846e1ba037648681055168647bd4ae0f2dd69"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_FloorMetal_N.uasset",
+          "bytes": 87462348,
+          "sha256": "78c97bad18c40eeaf398d8d32dc853312b588d3801e7bef4f6b25b0d3335e623"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_FloorMetal_R.uasset",
+          "bytes": 10554941,
+          "sha256": "0cd9cb788021b7e0ac2be5eea3efad3fdc33cacd7cecf28f2984c3f39b1f9fff"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Gaidian_L_Body_B.uasset",
+          "bytes": 21222933,
+          "sha256": "ed54723666db3898747bfaea85fc30d439aa97362da9a8c39be0422b5f5d06ba"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Gaidian_L_Body_N.uasset",
+          "bytes": 33505031,
+          "sha256": "efcc9537680e2c5ef5b18888e5dddeea2ec06307834a454743e8343c1b65412d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Gaidian_L_Body_ORM.uasset",
+          "bytes": 18572673,
+          "sha256": "1288587376bf843be41bc59d8c28040659474ef4fc7a5e965d2422d4fa00678f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Gaidian_L_Clothes_B.uasset",
+          "bytes": 21283052,
+          "sha256": "d63fbecbd367149b86a1bd6cbd051ba510b98e8dd6737307aae92f0b9cdd8b65"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Gaidian_L_Clothes_N.uasset",
+          "bytes": 32720264,
+          "sha256": "604ca1ff74f4d194bc0c9d6b57fa5c4ab8a20b7e7575af5ec371c79795103a4b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Gaidian_L_Clothes_ORM.uasset",
+          "bytes": 18671941,
+          "sha256": "cebbddb99f11c37994b7587d7dc313ca1e3ae9bec99f1630695b78faaf9f3232"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_General_Mask.uasset",
+          "bytes": 13640,
+          "sha256": "036ec7e85d3e099b3a743e664094786bc517a564408628525286549b619dc9a7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_General_N.uasset",
+          "bytes": 4917,
+          "sha256": "df18f801334e484163a7fbda6db77c00fdb24b0ab5ee9484b1268face7db173e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_General_ORM.uasset",
+          "bytes": 21449,
+          "sha256": "ecd4afd24c87b89c9e4ce3bbb8d15d352231e14539b2eb0dc2f03e904b74d34f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_General_RGB_Mask.uasset",
+          "bytes": 18026,
+          "sha256": "d9629955716c4366b97bb8074fae804e12bec0da9d389f1bb725bc55a6258550"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Grass02_B.uasset",
+          "bytes": 1292997,
+          "sha256": "684e58169ea341f0f38ad287e8fcce7e1ff3190acd4c9d4ba2749e55466c73ef"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Grass02_N.uasset",
+          "bytes": 2255059,
+          "sha256": "681e587e0988bfe1946bf10d032564605f0f564fef1ae5f10b2207a0c4a50a61"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Grass_B.uasset",
+          "bytes": 9517311,
+          "sha256": "d525fc40bb0fbcb5b87377d41de713b13917839aa1b3996b33dc4a5b28ae9361"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Grass_N.uasset",
+          "bytes": 12038709,
+          "sha256": "deb4e4f4b59bb6e57760dd89d36ec146ada7cbcab41f8eca6694784ff715040f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Grass_ORM.uasset",
+          "bytes": 955011,
+          "sha256": "5b0da69d46cf54f18b62d2d1e722280c5ad3b744439a20ac9c34317e701445f9"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Grass_SSC.uasset",
+          "bytes": 782842,
+          "sha256": "2de8e3d701e9f3dd8d25522f9e58a1e74e70ebc30f7f6cc4baeb08814cf3d016"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Lanter_L_B.uasset",
+          "bytes": 78704586,
+          "sha256": "2d0ccfd2c10fd50fc8853007fcc75432b579af071adb9a0c5c124e887ad03370"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Lanter_L_E.uasset",
+          "bytes": 963625,
+          "sha256": "b136e90d28604b362d23e82653ac59e35637610105cc057cfe72b13735907318"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Lanter_L_N.uasset",
+          "bytes": 131142574,
+          "sha256": "fc54c3ce22f4164f39b24159624f420c846701bd6f36c36cc258d36e8cea3b74"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Lanter_L_ORM.uasset",
+          "bytes": 49127058,
+          "sha256": "5c4b819e9007174c4feab382ebbed488890f66aaa3d0be0bf5cc549f54a2db05"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Lanter_L_SSS.uasset",
+          "bytes": 197744,
+          "sha256": "f21f57d775acdf557aed1ac7f9703153274b1cbebe862c7b01607fa88143c366"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Leaf_B.uasset",
+          "bytes": 673003,
+          "sha256": "baa43aeeabbbe27b0926e4ad9211ea9fa5a12ac5db35cc1100661806c289bc9a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Leaf_N.uasset",
+          "bytes": 3592594,
+          "sha256": "879331de03506052dd3ff52e207d6f127d4d8e0be68384a60fb120cde367e211"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Leaf_O.uasset",
+          "bytes": 40467,
+          "sha256": "58eaf500c830d58159442eb69eb5324401ae58420e5f1c6374f656ff0672b13c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Leaf_ORM.uasset",
+          "bytes": 554778,
+          "sha256": "75c561a745b7c8ed5d5300afea91efe2830f1c6a42eb0ebd530c661259e5e32c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Locust02_B.uasset",
+          "bytes": 17614219,
+          "sha256": "16319259c9b23809ac831eab17244a5b5c30daf26ccb10c38d1e3e13fee8fb92"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Locust02_SSC.uasset",
+          "bytes": 767199,
+          "sha256": "2792d64f71c7c571d958ad27c375597138d8779f1f0b96a615772d4a08a36990"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Locust_B.uasset",
+          "bytes": 17819796,
+          "sha256": "a633a24224e02c6fc2f2758f49d42a3f0ec4f3e742d2a09c547cefbb8ae477fc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Locust_S.uasset",
+          "bytes": 11141942,
+          "sha256": "bc21008a47c60c5b5da4054993c67e1a5a9e2a013b4eb26baa59cfaea7fd1c9e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Locust_SSC.uasset",
+          "bytes": 959479,
+          "sha256": "c44a658a0a03a6be8244b4499cb42b7fb87efc7272b848072517f4b307f377b7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_LocusTree_N.uasset",
+          "bytes": 23292704,
+          "sha256": "497526899b3cb47636972c065d288f4f2c942c375e824aad03085998654582cb"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_MacroVariation.uasset",
+          "bytes": 10881001,
+          "sha256": "bb39cb1cecd8cee49a8e337ff8e4dfc815be2e644e52fe4626f56aa308e74592"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_02_N.uasset",
+          "bytes": 251219803,
+          "sha256": "2bcfb9b120b106b4acac201f419e9072efc977eb06eba2696d3825136a17500a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_02_R.uasset",
+          "bytes": 17638206,
+          "sha256": "3a4cf64f7335aa3d07d88d410b9cbcde1c4ea2b59d59091ba245f6f1c57463e7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_03_B.uasset",
+          "bytes": 30579549,
+          "sha256": "ae731b1d13e26db58bfe65b52272a88a70b3a5c8c97445025620628687905cbe"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_03_N.uasset",
+          "bytes": 96154963,
+          "sha256": "818a6c962398488071a1219250f07549f2fb45df4ca2f5b4c7d91fa48984a16b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_03_R.uasset",
+          "bytes": 10870647,
+          "sha256": "668de9a145691d96e86898015e71a2549d066eced5375076eb6082e79d04bce4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_Gold_D.uasset",
+          "bytes": 8788458,
+          "sha256": "2e6aedef9e42d8e72112d0debf6c492c60b78c9fbe4d6e92dbfe6934bc92e0f6"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_Gold_N.uasset",
+          "bytes": 2811601,
+          "sha256": "6e9f156e40794a5465d51ff68cfeb362e8da34aac446d125f9d169af4218b46e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_M.uasset",
+          "bytes": 196110,
+          "sha256": "9106681e3f114d710019ffabee04d74b33d57b80e0d978426583788468e380f5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_Steel_D.uasset",
+          "bytes": 3572058,
+          "sha256": "1e5de68731b619d6365f414d40a8d7fb04d67e1aeb07b85f1d17e7826dde75ba"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Metal_Steel_N.uasset",
+          "bytes": 4912070,
+          "sha256": "31e1192cd8679b9f6332fbd23d66f81dd247ac5bf8179ae1b420c7b814f0e777"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Mixed_AO.uasset",
+          "bytes": 19558259,
+          "sha256": "268672594ceefc4b2d50f898743da5fedf511daa69911d2d3b3e38e7a2841e60"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Moon_AO.uasset",
+          "bytes": 158213,
+          "sha256": "1c6b35c606f4fd55b6d29c3f880dedabc7ed9945e897a16fd7339772f1db78f4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Moon_B.uasset",
+          "bytes": 3095972,
+          "sha256": "eece053aceb09a0ff828c720d250dfb5d1136cbaf6c978691b67a4cf1c13a72b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Moon_N.uasset",
+          "bytes": 3800954,
+          "sha256": "be23ce9a4163248af6907adc556bea4728971706ab40c6a9794d33c19cede750"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Mud_B.uasset",
+          "bytes": 7167690,
+          "sha256": "30a7e5877f2cb59dd1c47350cd0d362e109ae31079baeb59e82023b4690e46ed"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Mud_N.uasset",
+          "bytes": 13504968,
+          "sha256": "1f2b55554cecf695d0402f44424e0e45dfb6111b38dab0e0390d1b69fd30ebd4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Body_B.uasset",
+          "bytes": 82066255,
+          "sha256": "cb925c794fc440bae92819364976669f12fc77bedb244d16f510a81b579705e1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Body_N.uasset",
+          "bytes": 167545527,
+          "sha256": "f0b1828ef6c4d515d36bd526a1f3021c708e03baa4bf03b673477e6185070cdd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Body_ORM.uasset",
+          "bytes": 59537222,
+          "sha256": "1183dacd0ee842c6eba3aed1bc5ad294e8740d03daea5c81d525dfabf55d97fe"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Clothes_N.uasset",
+          "bytes": 166448353,
+          "sha256": "4b8b30d343cf7b6ad727ae5164c4eb16a1820acf191b7210b208e6027bf4166d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Clothes_ORM.uasset",
+          "bytes": 62835740,
+          "sha256": "30b3a50aa9c124f0ad4550c7628627b729d3ebc8475becea3e1dd5a81e6088a2"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Clothes_Snake_B.uasset",
+          "bytes": 81547516,
+          "sha256": "9ab70e7e0c6be7f6082c33603949a489ae149ef93dce8a67fac5d23cfde113bf"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Hair_1_B.uasset",
+          "bytes": 20201106,
+          "sha256": "cf1270402cbaaa665c9a035e8e69a727f062f71120ee991de77693cf4dd7ca3f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Hair_1_N.uasset",
+          "bytes": 40558195,
+          "sha256": "e8305ddff2f988263ec5df9272e1ae0ff0d264a0fb3a77c869891526b9e7bef1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagah_L_Hair_1_ORM.uasset",
+          "bytes": 18866120,
+          "sha256": "9d9b0e304daaac55123910b7d3089dee5072cebdb2f157f5ea8ba4433e79c996"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagan_Body_02_B.uasset",
+          "bytes": 21853691,
+          "sha256": "c1863c9f798ab6cdb2099ee7d708441e946c6fc837f8964d1db4f818af01c058"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagan_Body_02_N.uasset",
+          "bytes": 40316406,
+          "sha256": "d215f65574fef1e272ac9c09ba91f536f0335600c1d23ea9ce1e695282f5d3dd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagan_Body_02_ORM.uasset",
+          "bytes": 19390296,
+          "sha256": "46570d89c27ad876423cfe8f9e4df86d1eed8ce6f82671fcdbe58cd1f9966103"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagan_Clothes_02_B.uasset",
+          "bytes": 23140960,
+          "sha256": "9222b3e51fa3a208a8840f3f6ca527d32d8e7e2409e12075b347160376f6def7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagan_Clothes_02_N.uasset",
+          "bytes": 40099667,
+          "sha256": "06fd43edd028d90368404e6eef46adca0d34cb8c6c0f406d0d1342615886e2e3"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Nagan_Clothes_02_ORM.uasset",
+          "bytes": 20003329,
+          "sha256": "d859d421d7d661e48c2f5646955686319982f9fee090627804ba4e7b4177f25d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Noise_Cloud_01.uasset",
+          "bytes": 430224,
+          "sha256": "bca12c53f9a9b41393426b0055a00db27089d9bbcad5f5645dbb800671b33d2b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Norm.uasset",
+          "bytes": 4897,
+          "sha256": "05b7a87974f9ca03c6d72fe944e3d8091f31aa8162bd271248a2aab63f08a128"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Opacity_M.uasset",
+          "bytes": 255720,
+          "sha256": "20bb702c8529f46d5d4f4a46a8681b37d01a90c4c13b83a53b6844f973599fbc"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_ORM.uasset",
+          "bytes": 21417,
+          "sha256": "4c490e974e8b3418c935a2114b0bba43b92e7182dc4cd5371b32ba44ecd509c7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_OrnamenT_B.uasset",
+          "bytes": 66252643,
+          "sha256": "a191872b27679076895379c09528f7d2d0c138283aa2dce3ab28f7c0b369df45"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pole_Carving_AO.uasset",
+          "bytes": 1633000,
+          "sha256": "1acc0f5c17bf9625ccff2ea97cb92432383e62be8b3298a5624a1a4e1049b19e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pole_Carving_B.uasset",
+          "bytes": 2993636,
+          "sha256": "38652cc12d09c13c05b5561eafd38318506bd296d94e249ec6da0be3a9dd98fa"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pole_Carving_M.uasset",
+          "bytes": 14711,
+          "sha256": "81a732e74277bc11aab00bbbf87a795d540394078d3ddf15f7d8e8c94bdcf96e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pole_Carving_N.uasset",
+          "bytes": 14971866,
+          "sha256": "2b2a9b12269083bf2096c37e820bad5535bc259ba47a6fd864c4c7acc9cafc3e"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pole_Carving_R.uasset",
+          "bytes": 1105370,
+          "sha256": "ff059057a2c43f23fa80fa76a97507be507ffb62426e56bb450c2548fd8dc10d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pole_Large_B.uasset",
+          "bytes": 106470313,
+          "sha256": "8e7713d10462a74d1d7a2ffd1637b90164f444e8934573f362f6086bcc7a2cd4"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pole_Large_N.uasset",
+          "bytes": 171959829,
+          "sha256": "70c59a25573f94ccbbcbcec3b71e2a0212fe221200f461a6b8ebec764f185144"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pole_Large_ORM.uasset",
+          "bytes": 85473504,
+          "sha256": "120218662aaca532411e41ce92b7551106156e234ec6a73b8b47c8f1ca93775d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pot_M_AO.uasset",
+          "bytes": 7031403,
+          "sha256": "47af045ce50a1b63691d9187550c79bda72f12c2977f335eba0d29e353f2cf35"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Pot_M_R.uasset",
+          "bytes": 11709600,
+          "sha256": "4b5d0a8c0015725acdcca7889cda7d14a09eaccc5483b0f9d5be389fd3a5c608"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Rock_B.uasset",
+          "bytes": 7978949,
+          "sha256": "e161dbcad523434a208f56227a9b8611b051d0bb6cb6d7f07dc5a0b3e1670544"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Rock_N.uasset",
+          "bytes": 10374289,
+          "sha256": "894bcfa6742d96902b5ddb84d00fca3f43990240f0d9cc8a17d2c4cbfdd6037c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Sensei_L_Body_M_B.uasset",
+          "bytes": 20561726,
+          "sha256": "2596b6fca46d319a9e8e72e0964d7c9d8134eb89ab37ef0f995cbe6b84e9e577"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Sensei_L_Body_M_N.uasset",
+          "bytes": 21813319,
+          "sha256": "dc74d95e88e97b15641cf2d2ec364df98fd7792e407c99cb683062030206dbf7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Sensei_L_Clothes_1_B.uasset",
+          "bytes": 19995481,
+          "sha256": "95bcbc1a17e06f9bda69e7dfd1486dc68380f29b973dce0846956496e8a42b45"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Sensei_L_Clothes_1_N.uasset",
+          "bytes": 23569002,
+          "sha256": "16c8a87ed9d53f5ae081b9a84c2265c455aaad8d458227cd14d0f78521ddcb53"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Sensei_L_Pot_M_B.uasset",
+          "bytes": 18576539,
+          "sha256": "f977e7ff7849ce87c3f3b02504f63a284c32cc9c756f3db67f56876ee72af85d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Sensei_L_Pot_M_N.uasset",
+          "bytes": 30076868,
+          "sha256": "8ae4b4f162b210a60892118a3f6ef6c174945e59b289856caaeeccb87a8f8437"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_sRGB_Black.uasset",
+          "bytes": 4637,
+          "sha256": "678a76eeefc67244a73eca88d990306cffbc75f8293142d98615de70f2ddd122"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_StoneMix_B.uasset",
+          "bytes": 8461347,
+          "sha256": "a9a596ca65b9db31a1d228bb07d3220c2fe69c1421fd39158c7c64cfefbf36d0"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_StoneMix_N.uasset",
+          "bytes": 11760599,
+          "sha256": "3ba2cc8b49fa63948e1d836cfb6a313dc0c95efbfce3fb4d21a6c2f35c48ed7f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_StoneMix_ORM.uasset",
+          "bytes": 5924882,
+          "sha256": "21bbc227722185f7f89da00eb3751ef654dc062f7ebd2d87d7d4693e1d565fce"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Strip_B.uasset",
+          "bytes": 58457073,
+          "sha256": "fa1898a3458e55bdb52b4d168a46c5fa758199ce8e9e1bf314ec6149ab26cf42"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Strip_N.uasset",
+          "bytes": 193929114,
+          "sha256": "7c9bd2c8b626f18da88e69c72e09f57a0aa50ce34d7f7d5f26136725af30a8e5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Strip_R.uasset",
+          "bytes": 37139492,
+          "sha256": "04b73faef2b9904643205bf5ca3248a67a4c4ee2b7d371d405087c2edc550133"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Top_Wall_02_B.uasset",
+          "bytes": 577169,
+          "sha256": "a3d4400aa3e52a7f592215f2a361bfbda57c0bdc05170e90fb8a1c3889362c90"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Top_Wall_02_N.uasset",
+          "bytes": 6209108,
+          "sha256": "8f4336220d17d6b612e066c0e5df100a88a6f795f8e0ea6275b25351aa544ddd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Top_Wall_02_ORM.uasset",
+          "bytes": 874145,
+          "sha256": "58b3560c26cdd008fc0b348282be98c12e3868ca76039bd709a4db30a8b37031"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Top_Wall_B.uasset",
+          "bytes": 58485291,
+          "sha256": "220e19f7b2d964eab4aa64539d3a20e9d914e0e7ca3678d9d5bfb6773e2181d7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Top_Wall_N.uasset",
+          "bytes": 140675678,
+          "sha256": "e6caa9f1dd61616561de88f6482e684cacb53d6ddb7e9147e79931d73df66a26"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Top_Wall_ORM.uasset",
+          "bytes": 46612218,
+          "sha256": "2c260dcf4f8c4a86dfc5a82bc4f0ed69997f923bed80e35dcee2493efb33f5e7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_TreeMask.uasset",
+          "bytes": 18578504,
+          "sha256": "cc4fde352ad9f784dfe9a925b482431a0213d629f7bcc7038cef3377b46127b8"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Trim_Sheet_02_B.uasset",
+          "bytes": 107108056,
+          "sha256": "fd86cf90bb42c937144722de81483c3391207e188d9a7d9a6a342d631a438420"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Trim_Sheet_02_N.uasset",
+          "bytes": 169421387,
+          "sha256": "86ee04b05402688922773ff6ee2eab5b15b4418950242fbe140be44a52c3b470"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Trim_Sheet_02_ORM.uasset",
+          "bytes": 69373028,
+          "sha256": "6685d93edda0bdc6c65551e777948dd71e567fcbf74156df4da84bb995b31c00"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Trim_Sheet_B.uasset",
+          "bytes": 107690751,
+          "sha256": "333a87f649007523a14ab77f7b1a1dd700ffe1a815d02c6179aab21297116790"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Trim_Sheet_N.uasset",
+          "bytes": 136393758,
+          "sha256": "9ebaf6150fb6bc5d0a8faab6376fcea1f4fa5ff990dae348fa11ceebe08b42fe"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Trim_Sheet_ORM.uasset",
+          "bytes": 65252137,
+          "sha256": "804c0ee21a95d1f6f7528ef660c3eb4913d4c041b5dec3f80c815a69647cea49"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wall02_B.uasset",
+          "bytes": 10283209,
+          "sha256": "847da940f9ae26ecc3a14dfd3cfbcf2127ffb9789bfabc6b073b9badd084b8d5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wall_02_N.uasset",
+          "bytes": 49804687,
+          "sha256": "795966528ffacd1cf1b6fb7d329d4015077331357ff592a9e7bc15f85b0e3dbd"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wall_AO.uasset",
+          "bytes": 1279313,
+          "sha256": "68ddfd7c2f4c04e9a81f818d7c74f6d588da253fa375e9ccbd85459044a2ef53"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wall_B.uasset",
+          "bytes": 51631264,
+          "sha256": "7df3977138f38d31b275a49e725055c33a0f11e34dbee59125d91b88590b4528"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wall_M.uasset",
+          "bytes": 196096,
+          "sha256": "6fb2279111e315648b86b07764ca74d86dc9af9ba1825fc90ff3be773615c991"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wall_N.uasset",
+          "bytes": 96711547,
+          "sha256": "97fc0ba4d3ae7833995a37fe01c98497ea100ce8d6d8fb12444eec30d7b4e39d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wall_ORM.uasset",
+          "bytes": 39637806,
+          "sha256": "e03745f3da5aa3807986f3b349a976ab01591d12732a586f47d6be202bcf7dc5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wall_R.uasset",
+          "bytes": 4526186,
+          "sha256": "76e5439b50336fa10cc573f3becf1748de0ca96435cdaa5d8ffe769ed25a5157"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Weapons_B.uasset",
+          "bytes": 21805948,
+          "sha256": "9f9b70996cc55ee5fb2878e1d7f5fae6a80679538e16a50655ed0008db8afbca"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Weapons_N.uasset",
+          "bytes": 21074630,
+          "sha256": "2a857e54a2d9e4904e376c68dde8f62ed11f032cfa0d5c4bc7c323aa9212e89c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Weapons_ORM.uasset",
+          "bytes": 20382075,
+          "sha256": "85cb6e8f4324a42beb5d74138ddbe1d914edabf6af1c80f1711c9e97b4cc6f8d"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wood_02_B.uasset",
+          "bytes": 101862116,
+          "sha256": "73266578a6639daa477ecad3a286e5d6cec694bd71064e0e3e6ca13f6491d333"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wood_02_N.uasset",
+          "bytes": 149577579,
+          "sha256": "c634363156333bda4eac4c3043d78b861472cad62f6ad15cae0cc54168761967"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_Wood_02_ORM.uasset",
+          "bytes": 90888331,
+          "sha256": "479677b251dd9f832a5b039c2d370fc83f0ac18368fbe27a19fdb73ee75e336f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenBeams_B.uasset",
+          "bytes": 5894829,
+          "sha256": "21b2048e4fb01aa8710e01365417eb32a15dd7c8177c2b08e03429b2679ddb15"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenBeams_N.uasset",
+          "bytes": 8705635,
+          "sha256": "b0fa036a8e1550263c168cf96a223fcc6e35a00889395a27df8842d8a584e71f"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenBeams_ORM.uasset",
+          "bytes": 5238458,
+          "sha256": "d022d0ce3608c397b3215308cad309531d007dfb9a57d513ea9e1e93d69dc5e1"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenDamage02_B.uasset",
+          "bytes": 1811496,
+          "sha256": "eda34229f930a0e4478d478d0edf9f63459c53a01b107c503b28fb9edab508e5"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenDamage02_N.uasset",
+          "bytes": 5301287,
+          "sha256": "f3af070cb224170463e927eb0e6572091d93ed66abbb1b55a68b2aa42b3a8d2c"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenDamage02_O.uasset",
+          "bytes": 34656,
+          "sha256": "416b270a0745714ffe7215cd9016e5585758bd185e8a8450894dd96549181885"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenDamage02_ORM.uasset",
+          "bytes": 1864688,
+          "sha256": "d3b5b52cbcefa15331b954447c9fa7b4203e907b7ab4888bad9261c03135c1a7"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenDamage_B.uasset",
+          "bytes": 1195990,
+          "sha256": "ab22b965e7ce07d135cd40f89146c9f55eef1511092d4204a1fee206b5b7ad1a"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenDamage_N.uasset",
+          "bytes": 4504393,
+          "sha256": "23b3c9c9296b15b3db3079f7d76ee4625256c8044f75117aca24c5940832f1ab"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenDamage_O.uasset",
+          "bytes": 28789,
+          "sha256": "17f1bea8a6f862c50ab8b99d11ef6375e78f6e8d4b83110213dfb4443917a669"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenDamage_ORM.uasset",
+          "bytes": 1195964,
+          "sha256": "8e8541bdb148d6e86443ba4314845ae99336f49600ab3bbd26826e817f712614"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenGaps_B.uasset",
+          "bytes": 9353886,
+          "sha256": "2e68d113e0ed8e486c81eb552c5c8974a8a80e9165a8d34b6727cfba180c3c19"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenGaps_N.uasset",
+          "bytes": 12383104,
+          "sha256": "9789a07aae436d8003289b0d9ae4a9df572947031a7296d6b2cc85f938cd2775"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenGaps_ORM.uasset",
+          "bytes": 5770475,
+          "sha256": "c4995d37fdfe2b57cff379a22d00522f789c82990a48dd7dfbb98489ee327d41"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenRotten_B.uasset",
+          "bytes": 9388858,
+          "sha256": "936526bf0f4831a6218ccf035c44f57cbd09434d1bbe7f473b381473c1a8457b"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenRotten_N.uasset",
+          "bytes": 11541405,
+          "sha256": "c189e4d95c8a6ed98e5323c65bd6a94597caa33fcd98328765f4c9a6267a1192"
+        },
+        {
+          "path": "Content/Mishima_DOJO/Texture/T_WoodenRotten_ORM.uasset",
+          "bytes": 7205871,
+          "sha256": "f7b4a1652383c627d6efa5fa0fd6e2c664051fa1ffcf189fb51d79e2953ad190"
+        }
+      ]
+    },
+    "EnergyBeam": {
+      "root": "Content/EnergyBeam",
+      "file_count": 219,
+      "total_bytes": 138413375,
+      "files": [
+        {
+          "path": "Content/EnergyBeam/_GenericSource/FBX/SM_cross.uasset",
+          "bytes": 16456,
+          "sha256": "76dcb012d763d5f3b0f4b23e265dea414622c1c6c7eae10305fd21adde2e5956"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/FBX/SM_Cyl_Low_Twist.uasset",
+          "bytes": 1706319,
+          "sha256": "f133bdfa4d4a8a2801b6a9bf8f338f7789ee8fe7ca0476079f9f2b6bd45024c3"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/FBX/SM_Cyl_Low_Twist_flip.uasset",
+          "bytes": 1746650,
+          "sha256": "e38c5f19a076e58a0874fe8ae556bdc3949abdb3e74c18d6045d703d3f3122c9"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/FBX/SM_Cyl_Twist.uasset",
+          "bytes": 1676181,
+          "sha256": "932ee5a2fafc4f1bdc1a989ed6925b19260b781de564c363efcba5a5c53c6399"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/FBX/SM_NoiseCylinder.uasset",
+          "bytes": 30195,
+          "sha256": "87b56ed5ed3783fa86cecfcf1a0f2eabf11f3729a5b0af2f9469f5e5d081a3f5"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/FBX/SM_Shape_Cube.uasset",
+          "bytes": 16534,
+          "sha256": "1c9253f1e50962119ca1192880a9223ecd355f0232efc3fb137d460f59c97170"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/FBX/SM_Sphere_464D58D6.uasset",
+          "bytes": 70047,
+          "sha256": "6d27785dc44406fe33ad1f55d08b941271dedd2c0e9a0858e41c5062f99b0cdf"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/FBX/SM_Sphere_83E4BDC6.uasset",
+          "bytes": 27432,
+          "sha256": "f8202dd20f1ccd4abb45f4bfde803b38dc99d289875193f491a4984478a6f097"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_Basic.uasset",
+          "bytes": 23581,
+          "sha256": "7c14f62c9fad61dce7652bc42b93946aa6e143f08af884b3f76dd04df36fbc27"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_Basic_AA.uasset",
+          "bytes": 23653,
+          "sha256": "bc9176ee1b485b8594ef2053d3fe62a4a7b1345bd87d17c7b9aa58a42d7fef0f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_Basic_Pan.uasset",
+          "bytes": 49201,
+          "sha256": "42e0945c77b5900f2cbd78028bac6143a8ae67764f576cebb6400b54765b6c50"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_Basic_Wall.uasset",
+          "bytes": 13155,
+          "sha256": "cb223e3df16c05bf3c799b4a508fff26e0ba101d5381684985062f7ef24530d2"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_BasicAdd.uasset",
+          "bytes": 21274,
+          "sha256": "1ec10c7367e2d62dddcbe2772bec780527ce00697b000700f0a9585db04ad5f9"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_BeamLightning.uasset",
+          "bytes": 7921,
+          "sha256": "543e55f9ab9648a6b6031b360c16ea89a82cdadb9cbc483c7ae59fc134ee7b47"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_Color.uasset",
+          "bytes": 8879,
+          "sha256": "74289817c1efa9269bb66dfabfbcf9cf3d209696a9c07edce4675fdaaaf097ef"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_CylTwist.uasset",
+          "bytes": 26486,
+          "sha256": "44bff89bf48c2ead0992110d131904cc48e2a5035f79a51ae12931674d9f3f48"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_CylTwist_waterTornado.uasset",
+          "bytes": 46111,
+          "sha256": "3de788884bbc701c67ce34a382bd12c4fd4479f71862559e1aa62b75032bd3c0"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_CylTwistCore.uasset",
+          "bytes": 38091,
+          "sha256": "2e5da3ca6becb994207ef654d7235e4a0c28e1940416173cc00d209a616c451e"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_CylTwistCore_water.uasset",
+          "bytes": 53821,
+          "sha256": "71f92919ae014d2a469137a0d45341de320fb43a37d4493162fbb03b8f1ec00d"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_DecalMark.uasset",
+          "bytes": 49945,
+          "sha256": "2e3ac161d93cfa20c0d964864832510e76ab5dec2e9ed540ebd9c445f2defd59"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_DecalMark_PBR.uasset",
+          "bytes": 48850,
+          "sha256": "88c84c43e07741bda1535534b9d6ae7f996a01ab82a6e1a5647cfcd7114c28c0"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_DecalSpellAdd.uasset",
+          "bytes": 27299,
+          "sha256": "d117884552f6b8feacce660604cacdbefab18415285da5764d305859dcd39b76"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_DistortionNormalPan.uasset",
+          "bytes": 17137,
+          "sha256": "c1a8934a477bfad73e9cdea74ad4c00324a0cc0fdb57a9bf7527d70aa0d98291"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_Fire_Stamp_flame66.uasset",
+          "bytes": 24260,
+          "sha256": "b6211d99294ad04cb94528698a394ab2afc5b9ac02309ef1e5298b40c60b5622"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_FlipBook.uasset",
+          "bytes": 30774,
+          "sha256": "78f09ff7ff546c2b287bc267d0cfdd55e413c20d01d454b70e80e772a13a1217"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_HdrEdge.uasset",
+          "bytes": 48372,
+          "sha256": "517cd8d4ab35b62ab593b86e2281583ffa9c604852c104da5a1ea3e8e27bf62e"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_Launch.uasset",
+          "bytes": 23801,
+          "sha256": "2a5cd4c237a787e3f687856a9dba74f93e0acd36ad9cbe44e865f1062aa50357"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_MathCircleDot.uasset",
+          "bytes": 18350,
+          "sha256": "676a736941cd9eccf442becd6201edc2661479bed8a10bb6fd76bdb6eb80ba4f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_ParticleSubUV.uasset",
+          "bytes": 22666,
+          "sha256": "f156fd6870163c9d8d4da95cb588ac169945527666d2f3f724dddb940e25ee75"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_ParticleSubUVAA.uasset",
+          "bytes": 21768,
+          "sha256": "46f81157b42dc2b1a2228e69d6a194235e2684f38d347f8b5e5a96054c4b5fb9"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_Plasma.uasset",
+          "bytes": 24212,
+          "sha256": "b74f54cf272736855e4fb4a44d22a6ad1fd60993169c0e6ab222f2ce91bca6f2"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_PowerEssence.uasset",
+          "bytes": 29485,
+          "sha256": "6401ef98a52bcfc224161272a0fdc6733320c1c22e7f97c75811ac06ff53c3cb"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_RibbonBeamRay.uasset",
+          "bytes": 32634,
+          "sha256": "8b186d9af9bf03832c9122d12c587b5745c23f54ab36a1d61989ac44e2288149"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/M_Vfx_RibbonRay.uasset",
+          "bytes": 26372,
+          "sha256": "006b661885e61f00d1bb09acb7a0c9f29761f3a818046eca0b8728b683f55439"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MF/MF_RotateVectorWithAngle.uasset",
+          "bytes": 29738,
+          "sha256": "3c95a75279304651caacb11dd1a09839562f1cd24003189e4a35b1255800e709"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_bullet01.uasset",
+          "bytes": 10083,
+          "sha256": "8dddc658724da9ac1d0032eb6e5bfb59ffab97574365cc5304bbd6597bf96975"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_center03_add.uasset",
+          "bytes": 10002,
+          "sha256": "ff1556388032d0d57211ca98ed70855da254e0885260f29f6325a9d33d3de4dd"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_center_Flare_02.uasset",
+          "bytes": 11119,
+          "sha256": "72806dcd0b8b17393cb413056c14c2f608e706f86faf347859baa4c775375d3f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Center_flash02.uasset",
+          "bytes": 11554,
+          "sha256": "3d20f83ccba4c74d0a542351cf5a303e0142133b7dc97af49a12e4608c7c1909"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Center_flash02_add.uasset",
+          "bytes": 11639,
+          "sha256": "28f61f1abe790811a801eb539d2ac5eb936300f14ead3d9b2a0b1179b33aeb20"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Circle_Fist.uasset",
+          "bytes": 8774,
+          "sha256": "a0601d7c2313e40d48e55fabb85e1d65a383726b1b25059573739b585e29dab1"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_CircleCenter.uasset",
+          "bytes": 10618,
+          "sha256": "dabe8e4c14dc52e9ae3fc39bd8fc1c09739cdfe4220758af6804a13c63a07a0a"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_CircleDotFade01.uasset",
+          "bytes": 11159,
+          "sha256": "260f44f7337de6b30b4eac5df40d71a4f3990c67500c1f0ca374689d35ab2179"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_CircleDotFadeTransparent.uasset",
+          "bytes": 10360,
+          "sha256": "4d4c56272c4ff47d452a6be4eb6c06b698e24a7ae150210f1a82f5ebe50a4bcb"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Energy_Energy_WaterRing.uasset",
+          "bytes": 10333,
+          "sha256": "4d653f55f74427920c054dbf0f96efd9284dc8ce2b7478e7c106b8bb392f93f0"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Energy_Jet_09.uasset",
+          "bytes": 9433,
+          "sha256": "0818b2b0af1ab7cc68efe2394d01805dad210b7f8261d6d16d4a9337d34aa1eb"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Energy_PhoenixTail.uasset",
+          "bytes": 9891,
+          "sha256": "0d862c94f611fb26dbd4c7c6724ab0640e5208f1ff8bcf16d44d84973f882ea1"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Energy_thunder01.uasset",
+          "bytes": 10972,
+          "sha256": "86137cd92391290471cbe725b4c5590fff5ec42b1933ead6bc62a8406e187635"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Energy_trail_07.uasset",
+          "bytes": 9512,
+          "sha256": "3845a0d3b52022e034bb5af8f668e298292c289d273dd12321e655cd7dfab3ac"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Energy_waterlight.uasset",
+          "bytes": 10674,
+          "sha256": "40353079f82cb7ec9f35db288b8211d9084991e4de87869fa2fa02e43dc4984f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Pan_Aura.uasset",
+          "bytes": 10012,
+          "sha256": "7081a56f340f7edc9fb49ae4d2744af5eb7a1da3be3a14ccee119e26f04be745"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Pan_Fire.uasset",
+          "bytes": 10298,
+          "sha256": "729fcea36432275c813a5fea7a05ed4b764ba2db3c49778909a53de99c4ed4f7"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Pan_Lightning.uasset",
+          "bytes": 10484,
+          "sha256": "ccc7da5b82b835c24d49b3ca3e6769d53795fd8e8ba1a2890534a6ee30939d9b"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Pan_Water.uasset",
+          "bytes": 13191,
+          "sha256": "01f82f5722c65943575a958dfffc75d0809048e51dd74ae2d7a989f76feb8829"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Stuff_Gush.uasset",
+          "bytes": 11327,
+          "sha256": "675351018d1f7f154cdf0bc242892d01f0f017f33d1ce3aaf961492fccced2c2"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_stuff_splash_03.uasset",
+          "bytes": 9625,
+          "sha256": "7aeb1beccd7a44ce5014202360e74be8902cb2082a5dcc460b915f4eba5d6365"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_stuff_Splash_Water_Bright.uasset",
+          "bytes": 10459,
+          "sha256": "0efa2a7c73a97a22a69a482f478649deabbb005c4f67d319e502c6dcc932ad3f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Basic_Stuff_WaterFallFluid_gray.uasset",
+          "bytes": 11825,
+          "sha256": "972a953c92b35191f16d8429ca8076f0845887e5ef77afb3758e52f4a5e9f6ed"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_BasicAdd_CircleDot.uasset",
+          "bytes": 8924,
+          "sha256": "c8efad41b3b16aaefae6c34243386f89512309c41ba5c347138c8b4a33f42339"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_BasicAdd_CircleDotFade.uasset",
+          "bytes": 10130,
+          "sha256": "768df59c721f824a5db1900f40b32ac71fadb1586d69c0912b4c99f420b581ff"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_CylTwist_cell.uasset",
+          "bytes": 11068,
+          "sha256": "7cf6c692a0774155c204f7e4b740f6ba33c265ec3c279e9a6b0e6f86a1ad132b"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_CylTwist_Inst.uasset",
+          "bytes": 9388,
+          "sha256": "937e9076bccc78b76fdc70edd83edcb3a97a9c39e7c500a63be9de606de5332b"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_CylTwist_unlit.uasset",
+          "bytes": 8519,
+          "sha256": "02fd1ade08cfab1e0aa8be92a19786adc179769fecc1cbc7de0b29e1ec7a243b"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_CylTwist_waterTornado_Inst.uasset",
+          "bytes": 9827,
+          "sha256": "62a91ffb1331d45c3051cc9e8498a6375778138d3c3b9eef873ef292e928dd44"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_CylTwist_waterTornado_Inst1.uasset",
+          "bytes": 9848,
+          "sha256": "a03ffb2a03fa988ebe5cacb0ddf25a46a61d09a1e6d1c0df107150d6769ff707"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_CylTwistCore_Inst.uasset",
+          "bytes": 12191,
+          "sha256": "911db7330c0c49866eab2ac46b8841dad4cc2f3e7c2dc839e4db77d3928bf837"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_CylTwistCore_WaterFluid.uasset",
+          "bytes": 10162,
+          "sha256": "b6c8e3945a96c9ef52b23edbca2e2b2fc54f26d84c407f22769ee75259360e9d"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_DecalMark_Crack.uasset",
+          "bytes": 10461,
+          "sha256": "887957997ad1ec3e961234c453172d3e3f152a8df27dcd72471254b70f98d6c1"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_DecalMark_Inst.uasset",
+          "bytes": 8734,
+          "sha256": "095ee1f72a3d16e30f5784cfae304f61f86a39fc7f34bb21aa1174de12431887"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_DecalMark_Inst1.uasset",
+          "bytes": 10455,
+          "sha256": "d577bfa1974a2af9ad06ea1f6c2caced2362abee2f13dcd843efc06dc8d2c5c8"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_DecalMark_Inst2.uasset",
+          "bytes": 9776,
+          "sha256": "cd9d29f5901baa6c9cbd060fbe93577ddb9bca380915228384655c9f827e642c"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_DecalMark_Inst3.uasset",
+          "bytes": 10914,
+          "sha256": "7f9672b5f5fa933d38622257281fa7eb1698a723d4d7a3fc277b4300c014c6b7"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_DecalMark_Pondle.uasset",
+          "bytes": 12649,
+          "sha256": "35a18d303e69c52bc3588d954fcc5453aa20ec3685a0da5caee1ebad464abd73"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_DistortionNormalPan_Inst.uasset",
+          "bytes": 8766,
+          "sha256": "b4c8d4ed322e64de6eaa7709101a01830b73bca2e675e0f4187966b633f528c3"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_FlipBook_fireFlip.uasset",
+          "bytes": 10130,
+          "sha256": "eea52b45ceb2a4985568c383de9c38da6f4efc9067a33401389bc69e94c9f2dc"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_FlipBook_fireFlipFast.uasset",
+          "bytes": 10314,
+          "sha256": "d628e9d2dee11488bef2302152c7973bf6bb2f70e6ac18a533b313dc6415f8cc"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_FlipBook_Stamp_Electric_43.uasset",
+          "bytes": 13586,
+          "sha256": "d7b4cafbdc698f150fad144b5a96fbe6f9c999d9ef50146b5999dd67fa656731"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_FlipBook_Stamp_engrywindBigBG_44.uasset",
+          "bytes": 13200,
+          "sha256": "4987d5ccb0dd2b3a24a3669ce05f89924774db119a435bd21711c6e9922476e7"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_FlipBook_Stamp_flash_14.uasset",
+          "bytes": 13603,
+          "sha256": "f6ab39fc141cc1e1cdc5e3f2d1f57f1bbf260b8dea5c44638479665439f2cf8d"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_FlipBook_Stamp_lighting14.uasset",
+          "bytes": 13010,
+          "sha256": "80c7e73f73c58739b5677da851ccb6d1fef9d2e21c98cb35c2f4165c704ff37a"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_FlipBook_Stamp_smalllighting_19.uasset",
+          "bytes": 13852,
+          "sha256": "cb1a90d5aa29c4ccea46a6c85f392679a5a565faaf99d8ab6e83eb1fb5c1c612"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_FlipBook_Stamp_Stamp_Electrical_33.uasset",
+          "bytes": 12256,
+          "sha256": "07822ef7860af010eea7afcff50598ddd77e0760bcb1e8f6b1eb4554d75dc8e8"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_HdrEdge_add1.uasset",
+          "bytes": 12160,
+          "sha256": "6e25e476a4b65c68f32cd9925552db7966c6b14d02b7dbf6d22c25344eff2a97"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_HdrEdge_Inst.uasset",
+          "bytes": 11200,
+          "sha256": "b6c148db7b4483993e5e179b2111a3d76b5886b32a07cf233731e90571a816ff"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_HdrEdge_Inst1.uasset",
+          "bytes": 12166,
+          "sha256": "53f7cb66bd7e9f475f49cb16f4d6a779f5cc3179f1415bba3db411deb92bfbbe"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Launch_Inst.uasset",
+          "bytes": 8099,
+          "sha256": "dbde0918249450d0ca2ccd15a470cb49fe87a53a49b47dca368473961b2ca405"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Launch_Inst1.uasset",
+          "bytes": 8366,
+          "sha256": "13187c17db846f5b31032bbf523bd76313d0acdf010f6ed1f69e952bd07da8e5"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_MathCircleDot_Inst.uasset",
+          "bytes": 7107,
+          "sha256": "15583e7b10d65d611027d1ac060b5a0f3c3d3e6427b591d6acfb30ba3047db5e"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_fade.uasset",
+          "bytes": 13073,
+          "sha256": "ec0b58b028552727a9295ec4ef799bc51ed1c83ed27ca3ac6c5b4bc4764e8e91"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_fog03_88_fade.uasset",
+          "bytes": 10917,
+          "sha256": "da08b61c3b93213548a663ad18b2ea1460cc11f7fae0b4e3782fa16f9faae649"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_Stamp_Ember_44.uasset",
+          "bytes": 10347,
+          "sha256": "4f940691e0b2745a12eb0cec137dd0d984e76be242319b98af2895f22f89c2ca"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_Stamp_HitWhip_55.uasset",
+          "bytes": 9418,
+          "sha256": "2c573934b2a9cf8d229a00b0655d34115e4e2592053109e96151cbd24e5ae8bf"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_Stamp_Smoke02_88.uasset",
+          "bytes": 13673,
+          "sha256": "369173045243e5286809985a65e2412227423071594fecc93f64e0b52bc3603f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_Stamp_Smoke02_88_Littlefade.uasset",
+          "bytes": 13110,
+          "sha256": "578d7a087192ad5cdacee0ed2d455c71b2c30aadfc3c3bd91be0cc54d3f3bc90"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_Stamp_Stamp_Electric_33.uasset",
+          "bytes": 10806,
+          "sha256": "16be28db2ae8d2d5247b3e176b3c35a065b4a9a60686c56652270921748c5b33"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_Stamp_Stamp_flash_22.uasset",
+          "bytes": 10173,
+          "sha256": "d5a62b679662b80e6ba4fab61390c95d2f9fc432177554979e5afe4118d31fb2"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_Stamp_Thunder_44.uasset",
+          "bytes": 10891,
+          "sha256": "1ba915e0e8d1f21cb40de4407f7d2e0d291fbd9ff2540ea6b2210c9d30403ef4"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_stamp_Water02_71.uasset",
+          "bytes": 11097,
+          "sha256": "1da623b6ebafe5ed6ddcabb3a7e2af32a2b0cb3c2f5e094b424a7d2f28e4112c"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_ParticleSubUV_Stamp_WaterDrop_44.uasset",
+          "bytes": 12434,
+          "sha256": "5f3999687ac7d21bbd71e0bb8d09eb4a5a82b05001fff8ac3557fd3a7b0d3819"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_Plasma_Inst.uasset",
+          "bytes": 10204,
+          "sha256": "6fd2651be88c30ad99ad94a302b3ef67f6d68cdd11768251af03ebb64cbc06fa"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_PowerEssence_Inst.uasset",
+          "bytes": 10913,
+          "sha256": "0980e2166627976ebb7ffa94d53a5d37d73120cf668d002d7a74f27ca00bda7d"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_PowerEssence_Inst02.uasset",
+          "bytes": 7861,
+          "sha256": "0a3718d50d9ca5a85a97f0cfeb3ae188a85e641d548002f9005c41b888268845"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_RibbonBeamRay_Inst.uasset",
+          "bytes": 11016,
+          "sha256": "b8e3ab2e50d2d59532ad98719293712be6f7134e3913ccc096683a2349132657"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_RibbonBeamRayAA_Vertical.uasset",
+          "bytes": 11150,
+          "sha256": "4a1222e013767381bb2e4b4420ce85dd8ae16e526b1e3c044beb30b615bee876"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Material/MI/MI_Vfx_RibbonRay_03.uasset",
+          "bytes": 9834,
+          "sha256": "8bdde4f674c3a4ec6303ad083298b81124bc05d6af6698c53d40f0a713108cd8"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/NE/MyJitterPosition.uasset",
+          "bytes": 44476,
+          "sha256": "4b0fbfbafd32e698bd4ab4d49759b6c8ed4c5fe3f4a0947fb7c5c281bd15130b"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/NE/NE_BeamLightning.uasset",
+          "bytes": 118048,
+          "sha256": "0a3a9763c09301802ed228daa935d1e7a163f1a7f63ce4c1b82962fc6a6a6626"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/NE/NE_decal_bottom.uasset",
+          "bytes": 479981,
+          "sha256": "eb2d81ec31afc574e36d55c5d84c2bf364c65a196d2a7f76845ac67f84e6cea9"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/NE/NE_HdrEdge.uasset",
+          "bytes": 407399,
+          "sha256": "b5b1f66aa6cd82abca2018558ae5df9a441db95eca394b24547988f2e1359f62"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/NE/NE_RadialSpawn.uasset",
+          "bytes": 408679,
+          "sha256": "b3c36a196eef626f89ec1bf24edc7ca3e1154f09cc19613cefa2965ea5653a9a"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/NE/NMS_infiniteDeactivate.uasset",
+          "bytes": 44564,
+          "sha256": "375c4e05b0a9c94baeffba03d774a4fa83bfd5772f21288d1c096df2164f3805"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/GenericSoundAttenuation.uasset",
+          "bytes": 1544,
+          "sha256": "99dad90d53a21cd24c568e1f98da2dabe2893bd76b5a0614149a30c7f5ab07fb"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/sfx_AttackUp.uasset",
+          "bytes": 446189,
+          "sha256": "431a9f78dcf0537abeed62c61836988cb080dbc026dc45fb04710a73612e047f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/sfx_AttackUp_Cue.uasset",
+          "bytes": 4233,
+          "sha256": "34db1d27e427ef310955067b424e7fa540b030018a0bbc41cfaf4c75ac09a5f9"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/sfx_Ball_thunder_s.uasset",
+          "bytes": 267254,
+          "sha256": "2080e9b106f70741bb3a0c61f203a539cca8278a3987ee84b96f0d8ed5301859"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/sfx_Ball_thunder_s_Cue.uasset",
+          "bytes": 4358,
+          "sha256": "e0e6a833c6f263eb24ca31fba5212ff8b607e1c1f47cdedb5b27a18cc1a21a73"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/sfx_CritUp.uasset",
+          "bytes": 726056,
+          "sha256": "8e6ce3f88ab94ee972ceb61f4a855b9ae7aef6ef0474751638b2f07d1ad33994"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/sfx_drone__moving.uasset",
+          "bytes": 587725,
+          "sha256": "15da068f9f2c293bbb6953c947150b0b3a89c0d9179e9f3410b3a5b74abd0ce3"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/sfx_drone__moving_Cue.uasset",
+          "bytes": 4351,
+          "sha256": "bec19169292d2086e607af55da183ead2f0f45b6b71a871fba2d4bd410892bfe"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/sfx_fire_sun_Cue.uasset",
+          "bytes": 4312,
+          "sha256": "351dd4e8323ee5b19a2854111fa4654228f5845bc11650c550a76b79723739ed"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_AirFire.uasset",
+          "bytes": 868689,
+          "sha256": "fa2f8d35eccb8dc86b0018b12be9660de0295d64fbb36dc51d0d3b248fa3c4be"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_AirFire_Cue.uasset",
+          "bytes": 4337,
+          "sha256": "f1d8f7334da3dc14c8a2b461f87626be1bcb4fb628c8ce97b897a47fbcc1c485"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_CampFire.uasset",
+          "bytes": 3199541,
+          "sha256": "6d9efb9351bafe031219f39dbe5499b13a6fb56a6f644e2f235834f04c1070dd"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_CampFire_Cue.uasset",
+          "bytes": 4403,
+          "sha256": "1ae5c8c24a4fe4200bbf919a30b60aadedcd523ba4401e3a3855a6b337aefa74"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_Eletric.uasset",
+          "bytes": 343641,
+          "sha256": "65f53f218d28f76ccf56ae8c2943ebe5c2975ddc9e2e216c2b4591adb21e23ba"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_Eletric_Cue.uasset",
+          "bytes": 4308,
+          "sha256": "826f4efa45dd338a4dd66d79c92b22663d82671c6353c31a6d5b456c95a2df2a"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_Laser.uasset",
+          "bytes": 1389992,
+          "sha256": "6d41163751ff756841c1c1524ae040181dd602cd46c184cfe60765da897ad8ce"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_Laser_Cue.uasset",
+          "bytes": 4294,
+          "sha256": "fccd650cdbcd025c8fff9b8ee3da2d0446f21d4d35e36d282a46235a44ceaba2"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_Laser_Cue1.uasset",
+          "bytes": 4406,
+          "sha256": "9faddbc0755f20e5c43982569c81f828fef9c1505604a8df93d9308d9e2bef1a"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_waterWind.uasset",
+          "bytes": 3806455,
+          "sha256": "0b5cd24ac7e89a9449381313b39e7b9a5bc0894896bf218a3511a7fb6f99f482"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_waterWind_Cue.uasset",
+          "bytes": 4375,
+          "sha256": "1f08274de030eb420b30e162577dd5c4b2a7b1fad30a3a06cb76b80853b85990"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/SFX/Sfx_Loop_waterWind_Cue1.uasset",
+          "bytes": 4380,
+          "sha256": "724482b33b9b7177cce8a493a3159d995966940a79001f81a36bdee1f8654bae"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_BasicDot.uasset",
+          "bytes": 65823,
+          "sha256": "f03de30e3bdb04c8ffb3d3975a0fc5126560c4f7db08b71d1822af6f33e90a27"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_bullet_01_b.uasset",
+          "bytes": 18058,
+          "sha256": "99776a007c12c730761efc2ecc48eeda73574d2e9ca925057c4e9389e1a98acd"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_center_03.uasset",
+          "bytes": 21916,
+          "sha256": "8aaf64bbe5be6c9c05ff7373401aeb865bdc0bc241b0a2aa0021ddf256bc53b9"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Center_Flare_02.uasset",
+          "bytes": 30307,
+          "sha256": "71d879457524721b1c389caaa57361ae1dfb77137911d37834fc35630833ac4c"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Center_flash02.uasset",
+          "bytes": 16704,
+          "sha256": "fd0f319a60aa0114af24f66db6149843e439e8e9439058caf7ccea92cca8467a"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Circle_Fist.uasset",
+          "bytes": 108019,
+          "sha256": "e1e6b59373a476b160ee01e40342b97380653afddc6450ae56044981fd700717"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Circle_Stick.uasset",
+          "bytes": 116314,
+          "sha256": "a5a29391b47388e2b485650bfd1346328d4e15d8f225970ec8ca07a5c3f79e42"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_CircleCenter_bg.uasset",
+          "bytes": 111510,
+          "sha256": "4ff2feb01b213b98adea9c7d54fb6ac6bae6e6aece19f3d261bcb8e0b824f685"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_CircleDot.uasset",
+          "bytes": 50188,
+          "sha256": "9b6f1baf7a0722b8bca04eee193319119a6c8f8d8e65583096f11e8d0b69fe9e"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Energy_EletricThunder.uasset",
+          "bytes": 59297,
+          "sha256": "1937f8c62bd2f6ce12b1230196976970b305973c9acc678dd6d420f1cdde1b08"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Energy_fireball.uasset",
+          "bytes": 26227,
+          "sha256": "af7afb2621014b29f3dc0581ab39854cc33ea45038add9163b937ab4e0f3fb48"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Energy_Jet_09.uasset",
+          "bytes": 9869,
+          "sha256": "63b6ada63ec927deb02dea4b5910d16ffdcf753c2bdef10ecce6c213f862acf4"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Energy_PhoenixTail.uasset",
+          "bytes": 17284,
+          "sha256": "4e6d39a29cc6dcd5ae7a53a8b620b7cd3e90164bfadb09f6dacedfb12ff7effd"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Energy_thunder01.uasset",
+          "bytes": 19595,
+          "sha256": "edccb5591e46ce86c3e74933d74f42d4b5e18f0fe06e4c7f77ed880086e9e4d4"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Energy_trail_07.uasset",
+          "bytes": 7331,
+          "sha256": "8026e917201278583aa5f053daefe3542491e5fea9a8d1f93ee49cbd7adcfe67"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Energy_waterlight.uasset",
+          "bytes": 24441,
+          "sha256": "111ce8a694cb16687de5d030d033e12ce25a7a039520d556dd30a69dfb35c976"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Energy_WaterRing.uasset",
+          "bytes": 60119,
+          "sha256": "eda99e44f2a3e89a5aeba60cf875eca721083d4150e633337f389c0f644018c3"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Ground_Cave.uasset",
+          "bytes": 377657,
+          "sha256": "89bc3460cc6fed733d6f0a0c625c959248244cc9150c7747c31126653663df41"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Ground_Fire.uasset",
+          "bytes": 38586,
+          "sha256": "f57dc6839a7a69cd029f9e6337163d377b9d7247da52a48b33725058ece946c4"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Lightning014_D.uasset",
+          "bytes": 26290,
+          "sha256": "fcd3c353063aea8c53e092e133275db5b07ee75f1bbd7dacffb23161f1282dde"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_01.uasset",
+          "bytes": 104748,
+          "sha256": "ce990279e5ad5f43201cb17ca37aab91f887cd396e726e19547320d9f3757a2a"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_05.uasset",
+          "bytes": 91675,
+          "sha256": "93173486c2d9cb791906a7fee1ff9a96aede1bcc305f048c1e42908a9d8f6788"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_07.uasset",
+          "bytes": 85559,
+          "sha256": "1694fc5d7856f9da1630b68364d26a949f505160d5f2dfb41f191d40a97a90b3"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_3Distort.uasset",
+          "bytes": 79290,
+          "sha256": "7eb275051f03abd062e88003d18699a453a52d30029b33f54fe8e8605f05f53f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_caustic.uasset",
+          "bytes": 533228,
+          "sha256": "50dac5191ac3cb269d5516d253c5edbdd3f433a5e9c21beb4bc5c07104ecbb28"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_Cell03.uasset",
+          "bytes": 102120,
+          "sha256": "820624882b11bf19045199f7835b241526d62066d0e8b5c511afaca3874732c9"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_cell_.uasset",
+          "bytes": 53544,
+          "sha256": "bfcb4ac47aace53f0bca977d86b4baa44fdca13eeabef0b26c5e0e841726ae28"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_Fire01.uasset",
+          "bytes": 500159,
+          "sha256": "a05b631ba05157795096f393ca7b6c1acd43354e705ca891728a5043545cd7e9"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_Water.uasset",
+          "bytes": 610098,
+          "sha256": "431cf58fd8136b74b9303f40c3219a6747f4bc51da22b8b9679cd1c64bbdda26"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_WaterNrm.uasset",
+          "bytes": 625879,
+          "sha256": "0e1d5d1014ef96d5fc2ecc7c1f8e492fa78ef39e3bccd20f820a9d399d09b97c"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Noise_wave.uasset",
+          "bytes": 251336,
+          "sha256": "9734c6f775e125e1f2bea37da9f368307180f19e1c78c8d0ee98b274c7144017"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_Electric_33.uasset",
+          "bytes": 47237,
+          "sha256": "e8c2ed9b55f3a947daa2df8a9ee31574261230550c68d54e9ecdb5f304a05ea5"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_Electric_43.uasset",
+          "bytes": 472815,
+          "sha256": "95e35874e658b11fc60b995ed3acc2e07d99e475e262b4b44c8c7fe44a0d1ee2"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_Electrical_33.uasset",
+          "bytes": 101463,
+          "sha256": "252ee9489ac5879fd8114cbbcd63514dfb150eeb68a3d5622ce955575705ee62"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_Ember_44.uasset",
+          "bytes": 60413,
+          "sha256": "e8ba96d03a802a10d4079216635af2c0260575ca5782b39bdb25552ca6804754"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_engrywindBigBG_44.uasset",
+          "bytes": 2891142,
+          "sha256": "609dc0fd57cb73ab45e64b5a0827deb5fb371d0c5b9f2ed08d697080ae8d0471"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_firestand_88.uasset",
+          "bytes": 759834,
+          "sha256": "85969cd02ff3c206c46ebd8d72abf945615140f46b5fae2a7a28bfab47251e1c"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_flame_66.uasset",
+          "bytes": 429054,
+          "sha256": "6c6e9d3a910803066d6b999caa367199e76953b31c8bb7bd1b04b26a4285f071"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_flash_14.uasset",
+          "bytes": 130928,
+          "sha256": "094c43b2049d76fd4d9806ca43214a12e7688c491a86b95953f076a85af8eef5"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_flash_22.uasset",
+          "bytes": 54406,
+          "sha256": "7fdf5c472e29f931349c40a88c135677af0fd23b302d636d3ce1b269720723e8"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_stamp_fog3_88.uasset",
+          "bytes": 309507,
+          "sha256": "a27306e54bbdc7c2243fcebbeee40626d35a9047e24982c48e4e17769745fdbc"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_stamp_fog4_88.uasset",
+          "bytes": 627640,
+          "sha256": "9111a1cf7605bf1f3fe2e957ad461e20c56166a54aaa1471e5433e8de29c53ee"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_HitWhip_55.uasset",
+          "bytes": 641065,
+          "sha256": "594c1ac53bb6056e2579eb1454fc66750b91c5da565b62d7834d5b991ef3f06a"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_lighting03_24.uasset",
+          "bytes": 286335,
+          "sha256": "d47724cab1ba36fff91977993eadd5109e121bac0582b68b3524150425290b74"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_lighting14.uasset",
+          "bytes": 261062,
+          "sha256": "6887e4dd19c5324c145d54995b8f96db7318409d7b1988abcb3e49e11acb8333"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_OnmiLightning_44.uasset",
+          "bytes": 2019406,
+          "sha256": "4679f7667c891118ef5e437de638dc5335d5d486b940e028063be3136c61b837"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_smalllighting_19.uasset",
+          "bytes": 34235,
+          "sha256": "f85690c4aaa23876aaea4ca0ebe8611e74688069ce5f4afd0253ffeef6a0bc64"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_Smoke02_88.uasset",
+          "bytes": 2588277,
+          "sha256": "7cfd2fae80a9812cb605c234ff24df3459e7d52d7daae8d296ca2300873c441f"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_Thunder_44.uasset",
+          "bytes": 18260,
+          "sha256": "944fd54ee4df1fb4b00d38749b7315ea26762968674a6765e8707256bbe53d8e"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_Water02_71.uasset",
+          "bytes": 45728,
+          "sha256": "bf330beed959fe74fee06daf3c6397af5509e331510d82fa89edf4de80abd2c4"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_Water02_71_swap.uasset",
+          "bytes": 41042,
+          "sha256": "1fec1bedc8ac2066ee004be07a0878cdf79ff9f347b641730962edc9cc585d46"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stamp_WaterDrop_44.uasset",
+          "bytes": 53524,
+          "sha256": "59cb665b1a0b00e84ac7d37d5bc8ff5260a92362c5a6417897e5927987621d52"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_stuff_Crack.uasset",
+          "bytes": 44138,
+          "sha256": "ed99f32a360ca71f6abdb2856105348d17a71a560f4cf56217362b24a34abcb6"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stuff_Gush.uasset",
+          "bytes": 16584,
+          "sha256": "bba3626d2e3a14a5c0a453eeb3b12a8484467bef761287f5a9078abd731824b3"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stuff_splash_03.uasset",
+          "bytes": 21016,
+          "sha256": "5f15a7613badd94217a92b4c1499ef9d98de410de09a929d7214cdfbd7681902"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stuff_Splash_Water.uasset",
+          "bytes": 45119,
+          "sha256": "3b95f2704eb8f0547d8c8330725b62ae989ab6a7a89c293263015fced29695c5"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stuff_WaterFallFluid.uasset",
+          "bytes": 512644,
+          "sha256": "2d53b882e731f9d769c5e3b6886a5804ae3288b96c6855cdbc995a0e70d4c6ef"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_Stuff_WaterFallFluid_gray.uasset",
+          "bytes": 337519,
+          "sha256": "384ecccf2ff80bfe7eb5f7754edba668bb70ad58cb1c4212c81da262b2219500"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_UVS_band.uasset",
+          "bytes": 33982,
+          "sha256": "dfa40b6c801eae58c22244a69063ff0bff285fd6e69ee78f43c2d23602a48a8d"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_UVS_Eletric_02.uasset",
+          "bytes": 33148,
+          "sha256": "bef281aef3a26198f9148bbe6e870852c0405c99621441ae80a824154202f11b"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_UVs_flow03.uasset",
+          "bytes": 117383,
+          "sha256": "6fa4a7bc1af75f02b1e50bbc902ff0e2c3fe88927b72f4388f47afd607226519"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_UVS_SoundWave.uasset",
+          "bytes": 19923,
+          "sha256": "abe935bcb0eeed548321cfe118d2c4c86a55eeaa74ce60c5ae7f7857274be488"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_UVS_Trail006.uasset",
+          "bytes": 112316,
+          "sha256": "e1a069fdc3c098fb5eab7063c4c904014c7637eb03dd30ea7d8fe9a27cb56945"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_UVS_WaterFallFluid_Gray.uasset",
+          "bytes": 284596,
+          "sha256": "9e80f8ebe2a7108c6221c57d5bbdf208d75ed4e9c7cb8fc324f71a6583d491e8"
+        },
+        {
+          "path": "Content/EnergyBeam/_GenericSource/Texture/T_Vfx_UVS_WaterFallFuild.uasset",
+          "bytes": 738054,
+          "sha256": "817cbe7b29c75d414c883dc8c90506ca47700af0164e43993876b3104d3a0525"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Geometry/Meshes/1M_Cube.uasset",
+          "bytes": 16349,
+          "sha256": "490ff28b3fd22592a075a3db36398d74261b01eb8b3d21208f2a1d1e6806336d"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Geometry/Meshes/1M_Cube_Chamfer.uasset",
+          "bytes": 22864,
+          "sha256": "9f963739d4b4f0055d486a560c991fb87db540339a047f2e0ce782cbf8f9e075"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Geometry/Meshes/CubeMaterial.uasset",
+          "bytes": 7642,
+          "sha256": "622a764b6e34ddf300c1d690f4349b4a27019edfb9126aa363457206cd46dec5"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Geometry/Meshes/TemplateFloor.uasset",
+          "bytes": 22594,
+          "sha256": "7220a9cd91dfd17b5ff98ffed87be42f65c9cc461f1b968deac36eee1e14f677"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Material/DefaultTextMaterialOpaque1.uasset",
+          "bytes": 23490,
+          "sha256": "87ad1bc0f3f21ae935dc8e1b30223e876bf42ed9c72ae6e03e53e13c3865bfc9"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Mode/BP_TazoVfx_PlayerController.uasset",
+          "bytes": 298488,
+          "sha256": "b2e2ea1afe38238636fc79c56e6b65d2a20ad7ac2af5ade8f491f18623805969"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Mode/ShowCaseUI.uasset",
+          "bytes": 36040,
+          "sha256": "beea12248efd90146d32711fea97947ae4d6eb7012fcdf9fc5bb947cf5420553"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Mode/ThirdPersonGameMode.uasset",
+          "bytes": 14175,
+          "sha256": "c77f80585557975dcfd3c1444231bc3330ce68d17d869bc230c92611fa6a513d"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/Mode/VFXClass.uasset",
+          "bytes": 9069,
+          "sha256": "7726d283474f41f17570d0f1d5e8124bb1359c2a1a547cbe63bece504809b1eb"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/OverView_DemoScene_EnergyBeamShowCase.umap",
+          "bytes": 156441,
+          "sha256": "025d4e114766dc01dbaac96c1cc799fb3aab6c7492f1a60c89e6ffefe4b47b31"
+        },
+        {
+          "path": "Content/EnergyBeam/Demo/OverView_DemoScene_EnergyBeamShowCase_BuiltData.uasset",
+          "bytes": 2106586,
+          "sha256": "eb44e54a80207afefe3d4ca5811953998c169f34aada077bca17acd6f31b03e3"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_EletricLightning.uasset",
+          "bytes": 10034207,
+          "sha256": "12e95ec9a9d422ef7779db137b70c703d4dab7e8489b23b6bb1fcb095c066878"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_FireTongueLick.uasset",
+          "bytes": 12861790,
+          "sha256": "3c8958968d97de69d73f75c2dd650ec88e1831853019b4d1a2e32bd5c5433481"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_Hit_Constant_Fire.uasset",
+          "bytes": 7370722,
+          "sha256": "9a407a8f0559dd32f8f01147346b71fe477bd8db3d810ceac75dfc1479d19d38"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_Hit_Constant_Ice.uasset",
+          "bytes": 7169479,
+          "sha256": "d6f9b8d38419e39d574d77b430f5559644409722044f730a4be1cc5db7fe0ffd"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_Hit_Constant_IonLaser.uasset",
+          "bytes": 8713435,
+          "sha256": "8f16e3f3ba28e3fa2f685e5775f0108bae33de47f84141f2b73f10cf673fe656"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_Hit_Constant_Power.uasset",
+          "bytes": 8059385,
+          "sha256": "6db96ca43c1bdcf27666f6918bc66e7166c85724f9e4b7bcad13ef9dc96a8e23"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_Hit_Constant_Thunder.uasset",
+          "bytes": 7687097,
+          "sha256": "f4dfbeca264dc90299020264bbb8dba50076713c3349d76a5333e84ee75f31ab"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_Hit_Constant_Water.uasset",
+          "bytes": 7340036,
+          "sha256": "cba56c481420d4f3a82685431f340818580900fe9c32354ae021a3402ee8dcb9"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_IonLaser.uasset",
+          "bytes": 9254565,
+          "sha256": "12d242bad2d34bd910b0eba069af94fa051e21621079237f4457d3333e7e3110"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_PowerCannon.uasset",
+          "bytes": 9213996,
+          "sha256": "0e83e86a64dc51a59c405e0c407ad9b8fe0d825cbdff11ae5035b4643eed1aa5"
+        },
+        {
+          "path": "Content/EnergyBeam/NS/NS_WaterTornado.uasset",
+          "bytes": 9545197,
+          "sha256": "ff41e6a0cc711bb9fe6eedf78083c3d6a4cf7d62b445abe7df33898fd26f7bad"
+        }
+      ]
+    }
+  }
+}
