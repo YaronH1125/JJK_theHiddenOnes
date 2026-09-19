@@ -58,23 +58,44 @@ def suite():
     reset();yield from wait(.5)
     check('correct_map_and_throw_disabled','L_DojoArena' in world.get_path_name() and not gm.get_editor_property('allow_conditional_throw'))
     walls=[a for a in unreal.GameplayStatics.get_all_actors_of_class(world,unreal.StaticMeshActor) if a.get_actor_label().startswith('VFXWall_')]
-    check('four_invisible_colliding_walls',len(walls)==4 and all(not a.static_mesh_component.is_visible() and a.static_mesh_component.get_editor_property('hidden_in_game') and str(a.static_mesh_component.get_collision_enabled())!='CollisionEnabled.NO_COLLISION' for a in walls))
-    # Swept character movement is stopped at every physical wall.
-    for label,x,y in [('east',1000,0),('west',-1100,0),('north',-28,1000),('south',-28,-1000)]:
+    extent=gm.get_editor_property('arena_walkable_half_extent');center=gm.get_editor_property('arena_center')
+    check('no_central_walls_rect_rule',len(walls)==0 and abs(extent.x-1250)<1 and abs(extent.y-1050)<1 and abs(center.x+25)<1 and abs(center.y)<1,
+          {'walls':len(walls),'extent':str(extent),'center':str(center)})
+    # Swept movement must REACH beyond the obsolete central barriers and still be stopped by the ORIGINAL building walls.
+    for label,x,y in [('east',1080,0),('west',-1100,0),('north',-28,930),('south',-28,-930)]:
         reset();yield from wait(.2);place(p2,400,400,180);place(p1,-28,0,0)
         p1.set_actor_location(unreal.Vector(x,y,137),True,False)
         v=p1.get_actor_location()
-        at_wall=(abs(v.x-732)<8 if label=='east' else abs(v.x+788)<8 if label=='west' else abs(abs(v.y)-608)<8)
-        check('capsule_boundary_'+label,at_wall and -792<=v.x<=736 and abs(v.y)<=612,str(v))
-    # All corners lie beyond the obsolete 600cm circle. Test actual path requests.
-    for i,(x,y) in enumerate([(-728,-552),(-728,552),(672,-552),(672,552)]):
+        reached=(v.x>900 if label=='east' else v.x<-900 if label=='west' else abs(v.y)>750)
+        inside=(abs(v.x+25)<=1250 and abs(v.y)<=1050)
+        check('capsule_reaches_outer_'+label,reached and inside,str(v))
+    # Sweeps aimed far outside stop inside the building: the original walls contain the arena.
+    for label,x,y in [('east',4000,0),('west',-3000,0),('north',-28,3000),('south',-28,-3000)]:
+        reset();yield from wait(.2);place(p2,400,400,180);place(p1,-28,0,0)
+        p1.set_actor_location(unreal.Vector(x,y,137),True,False)
+        v=p1.get_actor_location()
+        contained=abs(v.x+25)<=1250+35 and abs(v.y)<=1050+35
+        check('original_wall_blocks_'+label,contained,str(v))
+    # Player WALKS (movement input, not teleport) from the platform into the outer ring.
+    reset();yield from wait(.2);place(p2,400,400,180);place(p1,-100,0,0)
+    p1.character_movement.max_walk_speed=500
+    walk_target=unreal.Vector(-1000,0,137);deadline=now()+8
+    while now()<deadline:
+        delta=walk_target-p1.get_actor_location();delta.z=0
+        if delta.length()<30:break
+        p1.add_movement_input(delta/delta.length(),1.0,True);yield
+    walk_x=p1.get_actor_location().x
+    check('walk_to_outer_ring',walk_x<-900,{'x':walk_x})
+    p1.character_movement.max_walk_speed=original_speed
+    # Outer-ring corners: AI must actually pathfind and chase the player there.
+    for i,(x,y) in enumerate([(-1050,-850),(-1050,850),(1000,-800),(1000,800)]):
         reset();yield from wait(.2);place(p1,x,y,0);place(p2,-28,0,0)
         gm.set_opponent_mode(unreal.OpponentMode.AI);yield from wait(.3)
         ai=gm.get_opponent_ai()
         legal=ai.is_legal_destination(unreal.Vector(x,y,137))
         yield from until(lambda:(p2.get_actor_location()-p1.get_actor_location()).length()<280,12)
         distance=(p2.get_actor_location()-p1.get_actor_location()).length()
-        check('AI_reaches_corner_'+str(i),legal and distance<280,{'legal':legal,'distance':distance,'state':ai.get_debug_state()})
+        check('AI_reaches_outer_corner_'+str(i),legal and distance<280,{'legal':legal,'distance':distance,'state':ai.get_debug_state()})
     # Front guard still works, and disabling throws must not swallow ordinary contacts.
     reset();yield from wait(.4);place(p1,-128,0,0);place(p2,0,0,180)
     p2.get_combat_input().notify_guard_pressed();yield from wait(.2)
@@ -96,6 +117,15 @@ def suite():
     check('full_mobile_damage',abs(health-hp(p2)-p1.get_definition().mobile_blast.max_damage)<1,health-hp(p2))
     reset();yield from wait(.4);health=hp(p2);yield from shot(True)
     check('full_super_damage_and_cooldown',abs(health-hp(p2)-p1.get_definition().super_blast.max_damage)<1 and tag(p1,'State.SuperBlastCooldown'),health-hp(p2))
+    # 原墙挡弹：朝西墙贴中距离开炮，弹在墙上销毁，不在弹道上的对手不掉血。
+    reset();yield from wait(.3);place(p2,900,600,0)
+    place(p1,-300,0,0);p1.set_actor_rotation(unreal.Rotator(0,270,0),False);yield from wait(.2)
+    inp=p1.get_combat_input()
+    if not tag(p1,'Stance.Ranged'):inp.notify_stance_switch_pressed();yield from wait(.3)
+    health=hp(p2)
+    inp.notify_attack_pressed();yield from wait(1.2);inp.notify_attack_released()
+    yield from wait(1.5)
+    check('blast_dies_at_original_wall',hp(p2)==health,{'hp':hp(p2)})
     fd.set_editor_property('initial_energy',100.)
     for i in range(20):
         reset();yield from wait(.15)
