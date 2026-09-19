@@ -20,4 +20,6 @@ private:
  double StageTime=0., Started=0.;
  float InitialHealth=0.;
  TArray<FString> Results;
+ TArray<double> FrameMilliseconds;
+ double LastFrameWallTime=0.;
 };
