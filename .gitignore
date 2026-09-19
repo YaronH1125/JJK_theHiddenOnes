@@ -44,6 +44,8 @@ pubg_store.html
 # 项目自有 Content/Maps 与 Content/Training 仍须提交，不能忽略整个 Content。
 /Content/Mishima_DOJO/
 /Content/EnergyBeam/
+/Content/GoodParticleBeamAndRay/
+/Content/FightingAnimsetPro/
 /AssetArchives/
 
 # 打包分发与本地运行产物（正式配置、源码和验收脚本仍提交）

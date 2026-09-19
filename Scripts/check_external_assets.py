@@ -26,7 +26,7 @@ def verify(root, manifest, selected):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--package', choices=('Mishima_DOJO', 'EnergyBeam'))
+    parser.add_argument('--package', choices=('Mishima_DOJO', 'EnergyBeam', 'GoodParticleBeamAndRay'))
     parser.add_argument('--project-root', type=Path, default=Path(__file__).resolve().parents[1])
     args = parser.parse_args()
     manifest = json.loads((Path(__file__).parent / 'Baselines/external_assets.json').read_text(encoding='utf-8'))
