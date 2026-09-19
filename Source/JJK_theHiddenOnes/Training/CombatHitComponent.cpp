@@ -6,6 +6,9 @@
 #include "DrawDebugHelpers.h"
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "Training/AttackDefinition.h"
 #include "Training/CombatTypes.h"
 #include "Training/FighterAbilitySystemComponent.h"
@@ -23,6 +26,31 @@ namespace
 		TEXT("命中时绘制调试球（1=开，0=关）"),
 		ECVF_Default);
 
+	/** 生成一次性特效并在到期后强制回收（循环型系统也能清理；表现不影响结算） */
+	UNiagaraComponent* SpawnOneShotFx(UWorld* World, UNiagaraSystem* System, const FTransform& Xf, float LifeSeconds)
+	{
+		if (World == nullptr || System == nullptr)
+		{
+			return nullptr;
+		}
+		UNiagaraComponent* Comp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			World, System, Xf.GetLocation(), Xf.Rotator(), Xf.GetScale3D(), /*bAutoDestroy=*/false, /*bAutoActivate=*/true);
+		if (Comp == nullptr)
+		{
+			return nullptr;
+		}
+		TWeakObjectPtr<UNiagaraComponent> Weak = Comp;
+		FTimerHandle Handle;
+		World->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([Weak]()
+		{
+			if (UNiagaraComponent* C = Weak.Get())
+			{
+				C->Deactivate();
+				C->DestroyComponent();
+			}
+		}), FMath::Max(LifeSeconds, 0.1f), /*bLoop=*/false);
+		return Comp;
+	}
 }
 
 UCombatHitComponent::UCombatHitComponent()
@@ -321,8 +349,11 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		const bool bFront = Target->IsAttackFromFront(Attacker, Target->GetGuardFrontArcHalfAngle());
 		const bool bGuarded = Target->IsGuarding() && Def->bBlockable && bFront;
 
-		// 条件投技（M3.5）：可转投段 + 目标防御 + 距离/朝向/地面/配对占用检查
-		if (bGuarded && Def->bCanThrow && Attacker->CanThrowTarget(Target, Def->bCanThrow))
+		// 条件投技（M3.5）：可转投段 + 目标防御 + 地图级投技规则 + 距离/朝向/地面/配对占用检查
+		// （11_日式道场场景接入说明：道场 GameMode 可关 bAllowConditionalThrow；白盒默认开启）
+		const auto* RuleGM = GetWorld() ? GetWorld()->GetAuthGameMode<ATrainingGameMode>() : nullptr;
+		const bool bThrowAllowed = !RuleGM || RuleGM->bAllowConditionalThrow;
+		if (bGuarded && Def->bCanThrow && bThrowAllowed && Attacker->CanThrowTarget(Target, Def->bCanThrow))
 		{
 			const UFighterDefinition* AttackerDef = Attacker->GetDefinition();
 			UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 对防御中的 %s 转投技（实例 %llu）"),
@@ -355,6 +386,17 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		// 非领域期有效结算伤害 5% 转能量；实例+段合成实例键去重（A04）
 		Attacker->GainDomainEnergy(Def->Damage, ActiveInstanceId * 1000ULL + static_cast<uint64>(SegmentId));
 		++HitCountThisAttack;
+
+		// 命中表现：攻击定义配置的 Niagara 特效（空=不生成；循环型到期强制回收）
+		if (!Def->HitEffect.ToSoftObjectPath().IsNull())
+		{
+			if (UNiagaraSystem* HitFx = Def->HitEffect.LoadSynchronous())
+			{
+				const FTransform Xf(FQuat::Identity, Contact.HitLocation,
+					FVector(FMath::Max(Def->HitEffectScale, 0.01f)));
+				SpawnOneShotFx(GetWorld(), HitFx, Xf, Def->HitEffectLife);
+			}
+		}
 
 		if (CVarJJKDebugHitFX.GetValueOnGameThread() != 0 && GetWorld() != nullptr)
 		{

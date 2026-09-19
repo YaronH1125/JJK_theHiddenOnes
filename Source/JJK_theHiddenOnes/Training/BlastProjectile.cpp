@@ -5,6 +5,9 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "Training/FighterCharacter.h"
 
 ABlastProjectile::ABlastProjectile()
@@ -39,6 +42,56 @@ void ABlastProjectile::InitBlast(AFighterCharacter* InCaster, const FVector& Dir
 	SetLifeSpan(InLife + 1.f);
 }
 
+void ABlastProjectile::ApplyFx(TSoftObjectPtr<UNiagaraSystem> InTrail, float InTrailScale,
+	TSoftObjectPtr<UNiagaraSystem> InImpact, float InImpactScale, float InImpactLife)
+{
+	if (TrailComp.IsValid() == false && !InTrail.ToSoftObjectPath().IsNull())
+	{
+		if (UNiagaraSystem* TrailFx = InTrail.LoadSynchronous())
+		{
+			if (UNiagaraComponent* Comp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+				TrailFx, RootComponent, NAME_None, FVector::ZeroVector, FRotator::ZeroRotator,
+				EAttachLocation::SnapToTarget, /*bAutoDestroy=*/true))
+			{
+				Comp->SetWorldScale3D(FVector(FMath::Max(InTrailScale, 0.01f)));
+				TrailComp = Comp;
+				// 有拖尾特效时隐藏占位小球
+				MeshComp->SetVisibility(false);
+			}
+		}
+	}
+
+	ImpactEffect = InImpact;
+	ImpactScale = FMath::Max(InImpactScale, 0.01f);
+	ImpactLife = FMath::Max(InImpactLife, 0.1f);
+}
+
+UNiagaraComponent* ABlastProjectile::SpawnOneShotFx(UWorld* World, UNiagaraSystem* System, const FTransform& Xf, float LifeSeconds)
+{
+	if (World == nullptr || System == nullptr)
+	{
+		return nullptr;
+	}
+	UNiagaraComponent* Comp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		World, System, Xf.GetLocation(), Xf.Rotator(), Xf.GetScale3D(), /*bAutoDestroy=*/false, /*bAutoActivate=*/true);
+	if (Comp == nullptr)
+	{
+		return nullptr;
+	}
+	// 循环型系统永不自动完结，用定时器强制回收（训练场口径：表现不影响结算）
+	TWeakObjectPtr<UNiagaraComponent> Weak = Comp;
+	FTimerHandle Handle;
+	World->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([Weak]()
+	{
+		if (UNiagaraComponent* C = Weak.Get())
+		{
+			C->Deactivate();
+			C->DestroyComponent();
+		}
+	}), LifeSeconds, /*bLoop=*/false);
+	return Comp;
+}
+
 void ABlastProjectile::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -66,24 +119,25 @@ void ABlastProjectile::Tick(float DeltaSeconds)
 
 	const FVector NewPos = GetActorLocation() + Velocity * DeltaSeconds;
 
-	// 世界阻挡：撞墙销毁（不穿墙、不隐藏补伤害）
+	// Compare contacts along the SAME segment. At high speed / on a hitch the segment
+	// can contain both a fighter and the wall behind them; world-first early return
+	// would incorrectly swallow the nearer fighter hit. Ties favor world occlusion.
+	FHitResult WallHit;
+	const bool bWallHit = World->LineTraceSingleByChannel(WallHit, PrevPosition, NewPos, ECC_Visibility, QP)
+		&& !Cast<AFighterCharacter>(WallHit.GetActor());
+	FHitResult SweepHit;
+	const bool bFighterHit = World->SweepSingleByChannel(SweepHit, PrevPosition, NewPos, FQuat::Identity, ECC_Pawn,
+		FCollisionShape::MakeSphere(Sphere->GetScaledSphereRadius()), QP)
+		&& Cast<AFighterCharacter>(SweepHit.GetActor());
+	if (bWallHit && (!bFighterHit || WallHit.Time <= SweepHit.Time))
 	{
-		FHitResult WallHit;
-		if (World->LineTraceSingleByChannel(WallHit, PrevPosition, NewPos, ECC_Visibility, QP))
-		{
-			if (!Cast<AFighterCharacter>(WallHit.GetActor()))
-			{
-				UE_LOG(LogTemp, Log, TEXT("[BlastProj] 撞到 %s 销毁（无伤害）"), *GetNameSafe(WallHit.GetActor()));
-				Finish();
-				return;
-			}
-		}
+		UE_LOG(LogTemp, Log, TEXT("[BlastProj] 撞到 %s 销毁（无伤害）"), *GetNameSafe(WallHit.GetActor()));
+		Finish();
+		return;
 	}
 
 	// Pawn 命中：共享攻防结算（A02 口径），结算一次即销毁
-	FHitResult SweepHit;
-	if (World->SweepSingleByChannel(SweepHit, PrevPosition, NewPos, FQuat::Identity, ECC_Pawn,
-		FCollisionShape::MakeSphere(Sphere->GetScaledSphereRadius()), QP))
+	if (bFighterHit)
 	{
 		if (auto* HitFighter = Cast<AFighterCharacter>(SweepHit.GetActor()))
 		{
@@ -106,5 +160,16 @@ void ABlastProjectile::Finish()
 {
 	if (bFinished) return;
 	bFinished = true;
+
+	// 撞击/消失特效：命中与撞墙、寿命耗尽共用同一表现（伤害仍只在命中结算）
+	if (!ImpactEffect.ToSoftObjectPath().IsNull())
+	{
+		if (UNiagaraSystem* ImpactFx = ImpactEffect.LoadSynchronous())
+		{
+			const FTransform Xf(GetActorRotation(), GetActorLocation(), FVector(ImpactScale));
+			SpawnOneShotFx(GetWorld(), ImpactFx, Xf, ImpactLife);
+		}
+	}
+
 	Destroy();
 }

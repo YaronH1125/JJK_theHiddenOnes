@@ -32,4 +32,6 @@ protected:
 	virtual float GetMoveSpeedScale() const override { return 0.f; }
 	virtual bool LocksMovementWhileCharging() const override { return true; }
 	virtual void FireBlast(float q, float Damage) override;
+	virtual void GetProjectileFx(TSoftObjectPtr<class UNiagaraSystem>& OutTrail, float& OutTrailScale,
+		TSoftObjectPtr<class UNiagaraSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const override;
 };

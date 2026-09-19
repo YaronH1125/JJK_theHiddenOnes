@@ -6,6 +6,7 @@
 #include "Training/FighterAttributeSet.h"
 #include "Training/CombatInputComponent.h"
 #include "Training/TrainingGameMode.h"
+#include "Components/CapsuleComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -196,8 +197,23 @@ bool AFighterAIController::ProjectDestination(const FVector& Point,FVector& Out)
  auto* Nav=FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld()); auto* Self=GetSelf(); if (!Nav || !Self) return false;
  FNavLocation P; const auto& Agent=Self->GetCharacterMovement()->GetNavAgentPropertiesRef();
  if (!Nav->ProjectPointToNavigation(Point,P,FVector(60,60,250),&Agent)) return false;
- // 白盒安全区半径 1100 cm，墙外点不能投影成合法目标。
- if (FVector2D(Point).Size()>1100.f || FVector2D(P.Location).Size()>1100.f || FVector::Dist2D(Point,P.Location)>65.f) return false;
+ // 安全区：地图级中心/半径（白盒默认=原点/1100，保持旧行为；道场按 ArenaCenter 配置）
+ const auto* GM = GetWorld() ? GetWorld()->GetAuthGameMode<ATrainingGameMode>() : nullptr;
+ const FVector Center = GM ? GM->ArenaCenter : FVector::ZeroVector;
+ const float SafeRadius = GM ? GM->ArenaNavigableRadius : 1100.f;
+ const FVector2D Extent = GM ? GM->ArenaWalkableHalfExtent : FVector2D::ZeroVector;
+ const auto Inside = [&](const FVector& Location)
+ {
+  const FVector2D Local(Location-Center);
+  if (Extent.X>0.f && Extent.Y>0.f)
+  {
+   // The capsule, not just its center, must fit inside the same walls that constrain the player.
+   const float Radius=Self->GetCapsuleComponent()->GetScaledCapsuleRadius();
+   return FMath::Abs(Local.X)<=FMath::Max(0.f,Extent.X-Radius) && FMath::Abs(Local.Y)<=FMath::Max(0.f,Extent.Y-Radius);
+  }
+  return Local.Size()<=SafeRadius;
+ };
+ if (!Inside(Point) || !Inside(P.Location) || FVector::Dist2D(Point,P.Location)>65.f) return false;
  if (FVector::Dist2D(Self->GetActorLocation(),P.Location)<2.f) { Out=P.Location; return true; }
  auto* Path=UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),Self->GetActorLocation(),P.Location,GetPawn());
  if (!Path || !Path->IsValid() || Path->IsPartial()) return false;

@@ -27,6 +27,15 @@ namespace
 	}
 }
 
+void UChargedBlastAbilityBase::GetProjectileFx(TSoftObjectPtr<UNiagaraSystem>& OutTrail, float& OutTrailScale,
+	TSoftObjectPtr<UNiagaraSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const
+{
+	// 默认无表现（占位小球）；子类从角色定义的 Blast 配置取
+	OutTrailScale = 1.f;
+	OutImpactScale = 1.f;
+	OutImpactLife = 1.2f;
+}
+
 UChargedBlastAbilityBase::UChargedBlastAbilityBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
@@ -373,6 +382,11 @@ void UChargedBlastAbilityBase::FireOnce()
 		Muzzle, Dir.Rotation(), SpawnParams))
 	{
 		Proj->InitBlast(Fighter, Dir, GetProjectileSpeed(), GetProjectileRadius(), 3.f, Settle);
+		// 弹体表现：子类提供配置（拖尾/撞击；空=占位小球）
+		TSoftObjectPtr<UNiagaraSystem> Trail, Impact;
+		float TrailScale = 1.f, ImpactScale = 1.f, ImpactLife = 1.2f;
+		GetProjectileFx(Trail, TrailScale, Impact, ImpactScale, ImpactLife);
+		Proj->ApplyFx(Trail, TrailScale, Impact, ImpactScale, ImpactLife);
 		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 发射弹体（伤害 %.0f q=%.2f）"), *GetNameSafe(Fighter), Damage, PaidQ);
 	}
 }

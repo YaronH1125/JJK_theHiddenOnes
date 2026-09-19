@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "BlastConfig.generated.h"
 
+class UNiagaraSystem;
+
 /** 移动蓄力炮（远程左键）配置；数值种子来自 08 第 7.2 节，全部为调试参数 */
 USTRUCT(BlueprintType)
 struct FMobileBlastConfig
@@ -42,6 +44,28 @@ struct FMobileBlastConfig
 	/** 蓄力期间移动速度倍率 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast", meta = (ClampMin = "0.1", ClampMax = "1.0"))
 	float MoveSpeedScale = 0.55f;
+
+	// ---------- 弹体表现（EnergyBeam 占位特效） ----------
+
+	/** 弹体拖尾特效（Niagara；空=维持占位小球） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX")
+	TSoftObjectPtr<UNiagaraSystem> TrailEffect;
+
+	/** 弹体拖尾特效缩放 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.01"))
+	float TrailEffectScale = 1.f;
+
+	/** 撞击/消失特效（空=不生成） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX")
+	TSoftObjectPtr<UNiagaraSystem> ImpactEffect;
+
+	/** 撞击特效缩放 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.01"))
+	float ImpactEffectScale = 1.f;
+
+	/** 撞击特效最长存活（秒；循环型系统到期强制回收） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.1", ForceUnits = "s"))
+	float ImpactEffectLife = 1.2f;
 };
 
 /** 定点超级蓄力炮（远程 Q）配置 */
@@ -85,6 +109,28 @@ struct FSuperBlastConfig
 	/** 冷却时长（发射或已付费中断时启动一次） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast", meta = (ClampMin = "0.1", ForceUnits = "s"))
 	float Cooldown = 10.f;
+
+	// ---------- 弹体表现（EnergyBeam 占位特效） ----------
+
+	/** 弹体拖尾特效（Niagara；空=维持占位小球） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX")
+	TSoftObjectPtr<UNiagaraSystem> TrailEffect;
+
+	/** 弹体拖尾特效缩放 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.01"))
+	float TrailEffectScale = 1.f;
+
+	/** 撞击/消失特效（空=不生成） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX")
+	TSoftObjectPtr<UNiagaraSystem> ImpactEffect;
+
+	/** 撞击特效缩放 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.01"))
+	float ImpactEffectScale = 1.f;
+
+	/** 撞击特效最长存活（秒；循环型系统到期强制回收） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.1", ForceUnits = "s"))
+	float ImpactEffectLife = 1.2f;
 };
 
 /** 领域展开配置（M6.6；数值为 08 v0.3 种子） */

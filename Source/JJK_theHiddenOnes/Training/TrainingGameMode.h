@@ -95,6 +95,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Training", meta = (ClampMin = "0.0", ForceUnits = "cm"))
 	float SpawnSafetyMargin = 4.f;
 
+	// ---------- 场地规则（地图级；白盒默认与旧硬编码一致，见 11_日式道场场景接入说明 §3） ----------
+
+	/** 有效战斗区圆心（XY 参与导航安全判断；白盒=世界原点） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Arena")
+	FVector ArenaCenter = FVector::ZeroVector;
+
+	/** 有效战斗区半径（cm；白盒安全区=1100） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Arena", meta = (ClampMin = "100.0", ForceUnits = "cm"))
+	float ArenaNavigableRadius = 1100.f;
+
+	/** Optional axis-aligned walkable rectangle, measured to the inside faces of boundary walls.
+	 * Both values must be positive; zero preserves the original circular whitebox rule. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Arena")
+	FVector2D ArenaWalkableHalfExtent = FVector2D::ZeroVector;
+
+	/** 是否允许条件投技（轻拳接触防御目标时转投技）；道场规则可关闭，白盒默认开启 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Arena|Rules")
+	bool bAllowConditionalThrow = true;
+
 	/** 对手模式（M1 仅 Static） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Training")
 	EOpponentMode OpponentMode = EOpponentMode::Static;

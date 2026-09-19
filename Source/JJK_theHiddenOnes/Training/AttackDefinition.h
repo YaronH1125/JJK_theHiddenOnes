@@ -7,6 +7,7 @@
 #include "AttackDefinition.generated.h"
 
 class UAnimMontage;
+class UNiagaraSystem;
 
 /**
  * 攻击动作配置（M2 单段）：只保存配置，不保存运行状态（02_架构设计.md 第 9 节）。
@@ -124,4 +125,18 @@ public:
 	/** 允许 Shift 闪避取消的窗口终点（相对动作开始；0=不开放取消） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Cancel", meta = (ClampMin = "0.0", ForceUnits = "s"))
 	float CancelWindowEndTime = 1.0f;
+
+	// ---------- 命中表现（EnergyBeam 占位特效） ----------
+
+	/** 命中特效（Niagara；空=不生成） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit|VFX")
+	TSoftObjectPtr<UNiagaraSystem> HitEffect;
+
+	/** 命中特效缩放 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit|VFX", meta = (ClampMin = "0.01"))
+	float HitEffectScale = 1.f;
+
+	/** 命中特效最长存活（秒；循环型系统到期强制回收） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Hit|VFX", meta = (ClampMin = "0.1", ForceUnits = "s"))
+	float HitEffectLife = 1.0f;
 };

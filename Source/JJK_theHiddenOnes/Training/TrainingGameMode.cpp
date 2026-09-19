@@ -53,6 +53,9 @@ void ATrainingGameMode::StartPlay()
 void ATrainingGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	// Streamed scenery can become collidable several frames after StartPlay in a
+	// cooked game. Retry initial spawning rather than letting fighters fall through it.
+	if (!IsValid(PlayerFighter) || !IsValid(OpponentFighter)) EnsureFightersSpawned();
 	if (bDebugHud)
 	{
 		DrawCombatDebug();
@@ -121,7 +124,8 @@ void ATrainingGameMode::RestartPlayer(AController* NewPlayer)
 
 	if (PlayerFighter == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[TrainingGM] 玩家角色生成失败，无法接管"));
+		// Initial scene collision may still be streaming. EnsureFightersSpawned
+		// possesses the waiting controller as soon as the floor is ready.
 		return;
 	}
 
@@ -145,6 +149,21 @@ void ATrainingGameMode::EnsureFightersSpawned()
 	{
 		UE_LOG(LogTemp, Error, TEXT("[TrainingGM] 未配置 FighterClass，无法生成双方"));
 		return;
+	}
+
+	// Check BOTH authored spawn surfaces before creating either fighter. PIE often
+	// has the level instance resident already; a cold packaged launch does not.
+	FCollisionQueryParams FloorQuery(SCENE_QUERY_STAT(TrainingSpawnFloor));
+	FloorQuery.AddIgnoredActor(PlayerFighter);
+	FloorQuery.AddIgnoredActor(OpponentFighter);
+	for (const FTransform& Spawn : {PlayerSpawnGroundTransform, OpponentSpawnGroundTransform})
+	{
+		const FVector Ground = Spawn.GetLocation();
+		FHitResult Floor;
+		if (!GetWorld()->LineTraceSingleByChannel(Floor, Ground + FVector(0,0,50), Ground - FVector(0,0,100), ECC_Pawn, FloorQuery))
+		{
+			return;
+		}
 	}
 
 	if (!IsValid(PlayerFighter))

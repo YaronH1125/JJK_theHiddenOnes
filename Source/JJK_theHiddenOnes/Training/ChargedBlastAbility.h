@@ -43,6 +43,10 @@ public:
 	virtual float GetProjectileSpeed() const { return 5000.f; }
 	virtual float GetProjectileRadius() const { return 12.f; }
 
+	/** 弹体表现（拖尾/撞击；子类从角色定义 Blast 配置取，空=维持占位表现） */
+	virtual void GetProjectileFx(TSoftObjectPtr<class UNiagaraSystem>& OutTrail, float& OutTrailScale,
+		TSoftObjectPtr<class UNiagaraSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const;
+
 	/** 阶段与强度查询（调试显示与验收） */
 	EBlastPhase GetPhase() const { return Phase; }
 	float GetPaidQ() const { return PaidQ; }
