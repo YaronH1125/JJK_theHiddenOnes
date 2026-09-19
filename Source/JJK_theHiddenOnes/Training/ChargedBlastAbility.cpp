@@ -16,6 +16,7 @@
 #include "Training/FighterAttributeSet.h"
 #include "Training/FighterCharacter.h"
 #include "Training/FighterDefinition.h"
+#include "Particles/ParticleSystem.h"
 
 namespace
 {
@@ -27,11 +28,22 @@ namespace
 	}
 }
 
-void UChargedBlastAbilityBase::GetProjectileFx(TSoftObjectPtr<UNiagaraSystem>& OutTrail, float& OutTrailScale,
-	TSoftObjectPtr<UNiagaraSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const
+void UChargedBlastAbilityBase::GetBeamFx(TSoftObjectPtr<UParticleSystem>& OutBeam, float& OutWidthMin, float& OutWidthMax) const
+{
+	OutBeam = nullptr;
+	OutWidthMin = 1.f;
+	OutWidthMax = 1.f;
+}
+
+void UChargedBlastAbilityBase::GetProjectileFx(TSoftObjectPtr<UNiagaraSystem>& OutTrail, float& OutTrailScale) const
 {
 	// 默认无表现（占位小球）；子类从角色定义的 Blast 配置取
 	OutTrailScale = 1.f;
+}
+
+void UChargedBlastAbilityBase::GetImpactFx(TSoftObjectPtr<UParticleSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const
+{
+	OutImpact = nullptr;
 	OutImpactScale = 1.f;
 	OutImpactLife = 1.2f;
 }
@@ -382,11 +394,24 @@ void UChargedBlastAbilityBase::FireOnce()
 		Muzzle, Dir.Rotation(), SpawnParams))
 	{
 		Proj->InitBlast(Fighter, Dir, GetProjectileSpeed(), GetProjectileRadius(), 3.f, Settle);
-		// 弹体表现：子类提供配置（拖尾/撞击；空=占位小球）
-		TSoftObjectPtr<UNiagaraSystem> Trail, Impact;
-		float TrailScale = 1.f, ImpactScale = 1.f, ImpactLife = 1.2f;
-		GetProjectileFx(Trail, TrailScale, Impact, ImpactScale, ImpactLife);
-		Proj->ApplyFx(Trail, TrailScale, Impact, ImpactScale, ImpactLife);
+		// 弹体表现：子类提供配置（拖尾；空=占位小球）
+		TSoftObjectPtr<UNiagaraSystem> Trail;
+		float TrailScale = 1.f;
+		GetProjectileFx(Trail, TrailScale);
+		Proj->ApplyFx(Trail, TrailScale);
+		// 撞击特效（Cascade）
+		TSoftObjectPtr<UParticleSystem> Impact;
+		float ImpactScale = 1.f, ImpactLife = 1.2f;
+		GetImpactFx(Impact, ImpactScale, ImpactLife);
+		Proj->ApplyImpact(Impact, ImpactScale, ImpactLife);
+		// 引导光束：额头→弹体，条数随本次蓄力强度增加（视觉变粗）
+		TSoftObjectPtr<UParticleSystem> Beam;
+		float WidthMin = 1.f, WidthMax = 1.f;
+		GetBeamFx(Beam, WidthMin, WidthMax);
+		if (!Beam.IsNull())
+		{
+			Proj->ApplyBeam(Fighter, Beam.LoadSynchronous(), WidthMin, WidthMax, PaidQ);
+		}
 		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 发射弹体（伤害 %.0f q=%.2f）"), *GetNameSafe(Fighter), Damage, PaidQ);
 	}
 }

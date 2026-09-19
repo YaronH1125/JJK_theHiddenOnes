@@ -60,16 +60,30 @@ float UStationaryChargedBlastAbility::GetCooldown() const
 	return F && F->GetDefinition() ? F->GetDefinition()->SuperBlast.Cooldown : 10.f;
 }
 
-void UStationaryChargedBlastAbility::GetProjectileFx(TSoftObjectPtr<UNiagaraSystem>& OutTrail, float& OutTrailScale,
-	TSoftObjectPtr<UNiagaraSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const
+void UStationaryChargedBlastAbility::GetProjectileFx(TSoftObjectPtr<UNiagaraSystem>& OutTrail, float& OutTrailScale) const
 {
 	auto* F = GetFighter();
 	const FSuperBlastConfig* Cfg = F && F->GetDefinition() ? &F->GetDefinition()->SuperBlast : nullptr;
 	OutTrail = Cfg ? Cfg->TrailEffect : nullptr;
 	OutTrailScale = Cfg ? Cfg->TrailEffectScale : 1.f;
+}
+
+void UStationaryChargedBlastAbility::GetImpactFx(TSoftObjectPtr<UParticleSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const
+{
+	auto* F = GetFighter();
+	const FSuperBlastConfig* Cfg = F && F->GetDefinition() ? &F->GetDefinition()->SuperBlast : nullptr;
 	OutImpact = Cfg ? Cfg->ImpactEffect : nullptr;
 	OutImpactScale = Cfg ? Cfg->ImpactEffectScale : 1.f;
 	OutImpactLife = Cfg ? Cfg->ImpactEffectLife : 1.2f;
+}
+
+void UStationaryChargedBlastAbility::GetBeamFx(TSoftObjectPtr<UParticleSystem>& OutBeam, float& OutWidthMin, float& OutWidthMax) const
+{
+	auto* F = GetFighter();
+	const FSuperBlastConfig* Cfg = F && F->GetDefinition() ? &F->GetDefinition()->SuperBlast : nullptr;
+	OutBeam = Cfg ? Cfg->BeamEffect : nullptr;
+	OutWidthMin = Cfg ? Cfg->BeamWidthMin : 1.f;
+	OutWidthMax = Cfg ? Cfg->BeamWidthMax : 1.f;
 }
 
 void UStationaryChargedBlastAbility::FireBlast(float q, float Damage)

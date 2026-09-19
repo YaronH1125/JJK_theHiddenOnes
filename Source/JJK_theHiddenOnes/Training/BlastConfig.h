@@ -6,6 +6,7 @@
 #include "BlastConfig.generated.h"
 
 class UNiagaraSystem;
+class UParticleSystem;
 
 /** 移动蓄力炮（远程左键）配置；数值种子来自 08 第 7.2 节，全部为调试参数 */
 USTRUCT(BlueprintType)
@@ -55,9 +56,9 @@ struct FMobileBlastConfig
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.01"))
 	float TrailEffectScale = 1.f;
 
-	/** 撞击/消失特效（空=不生成） */
+	/** 撞击/消失特效（Cascade；空=不生成） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX")
-	TSoftObjectPtr<UNiagaraSystem> ImpactEffect;
+	TSoftObjectPtr<UParticleSystem> ImpactEffect;
 
 	/** 撞击特效缩放 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.01"))
@@ -66,6 +67,20 @@ struct FMobileBlastConfig
 	/** 撞击特效最长存活（秒；循环型系统到期强制回收） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.1", ForceUnits = "s"))
 	float ImpactEffectLife = 1.2f;
+
+	// ---------- 引导光束（Cascade Beam2；额头→弹体，条数随蓄力增加=变粗） ----------
+
+	/** 光束模板（PS_GPBAR_Frost 等；空=无引导光束） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|Beam")
+	TSoftObjectPtr<UParticleSystem> BeamEffect;
+
+	/** 光束截面缩放：蓄力起点 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|Beam", meta = (ClampMin = "0.05"))
+	float BeamWidthMin = 1.f;
+
+	/** 光束截面缩放：满蓄时（随蓄力线性插值） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|Beam", meta = (ClampMin = "0.05"))
+	float BeamWidthMax = 1.f;
 };
 
 /** 定点超级蓄力炮（远程 Q）配置 */
@@ -120,9 +135,9 @@ struct FSuperBlastConfig
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.01"))
 	float TrailEffectScale = 1.f;
 
-	/** 撞击/消失特效（空=不生成） */
+	/** 撞击/消失特效（Cascade；空=不生成） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX")
-	TSoftObjectPtr<UNiagaraSystem> ImpactEffect;
+	TSoftObjectPtr<UParticleSystem> ImpactEffect;
 
 	/** 撞击特效缩放 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.01"))
@@ -131,6 +146,20 @@ struct FSuperBlastConfig
 	/** 撞击特效最长存活（秒；循环型系统到期强制回收） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|VFX", meta = (ClampMin = "0.1", ForceUnits = "s"))
 	float ImpactEffectLife = 1.2f;
+
+	// ---------- 引导光束（Cascade Beam2；额头→弹体，条数随蓄力增加=变粗） ----------
+
+	/** 光束模板（PS_GPBAR_Frost 等；空=无引导光束） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|Beam")
+	TSoftObjectPtr<UParticleSystem> BeamEffect;
+
+	/** 光束截面缩放：蓄力起点 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|Beam", meta = (ClampMin = "0.05"))
+	float BeamWidthMin = 1.f;
+
+	/** 光束截面缩放：满蓄时（随蓄力线性插值） */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Blast|Beam", meta = (ClampMin = "0.05"))
+	float BeamWidthMax = 1.f;
 };
 
 /** 领域展开配置（M6.6；数值为 08 v0.3 种子） */

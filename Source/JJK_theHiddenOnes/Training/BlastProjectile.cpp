@@ -5,6 +5,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
@@ -42,8 +44,7 @@ void ABlastProjectile::InitBlast(AFighterCharacter* InCaster, const FVector& Dir
 	SetLifeSpan(InLife + 1.f);
 }
 
-void ABlastProjectile::ApplyFx(TSoftObjectPtr<UNiagaraSystem> InTrail, float InTrailScale,
-	TSoftObjectPtr<UNiagaraSystem> InImpact, float InImpactScale, float InImpactLife)
+void ABlastProjectile::ApplyFx(TSoftObjectPtr<UNiagaraSystem> InTrail, float InTrailScale)
 {
 	if (TrailComp.IsValid() == false && !InTrail.ToSoftObjectPath().IsNull())
 	{
@@ -61,36 +62,82 @@ void ABlastProjectile::ApplyFx(TSoftObjectPtr<UNiagaraSystem> InTrail, float InT
 		}
 	}
 
+}
+
+void ABlastProjectile::ApplyImpact(TSoftObjectPtr<UParticleSystem> InImpact, float InImpactScale, float InImpactLife)
+{
 	ImpactEffect = InImpact;
 	ImpactScale = FMath::Max(InImpactScale, 0.01f);
 	ImpactLife = FMath::Max(InImpactLife, 0.1f);
 }
 
-UNiagaraComponent* ABlastProjectile::SpawnOneShotFx(UWorld* World, UNiagaraSystem* System, const FTransform& Xf, float LifeSeconds)
+void ABlastProjectile::ApplyBeam(AFighterCharacter* InCaster, UParticleSystem* BeamSystem, float WidthMin, float WidthMax, float ChargeQ)
 {
-	if (World == nullptr || System == nullptr)
+	if (InCaster == nullptr || BeamSystem == nullptr)
 	{
-		return nullptr;
+		return;
 	}
-	UNiagaraComponent* Comp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-		World, System, Xf.GetLocation(), Xf.Rotator(), Xf.GetScale3D(), /*bAutoDestroy=*/false, /*bAutoActivate=*/true);
+	BeamCaster = InCaster;
+	BeamWidthMin = FMath::Max(WidthMin, 0.05f);
+	BeamWidthMax = FMath::Max(WidthMax, BeamWidthMin);
+	BeamChargeQ = FMath::Clamp(ChargeQ, 0.f, 1.f);
+
+	// Cascade Beam2：源点=额头，目标点=弹体（每帧刷新）；"Beam Max Index" 控制光束条数（越多越粗）
+	UParticleSystemComponent* Comp = NewObject<UParticleSystemComponent>(InCaster);
+	Comp->SetTemplate(BeamSystem);
+	Comp->bAutoDestroy = false;
+	Comp->bAutoActivate = false;
+	Comp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Comp->RegisterComponent();
+	InCaster->AddInstanceComponent(Comp);
+	BeamComp = Comp;
+
+	UpdateBeam();
+	const float WidthScale = FMath::Lerp(BeamWidthMin, BeamWidthMax, BeamChargeQ);
+	const int32 MaxIndex = FMath::Clamp(FMath::RoundToInt(WidthScale * 3.f), 1, 9);
+	Comp->SetFloatParameter(TEXT("Beam Max Index"), static_cast<float>(MaxIndex));
+	Comp->SetFloatParameter(TEXT("Beam Flow Speed"), 1.f);
+	Comp->ActivateSystem();
+	// 光束自带发光核心，隐藏占位小球
+	MeshComp->SetVisibility(false);
+}
+
+FVector ABlastProjectile::GetBeamOrigin() const
+{
+	// 额头：优先头部骨骼（上移），缺省回落 actor 上方
+	const AFighterCharacter* C = BeamCaster.Get();
+	if (C != nullptr && C->GetMesh() != nullptr && C->GetMesh()->DoesSocketExist(TEXT("head")))
+	{
+		return C->GetMesh()->GetSocketLocation(TEXT("head")) + FVector(0, 0, 12.f);
+	}
+	if (C != nullptr)
+	{
+		return C->GetActorLocation() + FVector(0, 0, 150.f);
+	}
+	return GetActorLocation();
+}
+
+void ABlastProjectile::UpdateBeam()
+{
+	UParticleSystemComponent* Comp = BeamComp.Get();
 	if (Comp == nullptr)
 	{
-		return nullptr;
+		return;
 	}
-	// 循环型系统永不自动完结，用定时器强制回收（训练场口径：表现不影响结算）
-	TWeakObjectPtr<UNiagaraComponent> Weak = Comp;
-	FTimerHandle Handle;
-	World->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([Weak]()
+	// Beam2：源点=额头；目标点覆盖所有光束索引（弹体位置，世界坐标）
+	const FVector SrcWorld = GetBeamOrigin();
+	const FVector EndWorld = GetActorLocation();
+	for (int32 EmitterIndex = 0; EmitterIndex < 6; ++EmitterIndex)
 	{
-		if (UNiagaraComponent* C = Weak.Get())
+		Comp->SetBeamSourcePoint(EmitterIndex, SrcWorld, 0);
+		for (int32 TargetIndex = 0; TargetIndex < 9; ++TargetIndex)
 		{
-			C->Deactivate();
-			C->DestroyComponent();
+			Comp->SetBeamTargetPoint(EmitterIndex, EndWorld, TargetIndex);
 		}
-	}), LifeSeconds, /*bLoop=*/false);
-	return Comp;
+	}
 }
+
+
 
 void ABlastProjectile::Tick(float DeltaSeconds)
 {
@@ -154,22 +201,57 @@ void ABlastProjectile::Tick(float DeltaSeconds)
 
 	PrevPosition = NewPos;
 	SetActorLocation(NewPos, true);
+	UpdateBeam();
 }
 
 void ABlastProjectile::Finish()
 {
 	if (bFinished) return;
 	bFinished = true;
+	RecycleBeam();
 
-	// 撞击/消失特效：命中与撞墙、寿命耗尽共用同一表现（伤害仍只在命中结算）
+	// 撞击/消失特效（Cascade）：命中与撞墙、寿命耗尽共用同一表现（伤害仍只在命中结算）
 	if (!ImpactEffect.ToSoftObjectPath().IsNull())
 	{
-		if (UNiagaraSystem* ImpactFx = ImpactEffect.LoadSynchronous())
+		if (UParticleSystem* ImpactFx = ImpactEffect.LoadSynchronous())
 		{
-			const FTransform Xf(GetActorRotation(), GetActorLocation(), FVector(ImpactScale));
-			SpawnOneShotFx(GetWorld(), ImpactFx, Xf, ImpactLife);
+			UParticleSystemComponent* ImpactComp = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(), ImpactFx, GetActorLocation(), GetActorRotation(), FVector(ImpactScale), /*bAutoDestroy=*/true);
+			if (ImpactComp != nullptr && ImpactLife > 0.f)
+			{
+				// 兜底回收：正常由 Cascade 完成时自毁，超时强制销毁
+				TWeakObjectPtr<UParticleSystemComponent> Weak = ImpactComp;
+				FTimerHandle Handle;
+				GetWorldTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([Weak]()
+				{
+					if (UParticleSystemComponent* C = Weak.Get())
+					{
+						C->DestroyComponent();
+					}
+				}), ImpactLife, false);
+			}
 		}
 	}
 
 	Destroy();
+}
+
+void ABlastProjectile::RecycleBeam()
+{
+	UParticleSystemComponent* Comp = BeamComp.Get();
+	if (Comp == nullptr)
+	{
+		return;
+	}
+	BeamComp = nullptr;
+	Comp->DeactivateSystem();
+	TWeakObjectPtr<UParticleSystemComponent> Weak = Comp;
+	FTimerHandle Handle;
+	GetWorldTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([Weak]()
+	{
+		if (UParticleSystemComponent* C = Weak.Get())
+		{
+			C->DestroyComponent();
+		}
+	}), 0.8f, false);
 }

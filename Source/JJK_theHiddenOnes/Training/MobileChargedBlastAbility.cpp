@@ -56,16 +56,30 @@ float UMobileChargedBlastAbility::GetMoveSpeedScale() const
 	return F && F->GetDefinition() ? F->GetDefinition()->MobileBlast.MoveSpeedScale : 0.55f;
 }
 
-void UMobileChargedBlastAbility::GetProjectileFx(TSoftObjectPtr<UNiagaraSystem>& OutTrail, float& OutTrailScale,
-	TSoftObjectPtr<UNiagaraSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const
+void UMobileChargedBlastAbility::GetProjectileFx(TSoftObjectPtr<UNiagaraSystem>& OutTrail, float& OutTrailScale) const
 {
 	auto* F = GetFighter();
 	const FMobileBlastConfig* Cfg = F && F->GetDefinition() ? &F->GetDefinition()->MobileBlast : nullptr;
 	OutTrail = Cfg ? Cfg->TrailEffect : nullptr;
 	OutTrailScale = Cfg ? Cfg->TrailEffectScale : 1.f;
+}
+
+void UMobileChargedBlastAbility::GetImpactFx(TSoftObjectPtr<UParticleSystem>& OutImpact, float& OutImpactScale, float& OutImpactLife) const
+{
+	auto* F = GetFighter();
+	const FMobileBlastConfig* Cfg = F && F->GetDefinition() ? &F->GetDefinition()->MobileBlast : nullptr;
 	OutImpact = Cfg ? Cfg->ImpactEffect : nullptr;
 	OutImpactScale = Cfg ? Cfg->ImpactEffectScale : 1.f;
 	OutImpactLife = Cfg ? Cfg->ImpactEffectLife : 1.2f;
+}
+
+void UMobileChargedBlastAbility::GetBeamFx(TSoftObjectPtr<UParticleSystem>& OutBeam, float& OutWidthMin, float& OutWidthMax) const
+{
+	auto* F = GetFighter();
+	const FMobileBlastConfig* Cfg = F && F->GetDefinition() ? &F->GetDefinition()->MobileBlast : nullptr;
+	OutBeam = Cfg ? Cfg->BeamEffect : nullptr;
+	OutWidthMin = Cfg ? Cfg->BeamWidthMin : 1.f;
+	OutWidthMax = Cfg ? Cfg->BeamWidthMax : 1.f;
 }
 
 void UMobileChargedBlastAbility::ApplyChargeStateTags(class UFighterAbilitySystemComponent* ASC)
