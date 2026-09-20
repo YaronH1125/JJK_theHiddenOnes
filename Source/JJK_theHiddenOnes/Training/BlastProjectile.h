@@ -33,6 +33,9 @@ public:
 	/** 注入撞击特效（Cascade；命中/撞墙/寿命耗尽时生成） */
 	void ApplyImpact(TSoftObjectPtr<UParticleSystem> InImpact, float InImpactScale, float InImpactLife);
 
+	/** 注入本次蓄力强度 0..1：命中特效持续时间与光束停留时长都随它缩放 */
+	void ApplyChargeStrength(float InQ);
+
 	/** 注入引导光束：额头→弹体（Cascade Beam2），条数随蓄力增加（视觉变粗） */
 	void ApplyBeam(AFighterCharacter* InCaster, UParticleSystem* BeamSystem, float WidthMin, float WidthMax, float ChargeQ);
 
@@ -50,6 +53,12 @@ private:
 	void UpdateBeam();
 	FVector GetBeamOrigin() const;
 	void RecycleBeam();
+	void TickLinger(float DeltaSeconds);
+	void ForceCleanup();
+
+	/** 最大存在时间（秒，自生成起算，覆盖飞行+停留；硬上限兜底防特效永不销毁） */
+	UPROPERTY(EditAnywhere, Category = "Blast", meta = (ClampMin = "1.0", ForceUnits = "s"))
+	float MaxLifeTime = 6.f;
 
 	TWeakObjectPtr<AFighterCharacter> Caster;
 	FRangedHitSettle Settle;
@@ -57,6 +66,12 @@ private:
 	FVector PrevPosition = FVector::ZeroVector;
 	float LifeRemaining = 3.f;
 	bool bFinished = false;
+	/** 本次发射的蓄力强度 0..1（PaidQ） */
+	float ChargeQ = 0.f;
+	/** 命中后光束停留态：端点冻结在命中点、起点跟随施术者，到时熄灭（从命中起算，飞行时间不计） */
+	bool bLingering = false;
+	float LingerRemaining = 0.f;
+	FVector ImpactLocation = FVector::ZeroVector;
 
 	TWeakObjectPtr<UNiagaraComponent> TrailComp;
 	TSoftObjectPtr<UParticleSystem> ImpactEffect;
@@ -67,5 +82,4 @@ private:
 	TWeakObjectPtr<AFighterCharacter> BeamCaster;
 	float BeamWidthMin = 1.f;
 	float BeamWidthMax = 1.f;
-	float BeamChargeQ = 0.f;
 };

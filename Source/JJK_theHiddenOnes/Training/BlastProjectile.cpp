@@ -10,6 +10,11 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "Particles/ParticleEmitter.h"
+#include "Particles/ParticleLODLevel.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Particles/TypeData/ParticleModuleTypeDataBeam2.h"
 #include "Training/FighterCharacter.h"
 
 ABlastProjectile::ABlastProjectile()
@@ -71,16 +76,21 @@ void ABlastProjectile::ApplyImpact(TSoftObjectPtr<UParticleSystem> InImpact, flo
 	ImpactLife = FMath::Max(InImpactLife, 0.1f);
 }
 
-void ABlastProjectile::ApplyBeam(AFighterCharacter* InCaster, UParticleSystem* BeamSystem, float WidthMin, float WidthMax, float ChargeQ)
+void ABlastProjectile::ApplyChargeStrength(float InQ)
+{
+	ChargeQ = FMath::Clamp(InQ, 0.f, 1.f);
+}
+
+void ABlastProjectile::ApplyBeam(AFighterCharacter* InCaster, UParticleSystem* BeamSystem, float WidthMin, float WidthMax, float InChargeQ)
 {
 	if (InCaster == nullptr || BeamSystem == nullptr)
 	{
 		return;
 	}
 	BeamCaster = InCaster;
+	ChargeQ = FMath::Clamp(InChargeQ, 0.f, 1.f);
 	BeamWidthMin = FMath::Max(WidthMin, 0.05f);
-	BeamWidthMax = FMath::Max(WidthMax, BeamWidthMin);
-	BeamChargeQ = FMath::Clamp(ChargeQ, 0.f, 1.f);
+	BeamWidthMax = FMath::Max(BeamWidthMin, WidthMax);
 
 	// Cascade Beam2：源点=额头，目标点=弹体（每帧刷新）；"Beam Max Index" 控制光束条数（越多越粗）
 	UParticleSystemComponent* Comp = NewObject<UParticleSystemComponent>(InCaster);
@@ -90,10 +100,16 @@ void ABlastProjectile::ApplyBeam(AFighterCharacter* InCaster, UParticleSystem* B
 	Comp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Comp->RegisterComponent();
 	InCaster->AddInstanceComponent(Comp);
+	// 注意：不要 AttachToComponent。挂头部骨骼会把骨骼旋转带给模板的雾气层（朝上/朝歪喷）；
+	// 位置跟随由 UpdateBeam 每帧 SetWorldLocation 到额头完成，旋转保持世界朝向（雾气竖直上升）。
+	Comp->SetWorldLocation(GetBeamOrigin());
 	BeamComp = Comp;
 
 	UpdateBeam();
-	const float WidthScale = FMath::Lerp(BeamWidthMin, BeamWidthMax, BeamChargeQ);
+	// 粗细=条数：在配置宽度区间之上再乘蓄力增益，让"随蓄力变粗"肉眼可辨
+	//（0 蓄：基础宽 ×0.6；满蓄：基础宽 ×1.5）
+	const float BaseWidth = FMath::Lerp(BeamWidthMin, BeamWidthMax, ChargeQ);
+	const float WidthScale = BaseWidth * FMath::Lerp(0.6f, 1.5f, ChargeQ);
 	const int32 MaxIndex = FMath::Clamp(FMath::RoundToInt(WidthScale * 3.f), 1, 9);
 	Comp->SetFloatParameter(TEXT("Beam Max Index"), static_cast<float>(MaxIndex));
 	Comp->SetFloatParameter(TEXT("Beam Flow Speed"), 1.f);
@@ -124,9 +140,12 @@ void ABlastProjectile::UpdateBeam()
 	{
 		return;
 	}
-	// Beam2：源点=额头；目标点覆盖所有光束索引（弹体位置，世界坐标）
+	// Beam2：源点=额头（停留期持续跟随施术者）；目标点：飞行期=弹体，停留期=冻结的命中点
 	const FVector SrcWorld = GetBeamOrigin();
-	const FVector EndWorld = GetActorLocation();
+	const FVector EndWorld = bLingering ? ImpactLocation : GetActorLocation();
+	// 组件原点每帧同步到额头：模板的雾气/辉光层随人移动，但旋转保持世界朝向（雾气竖直升起，
+	// 不随头部骨骼旋转——挂骨骼曾导致雾气朝上/朝歪喷）
+	Comp->SetWorldLocation(SrcWorld);
 	for (int32 EmitterIndex = 0; EmitterIndex < 6; ++EmitterIndex)
 	{
 		Comp->SetBeamSourcePoint(EmitterIndex, SrcWorld, 0);
@@ -142,6 +161,18 @@ void ABlastProjectile::UpdateBeam()
 void ABlastProjectile::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	// 最大存在时间硬上限（用户要求）：飞行 + 停留总计超过即强制清理，
+	// 防止任何路径（如朝天空发射、组件回收失败）导致特效/弹体永不销毁。
+	if (GetGameTimeSinceCreation() >= MaxLifeTime)
+	{
+		ForceCleanup();
+		return;
+	}
+	if (bLingering)
+	{
+		TickLinger(DeltaSeconds);
+		return;
+	}
 	if (bFinished) return;
 
 	// 卡帧下限制单步积分（与领域球同口径）
@@ -208,18 +239,19 @@ void ABlastProjectile::Finish()
 {
 	if (bFinished) return;
 	bFinished = true;
-	RecycleBeam();
+	ImpactLocation = GetActorLocation();
 
-	// 撞击/消失特效（Cascade）：命中与撞墙、寿命耗尽共用同一表现（伤害仍只在命中结算）
+	// 命中特效（Cascade）：命中与撞墙、寿命耗尽共用同一表现（伤害仍只在命中结算）
+	// 持续时间与光束停留共用同一条蓄力曲线（整体偏短，用户口径），并以配置最长存活封顶。
 	if (!ImpactEffect.ToSoftObjectPath().IsNull())
 	{
 		if (UParticleSystem* ImpactFx = ImpactEffect.LoadSynchronous())
 		{
+			const float Life = FMath::Clamp(FMath::Lerp(0.35f, 0.9f, ChargeQ), 0.2f, ImpactLife);
 			UParticleSystemComponent* ImpactComp = UGameplayStatics::SpawnEmitterAtLocation(
-				GetWorld(), ImpactFx, GetActorLocation(), GetActorRotation(), FVector(ImpactScale), /*bAutoDestroy=*/true);
-			if (ImpactComp != nullptr && ImpactLife > 0.f)
+				GetWorld(), ImpactFx, ImpactLocation, GetActorRotation(), FVector(ImpactScale), /*bAutoDestroy=*/true);
+			if (ImpactComp != nullptr && Life > 0.f)
 			{
-				// 兜底回收：正常由 Cascade 完成时自毁，超时强制销毁
 				TWeakObjectPtr<UParticleSystemComponent> Weak = ImpactComp;
 				FTimerHandle Handle;
 				GetWorldTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([Weak]()
@@ -228,12 +260,37 @@ void ABlastProjectile::Finish()
 					{
 						C->DestroyComponent();
 					}
-				}), ImpactLife, false);
+				}), Life, false);
 			}
 		}
 	}
 
+	// 有引导光束则进入停留态：端点冻结在命中点、起点跟随施术者额头，
+	// 时长从命中起算（飞行不计）；到点熄灭并销毁。
+	if (BeamComp.IsValid())
+	{
+		bLingering = true;
+		LingerRemaining = FMath::Lerp(0.35f, 0.9f, ChargeQ);
+		SetActorEnableCollision(false);
+		MeshComp->SetVisibility(false);
+		SetLifeSpan(0.f);   // 停留期由 TickLinger 自行收尾，禁用兜底寿命
+		UpdateBeam();
+		return;
+	}
+
 	Destroy();
+}
+
+void ABlastProjectile::TickLinger(float DeltaSeconds)
+{
+	LingerRemaining -= DeltaSeconds;
+	// 起点与组件原点持续跟随施术者额头（移动中命中的光束不会脱锚悬空），
+	// 终点冻结在命中点；到点熄灭并销毁
+	UpdateBeam();
+	if (LingerRemaining <= 0.f)
+	{
+		RecycleBeam();
+	}
 }
 
 void ABlastProjectile::RecycleBeam()
@@ -245,13 +302,18 @@ void ABlastProjectile::RecycleBeam()
 	}
 	BeamComp = nullptr;
 	Comp->DeactivateSystem();
-	TWeakObjectPtr<UParticleSystemComponent> Weak = Comp;
-	FTimerHandle Handle;
-	GetWorldTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([Weak]()
+	Comp->DestroyComponent();
+	Destroy();
+}
+
+void ABlastProjectile::ForceCleanup()
+{
+	// 硬上限兜底：无论处于飞行还是停留态，立即回收光束并销毁弹体
+	if (UParticleSystemComponent* Comp = BeamComp.Get())
 	{
-		if (UParticleSystemComponent* C = Weak.Get())
-		{
-			C->DestroyComponent();
-		}
-	}), 0.8f, false);
+		BeamComp = nullptr;
+		Comp->DeactivateSystem();
+		Comp->DestroyComponent();
+	}
+	Destroy();
 }

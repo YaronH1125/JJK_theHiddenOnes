@@ -394,6 +394,8 @@ void UChargedBlastAbilityBase::FireOnce()
 		Muzzle, Dir.Rotation(), SpawnParams))
 	{
 		Proj->InitBlast(Fighter, Dir, GetProjectileSpeed(), GetProjectileRadius(), 3.f, Settle);
+		// 本次蓄力强度：命中特效持续时间与光束停留时长随它缩放
+		Proj->ApplyChargeStrength(PaidQ);
 		// 弹体表现：子类提供配置（拖尾；空=占位小球）
 		TSoftObjectPtr<UNiagaraSystem> Trail;
 		float TrailScale = 1.f;
