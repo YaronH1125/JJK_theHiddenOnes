@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JJK: The Hidden Ones — 对战 HUD 概念原型 · 石流龙</title>
+<style>
+/* ============================================================
+   JJK: The Hidden Ones / 1v1 擂台训练 Demo — 对战 HUD 概念稿
+   参考画布 1920x1080 · 数值取自项目当前设计文档的调试参数
+   ============================================================ */
+:root{
+  --bg:#070B14; --fg:#EAF6FF; --panel:rgba(8,14,26,.80); --border:rgba(150,190,255,.18);
+  --muted:rgba(150,190,255,.55); --dim:rgba(150,190,255,.30);
+  --p1:#1FB4F0; --p2:#FF5F1F;
+  --curse:#2E70FF; --ap:#E6A81E; --dom:#A64DE6; --gold:#FFD166; --danger:#FF3B30;
+  --hpc1:#EAF6FF; --hpc2:#9FE8F5; --ghost:oklch(.33 .11 27);
+  --rc-idle:rgba(204,230,255,.95); --rc-aim:#73F2F2; --rc-chg:#FFE633; --rc-dom:#FF6633;
+  --en:'Arial Black','Impact','Haettenschweiler','Microsoft YaHei',sans-serif;
+  --zh:'Microsoft YaHei','PingFang SC','Hiragino Sans GB','Source Han Sans SC',sans-serif;
+  --sr:'Songti SC','SimSun','Noto Serif SC',Georgia,serif;
+  --mo:Consolas,'Cascadia Mono','SFMono-Regular',monospace;
+  --cut8:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  --cut7:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);
+  --cut6:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  --cut5:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#04060B;font-family:var(--zh);color:var(--fg)}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;
+  background:var(--bg);overflow:hidden;-webkit-font-smoothing:antialiased}
+.num{font-family:var(--en);font-variant-numeric:tabular-nums;font-weight:900;letter-spacing:.01em}
+button{font-family:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--rc-aim);outline-offset:2px}
+kbd{font-family:var(--zh);font-size:11px;font-weight:700;line-height:16px;padding:1px 6px;border-radius:2px;
+  background:rgba(150,190,255,.10);border:1px solid var(--border);color:var(--fg)}
+
+/* ---------- 占位场景：夜空穹顶 + 圆形石台 ---------- */
+.scene{position:absolute;inset:0;transition:filter .35s ease-out}
+.sky{position:absolute;inset:0;background:radial-gradient(120% 64% at 50% 86%,#17273F 0%,#0C1626 40%,#070B14 76%)}
+.dome{position:absolute;border-radius:50%;border:1px solid rgba(150,190,255,.07);
+  background:radial-gradient(circle at 50% 24%,rgba(46,86,150,.20),rgba(7,11,20,0) 58%)}
+.dome.d1{left:40px;top:96px;width:1840px;height:1840px}
+.dome.d2{left:220px;top:300px;width:1480px;height:1480px;border-color:rgba(150,190,255,.045);
+  background:radial-gradient(circle at 50% 20%,rgba(46,86,150,.11),rgba(7,11,20,0) 52%)}
+.rays{position:absolute;left:960px;top:836px;width:1560px;height:820px;transform:translate(-50%,-50%);
+  background:conic-gradient(from 8deg,transparent 0 5deg,rgba(166,77,230,.20) 5deg 7deg,transparent 7deg 41deg,
+    rgba(120,170,255,.13) 41deg 43deg,transparent 43deg 79deg,rgba(166,77,230,.16) 79deg 81deg,transparent 81deg 141deg,
+    rgba(120,170,255,.11) 141deg 143deg,transparent 143deg 199deg,rgba(166,77,230,.15) 199deg 201deg,transparent 201deg 268deg,
+    rgba(120,170,255,.12) 268deg 270deg,transparent 270deg 322deg,rgba(166,77,230,.17) 322deg 324deg,transparent 324deg 360deg);
+  -webkit-mask-image:radial-gradient(closest-side,transparent 32%,#000 50%,transparent 86%);
+  mask-image:radial-gradient(closest-side,transparent 32%,#000 50%,transparent 86%);
+  opacity:.5;filter:blur(1px);animation:rayPulse 11s ease-in-out infinite}
+.horizon{position:absolute;left:0;top:632px;width:100%;height:76px;
+  background:linear-gradient(to bottom,rgba(90,150,230,0) 0%,rgba(90,150,230,.14) 72%,rgba(120,180,255,.30) 100%)}
+.ground{position:absolute;left:0;top:706px;width:100%;height:374px;
+  background:linear-gradient(to bottom,#08111F 0%,#060A12 60%,#05080E 100%)}
+.platform{position:absolute;left:300px;top:640px;width:1320px;height:380px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(34,54,82,.95) 0%,rgba(20,32,50,.92) 56%,rgba(11,18,29,.55) 100%);
+  border:1px solid rgba(150,190,255,.13);
+  box-shadow:inset 0 2px 0 rgba(180,215,255,.10),0 26px 60px -18px rgba(0,0,0,.85)}
+.platform i{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;
+  border:1px solid rgba(150,190,255,.10)}
+.platform i:nth-child(1){width:78%;height:78%}
+.platform i:nth-child(2){width:54%;height:54%;border-color:rgba(150,190,255,.08)}
+.platform i:nth-child(3){width:26%;height:26%;border-color:rgba(166,77,230,.22)}
+.embers{position:absolute;inset:0;overflow:hidden}
+.embers i{position:absolute;top:900px;width:3px;height:3px;border-radius:50%;background:rgba(190,150,255,.75);
+  box-shadow:0 0 8px rgba(166,77,230,.8);opacity:0;animation:ember 9s linear infinite}
+.embers i:nth-child(1){left:640px}
+.embers i:nth-child(2){left:812px;animation-delay:1.6s}
+.embers i:nth-child(3){left:1004px;animation-delay:3.1s}
+.embers i:nth-child(4){left:1188px;animation-delay:4.7s}
+.embers i:nth-child(5){left:1320px;animation-delay:6.2s}
+.embers i:nth-child(6){left:520px;animation-delay:7.6s}
+.fighter{position:absolute;background:linear-gradient(104deg,#0B111C 0%,#182233 52%,#0A1018 100%)}
+.sil-p2{left:971px;top:614px;width:58px;height:152px;border-radius:29px;
+  filter:drop-shadow(3px 0 0 rgba(255,95,31,.52)) drop-shadow(-3px 0 0 rgba(31,180,240,.26)) drop-shadow(0 16px 22px rgba(0,0,0,.8))}
+.sil-p1{left:330px;top:620px;width:180px;height:400px;border-radius:70px;opacity:.96;
+  filter:drop-shadow(5px 0 0 rgba(31,180,240,.40)) drop-shadow(-5px 0 0 rgba(255,95,31,.20)) drop-shadow(0 20px 30px rgba(0,0,0,.85))}
+.gshadow{position:absolute;left:940px;top:754px;width:120px;height:28px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(0,0,0,.75),rgba(0,0,0,0));filter:blur(3px)}
+.barrier{position:absolute;left:250px;top:610px;width:1420px;height:460px;border-radius:50%;
+  border:2px solid rgba(255,209,102,.55);opacity:0;transition:opacity .35s ease-out;
+  box-shadow:0 0 70px rgba(166,77,230,.40),inset 0 0 70px rgba(255,209,102,.16)}
+.scene-note{position:absolute;left:40px;top:993px;font-size:10px;letter-spacing:.06em;color:var(--dim)}
+.tint{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .35s ease-out;
+  background:radial-gradient(72% 60% at 50% 72%,rgba(255,209,102,.20) 0%,rgba(166,77,230,.20) 44%,rgba(7,11,20,0) 76%);
+  mix-blend-mode:screen}
+/* 领域期 / 压制期只改环境层，HUD 文字保持原色，可读性不变 */
+#stage.dom .scene{filter:hue-rotate(-16deg) saturate(1.35) brightness(1.08)}
+#stage.dom .tint{opacity:1}
+#stage.dom .barrier{opacity:.75}
+#stage.supp .scene{filter:saturate(.42) brightness(.88)}
+#stage.supp .tint{opacity:.35}
+#stage.supp .barrier{opacity:.4}
+
+/* ---------- 通用面板：切角 + 1px 结构描边 ---------- */
+.pane{position:absolute;padding:1px;background:linear-gradient(160deg,rgba(150,190,255,.30),rgba(150,190,255,.10));
+  clip-path:var(--cut8)}
+.pane>.bd{position:relative;width:100%;height:100%;background:var(--panel);clip-path:var(--cut7);backdrop-filter:blur(6px)}
+.pl{position:relative;padding:1px;background:rgba(150,190,255,.22);clip-path:var(--cut6)}
+.pl>.bd{display:block;height:100%;background:rgba(8,14,26,.82);clip-path:var(--cut5);backdrop-filter:blur(6px)}
+.hud{position:absolute;inset:0;pointer-events:none}
+.hud .pane,.hud .pl,.hud .console,.hud .drawer{pointer-events:auto}
+
+/* ---------- 1. 上左 / 上右 身份与生命（镜像） ---------- */
+.ident{position:absolute;top:34px;width:560px}
+#identP1{left:40px}
+#identP2{left:1320px;text-align:right}
+.plate{display:inline-flex;align-items:baseline;gap:10px;height:26px;padding:0 12px;line-height:26px;
+  background:rgba(8,14,26,.78);border-left:2px solid var(--p1);backdrop-filter:blur(6px)}
+#identP2 .plate{border-left:0;border-right:2px solid var(--p2)}
+.plate b{font-family:var(--en);font-size:12px;letter-spacing:.14em;color:var(--p1)}
+#identP2 .plate b{color:var(--p2)}
+.plate .nm{font-size:16px;font-weight:700;letter-spacing:.10em;color:var(--fg)}
+.hpwrap{position:relative;margin-top:8px;width:560px;height:20px}
+.hpbar{padding:1px;height:20px;clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%);
+  background:linear-gradient(90deg,rgba(31,180,240,.62),rgba(150,190,255,.18))}
+#identP2 .hpbar{clip-path:polygon(18px 0,100% 0,100% 100%,0 100%);
+  background:linear-gradient(270deg,rgba(255,95,31,.62),rgba(150,190,255,.18))}
+.hpclip{position:relative;width:100%;height:100%;overflow:hidden;background:rgba(4,8,16,.94);
+  clip-path:polygon(0 0,100% 0,calc(100% - 17px) 100%,0 100%)}
+#identP2 .hpclip{clip-path:polygon(17px 0,100% 0,100% 100%,0 100%)}
+/* 虚血 / 受击残影：0.6s 延迟后 0.35s 回落，由帧循环驱动 */
+.hpclip .ghost{position:absolute;left:0;top:0;height:100%;width:var(--ghost,100%);background:var(--ghost)}
+.hpclip .fill{position:absolute;left:0;top:0;height:100%;width:var(--hp,100%);
+  background:linear-gradient(90deg,var(--hpc1),var(--hpc2));transition:width .12s ease-out}
+#identP2 .hpclip .ghost,#identP2 .hpclip .fill{left:auto;right:0}
+#identP2 .hpclip .fill{background:linear-gradient(270deg,var(--hpc1),var(--hpc2))}
+.hpclip .ticks{position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(7,11,20,.9) calc(10% - 1px) 10%)}
+.hpclip .sheen{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,.20),rgba(255,255,255,0) 58%)}
+.low .hpbar{animation:lowPulse 1.2s ease-in-out infinite}
+.hpnum{margin-top:7px;font-size:17px;color:var(--fg);opacity:.45;transform-origin:0 50%;
+  transition:transform .18s ease-out,opacity .18s ease-out,color .18s ease-out}
+#identP2 .hpnum{transform-origin:100% 50%}
+.hpnum .tot{color:var(--muted);font-size:14px}
+.hpnum.bump{opacity:1;color:#fff;transform:scale(1.20);text-shadow:0 0 14px rgba(255,214,110,.9)}
+
+/* ---------- 2. 顶部中央 领域状态槽 ---------- */
+.domarcs{position:absolute;left:0;top:0;width:1920px;height:120px;overflow:visible}
+.domarcs path{fill:none;stroke-linecap:round}
+.domarcs .trk{stroke:rgba(150,190,255,.16);stroke-width:5}
+.domarcs .gl{stroke:rgba(0,0,0,.55);stroke-width:11}
+.domarcs .fil{stroke:var(--dom);stroke-width:5;transition:stroke .25s ease-out;
+  filter:drop-shadow(0 0 6px rgba(166,77,230,.75))}
+.domarcs.armed .fil{stroke:var(--gold);filter:drop-shadow(0 0 10px rgba(255,209,102,.9))}
+.domarcs.supp .fil{stroke:#7C879B;filter:none}
+.domarcs.supp .trk{stroke:rgba(150,190,255,.10)}
+.domarcs .spk{fill:var(--gold);opacity:0}
+.domarcs.armed .spk{animation:fuse 1.1s ease-out infinite}
+.arc-lbl{position:absolute;top:48px;width:168px;font-size:11px;letter-spacing:.06em;color:var(--muted)}
+#lblP1{left:456px;text-align:right}
+#lblP2{left:1296px;text-align:left}
+.arc-lbl b{font-family:var(--en);font-size:13px;color:var(--dom)}
+.domarcs.armed~#lblP1 b,.domarcs.armed~#lblP2 b{color:var(--gold)}
+.dchip{position:absolute;left:960px;top:70px;transform:translateX(-50%);height:26px;padding:0 12px;
+  display:none;align-items:center;gap:8px;line-height:26px;font-size:12px;letter-spacing:.06em;color:var(--gold);
+  background:rgba(20,14,4,.74);border:1px solid rgba(255,209,102,.42);clip-path:var(--cut6)}
+.dchip.on{display:flex;animation:fusePulse 1.1s ease-in-out infinite}
+.dseal{position:absolute;left:960px;top:92px;transform:translate(-50%,-50%);display:none;align-items:center;gap:14px}
+.dseal.on{display:flex}
+.dseal svg{width:52px;height:52px}
+.dseal .stk{stroke:rgba(150,190,255,.22);stroke-width:2;transition:stroke .12s linear}
+.dseal .stk.lit{stroke:var(--dom);filter:drop-shadow(0 0 4px rgba(166,77,230,.9))}
+.dseal .sp{fill:none;stroke:var(--dom);stroke-width:2.5;stroke-dasharray:100;stroke-dashoffset:100;
+  transform:rotate(-90deg);transform-origin:28px 28px}
+.sealtxt{font-size:13px;letter-spacing:.08em;color:var(--dom)}
+.sealtxt .wl{display:block;margin-top:5px;width:190px;height:1px;background:var(--danger);opacity:.75;
+  animation:fusePulse 1s ease-in-out infinite}
+.dact{position:absolute;left:960px;top:64px;transform:translateX(-50%);display:none;text-align:center;width:680px}
+.dact.on{display:block}
+.dtitle{font-family:var(--sr);font-size:20px;font-weight:700;letter-spacing:.30em;text-indent:.30em;
+  background:linear-gradient(92deg,var(--gold),#FFE9B0 46%,var(--dom));-webkit-background-clip:text;background-clip:text;
+  color:transparent;filter:drop-shadow(0 0 12px rgba(255,209,102,.35))}
+.dmeta{margin-top:8px;display:flex;align-items:center;justify-content:center;gap:14px;font-size:12px;color:var(--muted)}
+.dclock{font-family:var(--en);font-size:17px;color:var(--fg)}
+.dtl{position:relative;width:260px;height:10px}
+.dtl .bg{position:absolute;left:0;top:4px;width:100%;height:2px;background:rgba(150,190,255,.18)}
+.dtl .ph{position:absolute;left:0;top:0;width:2px;height:10px;background:var(--gold);box-shadow:0 0 8px rgba(255,209,102,.9)}
+.dtl b{position:absolute;top:5px;width:8px;height:8px;margin:-4px 0 0 -4px;transform:rotate(45deg);
+  border:2px solid rgba(150,190,255,.35);background:rgba(7,11,20,.9);transition:all .2s ease-out}
+.dtl b.t0{left:5%}.dtl b.t1{left:38.3%}.dtl b.t2{left:71.7%}
+.dtl b.hit{border-color:var(--gold);background:var(--gold);box-shadow:0 0 10px rgba(255,209,102,.95)}
+.dtl b.skip{border-color:var(--danger);background:rgba(255,59,48,.25)}
+.dtl b.now{border-color:var(--gold);animation:fusePulse .55s ease-in-out infinite}
+.dnext{color:var(--gold)}
+.dorbs{display:flex;gap:5px;align-items:center}
+.dorbs i{width:7px;height:7px;border-radius:50%;border:1px solid rgba(150,190,255,.40)}
+.dorbs i.on{background:var(--dom);border-color:var(--gold);box-shadow:0 0 8px rgba(166,77,230,.9)}
+.dsupp{position:absolute;left:960px;top:126px;transform:translateX(-50%);display:none;font-size:12px;letter-spacing:.10em;
+  color:#9AA4B6;padding:3px 12px;background:rgba(10,14,22,.74);border:1px solid rgba(150,190,255,.22);clip-path:var(--cut6)}
+.dsupp.on{display:block}
+.chain{position:absolute;left:820px;top:44px;width:280px;height:9px;display:none;opacity:.92;
+  background:linear-gradient(90deg,rgba(150,190,255,0),#8A93A6 12%,#8A93A6 88%,rgba(150,190,255,0))}
+.chain.on{display:block}
+.chain::before,.chain::after{content:'';position:absolute;left:0;width:100%;height:1px;background:#8A93A6}
+.chain::before{top:0}.chain::after{top:8px}
+.chain i{position:absolute;top:0;width:1px;height:9px;background:#8A93A6;opacity:.8}
+
+/* ---------- 模式徽标 / 训练开关标签 ---------- */
+.modebar{position:absolute;left:620px;top:154px;width:680px;display:flex;align-items:center;justify-content:center;gap:8px}
+.mchip{height:22px;padding:0 10px;line-height:22px;font-size:11px;letter-spacing:.06em;color:var(--muted);
+  border:1px solid var(--border);clip-path:var(--cut5);transition:all .18s ease-out}
+.mchip.on{color:var(--fg);border-color:rgba(31,180,240,.55);background:rgba(31,180,240,.12)}
+.msep{width:1px;height:14px;background:var(--border)}
+.tchip{height:22px;padding:0 9px;line-height:22px;font-size:11px;letter-spacing:.06em;color:var(--rc-aim);
+  border:1px dashed rgba(115,242,242,.42);clip-path:var(--cut5);display:none}
+.tchip.on{display:block}
+
+/* ---------- 5. 中央准星（仅远程形态） ---------- */
+.reticle{position:absolute;left:960px;top:540px;width:220px;height:220px;transform:translate(-50%,-50%);opacity:0;
+  transition:opacity .18s ease-out;--gap:14px;--len:10px;--w:2px;--c:var(--rc-idle)}
+.reticle.on{opacity:1}
+.reticle i{position:absolute;background:var(--c);box-shadow:0 0 6px currentColor;
+  transition:transform .16s ease-out,background .16s ease-out}
+.reticle .v{left:calc(50% - var(--w)/2);width:var(--w);height:var(--len)}
+.reticle .h{top:calc(50% - var(--w)/2);height:var(--w);width:var(--len)}
+.reticle .t{top:50%;transform:translateY(calc(-100% - var(--gap)))}
+.reticle .b{top:50%;transform:translateY(var(--gap))}
+.reticle .l{left:50%;transform:translateX(calc(-100% - var(--gap)))}
+.reticle .r{left:50%;transform:translateX(var(--gap))}
+.reticle .dot{left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;
+  transition:opacity .16s ease-out}
+.reticle .hex{left:50%;top:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;display:none;background:none}
+.reticle .hex svg{width:100%;height:100%;fill:none;stroke:var(--c);stroke-width:2}
+.reticle .ring{position:absolute;inset:0;opacity:0;transition:opacity .16s ease-out}
+.reticle .ring circle{fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:0 100;opacity:.9;
+  transform:rotate(-90deg);transform-origin:110px 110px}
+.reticle.charging .ring{opacity:1}
+.reticle.full .dot{display:none}
+.reticle.full .hex{display:block;animation:burn .28s ease-in-out infinite alternate}
+.reticle.full .ring circle{stroke:var(--gold)}
+
+/* ---------- 锁定标记 ---------- */
+.lock{position:absolute;left:950px;top:592px;width:100px;height:192px;opacity:0;transition:opacity .18s ease-out}
+.lock.on{opacity:1}
+.lock i{position:absolute;width:14px;height:14px;border:2px solid var(--p2);opacity:.9}
+.lock i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0}
+.lock i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0}
+.lock i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0}
+.lock i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0}
+.lock .tag{position:absolute;left:104px;top:168px;font-size:11px;letter-spacing:.06em;color:var(--p2);
+  background:rgba(24,10,4,.74);border:1px solid rgba(255,95,31,.42);padding:1px 8px;clip-path:var(--cut5);white-space:nowrap}
+
+/* ---------- 飘字 / 连击 ---------- */
+.floats{position:absolute;inset:0;pointer-events:none}
+.fl{position:absolute;transform:translate(-50%,0);font-family:var(--en);font-size:26px;color:#fff;white-space:nowrap;
+  text-shadow:0 2px 10px rgba(0,0,0,.9),0 0 18px rgba(255,255,255,.35);animation:flUp .9s ease-out forwards}
+.fl.gold{color:var(--gold);font-size:32px;text-shadow:0 2px 10px rgba(0,0,0,.9),0 0 22px rgba(255,209,102,.75)}
+.fl.cyan{color:var(--rc-aim);font-size:20px;font-family:var(--zh);font-weight:700}
+.fl.dom{color:var(--dom);font-size:22px;font-family:var(--zh);font-weight:700;
+  text-shadow:0 2px 10px rgba(0,0,0,.9),0 0 20px rgba(166,77,230,.9)}
+.fl.warn{color:var(--danger);font-size:18px;font-family:var(--zh);font-weight:700}
+.fl.ghost{color:#B8C8DE;font-size:20px;font-family:var(--zh);font-weight:700}
+.combo{position:absolute;left:1132px;top:512px;opacity:0;transition:opacity .18s ease-out}
+.combo.on{opacity:1}
+.combo b{font-family:var(--en);font-size:44px;line-height:1;color:var(--gold);
+  text-shadow:0 2px 14px rgba(0,0,0,.9),0 0 24px rgba(255,209,102,.6)}
+.combo span{margin-left:8px;font-size:14px;font-weight:700;letter-spacing:.14em;color:var(--gold)}
+.combo.pop b{animation:comboPop .18s ease-out}
+
+/* ---------- 3. 下中 资源与形态面板 ---------- */
+.domebase{position:absolute;left:400px;top:730px;width:1120px;height:350px}
+.domebase path{fill:none;stroke:rgba(150,190,255,.20);stroke-width:1}
+.domebase path.mid{stroke:rgba(150,190,255,.30)}
+.domebase .jl{stroke:rgba(150,190,255,.34)}
+.hintbar{position:absolute;left:630px;top:700px;width:660px;height:34px;display:flex;align-items:center;
+  justify-content:center;font-size:12px;color:var(--fg)}
+.hintbar .bd{display:flex;align-items:center;gap:22px;padding:0 16px;height:32px}
+.hintbar .grp{display:flex;align-items:center;gap:8px;transition:opacity .12s ease-out}
+.hintbar .grp.off{display:none}
+.wing{position:absolute;top:918px;width:180px}
+#wingL{left:620px;text-align:right}
+#wingR{left:1120px;text-align:left}
+.whead{font-size:11px;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
+.whead b{font-family:var(--en);font-size:15px;color:var(--fg)}
+.whead .cap{color:var(--muted);font-size:12px}
+.aprow{display:flex;gap:7px;justify-content:flex-end}
+#wingR .aprow{justify-content:flex-start}
+.ap{width:28px;height:28px;padding:1px;background:rgba(150,190,255,.26);clip-path:var(--cut6);
+  transition:background .18s ease-out}
+.ap>b{display:block;width:100%;height:100%;background:rgba(6,10,18,.92);clip-path:var(--cut5);
+  transition:background .18s ease-out,box-shadow .18s ease-out}
+.ap.on{background:rgba(230,168,30,.65)}
+.ap.on>b{background:linear-gradient(160deg,#F2C24A,#B9811A);box-shadow:inset 0 0 10px rgba(255,224,150,.55)}
+.wnote{margin-top:7px;font-size:10px;letter-spacing:.05em;color:var(--dim)}
+.cbar{position:relative;height:14px;padding:1px;background:rgba(150,190,255,.26);clip-path:var(--cut6)}
+.cbar>b{position:relative;display:block;width:100%;height:100%;background:rgba(6,10,18,.92);clip-path:var(--cut5);overflow:hidden}
+.cbar .cf{position:absolute;left:0;top:0;height:100%;width:0;
+  background:linear-gradient(90deg,#1B49C8,var(--curse));transition:width .12s linear}
+.cbar .cp{position:absolute;top:0;height:100%;left:0;width:0;
+  background:repeating-linear-gradient(90deg,rgba(46,112,255,.45) 0 4px,transparent 4px 8px);transition:left .12s linear}
+.cbar .ct{position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(7,11,20,.85) calc(10% - 1px) 10%)}
+.formdisc{position:absolute;left:902px;top:882px;width:116px;height:116px;border-radius:50%;display:flex;
+  background:radial-gradient(circle at 50% 32%,rgba(22,34,55,.92),rgba(8,14,26,.96));
+  box-shadow:0 0 0 1px rgba(150,190,255,.30),inset 0 0 22px rgba(0,0,0,.85)}
+.formdisc .lyr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;opacity:0;transition:opacity .12s ease-out}
+.formdisc .lyr.on{opacity:1}
+.formdisc svg{width:30px;height:30px;color:var(--fg)}
+.formdisc .nm{font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--fg)}
+.formdisc.ranged svg{color:var(--rc-aim)}
+.formcd{position:absolute;left:892px;top:872px;width:136px;height:136px;opacity:0}
+.formcd circle{fill:none;stroke:var(--p1);stroke-width:2;stroke-dasharray:0 302;transform:rotate(-90deg);
+  transform-origin:68px 68px}
+.formcd.run{opacity:1;animation:formCd .5s ease-out forwards}
+.cannon{position:absolute;left:820px;top:800px;width:280px;height:280px}
+.cannon .trk{fill:none;stroke:rgba(0,0,0,.55);stroke-width:22}
+.cannon .trk2{fill:none;stroke:rgba(150,190,255,.16);stroke-width:18}
+.cannon .paid{fill:none;stroke:var(--rc-chg);stroke-width:18;transition:stroke .2s ease-out}
+.cannon .over{fill:none;stroke:var(--danger);stroke-width:18}
+.cannon .glow{fill:none;stroke:var(--rc-chg);stroke-width:26;opacity:.22;filter:blur(7px)}
+.cannon .rim{fill:none;stroke:rgba(150,190,255,.20);stroke-width:1}
+.cannon .rim2{fill:none;stroke:rgba(150,190,255,.10);stroke-width:1}
+.cannon .seg{fill:none;stroke-width:18;stroke:rgba(150,190,255,.14);transition:stroke .16s ease-out}
+.cannon .seg.lit{stroke:var(--rc-chg);filter:drop-shadow(0 0 7px rgba(255,230,51,.7))}
+.cannon.full .paid,.cannon.full .glow,.cannon.full .seg.lit{stroke:var(--gold)}
+.cannon.full .glow{opacity:.34;filter:blur(9px)}
+.cannon .lead{position:absolute;left:140px;top:140px;width:3px;height:20px;margin-left:-1.5px;opacity:0;
+  background:var(--rc-chg);transform-origin:50% 0;box-shadow:0 0 8px rgba(255,230,51,.9);
+  transition:transform .1s linear,opacity .16s ease-out}
+.cannon.full .lead{background:var(--gold);box-shadow:0 0 10px rgba(255,209,102,.95)}
+.cannon .cdring{position:absolute;inset:0;transform:rotate(-90deg)}
+.cannon .cdring circle{fill:none;stroke:var(--rc-aim);stroke-width:2;stroke-dasharray:0 100;opacity:0;
+  transition:opacity .18s ease-out}
+.cannon .core{position:absolute;left:50%;top:50%;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,230,51,.50),rgba(255,209,102,.16) 52%,rgba(255,209,102,0) 78%);
+  filter:blur(6px);opacity:0;transform:scale(.3);transition:opacity .2s ease-out,transform .2s ease-out}
+.cannon.vB .core{opacity:1}
+.cannon.vA .vAset{display:block}.cannon.vA .vBset{display:none}
+.cannon.vB .vAset{display:none}.cannon.vB .vBset{display:block}
+.readout{position:absolute;left:830px;top:1031px;width:260px;height:30px;padding:1px;
+  background:rgba(150,190,255,.26);clip-path:var(--cut6)}
+.readout>.bd{display:flex;align-items:center;justify-content:center;gap:8px;height:100%;background:rgba(8,14,26,.88);
+  clip-path:var(--cut5);font-size:12px;letter-spacing:.05em;color:var(--fg);transition:background .18s ease-out}
+.readout .sub{font-size:10px;color:var(--muted)}
+.readout .mn{font-family:var(--en);font-size:16px;color:var(--rc-chg)}
+.readout.full .mn{color:var(--gold)}
+.readout.full>.bd{background:rgba(28,20,4,.90);box-shadow:inset 0 0 0 1px rgba(255,209,102,.28)}
+.readout.lim .mn{color:var(--danger)}
+.readout.lim>.bd{background:rgba(30,8,6,.90)}
+.readout.cd .mn{color:var(--rc-aim)}
+.void{text-decoration:line-through;-webkit-text-stroke:1px var(--rc-aim);color:rgba(115,242,242,.55)}
+
+/* ---------- 底部键位 ---------- */
+.keys{position:absolute;top:1035px;display:flex;align-items:center;gap:18px;font-size:12px;color:var(--muted)}
+#keysL{left:40px}
+#keysR{right:40px}
+.keys .k{display:flex;align-items:center;gap:6px}
+#keysR .ded{display:none}
+#keysR.dead .ded{display:flex}
+.keys .dead{text-decoration:line-through;-webkit-text-stroke:1px var(--rc-aim);color:rgba(115,242,242,.55)}
+
+/* ---------- 调试层 ---------- */
+.debug{position:absolute;left:40px;top:150px;width:380px;padding:10px 12px;font-family:var(--mo);font-size:11px;
+  line-height:1.75;color:rgba(115,242,242,.80);background:rgba(4,10,16,.74);border:1px solid rgba(115,242,242,.22);
+  clip-path:var(--cut6);display:none}
+.debug.on{display:block}
+.debug .h{color:var(--rc-aim);letter-spacing:.10em;margin-bottom:5px}
+.debug .r{display:flex;justify-content:space-between;gap:12px}
+.debug .r span:last-child{color:var(--fg)}
+
+/* ---------- 11. 对战结果覆盖层 ---------- */
+.result{position:absolute;inset:0;display:none;background:rgba(7,11,20,.55)}
+.result.on{display:block;animation:fadeIn .22s ease-out}
+.rbox{position:absolute;left:960px;top:452px;transform:translateX(-50%);width:900px;text-align:center}
+.rbox .rt{font-size:64px;font-weight:900;letter-spacing:.22em;text-indent:.22em;
+  background:linear-gradient(92deg,var(--hpc1),var(--rc-aim));-webkit-background-clip:text;background-clip:text;
+  color:transparent;filter:drop-shadow(0 0 26px rgba(31,180,240,.45))}
+.rbox .rl{margin:18px auto 0;width:640px;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+.rbox .rs{margin-top:20px;display:flex;justify-content:center;gap:38px;font-size:15px;color:var(--fg)}
+.rbox .rs b{font-family:var(--en);font-size:22px;color:var(--gold)}
+.rbox .rk{margin-top:26px;display:flex;justify-content:center;gap:26px;font-size:13px;color:var(--muted)}
+
+/* ---------- 12. 训练设置抽屉 ---------- */
+.drawer{position:absolute;left:1330px;top:200px;width:390px;height:640px;padding:1px;display:none;
+  background:linear-gradient(160deg,rgba(150,190,255,.34),rgba(150,190,255,.10));clip-path:var(--cut8)}
+.drawer.on{display:block;animation:slideIn .22s ease-out}
+.drawer>.bd{position:relative;width:100%;height:100%;padding:18px 18px 14px;background:rgba(8,14,26,.92);
+  clip-path:var(--cut7);backdrop-filter:blur(6px)}
+.dh{display:flex;align-items:baseline;justify-content:space-between}
+.dh h3{font-size:14px;font-weight:700;letter-spacing:.12em}
+.dh span{font-size:10px;color:var(--dim)}
+.dsec{margin-top:18px}
+.dsec>.t{font-size:11px;letter-spacing:.10em;color:var(--muted);margin-bottom:9px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;height:32px;font-size:12px;color:var(--muted);border:1px solid var(--border);clip-path:var(--cut5);
+  transition:all .16s ease-out}
+.seg button:hover{color:var(--fg);background:rgba(150,190,255,.10)}
+.seg button.on{color:var(--fg);border-color:rgba(31,180,240,.62);background:rgba(31,180,240,.16)}
+.row{display:flex;align-items:center;justify-content:space-between;height:38px;border-bottom:1px solid rgba(150,190,255,.10)}
+.row .lb{font-size:12px;color:var(--fg)}
+.row .lb i{display:block;font-style:normal;font-size:10px;color:var(--dim);margin-top:2px}
+.sw{width:44px;height:22px;padding:1px;background:rgba(150,190,255,.20);clip-path:var(--cut5);transition:background .18s ease-out}
+.sw>b{display:block;width:20px;height:20px;background:#7C879B;clip-path:var(--cut5);
+  transition:transform .18s ease-out,background .18s ease-out}
+.sw.on{background:rgba(31,180,240,.45)}
+.sw.on>b{transform:translateX(22px);background:var(--fg)}
+.stepper{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--fg)}
+.stepper .num{border:1px solid var(--border);padding:2px 8px;font-family:var(--mo);font-size:12px}
+.stepper .st{width:22px;height:22px;border:1px solid var(--border);color:var(--muted);line-height:18px;text-align:center}
+.stepper .st:hover{color:var(--fg);background:rgba(150,190,255,.10)}
+.dreset{margin-top:20px;width:100%;height:38px;font-size:13px;letter-spacing:.10em;color:var(--fg);
+  border:1px solid rgba(255,59,48,.45);background:rgba(255,59,48,.12);clip-path:var(--cut6);transition:background .16s ease-out}
+.dreset:hover{background:rgba(255,59,48,.22)}
+.dfoot{margin-top:14px;font-size:10px;line-height:1.7;color:var(--dim)}
+
+/* ---------- 状态控制台（原型用，出货版本删除） ---------- */
+.console{position:absolute;left:1728px;top:140px;width:168px;padding:1px;background:rgba(150,190,255,.24);clip-path:var(--cut8)}
+.console>.bd{padding:10px 9px 9px;background:rgba(6,11,20,.76);clip-path:var(--cut7);backdrop-filter:blur(6px)}
+.console h4{font-size:11px;letter-spacing:.12em;color:var(--muted)}
+.console .sub{font-size:9px;color:var(--dim);margin:3px 0 8px;letter-spacing:.04em}
+.sbtn{display:flex;align-items:center;gap:7px;width:100%;height:34px;margin-bottom:4px;padding:0 7px;font-size:11px;
+  line-height:1.15;text-align:left;color:var(--muted);border:1px solid rgba(150,190,255,.14);clip-path:var(--cut5);
+  transition:all .16s ease-out}
+.sbtn:hover{color:var(--fg);background:rgba(150,190,255,.12);border-color:rgba(150,190,255,.30)}
+.sbtn .n{flex:0 0 16px;height:16px;line-height:16px;text-align:center;font-family:var(--en);font-size:10px;
+  color:var(--muted);border:1px solid rgba(150,190,255,.24)}
+.sbtn.on{color:var(--fg);background:rgba(31,180,240,.16);border-color:rgba(31,180,240,.60)}
+.sbtn.on .n{color:var(--bg);background:var(--p1);border-color:var(--p1)}
+.tgl{display:flex;gap:5px;margin-top:8px}
+.tgl button{flex:1;height:30px;font-size:11px;color:var(--muted);border:1px solid rgba(150,190,255,.16);
+  clip-path:var(--cut5);transition:all .16s ease-out}
+.tgl button:hover{color:var(--fg);background:rgba(150,190,255,.12)}
+.tgl button.on{color:var(--fg);border-color:rgba(115,242,242,.55);background:rgba(115,242,242,.12)}
+.cfoot{margin-top:8px;font-size:9px;line-height:1.6;color:var(--dim)}
+.arena-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#FFF3D0,var(--gold) 42%,rgba(166,77,230,.85) 78%);
+  box-shadow:0 0 16px rgba(255,209,102,.95),0 0 34px rgba(166,77,230,.65);animation:orbFly .46s ease-out forwards}
+.orb::after{content:'';position:absolute;left:2px;top:50%;width:74px;height:7px;margin-top:-3.5px;transform:rotate(-34deg);
+  transform-origin:0 50%;background:linear-gradient(90deg,rgba(255,209,102,.85),rgba(166,77,230,0))}
+.hitring{position:absolute;width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;border:3px solid var(--gold);
+  animation:hitRing .34s ease-out forwards}
+
+/* ---------- 动效（80–350ms，蓄力与领域脉冲例外） ---------- */
+@keyframes rayPulse{0%,100%{opacity:.38}50%{opacity:.62}}
+@keyframes ember{0%{transform:translateY(0);opacity:0}12%{opacity:.85}70%{opacity:.5}100%{transform:translateY(-420px);opacity:0}}
+@keyframes lowPulse{0%,100%{filter:drop-shadow(0 0 0 rgba(255,59,48,0))}50%{filter:drop-shadow(0 0 11px rgba(255,59,48,.9))}}
+@keyframes fuse{0%{opacity:0;transform:scale(.7)}30%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
+@keyframes fusePulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes flUp{0%{opacity:0;transform:translate(-50%,6px) scale(.86)}18%{opacity:1;transform:translate(-50%,-6px) scale(1.08)}
+  100%{opacity:0;transform:translate(-50%,-72px) scale(1)}}
+@keyframes comboPop{0%{transform:scale(1.5)}100%{transform:scale(1)}}
+@keyframes burn{0%{transform:translate(-50%,-50%) scale(1);opacity:.9}100%{transform:translate(-50%,-50%) scale(1.14) rotate(6deg);opacity:1}}
+@keyframes formCd{0%{stroke-dasharray:302 0}100%{stroke-dasharray:0 302}}
+@keyframes hitRing{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.9);opacity:0}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:translateX(0)}}
+@keyframes orbFly{0%{transform:translate(0,0) scale(.6);opacity:0}12%{opacity:1;transform:translate(60px,-30px) scale(1)}
+  70%{transform:translate(300px,-190px) scale(1)}100%{transform:translate(470px,-282px) scale(1.35);opacity:0}}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ================= 占位场景：夜空穹顶 + 圆形石台 ================= -->
+  <div class="scene" id="scene">
+    <div class="sky"></div>
+    <div class="dome d1"></div>
+    <div class="dome d2"></div>
+    <div class="rays"></div>
+    <div class="horizon"></div>
+    <div class="ground"></div>
+    <div class="embers"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="platform"><i></i><i></i><i></i></div>
+    <div class="barrier"></div>
+    <div class="gshadow"></div>
+    <div class="fighter sil-p1" id="silP1"></div>
+    <div class="fighter sil-p2" id="silP2"></div>
+    <div class="scene-note">擂台与角色为占位块面 · 正式美术期替换为场景与骨骼网格</div>
+  </div>
+  <div class="tint"></div>
+  <div class="arena-fx" id="arenaFx"></div>
+
+  <div class="hud">
+    <!-- ============ 1. 上左 / 上右 身份与生命（镜像） ============ -->
+    <div class="ident" id="identP1" data-od-id="hud-identity-p1">
+      <div class="plate"><b>P1</b><span class="nm">石流龙</span></div>
+      <div class="hpwrap" id="hpw1">
+        <div class="hpbar"><div class="hpclip">
+          <i class="ghost"></i><i class="fill"></i><i class="ticks"></i><i class="sheen"></i>
+        </div></div>
+      </div>
+      <div class="hpnum num" id="hpnum1"><b>1000</b><span class="tot"> / 1000</span></div>
+    </div>
+
+    <div class="ident" id="identP2" data-od-id="hud-identity-p2">
+      <div class="plate"><b>P2</b><span class="nm">石流龙</span></div>
+      <div class="hpwrap" id="hpw2">
+        <div class="hpbar"><div class="hpclip">
+          <i class="ghost"></i><i class="fill"></i><i class="ticks"></i><i class="sheen"></i>
+        </div></div>
+      </div>
+      <div class="hpnum num" id="hpnum2"><b>1000</b><span class="tot"> / 1000</span></div>
+    </div>
+
+    <!-- ============ 2. 顶部中央 领域状态槽 ============ -->
+    <svg class="domarcs" id="domArcs" viewBox="0 0 1920 120" data-od-id="hud-domain-slot">
+      <path class="gl"  d="M940 60 Q780 18 640 54"/>
+      <path class="trk" d="M940 60 Q780 18 640 54"/>
+      <path class="fil" id="arcP1" d="M940 60 Q780 18 640 54" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+      <path class="gl"  d="M980 60 Q1140 18 1280 54"/>
+      <path class="trk" d="M980 60 Q1140 18 1280 54"/>
+      <path class="fil" id="arcP2" d="M980 60 Q1140 18 1280 54" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+      <g id="sparks"></g>
+    </svg>
+    <div class="arc-lbl" id="lblP1">领域能量 <b id="domTxt1">0%</b></div>
+    <div class="arc-lbl" id="lblP2">领域能量 <b id="domTxt2">0%</b></div>
+
+    <div class="dchip" id="dChip"><kbd>R</kbd><span>可展开 · 极宴流光</span></div>
+
+    <div class="dseal" id="dSeal">
+      <svg viewBox="0 0 56 56"><g id="sealTicks"></g>
+        <circle class="sp" id="sealProg" cx="28" cy="28" r="17" pathLength="100"/></svg>
+      <div class="sealtxt">结印中 · 受击可打断<i class="wl"></i></div>
+    </div>
+
+    <div class="dact" id="dAct">
+      <div class="dtitle">领域展开 · 极宴流光</div>
+      <div class="dmeta">
+        <span class="dclock num" id="dClock">6.0</span>
+        <div class="dtl"><i class="bg"></i><b class="t0" data-i="0"></b><b class="t1" data-i="1"></b><b class="t2" data-i="2"></b><i class="ph" id="dPh"></i></div>
+        <span class="dnext" id="dNext">下一发 0.3s</span>
+        <span class="dorbs" id="dOrbs"><i></i><i></i><i></i></span>
+      </div>
+    </div>
+    <div class="dsupp" id="dSupp">领域受压制 · 自动炮暂停</div>
+    <div class="chain" id="chainBar"><i style="left:70px"></i><i style="left:140px"></i><i style="left:210px"></i></div>
+
+    <!-- ============ 模式徽标 / 训练开关标签 ============ -->
+    <div class="modebar" data-od-id="hud-mode-bar">
+      <span class="mchip on" id="mDummy">静止木桩</span>
+      <span class="mchip" id="mGuard">固定防御</span>
+      <span class="mchip" id="mAi">AI 对战</span>
+      <span class="msep"></span>
+      <span class="tchip" id="tHp">无限生命</span>
+      <span class="tchip" id="tRes">无限资源</span>
+      <span class="tchip" id="tCd">无冷却</span>
+    </div>
+
+    <!-- ============ 5. 中央准星（仅远程形态） ============ -->
+    <div class="reticle" id="reticle" data-od-id="hud-reticle">
+      <svg class="ring" viewBox="0 0 220 220"><circle cx="110" cy="110" r="30" pathLength="100"/></svg>
+      <i class="v t"></i><i class="v b"></i><i class="h l"></i><i class="h r"></i>
+      <i class="dot"></i>
+      <span class="hex"><svg viewBox="0 0 20 20"><polygon points="10,1.6 18,5.8 18,14.2 10,18.4 2,14.2 2,5.8"/></svg></span>
+    </div>
+
+    <div class="lock" id="lock" data-od-id="hud-lock-marker">
+      <i></i><i></i><i></i><i></i><span class="tag">锁定 · 12.4m</span>
+    </div>
+
+    <div class="floats" id="floats"></div>
+    <div class="combo" id="combo"><b>3</b><span>连击</span></div>
+
+    <!-- ============ 3. 下中 资源与形态面板 ============ -->
+    <svg class="domebase" viewBox="0 0 1120 350" data-od-id="hud-bottom-panel">
+      <path d="M120 350 Q180 110 400 60 Q560 12 720 60 Q940 110 1000 350 Z" fill="url(#domeFill)"/>
+      <path d="M120 350 Q180 110 400 60"/>
+      <path class="mid" d="M400 60 Q560 12 720 60"/>
+      <path d="M720 60 Q940 110 1000 350"/>
+      <path class="jl" d="M394 66 L386 52"/><path class="jl" d="M726 66 L734 52"/>
+      <defs><linearGradient id="domeFill" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="rgba(8,14,26,.88)"/><stop offset=".62" stop-color="rgba(8,14,26,.42)"/>
+        <stop offset="1" stop-color="rgba(8,14,26,.04)"/></linearGradient></defs>
+    </svg>
+
+    <div class="wing" id="wingL" data-od-id="hud-wing-action">
+      <div class="whead">行动资源　<b id="apNum">5</b><span class="cap"> / 5</span></div>
+      <div class="aprow" id="apRow">
+        <span class="ap on"><b></b></span><span class="ap on"><b></b></span><span class="ap on"><b></b></span>
+        <span class="ap on"><b></b></span><span class="ap on"><b></b></span>
+      </div>
+      <div class="wnote" id="apNote">闪避 1　取消攻击的闪避合计 2　停用 1s 后每秒 +1</div>
+    </div>
+
+    <div class="wing" id="wingR" data-od-id="hud-wing-curse">
+      <div class="whead">咒力　<b id="csNum">100</b><span class="cap"> / 100</span></div>
+      <div class="cbar" id="cbar"><b><i class="cf" id="csFill"></i><i class="cp" id="csPend"></i><i class="ct"></i></b></div>
+      <div class="wnote" id="csNote">已满 · 近战有效命中额外 +3</div>
+    </div>
+
+    <svg class="formcd" id="formCd" viewBox="0 0 136 136"><circle cx="68" cy="68" r="48"/></svg>
+
+    <!-- ============ 4. 蓄力炮组件（A 扇形能量环 / B 能量凝聚球，E 键切形态） ============ -->
+    <div class="cannon vA" id="cannon" data-od-id="hud-cannon-dial">
+      <svg class="vAset" viewBox="0 0 280 280">
+        <circle class="rim" cx="140" cy="140" r="138"/>
+        <circle class="rim2" cx="140" cy="140" r="96"/>
+        <path class="trk"  d="M52.32 227.68 A124 124 0 1 1 227.68 227.68"/>
+        <path class="trk2" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68"/>
+        <path class="glow" id="cGlow" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68" pathLength="100" stroke-dasharray="0 100"/>
+        <path class="paid" id="cPaid" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68" pathLength="100" stroke-dasharray="0 100"/>
+        <path class="over" id="cOver" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68" pathLength="100" stroke-dasharray="0 0 0 100"/>
+      </svg>
+      <svg class="vBset" viewBox="0 0 280 280"><g id="bSegs"></g></svg>
+      <div class="core" id="cCore"></div>
+      <i class="lead" id="cLead"></i>
+      <svg class="cdring" viewBox="0 0 280 280">
+        <circle id="cdRing" cx="140" cy="140" r="138" pathLength="100" stroke-dasharray="0 100"/></svg>
+    </div>
+
+    <div class="formdisc" id="formDisc" data-od-id="hud-form-disc">
+      <div class="lyr on" id="fdMelee">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="10" cy="14" r="5.4" fill="currentColor" fill-opacity=".16"/>
+          <path d="M15.2 8.8 20.4 3.6M17.8 12.6 22.6 11M11.8 8.6 12.2 3.8"/></svg>
+        <span class="nm">近战</span>
+      </div>
+      <div class="lyr" id="fdRanged">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <rect x="2.6" y="9.4" width="11.2" height="5.2" rx="1.6"/>
+          <path d="M14.2 12h4.4M19.6 9.2 21.6 7.4M19.6 14.8 21.6 16.6M6 6.8V4.2"/></svg>
+        <span class="nm">远程</span>
+      </div>
+    </div>
+
+    <div class="readout" id="readout" data-od-id="hud-charge-readout">
+      <div class="bd"><span class="mn num" id="roMain">近战</span><span class="sub" id="roSub">拳击 35 / 40 / 55</span></div>
+    </div>
+
+    <div class="hintbar" data-od-id="hud-skill-hint"><div class="pl"><div class="bd">
+      <span class="grp" id="hbMelee"><kbd>左键</kbd><span>拳击 / 长按重拳</span></span>
+      <span class="grp" id="hbMelee2"><kbd>Q</kbd><span>腿击 / 长按重踢</span></span>
+      <span class="grp off" id="hbR1"><kbd>左键</kbd><span>蓄力炮</span></span>
+      <span class="grp off" id="hbR2"><kbd id="kQ">Q</kbd><span>超级炮</span></span>
+      <span class="grp off" id="hbR3"><kbd>右键</kbd><span>瞄准</span></span>
+    </div></div></div>
+
+    <!-- ============ 6. 底部键位 ============ -->
+    <div class="keys" id="keysL" data-od-id="hud-keybinds-left">
+      <span class="k"><kbd>Shift</kbd><span>冲刺 / 后撤</span></span>
+      <span class="k"><kbd>F</kbd><span>防御</span></span>
+      <span class="k"><kbd>E</kbd><span>切形态</span></span>
+    </div>
+    <div class="keys" id="keysR" data-od-id="hud-keybinds-right">
+      <span class="k"><kbd>R</kbd><span>领域</span></span>
+      <span class="k"><kbd>Tab</kbd><span>锁定</span></span>
+      <span class="k"><kbd>F1</kbd><span>训练设置</span></span>
+      <span class="k ded"><kbd>Q</kbd><span class="dead">超级炮冷却 10s</span></span>
+    </div>
+
+    <!-- ============ 调试层（D 键切换） ============ -->
+    <div class="debug" id="debug" data-od-id="hud-debug-layer">
+      <div class="h">DEBUG LAYER · D 键切换 · 出货版本删除</div>
+      <div class="r"><span>锁定目标</span><span id="dbgLock">P2 石流龙</span></div>
+      <div class="r"><span>当前能力</span><span id="dbgAbil">近战</span></div>
+      <div class="r"><span>形态</span><span id="dbgForm">近战</span></div>
+      <div class="r"><span>蓄力秒数</span><span id="dbgCt">— / —</span></div>
+      <div class="r"><span>已支付咒力</span><span id="dbgCost">— / —</span></div>
+      <div class="r"><span>领域会话 ID</span><span id="dbgSess">—</span></div>
+      <div class="r"><span>在途球数</span><span id="dbgOrb">0 / 3</span></div>
+      <div class="r"><span>移速</span><span id="dbgSpd">100%</span></div>
+    </div>
+
+    <!-- ============ 11. 对战结果覆盖层 ============ -->
+    <div class="result" id="result" data-od-id="hud-result-overlay">
+      <div class="rbox">
+        <div class="rt" id="rTitle">玩家胜利</div>
+        <div class="rl"></div>
+        <div class="rs"><span>命中 <b>12</b></span><span>最大连段 <b>5</b></span><span>领域展开 <b>2</b></span></div>
+        <div class="rk"><span><kbd>空格</kbd> 重新开始</span><span><kbd>F1</kbd> 训练设置</span></div>
+      </div>
+    </div>
+
+    <!-- ============ 12. 训练设置抽屉 ============ -->
+    <div class="drawer" id="drawer" data-od-id="hud-training-drawer">
+      <div class="bd">
+        <div class="dh"><h3>训练设置</h3><span>F1 开关 · 概念稿</span></div>
+        <div class="dsec"><div class="t">对手模式</div>
+          <div class="seg">
+            <button id="modeDummy" class="on">静止木桩</button>
+            <button id="modeGuard">固定防御</button>
+            <button id="modeAi">AI 对战</button>
+          </div></div>
+        <div class="dsec"><div class="t">训练开关</div>
+          <div class="row"><span class="lb">无限生命<i>生命值不下降，仍结算领域能量</i></span><button class="sw" id="swHp"><b></b></button></div>
+          <div class="row"><span class="lb">无限资源<i>行动资源与咒力不消耗</i></span><button class="sw" id="swRes"><b></b></button></div>
+          <div class="row"><span class="lb">无冷却<i>超级炮冷却不计时，倒计时以删除线标注</i></span><button class="sw" id="swCd"><b></b></button></div>
+        </div>
+        <div class="dsec"><div class="t">恢复参数</div>
+          <div class="row"><span class="lb">自动恢复生命<i>受击后延迟开始回复</i></span>
+            <span class="stepper"><button class="st" id="dlMinus">−</button><span class="num" id="dlVal">3.0s</span><button class="st" id="dlPlus">+</button></span></div>
+          <div class="row"><span class="lb">咒力恢复延迟<i>设计文档固定值</i></span>
+            <span class="stepper"><span class="num">2.0s</span></span></div>
+          <div class="row"><span class="lb">行动资源恢复<i>设计文档固定值</i></span>
+            <span class="stepper"><span class="num">1.0s / +1</span></span></div>
+        </div>
+        <button class="dreset" id="dReset">快速重置（生命 / 资源 / 领域能量）</button>
+        <div class="dfoot">概念稿 · 对手资源（行动资源 / 咒力）不进入主视野，仅调试层可见。<br>数值取自项目当前设计文档的调试参数。</div>
+      </div>
+    </div>
+
+    <!-- ============ 状态控制台（原型用，不进入正式 HUD） ============ -->
+    <div class="console" data-od-id="hud-state-console">
+      <div class="bd">
+        <h4>状态控制台</h4>
+        <div class="sub">快捷键沿键盘顶行顺排 1–9 · 0 · - · = · \</div>
+        <div id="sbtns"></div>
+        <div class="tgl"><button id="tgA" class="on">A 扇形环</button><button id="tgB">B 凝聚球</button></div>
+        <div class="tgl"><button id="tgD">D 调试层</button></div>
+        <div class="cfoot">原型控制台仅用于评审。左键蓄力 / 右键瞄准 / E 切形态 / Q 超级炮。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const stage=$('#stage');
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='translate(-50%,-50%) scale('+s+')';}
+addEventListener('resize',fit);fit();
+
+const MAX={hp:1000,ap:5,curse:100,dom:100};
+const TICKT=[0.3,2.3,4.3];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+/* 设计文档 §7.2 权威口径：
+   q      = clamp(实际蓄力秒数 / 1.2, 0, 1)        时间决定强度上限
+   已支付 = min(8 + 16×q, 可用咒力)                 已支付成本再封一次
+   qPaid  = clamp((已支付 − 8) / 16, 0, 1)
+   伤害   = 30 + 60 × qPaid
+   例：只剩 16 咒力 → qPaid = (16−8)/16 = 0.5 → 伤害 60（文档 SLL-T17）；
+   此后无论持炮多久 qPaid 都不再增长，读数恒为「强度上限 60」。
+   超级炮同构：45→65 咒力、150→220 伤害、1.2s 起 / 2.4s 封顶。 */
+const CHARGE={normal:{cap:1.2,min:0,c0:8,c1:24,d0:30,d1:90},super:{cap:2.4,min:1.2,c0:45,c1:65,d0:150,d1:220}};
+function chargeInfo(kind,t,curse){
+  const c=CHARGE[kind],span=c.cap-c.min;
+  const q=clamp((t-c.min)/span,0,1);                                 /* 时间决定强度上限 */
+  const payable=clamp((Math.min(curse,c.c1)-c.c0)/(c.c1-c.c0),0,1);  /* 已支付成本再封一次 */
+  const qPaid=Math.min(q,payable);
+  return {q,qPaid,payable,cost:c.c0+(c.c1-c.c0)*qPaid,dmg:c.d0+(c.d1-c.d0)*qPaid,
+    limited:payable<q-0.004,canFire:payable>0.0001};
+}
+const S={
+  hp1:1000,hp2:1000,g1:1000,g2:1000,d1:0,d2:0,ap:5,curse:100,dom:0,dom2:0,
+  form:'melee',aim:false,lock:true,formCd:0,charge:null,cd:0,lastCan:3,apIdle:0,
+  phase:'idle',phaseT:0,tick:[0,0,0],orb:0,sess:'—',supp:false,autoSeal:false,
+  mode:'dummy',infHp:false,infRes:false,noCd:false,
+  variant:'A',debug:false,combo:0,comboT:0,id:1,result:false
+};
+const STATS=[{n:'待机 · 近战',k:'1'},{n:'待机 · 远程',k:'2'},{n:'三段连击',k:'3'},{n:'蓄力炮 · 蓄力中',k:'4'},
+  {n:'蓄力炮 · 已满蓄',k:'5'},{n:'领域就绪 · 可展开',k:'6'},{n:'超级炮 · 冷却中',k:'7'},
+  {n:'领域展开中 · 极宴流光',k:'8'},{n:'双领域压制',k:'9'},{n:'咒力不足 · 强度受限',k:'0'},
+  {n:'濒死',k:'-'},{n:'对战结果',k:'='},{n:'训练设置',k:'\\'}];
+
+const arcP1=$('#arcP1'),arcP2=$('#arcP2');
+/* 烟火引信：沿弧线取样放火星，满值时点亮 */
+(function(){const g=$('#sparks');[arcP1,arcP2].forEach((p,ri)=>{const L=p.getTotalLength();
+  for(let i=3;i<=9;i++){const pt=p.getPointAtLength(L*i/10);
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);c.setAttribute('r','1.6');c.setAttribute('class','spk');
+    c.style.animationDelay=(ri*.3+i*.12)+'s';g.appendChild(c);}});})();
+/* 结印环：20 条放射刻度依次点亮 */
+(function(){const g=$('#sealTicks');for(let i=0;i<20;i++){
+  const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+  l.setAttribute('x1','28');l.setAttribute('y1','7.5');l.setAttribute('x2','28');l.setAttribute('y2','3');
+  l.setAttribute('transform','rotate('+(i*18)+' 28 28)');l.setAttribute('class','stk');g.appendChild(l);}});
+/* 方案 B：外圈 8 段离散刻度 */
+(function(){const g=$('#bSegs'),seg=270/8,rad=Math.PI/180;
+  for(let i=0;i<8;i++){const a0=(135+i*seg+3.5)*rad,a1=(135+(i+1)*seg-3.5)*rad;
+    const p=a=>[(140+124*Math.cos(a)).toFixed(2),(140+124*Math.sin(a)).toFixed(2)];
+    const s=p(a0),e=p(a1),path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M'+s[0]+' '+s[1]+' A124 124 0 '+((a1-a0)>Math.PI?1:0)+' 1 '+e[0]+' '+e[1]);
+    path.setAttribute('class','seg');g.appendChild(path);}});
+/* 控制台 */
+const sbtns=[];
+STATS.forEach((s,i)=>{const b=document.createElement('button');b.className='sbtn';b.dataset.odId='state-console-'+(i+1);
+  b.innerHTML='<span class="n">'+s.k+'</span><span>'+s.n+'</span>';b.onclick=()=>setState(i+1);
+  $('#sbtns').appendChild(b);sbtns.push(b);});
+
+function txt(el,v){el=typeof el==='string'?$(el):el;if(el.__v!==v){el.__v=v;el.textContent=v;}}
+function cls(el,c,on){el=typeof el==='string'?$(el):el;el.classList.toggle(c,!!on);}
+function sv(el,k,v){el['__s'+k]=v;el.style.setProperty(k,v);}
+
+/* ---------------- 渲染 ---------------- */
+function render(){
+  /* 生命：即时填充 + 暗红虚血残影（帧循环驱动回落） */
+  [1,2].forEach(i=>{
+    const hp=i===1?S.hp1:S.hp2,g=i===1?S.g1:S.g2,pre=i===1?'#identP1':'#identP2',num=i===1?'#hpnum1':'#hpnum2';
+    sv($(i===1?'#hpw1':'#hpw2'),'--hp',(hp/MAX.hp*100)+'%');
+    sv($(i===1?'#hpw1':'#hpw2'),'--ghost',(g/MAX.hp*100)+'%');
+    txt(num+' b',Math.round(hp));cls(pre,'low',hp<MAX.hp*0.3);
+  });
+  /* 领域弧槽 */
+  const dp1=clamp(S.dom/MAX.dom,0,1)*100,dp2=clamp(S.dom2/MAX.dom,0,1)*100;
+  arcP1.setAttribute('stroke-dashoffset',100-dp1);
+  arcP2.setAttribute('stroke-dashoffset',100-dp2);
+  txt('#domTxt1',Math.round(dp1)+'%');txt('#domTxt2',Math.round(dp2)+'%');
+  const armed=S.phase==='armed',active=S.phase==='active';
+  const suppNow=active&&S.supp;                        /* 压制只在展开期生效，就绪 / 结印期不压 */
+  cls('#domArcs','armed',armed);cls('#domArcs','supp',suppNow);
+  cls('#dChip','on',armed);
+  cls('#dSeal','on',S.phase==='seal');
+  cls('#dAct','on',active);                            /* 压制期同样显示结界名 + 剩余时间 + 三刻度 */
+  cls('#dSupp','on',suppNow);
+  cls('#chainBar','on',suppNow);
+  stage.classList.toggle('dom',active||S.phase==='seal');
+  stage.classList.toggle('supp',suppNow);
+  if(S.phase==='seal'){
+    const p=clamp(S.phaseT/1.0,0,1);
+    $('#sealProg').style.strokeDashoffset=100-p*100;
+    [...$('#sealTicks').children].forEach((t,i)=>t.classList.toggle('lit',(i+1)/20<=p+0.001));
+  }
+  if(active){
+    const t=clamp((performance.now()-S.phaseT)/1000,0,6);
+    txt('#dClock',(6-t).toFixed(1));sv($('#dPh'),'left',(t/6*100)+'%');
+    [...document.querySelectorAll('.dtl b')].forEach((b,i)=>{
+      b.classList.toggle('hit',S.tick[i]===1);b.classList.toggle('skip',S.tick[i]===2);
+      b.classList.toggle('now',S.tick[i]===0&&!S.supp&&t<TICKT[i]&&t>TICKT[i]-1.1);
+    });
+    let next=null;for(let i=0;i<3;i++){if(S.tick[i]===0){next=TICKT[i];break;}}
+    if(S.supp)txt('#dNext','自动炮暂停');
+    else if(next===null)txt('#dNext','本轮结束');
+    else if(S.curse<65&&!S.infRes)txt('#dNext','咒力不足 · 跳过');
+    else txt('#dNext','下一发 '+Math.max(0,next-t).toFixed(1)+'s');
+    [...$('#dOrbs').children].forEach((o,i)=>o.classList.toggle('on',i<S.orb));
+  }
+  /* 形态 / 技能提示 */
+  const melee=S.form==='melee';
+  cls('#fdMelee','on',melee);cls('#fdRanged','on',!melee);cls('#formDisc','ranged',!melee);
+  cls('#hbMelee','off',!melee);cls('#hbMelee2','off',!melee);
+  cls('#hbR1','off',melee);cls('#hbR2','off',melee);cls('#hbR3','off',melee);
+  cls('#reticle','on',!melee);
+  cls('#lock','on',S.lock&&!melee);
+  /* 准星规格：Gap 静止 14 / 瞄准 8 / 蓄力 12→4；线长 10（领域 16）；线宽 2（领域 3） */
+  const rt=$('#reticle'),info=S.charge?S.charge.info:null;
+  let gap=S.aim?8:14,len=10,w=2,color=S.aim?'var(--rc-aim)':'var(--rc-idle)';
+  if(S.charge){gap=12-info.q*8;color='var(--rc-chg)';}
+  if(active){len=16;w=3;color='var(--rc-dom)';}
+  sv(rt,'--gap',gap.toFixed(2)+'px');sv(rt,'--len',len+'px');sv(rt,'--w',w+'px');sv(rt,'--c',color);
+  cls(rt,'charging',!!S.charge);cls(rt,'full',!!(info&&info.q>=1&&!info.limited));cls(rt,'dom',active);
+  $('#reticle .ring circle').style.strokeDasharray=(info?info.q*100:0).toFixed(2)+' 100';
+  /* 资源 */
+  txt('#apNum',Math.floor(S.ap));
+  [...$('#apRow').children].forEach((el,i)=>cls(el,'on',i<Math.floor(S.ap)));
+  txt('#csNum',Math.round(S.curse));
+  const cf=clamp(S.curse/MAX.curse,0,1)*100;
+  sv($('#csFill'),'width',cf+'%');sv($('#csPend'),'left',cf+'%');
+  sv($('#csPend'),'width',(S.lastCan<2?(1-S.lastCan/2)*12:0)+'%');
+  txt('#csNote',S.lastCan<2?('回气中 · '+(2-S.lastCan).toFixed(1)+'s 后每秒 +6')
+    :(S.curse>=MAX.curse?'已满 · 近战有效命中额外 +3':'恢复中 · 每秒 +6'));
+  txt('#apNote',S.ap>=MAX.ap?'闪避 1　取消攻击的闪避合计 2　停用 1s 后每秒 +1'
+    :('回充中 · '+Math.max(0,1-S.apIdle).toFixed(1)+'s 后 +1'));
+  /* 蓄力环（A 扇形环 / B 凝聚球，共用状态色；与形态圆盘同心） */
+  const C=$('#cannon'),paid=info?info.qPaid*100:0,over=info?Math.max(0,info.q-info.qPaid)*100:0;
+  cls(C,'vA',S.variant==='A');cls(C,'vB',S.variant==='B');
+  $('#cPaid').setAttribute('stroke-dasharray',paid.toFixed(2)+' 100');
+  $('#cGlow').setAttribute('stroke-dasharray',paid.toFixed(2)+' 100');
+  $('#cOver').setAttribute('stroke-dasharray','0 '+paid.toFixed(2)+' '+over.toFixed(2)+' 100');
+  $('#cLead').style.transform='rotate('+(135+270*paid/100)+'deg) translateY(114px)';
+  $('#cLead').style.opacity=(S.charge&&paid>0.4)?1:0;
+  [...$('#bSegs').children].forEach((g,i)=>cls(g,'lit',info?(i+0.001)<info.qPaid*8:false));
+  $('#cCore').style.transform='scale('+(info?(0.40+info.qPaid*0.75):0.30).toFixed(2)+')';
+  cls(C,'full',!!(info&&info.q>=1&&!info.limited));cls(C,'lim',!!(info&&info.limited));
+  $('#cdRing').style.strokeDasharray=(clamp(S.cd/10,0,1)*100).toFixed(2)+' 100';
+  $('#cdRing').style.opacity=S.cd>0?1:0;
+  $('#kQ').style.opacity=(S.cd>0&&!S.noCd)?0.35:1;
+  /* 读数板：蓄力中 / 满蓄 / 强度受限 / 冷却 */
+  const RD=$('#readout');cls(RD,'full',false);cls(RD,'lim',false);cls(RD,'cd',false);cls($('#roMain'),'void',false);
+  if(S.charge&&info){
+    if(info.limited){cls(RD,'lim',true);txt('#roMain','强度上限 '+Math.round(info.dmg));
+      txt('#roSub','咒力不足 · 继续持炮不再增强');}
+    else if(info.q>=1){cls(RD,'full',true);txt('#roMain','满蓄 '+Math.round(info.dmg));
+      txt('#roSub','松开左键才发射 · 已支付 '+Math.round(info.cost)+' 咒力');}
+    else{txt('#roMain','伤害 '+Math.round(info.dmg));
+      txt('#roSub','蓄力 '+Math.min(S.charge.t,CHARGE[S.charge.kind].cap).toFixed(2)+' / '+
+        CHARGE[S.charge.kind].cap.toFixed(2)+'s · 已支付 '+Math.round(info.cost)+' 咒力');}
+  }else if(S.cd>0){
+    cls(RD,'cd',true);txt('#roMain','超级炮冷却 '+S.cd.toFixed(1)+'s');
+    txt('#roSub',S.noCd?'无冷却生效 · 该倒计时不生效':'发射或已付费中断后 10 秒冷却');
+    cls($('#roMain'),'void',S.noCd);
+  }else if(!melee){txt('#roMain','待机');txt('#roSub','左键蓄力炮 30→90 · Q 超级炮 150→220');}
+  else{txt('#roMain','近战');txt('#roSub','拳击 35 / 40 / 55 · 重拳 75 · 腿击 45 · 重踢 95');}
+  /* 模式 / 训练标签 */
+  cls('#mDummy','on',S.mode==='dummy');cls('#mGuard','on',S.mode==='guard');cls('#mAi','on',S.mode==='ai');
+  cls('#tHp','on',S.infHp);cls('#tRes','on',S.infRes);cls('#tCd','on',S.noCd);
+  cls($('#swHp'),'on',S.infHp);cls($('#swRes'),'on',S.infRes);cls($('#swCd'),'on',S.noCd);
+  cls($('#keysR'),'dead',S.noCd);
+  /* 调试层 */
+  cls('#debug','on',S.debug);
+  if(S.debug){
+    txt('#dbgForm',melee?'近战':'远程');
+    txt('#dbgAbil',S.charge?(S.charge.kind==='normal'?'蓄力炮（普通）':'定点超级炮')
+      :(S.cd>0?'超级炮冷却中':(melee?'近战连段':'待机')));
+    txt('#dbgCt',S.charge?S.charge.t.toFixed(2)+' / '+CHARGE[S.charge.kind].cap.toFixed(2)+
+      (S.charge.t>CHARGE[S.charge.kind].cap?'（持炮已超封顶）':''):'— / —');
+    txt('#dbgCost',S.charge&&info?Math.round(info.cost)+' / '+CHARGE[S.charge.kind].c1:'— / —');
+    txt('#dbgSess',S.sess);txt('#dbgOrb',S.orb+' / 3');
+    txt('#dbgSpd',S.charge?'55%（蓄力中）':'100%');
+  }
+  cls('#result','on',S.result);
+}
+
+/* ---------------- 帧循环 ---------------- */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(S.charge){
+    if(S.charge.target===undefined)S.charge.t=Math.min(2.9,S.charge.t+dt);
+    else if(S.charge.t<S.charge.target)S.charge.t=Math.min(S.charge.target,S.charge.t+dt*2.4);
+    S.charge.info=chargeInfo(S.charge.kind,S.charge.t,S.curse);
+    S.lastCan=0;
+  }else{
+    S.lastCan+=dt;
+    if(S.lastCan>=2&&S.curse<MAX.curse)S.curse=Math.min(MAX.curse,S.curse+6*dt);
+  }
+  if(S.ap<MAX.ap){S.apIdle+=dt;if(S.apIdle>=1){S.apIdle-=1;S.ap=Math.min(MAX.ap,S.ap+1);}}else S.apIdle=0;
+  if(S.cd>0&&!S.noCd)S.cd=Math.max(0,S.cd-dt);
+  if(S.formCd>0)S.formCd=Math.max(0,S.formCd-dt);
+  /* 虚血：0.6s 延迟后 0.35s 回落 */
+  [1,2].forEach(i=>{
+    const hp=i===1?S.hp1:S.hp2;let g=i===1?S.g1:S.g2,d=i===1?S.d1:S.d2;
+    if(g>hp){ if(d>0)d=Math.max(0,d-dt); else g=Math.max(hp,g-MAX.hp*dt/0.35); }
+    else g=hp;
+    if(i===1){S.g1=g;S.d1=d;}else{S.g2=g;S.d2=d;}
+  });
+  /* 领域阶段机 */
+  if(S.phase==='armed'){S.phaseT+=dt;if(S.autoSeal&&S.phaseT>0.8)beginSeal();}
+  else if(S.phase==='seal'){S.phaseT+=dt;if(S.phaseT>=1.0){S.phase='active';S.phaseT=performance.now();}}
+  else if(S.phase==='active'){
+    const t=(now-S.phaseT)/1000;
+    for(let i=0;i<3;i++){
+      if(S.tick[i]===0&&t>=TICKT[i]){
+        if(S.supp)break;                                     /* 压制期自动炮暂停 */
+        else if(S.curse>=65||S.infRes){
+          S.tick[i]=1;S.orb=Math.min(3,S.orb+1);
+          if(!S.infRes)S.curse=Math.max(0,S.curse-65);
+          fireOrb('领域追踪 220');S.lastCan=0;
+          setTimeout(()=>{S.orb=Math.max(0,S.orb-1);},900);
+        }else{S.tick[i]=2;floatAt('咒力不足 · 跳过此次','warn',1000,592);}
+      }
+    }
+    if(t>6.4)endDomain();
+  }
+  if(S.comboT>0){S.comboT-=dt;if(S.comboT<=0){S.combo=0;cls('#combo','on',false);}}
+  render();requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ---------------- 战斗表现 ---------------- */
+function floatAt(text,k,x,y){
+  const el=document.createElement('div');el.className='fl '+(k||'');el.textContent=text;
+  el.style.left=(x+(Math.random()*76-38))+'px';el.style.top=(y||600)+'px';
+  $('#floats').appendChild(el);setTimeout(()=>el.remove(),950);
+}
+function fireOrb(label){
+  const o=document.createElement('div');o.className='orb';o.style.left='640px';o.style.top='906px';
+  $('#arenaFx').appendChild(o);setTimeout(()=>o.remove(),520);
+  setTimeout(()=>{
+    const r=document.createElement('div');r.className='hitring';r.style.left='1000px';r.style.top='660px';
+    $('#arenaFx').appendChild(r);setTimeout(()=>r.remove(),380);
+    if(label)floatAt(label,'dom',1000,618);
+  },400);
+}
+function damage(side,d){
+  if(side===1){S.hp1=clamp(S.hp1-d,0,MAX.hp);S.d1=0.6;bump('#hpnum1');}
+  else{S.hp2=clamp(S.hp2-d,0,MAX.hp);S.d2=0.6;bump('#hpnum2');}
+}
+function bump(sel){const e=$(sel);e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),240);}
+function addDom(v){S.dom=clamp(S.dom+Math.min(10,v),0,MAX.dom);}   /* 有效伤害 5%，单次上限 10 */
+function knock(){
+  const o=$('#silP2');o.style.transition='transform .16s ease-out';o.style.transform='translate(46px,-6px)';
+  setTimeout(()=>{o.style.transform='translate(0,0)';},170);
+}
+
+/* ---------------- 玩家输入：左键蓄力炮 / 右键瞄准 / E 切形态 / Q 超级炮 ---------------- */
+function startCharge(kind){
+  if(S.form!=='ranged')return false;
+  if(kind==='super'&&S.cd>0&&!S.noCd)return false;
+  S.charge={kind,t:0};S.lastCan=0;return true;
+}
+function releaseCharge(){
+  const c=S.charge;if(!c||c.demo||c.target!==undefined)return;   /* 演示态持炮不接受鼠标松开发射 */
+  S.charge=null;S.lastCan=0;
+  const info=c.info||chargeInfo(c.kind,c.t,S.curse);
+  if(c.kind==='super'&&c.t<CHARGE.super.min){floatAt('未达最低蓄力 1.2s','warn',1000,592);return;}
+  if(!info.canFire&&!S.infRes){floatAt('咒力不足','warn',1000,592);return;}
+  fire(info,c.kind);
+}
+function fire(info,kind){
+  const dmg=Math.round(info.dmg),cost=Math.round(info.cost);
+  if(!S.infRes)S.curse=clamp(S.curse-cost,0,MAX.curse);
+  S.lastCan=0;
+  if(kind==='super')S.cd=10;
+  damage(2,dmg);addDom(dmg*0.05);knock();
+  floatAt(String(dmg),kind==='super'?'gold':'',1000,600);
+  fireOrb();
+}
+function switchForm(){
+  if(S.formCd>0)return;
+  S.form=S.form==='melee'?'ranged':'melee';S.formCd=0.5;
+  if(S.form==='melee'){S.charge=null;S.aim=false;}
+  const f=$('#formCd');f.classList.remove('run');void f.offsetWidth;f.classList.add('run');
+  setTimeout(()=>f.classList.remove('run'),540);
+  render();
+}
+stage.addEventListener('contextmenu',e=>e.preventDefault());
+stage.addEventListener('mousedown',e=>{
+  if(e.target.closest('.console,.drawer,.result'))return;
+  if(e.button===0)startCharge('normal');
+  else if(e.button===2&&S.form==='ranged'){S.aim=true;render();}
+});
+addEventListener('mouseup',e=>{
+  if(e.button===0)releaseCharge();
+  else if(e.button===2){S.aim=false;render();}
+});
+
+/* ---------------- 状态机 ---------------- */
+function reset(){
+  S.hp1=1000;S.hp2=1000;S.g1=1000;S.g2=1000;S.d1=0;S.d2=0;S.ap=5;S.apIdle=0;S.curse=100;
+  S.dom=0;S.dom2=74;S.form='melee';S.aim=false;S.lock=true;S.formCd=0;S.charge=null;S.cd=0;
+  S.lastCan=3;S.phase='idle';S.phaseT=0;S.tick=[0,0,0];S.orb=0;S.sess='—';S.supp=false;
+  S.mode='dummy';S.infHp=false;S.infRes=false;S.noCd=false;S.combo=0;S.comboT=0;S.result=false;S.autoSeal=false;
+  $('#arenaFx').innerHTML='';$('#floats').innerHTML='';cls('#combo','on',false);
+}
+function beginSeal(){S.phase='seal';S.phaseT=0;S.dom=0;S.sess='DOM-'+(100+Math.floor(Math.random()*899));}
+function endDomain(){
+  S.phase='idle';S.phaseT=0;S.orb=0;S.supp=false;
+  const id=S.id;
+  /* 领域演示态循环：6.4s 结束后重新就绪 → 自动结印 → 再次展开；
+     状态 6「领域就绪」回到稳定的可展开画面，等待按 R 结印。 */
+  if(id===6||id===8||id===9)setTimeout(()=>{
+    if(S.id!==id)return;
+    S.dom=100;S.dom2=(id===9?100:74);S.curse=100;S.supp=(id===9);
+    S.phase='armed';S.phaseT=0;S.autoSeal=(id!==6);render();
+  },1300);
+}
+function setVariant(v){S.variant=v;cls($('#tgA'),'on',v==='A');cls($('#tgB'),'on',v==='B');render();}
+function setState(n){
+  reset();S.id=n;sbtns.forEach((b,i)=>b.classList.toggle('on',i===n-1));
+  switch(n){
+    case 1: S.dom=0;S.dom2=74;break;
+    case 2: S.form='ranged';S.dom=46;S.dom2=74;S.curse=87;S.ap=3;S.lastCan=0.6;S.apIdle=0.35;break;
+    case 3: S.dom=56;S.dom2=74;S.curse=87;runCombo();break;
+    case 4: S.form='ranged';S.dom=62;S.dom2=74;S.curse=72;S.charge={kind:'normal',t:0,target:0.72};break;
+    case 5: S.form='ranged';S.dom=62;S.dom2=74;S.curse=72;S.charge={kind:'normal',t:0,target:1.2};break;
+    case 6: S.dom=100;S.dom2=74;S.phase='armed';S.phaseT=0;S.autoSeal=false;break;   /* 领域就绪：稳定等待按 R */
+    case 7: S.form='ranged';S.dom=62;S.dom2=74;S.curse=87;S.cd=10;break;
+    case 8: S.form='ranged';S.dom=0;S.dom2=74;S.curse=100;S.infRes=true;S.sess='DOM-317';  /* 领域展开中 */
+            S.phase='active';S.phaseT=performance.now();break;
+    case 9: S.form='ranged';S.dom=0;S.dom2=0;S.supp=true;                                       /* 双领域压制 */
+            S.phase='active';S.phaseT=performance.now();break;
+    case 10:S.form='ranged';S.dom=62;S.dom2=74;S.curse=16;                        /* 一进场即处于受限持炮态 */
+            S.charge={kind:'normal',t:1.2,demo:true};break;
+    case 11:S.hp1=220;S.g1=304;S.d1=0.6;S.dom=80;S.dom2=74;S.curse=40;S.ap=2;S.lastCan=0.4;break;
+    case 12:S.hp2=0;S.g2=0;S.dom=62;S.dom2=0;S.result=true;S.lock=false;break;
+    case 13:S.dom=62;S.dom2=74;S.curse=87;S.mode='guard';S.infHp=true;S.noCd=true;S.cd=6;break;
+  }
+  cls($('#drawer'),'on',n===13);
+  render();
+}
+/* 三段连击演示：第一拍木桩（A1/A2/A3 = 35/40/55，A3 击退），
+   第二拍固定防御木桩，演示「格挡 50%」与「闪避成功」飘字与判定差异 */
+function runCombo(){
+  const id=S.id;
+  const pass1=[[420,35,false],[980,40,false],[1500,55,true]];
+  pass1.forEach(([d,dmg,kb],i)=>setTimeout(()=>{
+    if(S.id!==id)return;
+    damage(2,dmg);addDom(dmg*0.05);S.curse=clamp(S.curse+3,0,MAX.curse);
+    S.combo=i+1;S.comboT=1.6;txt('#combo b',String(i+1));cls('#combo','on',true);
+    const cb=$('#combo');cb.classList.remove('pop');void cb.offsetWidth;cb.classList.add('pop');
+    floatAt(String(dmg),kb?'gold':'',1000,600);if(kb)knock();
+    render();
+  },d));
+  setTimeout(()=>{if(S.id!==id)return;S.mode='guard';damage(2,35);addDom(1.75);render();},2750);
+  setTimeout(()=>{if(S.id!==id)return;damage(2,20);addDom(1);floatAt('格挡 50%','ghost',1000,600);render();},3200);
+  setTimeout(()=>{if(S.id!==id)return;floatAt('闪避成功','cyan',1000,600);},3650);
+  setTimeout(()=>{if(S.id===id)setState(3);},6600);
+}
+
+/* ---------------- 面板交互 ---------------- */
+function bindSw(sel,key){$(sel).onclick=()=>{S[key]=!S[key];if(key==='infHp'&&S.infHp){S.hp1=1000;S.g1=1000;}render();};}
+bindSw('#swHp','infHp');bindSw('#swRes','infRes');bindSw('#swCd','noCd');
+$('#modeDummy').onclick=()=>{S.mode='dummy';render();};
+$('#modeGuard').onclick=()=>{S.mode='guard';render();};
+$('#modeAi').onclick=()=>{S.mode='ai';render();};
+let dl=3.0;
+$('#dlMinus').onclick=()=>{dl=Math.max(0.5,+(dl-0.5).toFixed(1));txt('#dlVal',dl.toFixed(1)+'s');};
+$('#dlPlus').onclick=()=>{dl=Math.min(8,+(dl+0.5).toFixed(1));txt('#dlVal',dl.toFixed(1)+'s');};
+$('#dReset').onclick=()=>setState(S.id);
+$('#tgA').onclick=()=>setVariant('A');$('#tgB').onclick=()=>setVariant('B');
+$('#tgD').onclick=()=>{S.debug=!S.debug;cls($('#tgD'),'on',S.debug);render();};
+$('#formDisc').onclick=switchForm;
+addEventListener('keydown',e=>{
+  const k=e.key;
+  if(k>='1'&&k<='9'){setState(+k);e.preventDefault();}
+  else if(k==='0')setState(10);
+  else if(k==='-')setState(11);
+  else if(k==='='||k==='+')setState(12);
+  else if(k==='\\')setState(13);
+  else if(k==='a'||k==='A')setVariant('A');
+  else if(k==='b'||k==='B')setVariant('B');
+  else if(k==='d'||k==='D'){S.debug=!S.debug;cls($('#tgD'),'on',S.debug);render();}
+  else if((k==='e'||k==='E')&&!e.repeat)switchForm();
+  else if((k==='q'||k==='Q')&&!e.repeat)startCharge('super');
+  else if((k==='r'||k==='R')&&!e.repeat){        /* 能量满 100 时按 R：结印 1s → 展开 */
+    if(S.phase==='armed'&&S.dom>=MAX.dom){S.autoSeal=true;beginSeal();render();}
+  }
+});
+addEventListener('keyup',e=>{if(e.key==='q'||e.key==='Q')releaseCharge();});
+setState(1);
+</script>
+<!-- ==================== v0.2 修订：咒力条自下中上移至 P1 身份块下方 ====================
+  依据：SF6 官方手册把 Drive Gauge 放在画面顶部、只有 Super Art 槽放底部；SNK 饿狼传说
+  的 Power Gauge 与 REV Meter 同样分置（中上方血条、底部气槽）。这类"底部气槽"对应固定
+  侧视镜头下的构图；本项目是自由第三人称镜头，视线焦点在准星与对手身上，底部属于余光区。
+  咒力是"每次开炮都要现查"的弹药量、还会自动回气（停炮 2s 后 +6/s），不是攒着爆发的大招槽，
+  因此与生命同处顶部扫描区更合适。行动资源只在闪避/取消时读一次，保留在下中，避开 P1 血条。
+  本文件是对 OD 产物的定点修订，除咒力条位置与随之而来的下中让位外，其余未改动。
+============================================================================ -->
+<style id="rev-v02-curse-top">
+  /* --- P1 身份块下方插入咒力模块（与生命条同宽同轴） --- */
+  #p1curse{position:absolute;left:40px;top:186px;width:560px;height:64px}
+  /* 子元素回到文档流，不再沿用原来的绝对定位坐标 */
+  #p1curse #curseModule{position:static;top:auto;left:auto;width:100%}
+  #p1curse .chead{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+  #p1curse .clab{font-size:11px;letter-spacing:.10em;color:var(--muted)}
+  #p1curse .whead{margin:0}
+  #p1curse .whead b{font-size:17px}
+  #p1curse .wnote{margin-top:5px;font-size:10px}
+
+  /* --- 咒力条放大加亮：高度 14 → 22，填充带内高光与外发光 --- */
+  #p1curse .cbar{height:22px;background:rgba(46,112,255,.38)}
+  #p1curse .cbar>b{background:rgba(4,8,16,.94)}
+  #p1curse .cbar .cf{background:linear-gradient(92deg,#2E70FF 0%,#7FB0FF 100%);
+    box-shadow:0 0 14px rgba(46,112,255,.85),inset 0 0 10px rgba(255,255,255,.30)}
+  #p1curse .cbar .ct{background:repeating-linear-gradient(90deg,rgba(4,8,16,.50) 0 2px,transparent 2px 20px)}
+
+  /* --- 8 咒力门槛刻度 = 普通炮最低成本，低于它无法起手 --- */
+  #p1curse .cbar .cbar-min{position:absolute;left:8%;top:-3px;bottom:-3px;width:2px;z-index:3;
+    background:var(--danger);box-shadow:0 0 8px rgba(255,59,48,.9)}
+  #p1curse .cbar-min-tag{position:absolute;left:8%;top:-15px;transform:translateX(-50%);
+    font-size:9px;line-height:1.1;color:var(--danger);white-space:nowrap;letter-spacing:.04em}
+
+  /* 回气 / 命中回气 / 已满 状态点 */
+  #p1curse .cstate{position:absolute;right:0;top:-15px;font-size:9px;letter-spacing:.04em;color:var(--muted)}
+
+  /* 咒力见底（<8，无法开炮）时整条呼吸告警 */
+  #p1curse.dry .cbar{animation:curseDry 1s ease-in-out infinite}
+  #p1curse.dry .whead b{color:var(--danger)}
+  #p1curse.dry .cstate{color:var(--danger)}
+  @keyframes curseDry{0%,100%{filter:none}50%{filter:drop-shadow(0 0 9px rgba(255,59,48,.9))}}
+
+  /* --- 下中让位说明 --- */
+  .revtag{position:absolute;left:620px;top:1082px;width:680px;text-align:center;font-size:10px;
+    letter-spacing:.04em;color:var(--muted);border-top:1px dashed rgba(150,190,255,.22);padding-top:6px;z-index:5}
+</style>
+<script>
+(function(){
+  function apply(){
+    var wingR = document.getElementById('wingR');
+    if (!wingR || document.getElementById('p1curse')) return false;
+
+    /* 1. 把咒力模块（#wingR）整体移到 P1 身份块下方，保留同一 DOM 与同一套数值绑定 */
+    var box = document.createElement('div');
+    box.id = 'p1curse';
+    wingR.parentNode.insertBefore(box, wingR);
+    box.appendChild(wingR);
+    wingR.removeAttribute('id');
+    wingR.id = 'curseModule';
+    /* 原 #wingR 带 position:absolute;top:918px，内联清掉避免与父盒冲突 */
+    wingR.style.position = 'static';
+    wingR.style.top = 'auto';
+    wingR.style.left = 'auto';
+    wingR.style.textAlign = 'left';
+
+    /* 2. 标签行：OD 原有 .whead 已含“咒力”字样，不再重复加标签（否则出现“咒力 咒力”） */
+    var head = wingR.querySelector('.whead');
+    var headRow = document.createElement('div');
+    headRow.className = 'chead';
+    if (head) headRow.appendChild(head);
+    wingR.insertBefore(headRow, wingR.firstChild);
+
+    /* 3. 8 咒力门槛刻度 + 状态点 */
+    var cbar = wingR.querySelector('.cbar');
+    if (cbar) {
+      var min = document.createElement('i');
+      min.className = 'cbar-min';
+      cbar.appendChild(min);
+      var minTag = document.createElement('span');
+      minTag.className = 'cbar-min-tag';
+      minTag.textContent = '8 · 最低开炮';
+      wingR.appendChild(minTag);
+    }
+    var st = document.createElement('span');
+    st.className = 'cstate';
+    wingR.appendChild(st);
+
+    /* 4. 下中只留行动资源，补一行修订说明，避免让人以为咒力"消失"了 */
+    var hud = wingR.closest('.hud') || document.body;
+    var tag = document.createElement('div');
+    tag.className = 'revtag';
+    tag.textContent = 'v0.2 修订：咒力已上移至左上生命条下方（原位于此处）';
+    hud.appendChild(tag);
+
+    /* 5. 同步状态点与见底告警 */
+    setInterval(function(){
+      var n = document.getElementById('csNum');
+      var v = n ? parseFloat(n.textContent) : NaN;
+      if (isNaN(v)) return;
+      box.classList.toggle('dry', v < 8);
+      var note = document.getElementById('csNote');
+      st.textContent = v < 8 ? '⚠ 咒力不足 · 无法开炮'
+        : (v >= 100 ? '已满' : ((note && note.textContent.indexOf('命中') >= 0) ? '命中回气 +3' : '回气中 +6/s'));
+    }, 120);
+    return true;
+  }
+  if (!apply()) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+    else setTimeout(apply, 60);
+  }
+})();
+</script>
+
+<!-- ==================== v0.3 修订：能量条收窄 + 招式图标组 ====================
+  v0.2 把咒力条移到 P1 生命条下方（对照 Naruto Ultimate Ninja Storm 的 chakra bar 贴血条做法）。
+  v0.3 两处调整：
+  1) 咒力条整体压窄（560×22 → 420×14），与生命条形成明确主次，避免顶部两条等权抢注意力。
+     领域能量已在顶部中央用双方弧槽表达（这是本项目处理双领域压制所必需的共享视图），不再另加一条。
+  2) 下中新增「招式图标组」：把原来一行纯文字的技能提示条，改成带图标的招位格，
+     接在形态圆盘正下方。每格 = 图标 + 按键；长按派生用格内弧形长按标 + 「长按」小字；
+     冷却/领域封印用统一降级态。内容随形态切换整组更换（近战 5 格 / 远程 4 格）。
+     同时把蓄力读数上移到提示条与蓄力环之间的空档，避免与图标行抢位置。
+  本文件是对 OD 产物的定点修订；数值与规则未改动。
+============================================================================ -->
+<style id="rev-v03-energy-and-skills">
+  /* ---------- 1. 咒力条压窄 + 修掉与生命数值行的挤压 ---------- */
+  /* “8·最低开炮”与回气状态改为条下方一行，不再挂在条上方去挤生命数值 */
+  #p1curse{left:40px;top:198px;width:420px;height:44px}
+  #p1curse .chead{margin-bottom:4px}
+  #p1curse .clab{font-size:10px;letter-spacing:.08em}
+  #p1curse .whead b{font-size:14px}
+  #p1curse .whead .cap{font-size:10px}
+  #p1curse .cbar{height:14px;background:rgba(46,112,255,.34)}
+  #p1curse .cbar .cf{box-shadow:0 0 10px rgba(46,112,255,.75),inset 0 0 7px rgba(255,255,255,.28)}
+  #p1curse .cbar .ct{background:repeating-linear-gradient(90deg,rgba(4,8,16,.45) 0 2px,transparent 2px 16px)}
+  #p1curse .wnote{display:none}
+  /* 门槛标记：条下方左侧，带引线说明 */
+  #p1curse .cbar-min-tag{position:absolute;left:8%;top:auto;bottom:-15px;transform:translateX(-50%);
+    font-size:8.5px;color:var(--danger);white-space:nowrap}
+  /* 状态点：条下方右侧，与门槛标记同一行 */
+  #p1curse .cstate{position:absolute;right:0;top:auto;bottom:-15px;font-size:8.5px;color:var(--muted)}
+
+  /* ---------- 2. 招式图标组：接在形态圆盘下方 ---------- */
+  #combocluster{position:absolute;left:660px;top:996px;width:600px;
+    display:flex;flex-direction:column;align-items:center}
+  #combocluster>*{position:relative;margin:0}
+  /* 组标题 + 形态标签 */
+  #combocluster .skillhead{display:flex;align-items:center;gap:10px;margin-bottom:10px;
+    font-size:10.5px;letter-spacing:.14em;color:var(--muted)}
+  #combocluster .skillhead .form{color:var(--fg);font-weight:700}
+  #combocluster .skillhead .hint{color:var(--dim);letter-spacing:.04em}
+  /* 图标行：4–5 格，随形态整组更换 */
+  .skillrow{display:flex;align-items:flex-start;justify-content:center;gap:14px}
+  .skill{position:relative;width:56px;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .skill .tile{position:relative;width:56px;height:56px;padding:1px;
+    background:rgba(150,190,255,.26);clip-path:var(--cut8);transition:background .14s ease-out}
+  .skill .tile>i{position:absolute;inset:1px;display:flex;align-items:center;justify-content:center;
+    background:rgba(6,10,18,.92);clip-path:var(--cut7);transition:background .14s ease-out}
+  .skill svg{width:24px;height:24px;color:var(--fg);stroke-width:1.7}
+  .skill .key{position:absolute;right:3px;bottom:2px;font-family:var(--en);font-size:8.5px;
+    letter-spacing:.04em;color:var(--muted);background:rgba(4,8,16,.86);padding:0 3px;
+    clip-path:var(--cut5)}
+  .skill .cap{font-size:9.5px;letter-spacing:.03em;color:var(--muted);white-space:nowrap}
+  /* 长按派生：格内左上弧形长按标 + 名称后缀 */
+  .skill.hold .tile>i::after{content:'';position:absolute;left:6px;top:6px;width:13px;height:13px;
+    border-radius:50%;border:2px solid rgba(255,230,51,.85);border-right-color:transparent;
+    border-bottom-color:transparent;transform:rotate(-45deg)}
+  .skill.hold .cap::after{content:' · 长按';color:rgba(255,230,51,.75);font-size:9px}
+  /* 激活（正在使用该招）：金色描边 + 呼吸 */
+  .skill.hot .tile{background:var(--gold);animation:skPulse 1s ease-in-out infinite}
+  .skill.hot svg{color:var(--gold)}
+  @keyframes skPulse{0%,100%{filter:none}50%{filter:drop-shadow(0 0 9px rgba(255,209,102,.9))}}
+  /* 冷却 / 领域封印：降级 + 灰色斜线遮罩 */
+  .skill.cool .tile,.skill.locked .tile{background:rgba(150,190,255,.12)}
+  .skill.cool .tile>i,.skill.locked .tile>i{background:rgba(6,10,18,.80)}
+  .skill.cool svg,.skill.locked svg{color:rgba(242,247,255,.34)}
+  .skill.cool .cap,.skill.locked .cap{color:rgba(242,247,255,.30)}
+  .skill.cool .tile>i::before,.skill.locked .tile>i::before{content:'';position:absolute;inset:0;
+    background:repeating-linear-gradient(135deg,rgba(120,140,170,.20) 0 3px,transparent 3px 7px)}
+  /* 冷却剩余：格内底部进度条 */
+  .skill .cdbar{position:absolute;left:1px;right:1px;bottom:1px;height:3px;background:rgba(115,242,242,.18)}
+  .skill .cdbar>i{display:block;height:100%;width:0;background:var(--rc-aim);transition:width .18s linear}
+  .skill.cool .cdbar>i{width:var(--cd,0%)}
+  /* 形态切换格常亮，脉动提示可按 */
+  .skill.switch .tile{background:rgba(31,180,240,.42)}
+  .skill.switch svg{color:var(--rc-aim)}
+  /* 蓄力读数：移到蓄力环上方的空档（原文字提示条位置），避开圆盘与图标行 */
+  .hud .readout{position:absolute !important;left:810px !important;top:686px !important;
+    width:300px !important;height:28px !important}
+  .readout .mn{font-size:14px}
+  .readout .sub{font-size:9px;white-space:nowrap}
+  /* 原提示条不再需要（图标组已含按键与名称），保留 DOM 但收起 */
+  .hintbar{display:none !important}
+  /* 行动资源块左移让位：其说明文字与图标行首格原本重叠 */
+  #wingL{left:470px !important}
+  #wingL .wnote{max-width:200px;margin-left:auto}
+</style>
+<script>
+(function(){
+  var I = {
+    fist:'<circle cx="10" cy="14" r="5.4" fill="currentColor" fill-opacity=".16"/><path d="M15.2 8.8 20.4 3.6M17.8 12.6 22.6 11M11.8 8.6 12.2 3.8"/>',
+    heavy:'<circle cx="9.6" cy="14.2" r="6" fill="currentColor" fill-opacity=".22"/><path d="M14.8 9.2 21 3M16.6 13.4 22.4 12M12.4 8 12.8 2.8"/>',
+    kick:'<path d="M5 4.4 6.6 13l5 4.6"/><path d="M11.6 17.6 19 15.6"/><path d="M6.6 13 4 17.6"/>',
+    heavykick:'<path d="M4.6 3.6 6.8 12.4l5.6 5.2"/><path d="M12.4 17.6 20 15.2"/><path d="M6.8 12.4 3.6 17.2"/><path d="M16 4.6 19 7.6M18.6 2.6 21.4 5.4"/>',
+    blast:'<path d="M2.6 12h6.4M13.4 8.2 21 12l-7.6 3.8"/><path d="M11 6.8v10.4"/>',
+    superblast:'<path d="M2.6 12h5.4"/><path d="M8 5.6 15 12l-7 6.4z" fill="currentColor" fill-opacity=".18"/><path d="M16.4 8.4 21.4 12l-5 3.6"/>',
+    aim:'<circle cx="12" cy="12" r="6.4"/><path d="M12 2.4v3.4M12 18.2v3.4M2.4 12h3.4M18.2 12h3.4"/>',
+    swap:'<path d="M4.4 9.6h12.2l-3.2-3.2M19.6 14.4H7.4l3.2 3.2"/>'
+  };
+  /* 长按派生用 hold:1 标记；switch 为形态切换格 */
+  var SETS = {
+    melee:[
+      {icon:'fist',      key:'左键', name:'拳击',   hold:1},
+      {icon:'heavy',     key:'左键', name:'重拳',   hold:1},
+      {icon:'kick',      key:'Q',    name:'腿击',   hold:1},
+      {icon:'heavykick', key:'Q',    name:'重踢',   hold:1},
+      {icon:'swap',      key:'E',    name:'切远程', switch:1}
+    ],
+    ranged:[
+      {icon:'blast',      key:'左键', name:'蓄力炮', hold:1},
+      {icon:'superblast', key:'Q',    name:'超级炮', hold:1},
+      {icon:'aim',        key:'右键', name:'瞄准'},
+      {icon:'swap',       key:'E',    name:'切近战', switch:1}
+    ]
+  };
+
+  function tileHTML(d){
+    var cls = 'skill' + (d.hold ? ' hold' : '') + (d.switch ? ' switch' : '');
+    return '<div class="' + cls + '" data-key="' + d.key + '" data-name="' + d.name + '">' +
+      '<div class="tile"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-linecap="round" stroke-linejoin="round">' + I[d.icon] + '</svg></i>' +
+      '<span class="key">' + d.key + '</span><span class="cdbar"><i></i></span></div>' +
+      '<span class="cap">' + d.name + '</span></div>';
+  }
+
+  function apply(){
+    var disc = document.getElementById('formDisc');
+    var cannon = document.getElementById('cannon');
+    if (!disc || !cannon || document.getElementById('combocluster')) return false;
+
+    /* 把提示条与蓄力读数收进一个下中纵向聚类，图标行追加在最后 */
+    var cluster = document.createElement('div');
+    cluster.id = 'combocluster';
+    cannon.parentNode.insertBefore(cluster, cannon);
+    /* 读数留在 .hud 下做绝对定位（若放进聚类，其 absolute 坐标会相对聚类解析而跑飞） */
+    var ro = document.getElementById('readout');
+    if (ro) cannon.parentNode.insertBefore(ro, cluster);
+    var hb = document.querySelector('.hintbar');
+    if (hb) cluster.appendChild(hb);
+
+    /* 不再插入组标题行：形态已由蓄力读数条显示，长按派生由格内弧形标记自解释，
+       省下的纵向空间留给图标行，避免其底部标签被画布裁掉 */
+    var row = document.createElement('div');
+    row.className = 'skillrow';
+    row.id = 'skillRow';
+    cluster.appendChild(row);
+
+    var lastForm = null;
+    function rebuild(melee){
+      if (melee === lastForm) return;
+      lastForm = melee;
+      row.innerHTML = SETS[melee ? 'melee' : 'ranged'].map(tileHTML).join('');
+      var f = document.getElementById('formCd');
+      if (f) row.appendChild(f);   /* 保留原形态切换冷却环 */
+    }
+
+    /* 与原型同源：直接读形态圆盘的 class 与形态冷却环、Q 冷却状态 */
+    setInterval(function(){
+      var melee = !disc.classList.contains('ranged');
+      rebuild(melee);
+      var charging = !!document.getElementById('cannon') &&
+        document.getElementById('cannon').classList.contains('charge') ;
+      var cdTxt = document.getElementById('roSub');
+      var cooling = !!(cdTxt && cdTxt.textContent.indexOf('冷却') >= 0);
+      var domOn = !!document.querySelector('.dact.on');
+      Array.prototype.forEach.call(row.children, function(el){
+        if (!el.classList || el.classList.contains('formcd')) return;
+        var isKick = el.dataset.name === '超级炮';
+        var isHold = el.dataset.key === '左键' && !melee;
+        el.classList.toggle('cool', isKick && cooling);
+        el.classList.toggle('locked', domOn && (isKick || isHold));
+        el.classList.toggle('hot', !domOn && charging && isHold);
+      });
+    }, 130);
+    return true;
+  }
+  if (!apply()) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+    else setTimeout(apply, 60);
+  }
+})();
+</script>
+
+<!-- ==================== v0.4：布局调整 + 石流龙专属技能图标 ====================
+  版式依据：
+  - 参考《异人之下》实机（Docs/assets/hidden-ones-arena-reference.jpg）：技能与资源按钮集中在右下角；
+    原神 / 鸣潮等同类作品同样把技能键放右下角。本项目为键鼠 Demo，同样采用右下角技能区。
+  - 能量类条集中在左上（玩家）/ 右上（对手），沿用 Naruto Ultimate Ninja Storm 的资源贴血条做法。
+
+  图标设计依据（角色美术母题，取自官方角色图 assets/ishigori-official-20260322.jpg）：
+  - 高耸飞机头（两侧剃短）→ 全部图标底部共用的「上扬刘海弧」母题
+  - 突出毛领 / 袖口毛边 → 重击类的尖齿弧
+  - 腰带扣（方形金属扣 + 红纹）→ 瞄准类图标的十字框
+  - 头部炮击（头顶发射咒力）→ 远程类图标一律画「头顶 + 出力」
+  - 敞胸外套轮廓 → 重拳/重踢的斜向开口线
+
+  本文件为对 OD 产物的定点修订；数值与战斗规则未改动。
+============================================================================ -->
+<style id="rev-v04-icons-and-layout">
+  /* ---------- 技能区移到右下角 ---------- */
+  #combocluster{left:auto !important;right:20px !important;top:962px !important;width:auto !important;
+    align-items:flex-end}
+  .skillrow{gap:14px}
+  .skill{width:60px}
+  .skill .tile{width:60px;height:60px}
+  .skill svg{width:30px;height:30px}
+  .skill .cap{font-size:10px}
+  /* 图标区左侧加一道竖向分隔，与左侧蓄力区区分 */
+  #combocluster::before{content:'';position:absolute;left:-18px;top:4px;bottom:26px;width:1px;
+    background:linear-gradient(180deg,transparent,rgba(150,190,255,.22),transparent)}
+
+  /* ---------- 蓄力环与形态圆盘左移，为右下技能区让出空间 ---------- */
+  .cannon{left:700px !important}
+  .formdisc{left:782px !important}
+  .hud .readout{left:690px !important;top:686px !important;width:300px !important}
+
+  /* ---------- 底部按键提示让位 ----------
+     右下角已被技能图标区占用，把右侧键位提示并到左下，与左侧键位连成一行 */
+  #keysR{right:auto !important;left:560px !important}
+  .keys{top:1040px}
+
+  /* ---------- 石流龙图标：共用母题描边 ---------- */
+  .skill svg .pompadour{stroke:currentColor;fill:none;opacity:.95}
+  .skill svg .fur{stroke:currentColor;fill:none;opacity:.8}
+  .skill svg .beam{stroke:currentColor;fill:none}
+  .skill svg .core{fill:currentColor;fill-opacity:.22;stroke:currentColor}
+  .skill svg .buckle{stroke:currentColor;fill:none}
+</style>
+<script>
+(function(){
+  /* ============ 石流龙技能图标（24×24 viewBox，线性几何） ============
+     设计取舍：30px 方框里塞不下三个母题。只保留「飞机头/毛领」一个母题，
+     并用最简形式（单道尖齿三角）表达；重击类靠体量与线数区分，不靠加装饰。
+       pompadour —— 上扬刘海弧（只出现在近战图标，且只有一道）
+       fur       —— 单道尖齿三角（重击类的“重”记号）
+       远程类一律「头顶炮口 + 出力」，与术式（咒力放出/头部炮击）对齐        */
+  var I = {
+    /* 拳击：直拳拳峰 + 一道刘海弧 + 两道速度线 */
+    punch:
+      '<path class="pompadour" d="M5.6 18.2c1.8-1.6 4.6-2.1 7.2-1.4"/>' +
+      '<circle cx="10.4" cy="12.8" r="3.6" fill="currentColor" fill-opacity=".18" stroke="currentColor"/>' +
+      '<path class="beam" d="M14.2 11 20.6 11"/>' +
+      '<path class="beam" d="M14.2 15 20.6 15"/>',
+
+    /* 重拳：加大的拳峰（双环）+ 一道尖齿 + 一道短冲击线 —— 靠体量表达“重” */
+    heavyPunch:
+      '<path class="pompadour" d="M4.4 19c2-1.8 5.2-2.4 8-1.6"/>' +
+      '<circle cx="9.6" cy="13" r="5" fill="currentColor" fill-opacity=".26" stroke="currentColor"/>' +
+      '<circle cx="9.6" cy="13" r="2" fill="none" stroke="currentColor" opacity=".6"/>' +
+      '<path class="fur" d="M16.4 6.6 18.6 9.6 21.2 7"/>' +
+      '<path class="beam" d="M16 13.4 21.8 13.4"/>',
+
+    /* 腿击：侧踢腿弧 + 一道刘海弧 */
+    kick:
+      '<path class="pompadour" d="M5.8 18c1.7-1.5 4.3-2 6.6-1.4"/>' +
+      '<path class="beam" d="M5.6 5.6 7.6 13.6l5 4.4"/>' +
+      '<path class="beam" d="M12.6 18 19.8 16"/>' +
+      '<path class="beam" d="M7.6 13.6 4.6 18"/>',
+
+    /* 重踢：腿弧加粗 + 一道尖齿 + 下方冲击横线（命中倒地） */
+    heavyKick:
+      '<path class="pompadour" d="M4.8 17.6c1.9-1.7 4.7-2.2 7.2-1.5"/>' +
+      '<path class="beam" d="M4.6 4.4 6.8 12.6l5.8 5.2"/>' +
+      '<path class="beam" d="M12.6 17.8 20 15.2"/>' +
+      '<path class="fur" d="M16.2 5.6 18.2 8.6 20.8 6"/>' +
+      '<path class="beam" d="M4 20.6h15.6"/>',
+
+    /* 蓄力炮：头顶炮口 + 出力（术式=咒力放出，从头部发炮） */
+    blast:
+      '<path class="pompadour" d="M6.4 16c1.6-1.3 4.1-1.7 6.3-1.1"/>' +
+      '<path class="beam" d="M6.6 15.4V9"/>' +
+      '<path class="beam" d="M6.6 9 9.8 6.2 13 9"/>' +
+      '<circle class="core" cx="9.8" cy="5.8" r="1.9"/>' +
+      '<path class="beam" d="M13.4 10.8 21 10.8"/>' +
+      '<path class="beam" d="M13.6 14 20.4 14"/>',
+
+    /* 超级炮：同构图但出力三重 + 蓄力核更大 —— 用数量表达满威力 */
+    superBlast:
+      '<path class="pompadour" d="M5.6 16.4c1.8-1.5 4.6-1.9 7-1.2"/>' +
+      '<path class="beam" d="M5.8 16V8.4"/>' +
+      '<path class="beam" d="M5.8 8.4 9.4 5.2l3.6 3.2"/>' +
+      '<circle class="core" cx="9.4" cy="4.6" r="2.7"/>' +
+      '<path class="beam" d="M14.2 8 21.6 8"/>' +
+      '<path class="beam" d="M14.6 11.4 22 11.4"/>' +
+      '<path class="beam" d="M14.2 14.8 21.6 14.8"/>',
+
+    /* 瞄准：腰带扣方框 + 十字准星（母题取自角色腰带金属方扣） */
+    aim:
+      '<rect class="buckle" x="4.6" y="4.6" width="14.8" height="14.8" rx="1.4"/>' +
+      '<circle class="beam" cx="12" cy="12" r="4"/>' +
+      '<path class="beam" d="M12 2.8v3.2M12 18v3.2M2.8 12h3.2M18 12h3.2"/>' +
+      '<circle cx="12" cy="12" r="1.2" fill="currentColor"/>',
+
+    /* 切形态：纯双向箭头，不加外圈装饰（外圈尖齿在 30px 下会变噪点） */
+    swap:
+      '<path class="beam" d="M4.4 9.2h12.4l-3-3"/>' +
+      '<path class="beam" d="M19.6 14.8H7.2l3 3"/>'
+  };
+
+  /* 长按派生用 hold 标记；switch 为形态切换格 */
+  var SETS = {
+    melee:[
+      {icon:'punch',      key:'左键', name:'三段拳',  hold:1},
+      {icon:'heavyPunch', key:'左键', name:'重拳',    hold:1},
+      {icon:'kick',       key:'Q',    name:'腿击',    hold:1},
+      {icon:'heavyKick',  key:'Q',    name:'重踢',    hold:1},
+      {icon:'swap',       key:'E',    name:'切远程',  switch:1}
+    ],
+    ranged:[
+      {icon:'blast',      key:'左键', name:'蓄力炮',  hold:1},
+      {icon:'superBlast', key:'Q',    name:'超级炮',  hold:1},
+      {icon:'aim',        key:'右键', name:'瞄准'},
+      {icon:'swap',       key:'E',    name:'切近战',  switch:1}
+    ]
+  };
+
+  function tileHTML(d){
+    var cls = 'skill' + (d.hold ? ' hold' : '') + (d.switch ? ' switch' : '');
+    return '<div class="' + cls + '" data-key="' + d.key + '" data-name="' + d.name + '">' +
+      '<div class="tile"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + I[d.icon] + '</svg></i>' +
+      '<span class="key">' + d.key + '</span><span class="cdbar"><i></i></span></div>' +
+      '<span class="cap">' + d.name + '</span></div>';
+  }
+
+  function apply(){
+    var row = document.getElementById('skillRow');
+    if (!row) return false;
+    var disc = document.getElementById('formDisc');
+    var lastForm = null;
+
+    function rebuild(melee){
+      if (melee === lastForm) return;
+      lastForm = melee;
+      row.innerHTML = SETS[melee ? 'melee' : 'ranged'].map(tileHTML).join('');
+      var f = document.getElementById('formCd');
+      if (f) row.appendChild(f);
+    }
+
+    setInterval(function(){
+      var melee = disc ? !disc.classList.contains('ranged') : true;
+      rebuild(melee);
+      var cannon = document.getElementById('cannon');
+      var charging = !!cannon && cannon.classList.contains('charge');
+      var cdTxt = document.getElementById('roSub');
+      var cooling = !!(cdTxt && cdTxt.textContent.indexOf('冷却') >= 0);
+      var domOn = !!document.querySelector('.dact.on');
+      Array.prototype.forEach.call(row.children, function(el){
+        if (!el.classList || el.classList.contains('formcd')) return;
+        var isSuper = el.dataset.name === '超级炮';
+        var isCharged = el.dataset.name === '蓄力炮' || el.dataset.name === '超级炮';
+        el.classList.toggle('cool', isSuper && cooling);
+        el.classList.toggle('locked', domOn && isCharged);
+        el.classList.toggle('hot', !domOn && charging && isCharged);
+      });
+    }, 130);
+    return true;
+  }
+  if (!apply()) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+    else setTimeout(apply, 60);
+  }
+})();
+</script>
+
+</body>
+</html>

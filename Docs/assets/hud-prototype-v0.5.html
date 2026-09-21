@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>对战 HUD 概念原型 v0.5 · 石流龙</title>
+<style>
+:root{
+  --bg:#070B14; --surface:rgba(8,14,26,.80); --fg:#EAF6FF; --muted:rgba(150,190,255,.55);
+  --dim:rgba(150,190,255,.34); --border:rgba(150,190,255,.18);
+  --p1:#1FB4F0; --p2:#FF5F1F;
+  --hpc1:#EAF6FF; --hpc2:#9FE8F5; --ghost:#7A1D14;
+  --curse:#2E70FF; --action:#E6A81E; --dom:#A64DE6; --gold:#FFD166; --danger:#FF3B30;
+  --aim:#73F2F2; --chg:#FFE633;
+  --en:'Arial Black','Impact','Microsoft YaHei',sans-serif;
+  --zh:'Microsoft YaHei','PingFang SC',sans-serif;
+  --cut5:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+  --cut8:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  --cut12:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#03050A;color:var(--fg);font-family:var(--zh);overflow:hidden;height:100vh;
+  display:flex;align-items:center;justify-content:center}
+#viewport{position:relative;width:1920px;height:1080px;transform-origin:center center;background:var(--bg);
+  overflow:hidden;flex:none}
+.num{font-family:var(--en);font-variant-numeric:tabular-nums}
+
+/* ---------- 舞台 ---------- */
+#arena{position:absolute;inset:0}
+#arena .sky{position:absolute;inset:0;
+  background:radial-gradient(140% 90% at 50% 112%,#101B2E 0%,#0A1220 44%,transparent 74%),
+             linear-gradient(#04060D 0%,#070C18 46%,#0B1424 64%,#05080F 100%)}
+#arena .dome{position:absolute;left:50%;top:4%;width:1640px;height:820px;margin-left:-820px;border-radius:50%;
+  border:1px solid rgba(120,170,255,.10);
+  background:radial-gradient(closest-side,rgba(60,110,220,.13),transparent 78%)}
+#arena .plate{position:absolute;left:50%;bottom:-16%;width:1500px;height:600px;margin-left:-750px;border-radius:50%;
+  border:1px solid rgba(150,190,255,.20);
+  background:radial-gradient(closest-side,rgba(150,190,255,.10),rgba(10,18,32,.88) 70%);
+  box-shadow:0 0 180px rgba(40,90,200,.20) inset}
+#arena .plate2{position:absolute;left:50%;bottom:-2%;width:1180px;height:460px;margin-left:-590px;border-radius:50%;
+  border:1px solid rgba(150,190,255,.09)}
+#arena .me,#arena .foe{position:absolute;left:50%;width:130px;height:310px;margin-left:-65px;
+  clip-path:polygon(34% 0,66% 0,100% 30%,86% 100%,14% 100%,0 30%)}
+#arena .me{top:52%;background:linear-gradient(rgba(31,180,240,.28),rgba(31,180,240,.04));
+  border:1px solid rgba(31,180,240,.55)}
+#arena .foe{top:33%;width:88px;height:210px;margin-left:-44px;
+  background:linear-gradient(rgba(255,95,31,.30),rgba(255,95,31,.05));border:1px solid rgba(255,95,31,.55)}
+#arena .veil{position:absolute;inset:0;opacity:0;transition:opacity .24s ease-out;
+  background:linear-gradient(180deg,rgba(166,77,230,.26),rgba(255,209,102,.10) 55%,transparent)}
+body.dom #arena .veil{opacity:1}
+body.dom #arena .me,body.dom #arena .foe{border-color:var(--gold)}
+
+/* ---------- 上左 / 上右 身份与资源 ---------- */
+.ident{position:absolute;top:34px;width:640px}
+#idP1{left:40px}
+#idP2{left:1320px;text-align:right}
+.plate{display:inline-flex;align-items:baseline;gap:10px;height:26px;padding:0 12px;line-height:26px;
+  background:rgba(6,10,18,.72);border-left:2px solid var(--p1);clip-path:var(--cut8)}
+#idP2 .plate{border-left:0;border-right:2px solid var(--p2)}
+.plate b{font-family:var(--en);font-size:12px;letter-spacing:.14em;color:var(--p1)}
+#idP2 .plate b{color:var(--p2)}
+.plate .nm{font-size:16px;font-weight:700;letter-spacing:.10em}
+
+/* ===== 条组：头像 + 组名行 + 生命/咒力/行动资源，按火影做法收紧 =====
+   火影实测：头像在最左端，角色名在条上方，生命条在最上层，
+   查克拉条紧贴其正下方无间隙，离散计数格贴在条组正下方同宽 */
+.bargroup{display:flex;gap:12px;align-items:flex-start}
+#idP2 .bargroup{flex-direction:row-reverse}
+.avatar{position:relative;width:56px;height:56px;padding:1px;flex:none;
+  background:rgba(150,190,255,.30);clip-path:var(--cut8)}
+.avatar>i{position:absolute;inset:1px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,rgba(31,180,240,.20),rgba(6,10,18,.96));clip-path:var(--cut5)}
+#idP2 .avatar>i{background:linear-gradient(200deg,rgba(255,95,31,.20),rgba(6,10,18,.96))}
+.avatar svg{width:34px;height:34px;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+  stroke:var(--p1)}
+#idP2 .avatar svg{stroke:var(--p2)}
+.avatar .tag{position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);
+  font-family:var(--en);font-size:8px;letter-spacing:.1em;color:var(--muted);
+  background:rgba(4,8,16,.92);padding:0 4px;clip-path:var(--cut5)}
+.bars{flex:1;min-width:0}
+#idP2 .bars{text-align:right}
+.namerow{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+#idP2 .namerow{flex-direction:row-reverse}
+.namerow .nm{font-size:15px;font-weight:700;letter-spacing:.10em}
+.namerow .tag{font-size:9px;color:var(--muted);letter-spacing:.06em}
+
+.hpwrap{height:20px}
+.hpbar{height:20px;padding:1px;background:rgba(150,190,255,.26);clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%)}
+#idP2 .hpbar{clip-path:polygon(18px 0,100% 0,100% 100%,0 100%)}
+.hpclip{position:relative;width:100%;height:100%;overflow:hidden;background:rgba(4,8,16,.94);
+  clip-path:polygon(0 0,calc(100% - 17px) 0,100% 100%,0 100%)}
+#idP2 .hpclip{clip-path:polygon(17px 0,100% 0,100% 100%,0 100%)}
+.hpclip .ghost,.hpclip .fill{position:absolute;left:0;top:0;height:100%}
+#idP2 .hpclip .ghost,#idP2 .hpclip .fill{left:auto;right:0}
+.hpclip .ghost{background:var(--ghost);transition:width .35s ease-out}
+.hpclip .fill{background:linear-gradient(90deg,var(--hpc1),var(--hpc2));transition:width .12s ease-out}
+#idP2 .hpclip .fill{background:linear-gradient(270deg,var(--hpc1),var(--hpc2))}
+.hpclip .ticks{position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0 52px,rgba(4,8,16,.55) 52px 54px)}
+.hpnum{margin-top:6px;font-size:17px;color:var(--fg);opacity:.45;transition:transform .18s ease-out,opacity .18s}
+#idP2 .hpnum{text-align:right}
+.hpnum.bump{opacity:1;transform:scale(1.18);text-shadow:0 0 14px rgba(255,214,110,.9)}
+.hpnum .tot{color:var(--muted);font-size:14px}
+
+/* 咒力条：紧贴生命数值下方 */
+.curse{margin-top:6px}
+#idP2 .curse{display:flex;flex-direction:column;align-items:flex-end}
+/* 条体必须满宽：flex-end 会让 .cbar 收缩到内容宽度，而填充是绝对定位的，条体会塌成 0 宽 */
+#idP2 .curse .cbar{width:100%}
+#idP2 .curse .row{width:100%;justify-content:flex-end}
+#idP2 .curse .foot{width:100%}
+.curse .row{display:flex;align-items:baseline;gap:7px;margin-bottom:4px}
+#idP2 .curse .row{flex-direction:row-reverse}
+.curse .lab{font-size:10.5px;letter-spacing:.10em;color:var(--muted)}
+.curse .val{font-family:var(--en);font-size:14px}
+.curse .cap{font-size:10px;color:var(--muted)}
+.cbar{position:relative;height:13px;padding:1px;background:rgba(46,112,255,.34);clip-path:var(--cut8)}
+.cbar .cf{position:absolute;left:1px;right:1px;top:1px;bottom:1px;width:auto;transition:width .16s linear;
+  background:linear-gradient(92deg,#2E70FF,#7FB0FF);
+  box-shadow:0 0 10px rgba(46,112,255,.75),inset 0 0 7px rgba(255,255,255,.28)}
+#idP2 .cbar .cf{left:auto;right:1px;background:linear-gradient(268deg,#2E70FF,#7FB0FF)}
+.cbar .ct{position:absolute;left:1px;right:1px;top:1px;bottom:1px;
+  background:repeating-linear-gradient(90deg,rgba(4,8,16,.45) 0 2px,transparent 2px 16px)}
+.cbar .cmin{position:absolute;left:8%;top:-3px;bottom:-3px;width:2px;z-index:3;background:var(--danger);
+  box-shadow:0 0 8px rgba(255,59,48,.9)}
+#idP2 .cbar .cmin{left:auto;right:8%}
+.curse .foot{display:flex;justify-content:space-between;margin-top:3px;font-size:8.5px;color:var(--muted)}
+#idP2 .curse .foot{justify-content:flex-end;gap:8px}
+#idP2 .curse .foot .min{display:none}
+body.dry .cbar{animation:dryPulse 1s ease-in-out infinite}
+@keyframes dryPulse{0%,100%{filter:none}50%{filter:drop-shadow(0 0 9px rgba(255,59,48,.9))}}
+
+/* 行动资源（5 格离散）— 对手侧 */
+.pips{display:flex;gap:5px;margin-top:8px;justify-content:flex-end}
+.pips b{width:26px;height:22px;background:rgba(230,168,30,.18);clip-path:var(--cut5);transition:background .14s}
+.pips b.on{background:linear-gradient(160deg,#F2C24A,#B9811A);box-shadow:inset 0 0 10px rgba(255,224,150,.55)}
+.pipsrow{display:flex;align-items:baseline;gap:7px;justify-content:flex-end;margin-top:6px}
+.pipsrow .lab{font-size:10.5px;letter-spacing:.10em;color:var(--muted)}
+.pipsrow .val{font-family:var(--en);font-size:14px}
+
+/* ---------- 顶部中央：领域 ---------- */
+.domarcs{position:absolute;left:0;top:0;width:1920px;height:120px}
+.domarcs path{fill:none;stroke-linecap:round}
+.domarcs .trk{stroke:rgba(150,190,255,.16);stroke-width:5}
+.domarcs .gl{stroke:rgba(0,0,0,.55);stroke-width:11}
+.domarcs .fil{stroke:var(--dom);stroke-width:5;transition:stroke .25s ease-out}
+.domarcs.armed .fil{stroke:var(--gold);filter:drop-shadow(0 0 10px rgba(255,209,102,.9))}
+.domarcs.supp .fil{stroke:#7C879B;filter:none}
+.arclbl{position:absolute;top:48px;width:180px;font-size:11px;letter-spacing:.06em;color:var(--muted)}
+#lblP1{left:452px;text-align:right}
+#lblP2{left:1288px}
+.arclbl b{font-family:var(--en);font-size:13px;color:var(--dom)}
+.dchip{position:absolute;left:960px;top:70px;transform:translateX(-50%);height:26px;padding:0 12px;
+  display:none;align-items:center;gap:7px;font-size:11px;color:var(--gold);
+  background:rgba(28,20,4,.80);border:1px solid rgba(255,209,102,.34);clip-path:var(--cut5)}
+.dchip.on{display:flex}
+.dact{position:absolute;left:960px;top:62px;transform:translateX(-50%);display:none;text-align:center;width:700px}
+.dact.on{display:block}
+.dact .title{font-family:"Songti SC",serif;font-size:26px;letter-spacing:.34em;color:var(--gold);
+  text-shadow:0 0 20px rgba(255,209,102,.6)}
+.dact .meta{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:7px;font-size:11px}
+.dact .clock{font-family:var(--en);font-size:16px;color:var(--fg)}
+.dact .ticks{display:flex;gap:14px}
+.dact .ticks b{width:8px;height:8px;transform:rotate(45deg);border:1px solid rgba(255,209,102,.5);transition:all .2s}
+.dact .ticks b.done{background:var(--gold);border-color:var(--gold)}
+.dact .ticks b.next{animation:tickPulse .4s ease-out infinite;border-color:#fff}
+@keyframes tickPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 12px rgba(255,255,255,.9)}}
+.dact .next,.dact .orbs{color:rgba(255,209,102,.9)}
+.dsupp{position:absolute;left:960px;top:126px;transform:translateX(-50%);display:none;font-size:12px;
+  letter-spacing:.10em;color:#C3CCDA;background:rgba(8,14,26,.7);padding:2px 10px;clip-path:var(--cut5)}
+.dsupp.on{display:block}
+.modebar{position:absolute;left:620px;top:158px;width:680px;display:flex;justify-content:center;gap:8px}
+.modebar b{font-weight:400;font-size:10px;color:rgba(242,247,255,.72);border:1px solid var(--border);
+  padding:1px 8px;background:rgba(8,14,26,.6);clip-path:var(--cut5)}
+.modebar b.on{color:var(--aim);border-color:rgba(115,242,242,.45)}
+
+/* ---------- 准星 ---------- */
+#reticle{position:absolute;left:960px;top:540px;width:220px;height:220px;margin:-110px 0 0 -110px;opacity:0;
+  transition:opacity .18s}
+body.ranged #reticle{opacity:1}
+#reticle i{position:absolute;left:50%;top:50%;background:#CCE6FF;transition:all .1s linear}
+#reticle .ring{position:absolute;inset:0}
+#reticle .ring circle{fill:none;stroke:var(--chg);stroke-width:2;opacity:0;transition:opacity .18s}
+body.charging #reticle .ring circle{opacity:.9}
+
+/* ---------- 下中：蓄力环 + 形态圆盘 ---------- */
+#cannon{position:absolute;left:640px;top:800px;width:280px;height:280px}
+#cannon svg{position:absolute;inset:0;width:100%;height:100%}
+#cannon .trk{fill:none;stroke:rgba(0,0,0,.55);stroke-width:22}
+#cannon .trk2{fill:none;stroke:rgba(150,190,255,.16);stroke-width:18}
+#cannon .paid{fill:none;stroke:var(--chg);stroke-width:18;transition:stroke .2s}
+#cannon .over{fill:none;stroke:var(--danger);stroke-width:18}
+#cannon.full .paid{stroke:var(--gold)}
+#cannon .rim{fill:none;stroke:rgba(150,190,255,.20);stroke-width:1}
+#cannon .rim2{fill:none;stroke:rgba(150,190,255,.10);stroke-width:1}
+#formDisc{position:absolute;left:722px;top:882px;width:116px;height:116px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  background:radial-gradient(closest-side,rgba(31,180,240,.16),rgba(6,10,18,.94));
+  border:1px solid var(--border);transition:background .2s}
+#formDisc.ranged{background:radial-gradient(closest-side,rgba(115,242,242,.16),rgba(6,10,18,.94))}
+#formDisc svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7}
+#formDisc .nm{font-size:13px;font-weight:700;letter-spacing:.14em;margin-top:4px}
+#formDisc .cdring{position:absolute;inset:-5px;border-radius:50%;border:2px solid transparent;
+  border-top-color:var(--aim);opacity:0}
+#formDisc.cd .cdring{opacity:1;animation:spin .5s linear}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+#readout{position:absolute;left:630px;top:680px;width:300px;height:28px;padding:1px;display:flex;
+  background:rgba(150,190,255,.24);clip-path:var(--cut8)}
+#readout>.bd{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:rgba(8,14,26,.88);clip-path:var(--cut5);font-size:10px;color:var(--muted)}
+#readout .mn{font-family:var(--en);font-size:14px;color:var(--chg)}
+#readout.full .mn{color:var(--gold)}
+#readout.lim .mn{color:var(--danger)}
+
+/* ---------- 右下：技能区（普通技行 + 大招位分离） ---------- */
+#skills{position:absolute;right:36px;bottom:34px;display:flex;align-items:flex-end;gap:26px}
+.grp{display:flex;flex-direction:column;align-items:center;gap:8px}
+.grp .glab{font-size:9.5px;letter-spacing:.14em;color:var(--dim)}
+.grp .row{display:flex;gap:12px}
+.skill{position:relative;width:64px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.skill .tile{position:relative;width:64px;height:64px;padding:1px;background:rgba(150,190,255,.26);
+  clip-path:var(--cut8);transition:background .14s}
+.skill .tile>i{position:absolute;inset:1px;display:flex;align-items:center;justify-content:center;
+  background:rgba(6,10,18,.92);clip-path:var(--cut5)}
+.skill svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.skill .key{position:absolute;right:3px;bottom:2px;font-family:var(--en);font-size:9px;color:var(--muted);
+  background:rgba(4,8,16,.86);padding:0 3px;clip-path:var(--cut5)}
+.skill .cap{font-size:10px;color:var(--muted);white-space:nowrap}
+.skill.hold .tile>i::after{content:'';position:absolute;left:6px;top:6px;width:13px;height:13px;border-radius:50%;
+  border:2px solid rgba(255,230,51,.85);border-right-color:transparent;border-bottom-color:transparent;
+  transform:rotate(-45deg)}
+.skill.hold .cap::after{content:' · 长按';color:rgba(255,230,51,.75);font-size:9px}
+.skill.hot .tile{background:var(--gold)}
+.skill.hot svg{stroke:var(--gold)}
+.skill.cool .tile,.skill.locked .tile{background:rgba(150,190,255,.12)}
+.skill.cool .tile>i,.skill.locked .tile>i{background:rgba(6,10,18,.80)}
+.skill.cool svg,.skill.locked svg{stroke:rgba(242,247,255,.32)}
+.skill.cool .cap,.skill.locked .cap{color:rgba(242,247,255,.30)}
+.skill.cool .tile>i::before,.skill.locked .tile>i::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(135deg,rgba(120,140,170,.20) 0 3px,transparent 3px 7px)}
+
+/* 大招位：更大、独立、带能量环 */
+.ult{position:relative;width:104px;height:104px;padding:2px;background:rgba(255,209,102,.34);
+  border-radius:50%;transition:background .2s}
+.ult>i{position:absolute;inset:2px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(closest-side,rgba(166,77,230,.30),rgba(6,10,18,.95));
+  transition:background .2s}
+.ult svg{width:46px;height:46px;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;stroke:var(--gold)}
+.ult .ring{position:absolute;inset:-7px;transform:rotate(-90deg)}
+.ult .ring circle{fill:none;stroke-width:3;stroke-linecap:round}
+.ult .ring .bgc{stroke:rgba(150,190,255,.14)}
+.ult .ring .fgc{stroke:var(--dom);stroke-dasharray:0 100;transition:stroke-dasharray .25s ease-out}
+.ult .key{position:absolute;right:4px;bottom:6px;font-family:var(--en);font-size:10px;color:var(--gold);
+  background:rgba(4,8,16,.86);padding:0 4px;clip-path:var(--cut5)}
+.ult .cap{position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);white-space:nowrap;
+  font-size:10px;color:var(--gold);letter-spacing:.06em}
+.ult.ready>i{background:radial-gradient(closest-side,rgba(255,209,102,.42),rgba(10,6,20,.95));
+  animation:ultReady 1.2s ease-in-out infinite}
+.ult.ready .ring .fgc{stroke:var(--gold)}
+@keyframes ultReady{0%,100%{filter:none}50%{filter:drop-shadow(0 0 16px rgba(255,209,102,.9))}}
+.ult.locked{background:rgba(150,190,255,.12)}
+.ult.locked svg{stroke:rgba(242,247,255,.32)}
+.ult.locked .cap{color:rgba(242,247,255,.30)}
+.ult.locked .ring .fgc{stroke:rgba(150,190,255,.25)}
+
+/* ---------- 飘字 / 结果 / 按键提示 ---------- */
+#floats{position:absolute;inset:0;pointer-events:none}
+.fl{position:absolute;transform:translateX(-50%);font-family:var(--en);font-size:20px;font-weight:700;
+  color:#fff;text-shadow:0 2px 6px #000;animation:rise .9s ease-out forwards;white-space:nowrap}
+.fl.gold{color:var(--gold);font-size:26px} .fl.cyan{color:var(--aim);font-size:15px}
+.fl.dom{color:var(--gold);font-size:22px} .fl.warn{color:var(--danger);font-size:14px}
+@keyframes rise{0%{opacity:0;margin-top:10px}22%{opacity:1}100%{opacity:0;margin-top:-40px}}
+.keys{position:absolute;bottom:12px;display:flex;gap:16px;font-size:11px;color:var(--muted)}
+#keysL{left:40px} #keysR{left:560px}
+.keys .k{display:flex;align-items:center;gap:5px}
+kbd{font-family:var(--en);font-size:10px;color:var(--fg);background:rgba(150,190,255,.14);
+  border:1px solid var(--border);padding:0 5px;line-height:16px;clip-path:var(--cut5)}
+#result{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;background:rgba(5,10,22,.74)}
+body.result #result{display:flex}
+#result .t{font-family:"Songti SC",serif;font-size:44px;letter-spacing:.34em;color:var(--aim)}
+#result .s{font-size:13px;color:rgba(242,247,255,.78);letter-spacing:.1em}
+#result .k{font-size:11px;color:var(--muted);margin-top:6px}
+
+/* ---------- 状态控制台（开发用；移到左下避免压住右上角的对手信息） ---------- */
+#panel{position:absolute;left:40px;top:392px;width:186px;padding:1px;background:rgba(150,190,255,.24);
+  clip-path:var(--cut12)}
+#panel .bd{padding:10px 9px;background:rgba(6,11,20,.80);clip-path:var(--cut8)}
+#panel h4{font-size:11px;letter-spacing:.12em;color:var(--muted);margin-bottom:2px}
+#panel .sub{font-size:9px;color:var(--dim);margin-bottom:8px}
+#panel button{width:100%;text-align:left;margin-bottom:3px;padding:4px 7px;font-size:10.5px;cursor:pointer;
+  color:var(--muted);background:rgba(150,190,255,.05);border:1px solid rgba(150,190,255,.18);
+  clip-path:var(--cut5);font-family:var(--zh);transition:all .12s}
+#panel button:hover{color:var(--fg);border-color:rgba(150,190,255,.42)}
+#panel button.on{color:var(--fg);background:rgba(31,180,240,.16);border-color:rgba(31,180,240,.6)}
+#panel .note{margin-top:8px;font-size:9px;color:var(--dim);line-height:1.5}
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="arena">
+    <div class="sky"></div><div class="veil"></div><div class="dome"></div>
+    <div class="plate"></div><div class="plate2"></div>
+    <div class="foe"></div><div class="me"></div>
+  </div>
+
+  <!-- ===== 上左：玩家（头像 + 组名行 + 生命/咒力，按火影层次收紧） ===== -->
+  <div class="ident" id="idP1">
+    <div class="bargroup">
+      <div class="avatar"><i><svg viewBox="0 0 24 24">
+        <path d="M4.6 11.6c0-4.2 3.4-7 7.4-7s7.4 2.8 7.4 7"/>
+        <path d="M7 11.2c1-2.6 2.6-4.2 4.8-4.6 2.4-.4 4.4.9 5.2 3.1"/>
+        <path d="M5.6 11.4c-.5 2.4.7 4.4 3 5.2M18.4 11.4c.5 2.4-.7 4.4-3 5.2"/>
+        <circle cx="9.6" cy="13.6" r=".9" fill="currentColor"/><circle cx="14.4" cy="13.6" r=".9" fill="currentColor"/>
+        <path d="M9.4 17.4c1.6 1 3.6 1 5.2 0"/>
+      </svg></i><span class="tag">P1</span></div>
+      <div class="bars">
+        <div class="namerow"><span class="nm">石流龙</span><span class="tag">玩家</span></div>
+        <div class="hpwrap"><div class="hpbar"><div class="hpclip">
+          <i class="ghost" id="g1"></i><i class="fill" id="f1"></i><i class="ticks"></i>
+        </div></div></div>
+        <div class="hpnum num" id="n1"><b>1000</b><span class="tot"> / 1000</span></div>
+        <div class="curse">
+          <div class="row"><span class="lab">咒力</span><span class="val num" id="cs1">100</span><span class="cap">/ 100</span></div>
+          <div class="cbar"><span class="cf" id="cf1"></span><span class="ct"></span><span class="cmin"></span></div>
+          <div class="foot"><span class="min">8 · 最低开炮</span><span id="csNote">已满</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 上右：对手（镜像 + 行动资源格贴条组下方） ===== -->
+  <div class="ident" id="idP2">
+    <div class="bargroup">
+      <div class="avatar"><i><svg viewBox="0 0 24 24">
+        <path d="M4.6 11.6c0-4.2 3.4-7 7.4-7s7.4 2.8 7.4 7"/>
+        <path d="M7 11.2c1-2.6 2.6-4.2 4.8-4.6 2.4-.4 4.4.9 5.2 3.1"/>
+        <path d="M5.6 11.4c-.5 2.4.7 4.4 3 5.2M18.4 11.4c.5 2.4-.7 4.4-3 5.2"/>
+        <circle cx="9.6" cy="13.6" r=".9" fill="currentColor"/><circle cx="14.4" cy="13.6" r=".9" fill="currentColor"/>
+        <path d="M9.4 17.4c1.6 1 3.6 1 5.2 0"/>
+      </svg></i><span class="tag">P2</span></div>
+      <div class="bars">
+        <div class="namerow"><span class="nm">石流龙</span><span class="tag">对手</span></div>
+        <div class="hpwrap"><div class="hpbar"><div class="hpclip">
+          <i class="ghost" id="g2"></i><i class="fill" id="f2"></i><i class="ticks"></i>
+        </div></div></div>
+        <div class="hpnum num" id="n2"><b>1000</b><span class="tot"> / 1000</span></div>
+        <div class="curse">
+          <div class="row"><span class="lab">咒力</span><span class="val num" id="cs2">74</span><span class="cap">/ 100</span></div>
+          <div class="cbar"><span class="cf" id="cf2"></span><span class="ct"></span><span class="cmin"></span></div>
+          <div class="foot"><span class="min">8 · 最低开炮</span><span id="csNote2">回气中 +6/s</span></div>
+        </div>
+        <div class="pipsrow"><span class="lab">行动资源</span><span class="val num" id="apNum2">5</span><span class="cap">/ 5</span></div>
+        <div class="pips" id="apPips2">
+          <b class="on"></b><b class="on"></b><b class="on"></b><b class="on"></b><b class="on"></b>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 顶部中央：领域 ===== -->
+  <svg class="domarcs" id="domarcs" viewBox="0 0 1920 120">
+    <path class="gl"  d="M940 60 Q780 18 640 54"/>
+    <path class="trk" d="M940 60 Q780 18 640 54"/>
+    <path class="fil" id="arcP1" d="M940 60 Q780 18 640 54" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+    <path class="gl"  d="M980 60 Q1140 18 1280 54"/>
+    <path class="trk" d="M980 60 Q1140 18 1280 54"/>
+    <path class="fil" id="arcP2" d="M980 60 Q1140 18 1280 54" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+  </svg>
+  <div class="arclbl" id="lblP1">领域能量 <b id="dom1">0%</b></div>
+  <div class="arclbl" id="lblP2">领域能量 <b id="dom2">74%</b></div>
+  <div class="dchip" id="dchip"><kbd>R</kbd><span>可展开 · 极宴流光</span></div>
+  <div class="dact" id="dact">
+    <div class="title">领域展开 · 极宴流光</div>
+    <div class="meta">
+      <span class="clock num" id="dclock">6.0</span>
+      <span class="ticks"><b class="t0"></b><b class="t1"></b><b class="t2"></b></span>
+      <span class="next" id="dnext">下一发 0.3s</span>
+      <span class="orbs" id="dorbs">在途 0/3</span>
+    </div>
+  </div>
+  <div class="dsupp" id="dsupp">领域受压制 · 自动炮暂停</div>
+  <div class="modebar"><b id="mDummy">静止木桩</b><b id="mGuard">固定防御</b><b id="mAI">AI 对战</b><b id="mInfRes">无限资源</b></div>
+
+  <div id="reticle">
+    <svg class="ring" viewBox="0 0 220 220"><circle cx="110" cy="110" r="86" pathLength="100"/></svg>
+    <i class="v1"></i><i class="v2"></i><i class="h1"></i><i class="h2"></i><i class="core"></i>
+  </div>
+
+  <!-- ===== 下中：蓄力环 + 形态圆盘 ===== -->
+  <div id="readout"><div class="bd"><span class="mn num" id="roMain">近战</span><span id="roSub">拳击 35 / 40 / 55 · 重拳 75 · 腿击 45 · 重踢 95</span></div></div>
+  <div id="cannon">
+    <svg viewBox="0 0 280 280">
+      <circle class="rim" cx="140" cy="140" r="138"/>
+      <circle class="rim2" cx="140" cy="140" r="96"/>
+      <path class="trk"  d="M52.32 227.68 A124 124 0 1 1 227.68 227.68"/>
+      <path class="trk2" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68"/>
+      <path class="over" id="cOver" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68" pathLength="100" stroke-dasharray="0 0 0 100"/>
+      <path class="paid" id="cPaid" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68" pathLength="100" stroke-dasharray="0 100"/>
+    </svg>
+  </div>
+  <div id="formDisc">
+    <div class="cdring"></div>
+    <svg viewBox="0 0 24 24"><circle cx="10" cy="14" r="5.4"/><path d="M15.2 8.8 20.4 3.6M17.8 12.6 22.6 11M11.8 8.6 12.2 3.8"/></svg>
+    <span class="nm" id="formName">近战</span>
+  </div>
+
+  <!-- ===== 右下：技能区（普通技与大招分离） ===== -->
+  <div id="skills">
+    <div class="grp norm">
+      <div class="glab" id="normLab">近战招式</div>
+      <div class="row" id="normRow"></div>
+    </div>
+    <div class="grp ultgrp">
+      <div class="ult" id="ultTile">
+        <svg class="ring" viewBox="0 0 100 100">
+          <circle class="bgc" cx="50" cy="50" r="48" pathLength="100"/>
+          <circle class="fgc" id="ultRing" cx="50" cy="50" r="48" pathLength="100"/>
+        </svg>
+        <i id="ultIcon"></i>
+        <span class="key">R</span>
+        <span class="cap" id="ultCap">领域展开</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="floats"></div>
+  <div class="keys" id="keysL">
+    <span class="k"><kbd>WASD</kbd><span>移动</span></span>
+    <span class="k"><kbd>Shift</kbd><span>冲刺 / 后撤</span></span>
+    <span class="k"><kbd>F</kbd><span>防御</span></span>
+  </div>
+  <div class="keys" id="keysR">
+    <span class="k"><kbd>E</kbd><span>切形态</span></span>
+    <span class="k"><kbd>Tab</kbd><span>锁定</span></span>
+    <span class="k"><kbd>F1</kbd><span>训练设置</span></span>
+  </div>
+
+  <div id="result">
+    <div class="t" id="resT">玩家胜利</div>
+    <div class="s">命中 12　最大连段 5　领域展开 2</div>
+    <div class="k">[空格] 重新开始　[F1] 训练设置</div>
+  </div>
+
+  <div id="panel">
+    <div class="bd">
+      <h4>状态控制台</h4>
+      <div class="sub">点击或按 1–9 / 0 / - / =</div>
+      <div id="btns"></div>
+      <div class="note">v0.5 概念原型 · 数值取自项目设计文档调试参数</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==================== 石流龙技能图标 ====================
+   母题取自官方角色图：高耸飞机头 / 毛领尖齿 / 方形腰带扣 / 头部炮击（术式=咒力放出）
+   每个图标只承载 1–2 个母题，保证 32px 下可读 ==================== */
+const ICON = {
+  /* 三段拳：拳峰 + 刘海弧 + 两道速度线 */
+  punch:'<path d="M5.4 18.4c1.9-1.7 4.8-2.2 7.5-1.4" stroke-opacity=".95"/>'+
+        '<circle cx="10.4" cy="12.8" r="3.6" fill="currentColor" fill-opacity=".18"/>'+
+        '<path d="M14.4 11 20.8 11M14.4 15 20.8 15"/>',
+  /* 重拳：加大拳峰（双环）+ 毛领尖齿 + 一道冲击线 */
+  heavy:'<path d="M4.2 19.2c2.1-1.9 5.4-2.5 8.3-1.7" stroke-opacity=".95"/>'+
+        '<circle cx="9.4" cy="12.8" r="5.2" fill="currentColor" fill-opacity=".26"/>'+
+        '<circle cx="9.4" cy="12.8" r="2.1" stroke-opacity=".6"/>'+
+        '<path d="M16.6 6.4 18.8 9.4 21.4 6.8" stroke-opacity=".8"/>'+
+        '<path d="M16.2 13.4 22 13.4"/>',
+  /* 腿击：侧踢腿弧 + 刘海弧 */
+  kick:'<path d="M5.8 18.2c1.7-1.6 4.4-2.1 6.8-1.4" stroke-opacity=".95"/>'+
+       '<path d="M5.6 5.4 7.6 13.6l5.2 4.4M12.8 18 20 15.8M7.6 13.6 4.4 18"/>',
+  /* 重踢：腿弧 + 毛领尖齿 + 冲击横线（命中倒地） */
+  hkick:'<path d="M4.6 17.8c1.9-1.8 4.9-2.3 7.5-1.6" stroke-opacity=".95"/>'+
+        '<path d="M4.4 4.2 6.8 12.6l6 5.2M12.8 17.8 20.2 15.2"/>'+
+        '<path d="M16.4 5.4 18.4 8.4 21 5.8" stroke-opacity=".8"/>'+
+        '<path d="M3.8 20.8h16"/>',
+  /* 蓄力炮：头顶炮口 + 出力（头部发炮） */
+  blast:'<path d="M6.2 16.2c1.7-1.4 4.3-1.8 6.6-1.2" stroke-opacity=".95"/>'+
+        '<path d="M6.4 15.6V9M6.4 9 9.6 6.2 12.8 9"/>'+
+        '<circle cx="9.6" cy="5.6" r="1.9" fill="currentColor" fill-opacity=".22"/>'+
+        '<path d="M13.2 10.8 20.8 10.8M13.4 14 20.2 14"/>',
+  /* 超级炮：同构图，出力三重 + 蓄力核更大 */
+  sblast:'<path d="M5.4 16.6c1.9-1.6 4.8-2 7.3-1.3" stroke-opacity=".95"/>'+
+         '<path d="M5.6 16V8.4M5.6 8.4 9.2 5.2l3.6 3.2"/>'+
+         '<circle cx="9.2" cy="4.6" r="2.8" fill="currentColor" fill-opacity=".22"/>'+
+         '<path d="M14 8 21.4 8M14.4 11.4 21.8 11.4M14 14.8 21.4 14.8"/>',
+  /* 瞄准：腰带扣方框 + 十字准星 */
+  aim:'<rect x="4.6" y="4.6" width="14.8" height="14.8" rx="1.4"/>'+
+      '<circle cx="12" cy="12" r="4"/>'+
+      '<path d="M12 2.8v3.2M12 18v3.2M2.8 12h3.2M18 12h3.2"/>'+
+      '<circle cx="12" cy="12" r="1.2" fill="currentColor"/>',
+  /* 切形态：双向箭头 */
+  swap:'<path d="M4.4 9.2h12.4l-3-3M19.6 14.8H7.2l3 3"/>',
+  /* 领域展开（大招）：烟火放射 —— 中心爆发点 + 由内向外散开的火花。
+     刻意不用「穹顶 + 放射线 + 中心圆」的组合，那在 46px 下会被读成太阳符号 */
+  domain:'<circle cx="12" cy="12" r="2.4" fill="currentColor" fill-opacity=".55"/>'+
+         '<circle cx="12" cy="12" r="4.6" stroke-opacity=".45"/>'+
+         '<path d="M12 5.6V2.4M12 18.4v3.2M5.6 12H2.4M18.4 12h3.2"/>'+
+         '<path d="M7.4 7.4 5.2 5.2M16.6 7.4l2.2-2.2M7.4 16.6l-2.2 2.2M16.6 16.6l2.2 2.2" stroke-opacity=".9"/>'+
+         '<path d="M9.6 9.6 8.2 8.2M14.4 9.6l1.4-1.4M9.6 14.4l-1.4 1.4M14.4 14.4l1.4 1.4" stroke-opacity=".55"/>'
+};
+
+const SETS = {
+  melee:[
+    {i:'punch', k:'左键', n:'三段拳', hold:1},
+    {i:'heavy', k:'左键', n:'重拳',   hold:1},
+    {i:'kick',  k:'Q',    n:'腿击',   hold:1},
+    {i:'hkick', k:'Q',    n:'重踢',   hold:1},
+    {i:'swap',  k:'E',    n:'切远程'}
+  ],
+  ranged:[
+    {i:'blast', k:'左键', n:'蓄力炮', hold:1},
+    {i:'aim',   k:'右键', n:'瞄准'},
+    {i:'swap',  k:'E',    n:'切近战'}
+  ]
+};
+
+const MAX = {hp:1000, ap:5, curse:100, dom:100};
+const TICKT = [0.3, 2.3, 4.3];
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* 蓄力：伤害 = 30 + 60 × qPaid，qPaid 由已支付咒力封顶（文档 §7.2） */
+function chargeInfo(t, curse){
+  const q = clamp(t/1.2,0,1);
+  const paid = Math.min(8 + 16*q, curse);
+  const qPaid = clamp((paid-8)/16,0,1);
+  return {q, qPaid, dmg:30+60*qPaid, limited:qPaid < q-0.01};
+}
+
+const S = {
+  id:1, form:'melee', hp1:1000, g1:1000, hp2:1000, g2:1000,
+  curse1:100, curse2:74, ap2:5, dom1:0, dom2:74,
+  charge:null, phase:'idle', phaseT:0, tick:[0,0,0], supp:false, infRes:false,
+  result:null, apCd:0
+};
+
+/* ---------- 按钮 ---------- */
+const STATES = [
+  ['1','待机 · 近战'],['2','待机 · 远程'],['3','三段连击'],['4','蓄力炮 · 蓄力中'],
+  ['5','蓄力炮 · 已满蓄'],['6','领域就绪'],['7','超级炮 · 冷却中'],
+  ['8','领域展开中'],['9','双领域压制'],['0','咒力不足 · 强度受限'],
+  ['-','濒死'],['=','对战结果']
+];
+const btns = document.getElementById('btns');
+STATES.forEach(([k,n])=>{
+  const b=document.createElement('button');
+  b.textContent = k+'　'+n; b.dataset.k=k;
+  b.onclick=()=>setState(k);
+  btns.appendChild(b);
+});
+
+/* ---------- 渲染 ---------- */
+const $ = s=>document.querySelector(s);
+const txt = (s,v)=>{const e=$(s); if(e) e.textContent=v;};
+const setW = (id,w)=>{const e=document.getElementById(id); if(e) e.style.width=w+'%';};
+
+function tileHTML(d){
+  const cls='skill'+(d.hold?' hold':'');
+  return `<div class="${cls}" data-n="${d.n}">
+    <div class="tile"><i><svg viewBox="0 0 24 24">${ICON[d.i]}</svg></i>
+      <span class="key">${d.k}</span></div>
+    <span class="cap">${d.n}</span></div>`;
+}
+function rebuildSkills(){
+  const ranged = S.form==='ranged';
+  $('#normRow').innerHTML = SETS[ranged?'ranged':'melee'].map(tileHTML).join('');
+  txt('#normLab', ranged?'远程招式':'近战招式');
+}
+function render(){
+  const ranged = S.form==='ranged';
+  document.body.classList.toggle('ranged', ranged);
+  $('#formDisc').classList.toggle('ranged', ranged);
+  txt('#formName', ranged?'远程':'近战');
+  $('#formDisc').querySelector('svg').innerHTML = ranged
+    ? '<rect x="2.6" y="9.4" width="11.2" height="5.2" rx="1.6"/><path d="M14.2 12h4.4M19.6 9.2 21.6 7.4M19.6 14.8 21.6 16.6M6 6.8V4.2"/>'
+    : '<circle cx="10" cy="14" r="5.4"/><path d="M15.2 8.8 20.4 3.6M17.8 12.6 22.6 11M11.8 8.6 12.2 3.8"/>';
+
+  /* 生命 */
+  setW('f1', S.hp1/MAX.hp*100); setW('g1', Math.max(S.g1,S.hp1)/MAX.hp*100);
+  setW('f2', S.hp2/MAX.hp*100); setW('g2', Math.max(S.g2,S.hp2)/MAX.hp*100);
+  $('#n1').querySelector('b').textContent = Math.round(S.hp1);
+  $('#n2').querySelector('b').textContent = Math.round(S.hp2);
+  $('#n1').classList.toggle('bump', S.hp1<MAX.hp);
+  $('#n2').classList.toggle('bump', S.hp2<MAX.hp);
+
+  /* 咒力 */
+  txt('#cs1', Math.round(S.curse1)); setW('cf1', S.curse1/MAX.curse*100);
+  txt('#cs2', Math.round(S.curse2)); setW('cf2', S.curse2/MAX.curse*100);
+  txt('#csNote', S.curse1>=100?'已满':(S.curse1<8?'⚠ 咒力不足 · 无法开炮':'回气中 +6/s'));
+  txt('#csNote2', S.curse2>=100?'已满':(S.curse2<8?'⚠ 咒力不足 · 无法开炮':'回气中 +6/s'));
+  document.body.classList.toggle('dry', S.curse1<8);
+
+  /* 行动资源（对手侧） */
+  txt('#apNum2', Math.floor(S.ap2));
+  [...$('#apPips2').children].forEach((el,i)=>el.classList.toggle('on', i<Math.floor(S.ap2)));
+
+  /* 领域弧槽 */
+  $('#arcP1').setAttribute('stroke-dashoffset', 100-S.dom1);
+  $('#arcP2').setAttribute('stroke-dashoffset', 100-S.dom2);
+  txt('#dom1', Math.round(S.dom1)+'%'); txt('#dom2', Math.round(S.dom2)+'%');
+  const armed = S.dom1>=100, active = S.phase==='active';
+  $('#domarcs').classList.toggle('armed', armed && !active);
+  $('#domarcs').classList.toggle('supp', S.supp);
+  $('#dchip').classList.toggle('on', armed && !active);
+  $('#dact').classList.toggle('on', active);
+  $('#dsupp').classList.toggle('on', active && S.supp);
+  document.body.classList.toggle('dom', active);
+  txt('#dnext', S.supp?'自动炮暂停':'下一发 '+TICKT.filter((t,i)=>!S.tick[i])[0]?.toFixed(1)+'s');
+  txt('#dorbs', '在途 '+S.tick.filter(v=>v===1).length+'/3');
+  [...$('#dact').querySelectorAll('.ticks b')].forEach((b,i)=>{
+    b.classList.toggle('done', S.tick[i]===1);
+    b.classList.toggle('next', S.tick[i]===0 && !S.supp);
+  });
+
+  /* 蓄力环 */
+  const info = S.charge ? chargeInfo(S.charge.t, S.curse1) : null;
+  $('#cPaid').setAttribute('stroke-dasharray', (info?info.qPaid*100:0).toFixed(2)+' 100');
+  $('#cOver').setAttribute('stroke-dasharray', info?('0 '+(info.qPaid*100).toFixed(2)+' '+((info.q-info.qPaid)*100).toFixed(2)+' 100'):'0 0 0 100');
+  $('#cannon').classList.toggle('full', !!(info && info.q>=1 && !info.limited));
+  const rd=$('#readout');
+  rd.classList.toggle('full', !!(info && info.q>=1 && !info.limited));
+  rd.classList.toggle('lim', !!(info && info.limited));
+  document.body.classList.toggle('charging', !!S.charge);
+  if(info){
+    txt('#roMain', '伤害 '+Math.round(info.dmg));
+    txt('#roSub', info.limited
+      ? '咒力不足 · 强度上限 '+Math.round(info.dmg)+' · 继续持炮不会变强'
+      : '蓄力 '+Math.min(S.charge.t,1.2).toFixed(2)+' / 1.20s · 已支付 '+Math.round(8+16*info.qPaid)+' 咒力');
+  } else if(ranged){
+    txt('#roMain','待机'); txt('#roSub','左键蓄力炮 30→90 · Q 超级炮 150→220');
+  } else {
+    txt('#roMain','近战'); txt('#roSub','拳击 35 / 40 / 55 · 重拳 75 · 腿击 45 · 重踢 95');
+  }
+
+  /* 准星 */
+  const gap = S.charge ? 12-8*S.charge.qPaid : (ranged?14:14);
+  const len = active?16:10, w = active?3:2;
+  const col = active?'#FF6633':(S.charge?'#FFE633':'#CCE6FF');
+  const R=$('#reticle');
+  const st=(el,x,y,ww,hh)=>{el.style.left=x+'px';el.style.top=y+'px';el.style.width=ww+'px';el.style.height=hh+'px';el.style.background=col;};
+  st(R.querySelector('.v1'),-w/2,-gap-len,w,len);
+  st(R.querySelector('.v2'),-w/2,gap,w,len);
+  st(R.querySelector('.h1'),-gap-len,-w/2,len,w);
+  st(R.querySelector('.h2'),gap,-w/2,len,w);
+  st(R.querySelector('.core'),-2,-2,4,4);
+  R.querySelector('.ring circle').setAttribute('stroke-dasharray',(info?info.q*100:0).toFixed(2)+' 100');
+
+  /* 大招位：领域能量环 */
+  const uR = clamp(S.dom1,0,100);
+  $('#ultRing').setAttribute('stroke-dasharray', uR.toFixed(1)+' 100');
+  $('#ultTile').classList.toggle('ready', uR>=100 && !active);
+  $('#ultTile').classList.toggle('locked', active);
+  txt('#ultCap', active?'领域展开中':(uR>=100?'领域展开 · 可放':'领域展开 '+Math.round(uR)+'%'));
+  $('#ultIcon').innerHTML = '<svg viewBox="0 0 24 24">'+ICON.domain+'</svg>';
+
+  /* 普通技状态 */
+  const cooling = S.id===7, domOn = active;
+  [...$('#normRow').children].forEach(el=>{
+    const n = el.dataset.n;
+    const isSuper = n==='超级炮';
+    const isCharged = n==='蓄力炮'||n==='超级炮';
+    el.classList.toggle('cool', isSuper && cooling);
+    el.classList.toggle('locked', domOn && isCharged);
+    el.classList.toggle('hot', !domOn && !!S.charge && isCharged);
+  });
+
+  /* 模式徽标 */
+  $('#mInfRes').classList.toggle('on', S.infRes);
+  document.body.classList.toggle('result', !!S.result);
+  if(S.result) txt('#resT', S.result);
+  [...btns.children].forEach(b=>b.classList.toggle('on', b.dataset.k===String(S.id)));
+}
+
+/* ---------- 状态机 ---------- */
+function reset(){
+  S.form='melee'; S.hp1=1000; S.g1=1000; S.hp2=1000; S.g2=1000;
+  S.curse1=100; S.curse2=74; S.ap2=5; S.dom1=0; S.dom2=74;
+  S.charge=null; S.phase='idle'; S.supp=false; S.infRes=false; S.result=null;
+  S.tick=[0,0,0];
+  document.getElementById('floats').innerHTML='';
+}
+function float(txtv, cls, x, y){
+  const d=document.createElement('div');
+  d.className='fl '+(cls||''); d.textContent=txtv;
+  d.style.left=(x||960)+'px'; d.style.top=(y||520)+'px';
+  document.getElementById('floats').appendChild(d);
+  setTimeout(()=>d.remove(),1000);
+}
+let loopTimer=null;
+function setState(k){
+  reset(); S.id=k;
+  if(loopTimer){clearInterval(loopTimer);loopTimer=null;}
+  switch(String(k)){
+    case '2': S.form='ranged'; S.dom1=46; break;
+    case '3': S.dom1=56;
+      [[420,35,false],[980,40,false],[1500,55,true]].forEach(([d,dmg,kb],i)=>setTimeout(()=>{
+        S.hp2=Math.max(0,S.hp2-dmg); S.g2=S.hp2+ (kb?70:25); S.curse1=Math.min(100,S.curse1+3);
+        float(String(dmg), kb?'gold':'', 1000, 400);
+      },d));
+      break;
+    case '4': S.form='ranged'; S.dom1=62; S.curse1=72; S.charge={t:0,target:0.72}; break;
+    case '5': S.form='ranged'; S.dom1=62; S.curse1=72; S.charge={t:0,target:1.2}; break;
+    case '6': S.form='ranged'; S.dom1=100; S.phase='armed'; break;
+    case '7': S.form='ranged'; S.dom1=62; S.curse1=87; break;
+    case '8': S.form='ranged'; S.dom1=0; S.curse1=100; S.infRes=true; S.phase='active'; S.phaseT=performance.now();
+              float('领域追踪 220','dom',1000,300); break;
+    case '9': S.form='ranged'; S.dom1=0; S.dom2=100; S.infRes=true; S.phase='active'; S.supp=true; S.phaseT=performance.now(); break;
+    case '0': S.form='ranged'; S.dom1=62; S.curse1=16; S.charge={t:1.2,target:1.2}; break;
+    case '-': S.hp1=220; S.g1=304; S.dom1=80; S.curse1=40; S.ap2=2; break;
+    case '=': S.hp2=0; S.g2=0; S.dom1=62; S.result='玩家胜利'; break;
+  }
+  rebuildSkills();
+  loopTimer=setInterval(tick,66);
+  render();
+  tick();
+}
+function tick(){
+  const now=performance.now();
+  /* 蓄力推进 */
+  if(S.charge && S.charge.target!==undefined && S.charge.t<S.charge.target){
+    S.charge.t=Math.min(S.charge.target, S.charge.t+0.066*1.1);
+  }
+  /* 领域调度 */
+  if(S.phase==='active'){
+    const t=(now-S.phaseT)/1000;
+    txt('#dclock', Math.max(0,6-t).toFixed(1));
+    if(!S.supp){
+      TICKT.forEach((tt,i)=>{
+        if(S.tick[i]===0 && t>=tt){
+          if(S.curse1>=65||S.infRes){ S.tick[i]=1; if(!S.infRes) S.curse1=Math.max(0,S.curse1-65);
+            float('领域追踪 220','dom',1000,300); }
+          else { S.tick[i]=2; float('咒力不足 · 跳过此次','warn',1000,240); }
+        }
+      });
+    }
+    if(t>6.4){ S.phase='idle'; S.tick=[0,0,0]; }
+  } else txt('#dclock','6.0');
+  /* 咒力回气：停炮 2s 后 +6/s（这里简化为持续小幅回气用于演示） */
+  if(S.curse1<100 && !S.charge) S.curse1=Math.min(100,S.curse1+0.4);
+  render();
+}
+
+/* ---------- 键盘 ---------- */
+addEventListener('keydown', e=>{
+  const k=e.key;
+  if('1234567890-='.includes(k)){ setState(k); e.preventDefault(); }
+  else if(k==='e'||k==='E'){ S.form = S.form==='melee'?'ranged':'melee';
+    $('#formDisc').classList.add('cd'); setTimeout(()=>$('#formDisc').classList.remove('cd'),500);
+    rebuildSkills(); render(); }
+  else if(k==='q'||k==='Q'){ if(S.form==='ranged'){ S.charge={t:0,target:1.2}; render(); } }
+});
+addEventListener('keyup', e=>{ if((e.key==='q'||e.key==='Q') && S.charge){ S.charge=null; render(); } });
+
+/* ---------- 自适应缩放 ---------- */
+function fit(){
+  const vp=document.getElementById('viewport');
+  const k=Math.min(innerWidth/1920, innerHeight/1080);
+  vp.style.transform='scale('+k+')';
+}
+addEventListener('resize',fit); fit();
+
+setState('1');
+</script>
+</body>
+</html>

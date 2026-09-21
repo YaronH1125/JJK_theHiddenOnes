@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>对战 HUD v2.0 · 石流龙 · JJK: The Hidden Ones</title>
+<style>
+/* ==========================================================
+   石流龙 对战 HUD — v2.0 视觉返工稿
+   条组层次依据：ref-naruto-storm4-hud.jpg / -zoom.png 的逐像素实测
+   图标母题依据：ref-ishigori-official.jpg（飞机头 / 毛领 / 方形腰带扣 / 头部炮击）
+   规则数值取自项目设计文档，未做平衡性改写
+   ========================================================== */
+:root{
+  --bg:#070B14; --fg:#EAF6FF; --muted:rgba(150,190,255,.55); --dim:rgba(150,190,255,.34);
+  --border:rgba(150,190,255,.18); --line2:rgba(150,190,255,.30);
+  --p1:#1FB4F0; --p2:#FF5F1F;
+  --hpc1:#F6FDFF; --hpc2:#A8ECF8; --hpc3:#5FC9E4; --ghost1:#8E2418; --ghost2:#4A100C;
+  --curse:#2E70FF; --curse1:#A9CBFF; --curse2:#2E70FF; --curse3:#1B49C8;
+  --action:#E6A81E; --dom:#A64DE6; --gold:#FFD166; --danger:#FF3B30;
+  --aim:#73F2F2; --chg:#FFE633;
+  --en:'Arial Black','Impact','Microsoft YaHei',sans-serif;
+  --zh:'Microsoft YaHei','PingFang SC','Hiragino Sans GB',sans-serif;
+  --sr:'Songti SC','SimSun',Georgia,serif;
+  --mo:Consolas,'Cascadia Mono',monospace;
+  --cut5:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+  --cut8:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  --cut12:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  /* 统一材质：三层——外描边 / 深色渐层 / 顶部内高光 */
+  --mat:linear-gradient(180deg,rgba(26,40,62,.96),rgba(9,14,26,.94));
+  --mat2:linear-gradient(180deg,rgba(16,26,44,.94),rgba(6,10,19,.96));
+  --glass:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -1px 0 rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#03050A;color:var(--fg);font-family:var(--zh);overflow:hidden;height:100vh;
+  display:flex;align-items:center;justify-content:center}
+#viewport{position:relative;width:1920px;height:1080px;transform-origin:center center;background:var(--bg);
+  overflow:hidden;flex:none}
+.num{font-family:var(--en);font-variant-numeric:tabular-nums}
+
+/* ---------- 舞台 ---------- */
+#arena{position:absolute;inset:0}
+#arena .sky{position:absolute;inset:0;
+  background:radial-gradient(140% 90% at 50% 112%,#12203A 0%,#0A1220 44%,transparent 74%),
+             linear-gradient(#04060D 0%,#070C18 46%,#0B1424 64%,#05080F 100%)}
+#arena .dome{position:absolute;left:50%;top:2%;width:1700px;height:860px;margin-left:-850px;border-radius:50%;
+  border:1px solid rgba(120,170,255,.11);
+  background:radial-gradient(closest-side,rgba(60,110,220,.14),transparent 78%)}
+#arena .dome2{position:absolute;left:50%;top:12%;width:1240px;height:640px;margin-left:-620px;border-radius:50%;
+  border:1px solid rgba(120,170,255,.055)}
+#arena .plate{position:absolute;left:50%;bottom:-16%;width:1500px;height:600px;margin-left:-750px;border-radius:50%;
+  border:1px solid rgba(150,190,255,.22);
+  background:radial-gradient(closest-side,rgba(150,190,255,.12),rgba(10,18,32,.90) 70%);
+  box-shadow:0 0 200px rgba(40,90,200,.22) inset}
+#arena .plate2{position:absolute;left:50%;bottom:-2%;width:1180px;height:460px;margin-left:-590px;border-radius:50%;
+  border:1px solid rgba(150,190,255,.10)}
+#arena .plate3{position:absolute;left:50%;bottom:8%;width:760px;height:300px;margin-left:-380px;border-radius:50%;
+  border:1px solid rgba(166,77,230,.16)}
+#arena .me,#arena .foe{position:absolute;left:50%;width:130px;height:310px;margin-left:-65px;
+  clip-path:polygon(34% 0,66% 0,100% 30%,86% 100%,14% 100%,0 30%)}
+#arena .me{top:52%;background:linear-gradient(rgba(31,180,240,.30),rgba(31,180,240,.04));
+  border:1px solid rgba(31,180,240,.55);
+  filter:drop-shadow(6px 0 0 rgba(31,180,240,.35)) drop-shadow(-5px 0 0 rgba(255,95,31,.18))}
+#arena .foe{top:33%;width:88px;height:210px;margin-left:-44px;
+  background:linear-gradient(rgba(255,95,31,.32),rgba(255,95,31,.05));border:1px solid rgba(255,95,31,.55);
+  filter:drop-shadow(4px 0 0 rgba(255,95,31,.45)) drop-shadow(-4px 0 0 rgba(31,180,240,.20))}
+#arena .veil{position:absolute;inset:0;opacity:0;transition:opacity .3s ease-out;
+  background:radial-gradient(70% 58% at 50% 74%,rgba(255,209,102,.20),rgba(166,77,230,.22) 46%,transparent 78%);
+  mix-blend-mode:screen}
+body.dom #arena .veil{opacity:1}
+body.dom #arena .dome,body.dom #arena .plate{filter:hue-rotate(-14deg) saturate(1.3) brightness(1.06)}
+body.dom #arena .me,body.dom #arena .foe{border-color:var(--gold)}
+body.dom #arena .plate3{border-color:rgba(255,209,102,.40);box-shadow:0 0 60px rgba(255,209,102,.20)}
+body.supp #arena .dome,body.supp #arena .plate{filter:saturate(.45) brightness(.9)}
+body.supp #arena .plate3{border-color:rgba(150,190,255,.18)}
+/* 顶部压暗带：让条组从场景里"浮"出来，同时提升读数对比 */
+#topband{position:absolute;left:0;top:0;width:100%;height:230px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(3,6,12,.72) 0%,rgba(3,6,12,.42) 42%,rgba(3,6,12,0) 100%)}
+
+/* ---------- 上左 / 上右：头像 + 条组 ---------- */
+.ident{position:absolute;top:28px;display:flex;align-items:flex-start;gap:11px}
+#idP1{left:32px}
+#idP2{right:32px;flex-direction:row-reverse}
+/* 头像：三层框（外细线 / 深色带 / 内身份色能量线）+ 切角 + 斜向高光 */
+.portrait{position:relative;width:92px;height:92px;flex:none;padding:1px;
+  background:linear-gradient(150deg,rgba(255,255,255,.34),rgba(150,190,255,.06) 46%,rgba(255,255,255,.16));
+  clip-path:var(--cut12);box-shadow:0 6px 18px rgba(0,0,0,.55)}
+.portrait .inner{position:relative;width:100%;height:100%;padding:2px;clip-path:var(--cut12);
+  background:linear-gradient(180deg,rgba(10,16,28,.96),rgba(4,7,13,.98))}
+.portrait .imgwrap{position:relative;width:100%;height:100%;overflow:hidden;clip-path:var(--cut12)}
+.portrait img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.06)}
+.portrait .sheen{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(112deg,rgba(255,255,255,.16) 0 14%,rgba(255,255,255,0) 34%),
+             linear-gradient(0deg,rgba(4,7,13,.78),rgba(4,7,13,0) 46%)}
+.portrait .edge{position:absolute;left:1px;top:6px;bottom:6px;width:2px;background:var(--p1);
+  box-shadow:0 0 10px rgba(31,180,240,.95)}
+#idP2 .portrait .edge{left:auto;right:1px;background:var(--p2);box-shadow:0 0 10px rgba(255,95,31,.95)}
+.portrait .tag{position:absolute;left:2px;bottom:2px;font-family:var(--en);font-size:11px;letter-spacing:.1em;
+  padding:0 6px;line-height:15px;background:rgba(3,6,12,.9);color:var(--p1);clip-path:var(--cut5);
+  border-top:1px solid rgba(31,180,240,.4)}
+#idP2 .portrait .tag{left:auto;right:2px;color:var(--p2);border-top-color:rgba(255,95,31,.4)}
+.stack{display:flex;flex-direction:column;width:500px}
+#idP2 .stack{align-items:flex-end}
+.namerow{display:flex;align-items:center;gap:9px;height:20px;width:100%}
+#idP2 .namerow{flex-direction:row-reverse}
+.namerow .nm{font-size:14.5px;font-weight:700;letter-spacing:.10em;text-shadow:0 1px 4px rgba(0,0,0,.9)}
+.namerow .lvl{font-size:9px;letter-spacing:.12em;color:var(--muted);border:1px solid var(--border);
+  padding:0 5px;line-height:13px;clip-path:var(--cut5);background:rgba(6,11,20,.6)}
+.namerow .st{font-size:9px;letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);
+  padding:0 5px;line-height:13px;clip-path:var(--cut5);white-space:nowrap;background:rgba(6,11,20,.6)}
+.namerow .st.warn2{color:#FF8A80;border-color:rgba(255,59,48,.55);background:rgba(255,59,48,.12)}
+.namerow .hpv{margin-left:auto;font-size:12px;color:rgba(242,247,255,.55);display:flex;align-items:baseline;gap:5px}
+#idP2 .namerow .hpv{margin-left:0;margin-right:auto}
+.namerow .hpv b{font-family:var(--en);font-size:15px;color:var(--fg);opacity:.92;
+  transition:color .18s,transform .18s,text-shadow .18s;display:inline-block;transform-origin:100% 50%}
+#idP2 .namerow .hpv b{transform-origin:0 50%}
+.namerow .hpv.bump b{color:#fff;transform:scale(1.16);text-shadow:0 0 14px rgba(255,214,110,.95)}
+/* 生命条：外描边 + 内斜面 + 玻璃管质感 + 前沿光刃 */
+.hpwrap{position:relative;width:100%;height:16px;margin-top:4px}
+.hpbar{height:16px;padding:1px;clip-path:polygon(0 0,100% 0,calc(100% - 13px) 100%,0 100%);
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(31,180,240,.30) 55%,rgba(31,180,240,.10));
+  box-shadow:0 2px 10px rgba(0,0,0,.5)}
+#idP2 .hpbar{clip-path:polygon(13px 0,100% 0,100% 100%,0 100%);
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,95,31,.30) 55%,rgba(255,95,31,.10))}
+.hpclip{position:relative;width:100%;height:100%;overflow:hidden;background:linear-gradient(180deg,#05080F,#0A1020);
+  clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,0 100%);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.95),inset 0 -1px 0 rgba(150,190,255,.10)}
+#idP2 .hpclip{clip-path:polygon(12px 0,100% 0,100% 100%,0 100%)}
+.hpclip .ghost,.hpclip .fill{position:absolute;left:0;top:0;height:100%}
+#idP2 .hpclip .ghost,#idP2 .hpclip .fill{left:auto;right:0}
+.hpclip .ghost{background:linear-gradient(180deg,var(--ghost1),var(--ghost2));
+  box-shadow:inset 0 1px 0 rgba(255,120,100,.35);transition:width .35s ease-out .6s}
+.hpclip .fill{background:linear-gradient(180deg,var(--hpc1) 0%,var(--hpc2) 46%,var(--hpc3) 100%);
+  box-shadow:0 0 16px rgba(159,232,245,.55),inset 0 1px 0 rgba(255,255,255,.85);transition:width .12s ease-out}
+#idP2 .hpclip .fill{background:linear-gradient(270deg,var(--hpc1) 0%,var(--hpc2) 46%,var(--hpc3) 100%)}
+.hpclip .lead{position:absolute;top:0;bottom:0;width:2px;background:#fff;opacity:.9;
+  box-shadow:0 0 10px rgba(255,255,255,.95),0 0 22px rgba(159,232,245,.75);
+  transition:left .12s ease-out,right .12s ease-out}
+.hpclip .sheen{position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.04) 42%,rgba(0,0,0,.14) 100%)}
+.low .hpbar{animation:lowPulse 1.2s ease-in-out infinite}
+@keyframes lowPulse{0%,100%{filter:none}50%{filter:drop-shadow(0 0 12px rgba(255,59,48,.95))}}
+/* 咒力条：紧贴生命条下方（0 间距），更薄、更沉。
+   注意：.b 带 overflow:hidden（为裁填充），任何"出头"的标记放进去都会被吃掉，
+   所以 8% 门槛刻度必须挂在 .cwrap 上而不是 .b 里 */
+.cwrap{position:relative;width:100%}
+.cbar{position:relative;width:100%;height:11px;padding:1px;
+  background:linear-gradient(180deg,rgba(160,200,255,.42),rgba(46,112,255,.20));
+  clip-path:polygon(0 0,100% 0,calc(100% - 11px) 100%,0 100%)}
+#idP2 .cbar{clip-path:polygon(11px 0,100% 0,100% 100%,0 100%)}
+.cbar>.b{position:relative;display:block;width:100%;height:100%;overflow:hidden;
+  background:linear-gradient(180deg,#04070E,#080E1C);
+  clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.95)}
+#idP2 .cbar>.b{clip-path:polygon(10px 0,100% 0,100% 100%,0 100%)}
+/* 填充：左锚定（P1）/ 右锚定（P2）—— P2 必须同时 left:auto，否则宽度算错会塌成 0 */
+.cbar .cf{position:absolute;left:0;top:0;height:100%;width:0;
+  background:linear-gradient(180deg,var(--curse1),var(--curse2) 58%,var(--curse3));
+  box-shadow:0 0 12px rgba(46,112,255,.8),inset 0 1px 0 rgba(255,255,255,.45);transition:width .14s linear}
+#idP2 .cbar .cf{left:auto;right:0}
+/* 8 点阈值刻度：去格子后它是条上唯一的内部标记，做成上下各出头 4px 的红色闸门 + 两端三角。
+   它是决策信息（咒力不足 8 点无法开炮），不是装饰，所以允许压过相邻条 */
+.cwrap .cmin{position:absolute;left:8%;top:-4px;bottom:-4px;width:2px;background:var(--danger);z-index:3;
+  box-shadow:0 0 9px rgba(255,59,48,.95)}
+.cwrap .cmin::before,.cwrap .cmin::after{content:'';position:absolute;left:-3px;width:8px;height:4px;
+  background:var(--danger)}
+.cwrap .cmin::before{bottom:100%;clip-path:polygon(50% 100%,0 0,100% 0)}
+.cwrap .cmin::after{top:100%;clip-path:polygon(50% 0,0 100%,100% 100%)}
+#idP2 .cwrap .cmin{left:auto;right:8%}
+body.dry .cbar{animation:dryPulse 1s ease-in-out infinite}
+@keyframes dryPulse{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px rgba(255,59,48,.95))}}
+/* 行动资源归玩家：一条连续长条 + 上缘极细刻度（5 单位 = 4 道刻度），不是 5 个格子。
+   刻度必须站在被 clip-path 裁切的 .aptrack 之外，否则会被裁掉 —— 所以条体单独包一层 */
+.aprow{display:flex;align-items:center;gap:7px;width:100%;height:16px;margin-top:5px}
+#idP2 .aprow{flex-direction:row-reverse}
+.aplab{font-size:9px;letter-spacing:.14em;color:var(--muted);white-space:nowrap;flex:none}
+.apbar{position:relative;flex:1;height:14px}
+.aptrack{position:absolute;left:0;right:0;bottom:0;display:block;height:9px;padding:1px;
+  background:linear-gradient(180deg,rgba(230,168,30,.40),rgba(230,168,30,.14));
+  clip-path:polygon(0 0,100% 0,calc(100% - 9px) 100%,0 100%)}
+.apfill{position:absolute;left:1px;top:1px;bottom:1px;display:block;width:0;max-width:calc(100% - 2px);
+  background:linear-gradient(180deg,#F8D98A,var(--gold) 55%,#B9811A);
+  box-shadow:0 0 11px rgba(230,168,30,.65),inset 0 1px 0 rgba(255,240,200,.75);
+  transition:width .16s linear}
+/* 4 道 2px × 4px 的短刻度，只挂在上缘、只标 20/40/60/80% —— 2px 而不是 1px：
+   1px 在 0.9375 设备缩放下会被抗锯齿摊薄到几乎看不见（渲染实测 luma 仅 79/150） */
+.apmarks{position:absolute;left:0;right:0;top:0;display:block;height:5px}
+.apmarks b{position:absolute;bottom:0;width:2px;height:4px;background:rgba(230,168,30,.92);
+  box-shadow:0 0 4px rgba(230,168,30,.45)}
+.apmarks b:nth-child(1){left:20%}.apmarks b:nth-child(2){left:40%}
+.apmarks b:nth-child(3){left:60%}.apmarks b:nth-child(4){left:80%}
+.apval{display:flex;align-items:baseline;gap:4px;flex:none;font-size:9px;color:rgba(242,247,255,.55)}
+.apval b{font-family:var(--en);font-size:12px;color:var(--gold);opacity:.94;
+  transition:color .18s,text-shadow .18s}
+.aprow.spent .apval b{color:var(--danger);text-shadow:0 0 12px rgba(255,59,48,.9)}
+
+/* ---------- 顶部中央：领域 ---------- */
+.domarcs{position:absolute;left:0;top:0;width:1920px;height:120px}
+.domarcs path{fill:none;stroke-linecap:round}
+.domarcs .trk{stroke:rgba(150,190,255,.15);stroke-width:5}
+.domarcs .gl{stroke:rgba(0,0,0,.55);stroke-width:11}
+.domarcs .fil{stroke:var(--dom);stroke-width:5;opacity:0;
+  filter:drop-shadow(0 0 7px rgba(166,77,230,.8));
+  transition:stroke .25s ease-out,opacity .25s ease-out}
+.domarcs.armed .fil{stroke:var(--gold);filter:drop-shadow(0 0 12px rgba(255,209,102,.95))}
+.domarcs.supp .fil{stroke:#7C879B;filter:none}
+.arclbl{position:absolute;top:64px;width:130px;font-size:10.5px;letter-spacing:.06em;color:var(--muted);
+  transition:opacity .2s ease-out}
+#lblP1{left:664px}
+#lblP2{left:1126px;text-align:right}
+body.dom .arclbl{opacity:0}
+.arclbl b{font-family:var(--en);font-size:13px;color:var(--dom)}
+.dchip{position:absolute;left:960px;top:70px;transform:translateX(-50%);height:26px;padding:0 12px;
+  display:none;align-items:center;gap:7px;font-size:11px;color:var(--gold);
+  background:linear-gradient(180deg,rgba(48,34,6,.92),rgba(20,14,3,.92));
+  border:1px solid rgba(255,209,102,.42);clip-path:var(--cut5);box-shadow:0 0 22px rgba(255,209,102,.25)}
+.dchip.on{display:flex;animation:chipPulse 1.4s ease-in-out infinite}
+@keyframes chipPulse{0%,100%{box-shadow:0 0 14px rgba(255,209,102,.20)}50%{box-shadow:0 0 28px rgba(255,209,102,.5)}}
+.dact{position:absolute;left:960px;top:52px;transform:translateX(-50%);display:none;text-align:center;width:760px}
+.dact.on{display:block}
+.dact .title{font-family:var(--sr);font-size:27px;font-weight:700;letter-spacing:.36em;text-indent:.36em;
+  background:linear-gradient(92deg,#FFD166,#FFF0C8 42%,#C98CF0);-webkit-background-clip:text;background-clip:text;
+  color:transparent;filter:drop-shadow(0 0 20px rgba(255,209,102,.6)) drop-shadow(0 2px 5px rgba(0,0,0,.9))}
+.dact .rule{position:relative;width:460px;height:9px;margin:4px auto 0;
+  background:linear-gradient(90deg,transparent,rgba(255,209,102,.55),transparent) center/100% 1px no-repeat}
+.dact .rule::before,.dact .rule::after{content:'';position:absolute;top:1px;width:7px;height:7px;
+  transform:rotate(45deg);background:var(--gold);box-shadow:0 0 8px rgba(255,209,102,.9)}
+.dact .rule::before{left:-3px}.dact .rule::after{right:-3px}
+.dact .meta{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:6px;font-size:11px;color:var(--muted)}
+.dact .clock{font-family:var(--en);font-size:18px;color:var(--fg);text-shadow:0 0 10px rgba(255,255,255,.35)}
+.dact .ticks{position:relative;width:300px;height:12px;border-radius:2px;
+  background:linear-gradient(90deg,rgba(150,190,255,.10),rgba(150,190,255,.16),rgba(150,190,255,.10))}
+.dact .ticks .bg{position:absolute;left:0;top:5px;width:100%;height:2px;background:rgba(150,190,255,.22)}
+.dact .ticks b{position:absolute;top:2px;width:9px;height:9px;transform:rotate(45deg);margin-left:-4.5px;
+  border:1px solid rgba(255,209,102,.5);background:rgba(6,10,18,.92);transition:all .2s}
+.dact .ticks b.t0{left:5%}.dact .ticks b.t1{left:38.3%}.dact .ticks b.t2{left:71.7%}
+.dact .ticks b.done{background:var(--gold);border-color:var(--gold);box-shadow:0 0 14px rgba(255,209,102,.95)}
+.dact .ticks b.skip{border-color:rgba(255,59,48,.85);background:rgba(255,59,48,.22)}
+.dact .ticks b.next{border-color:#fff;animation:tickPulse .5s ease-out infinite}
+.dact .ticks .ph{position:absolute;top:-1px;width:2px;height:14px;background:linear-gradient(180deg,#fff,var(--gold));
+  box-shadow:0 0 10px rgba(255,209,102,.95)}
+@keyframes tickPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 12px rgba(255,255,255,.95)}}
+.dact .next{color:rgba(255,209,102,.95)}
+.dact .orbs{display:inline-flex;align-items:center;gap:5px;color:rgba(255,209,102,.85)}
+.dact .orbs i{width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,209,102,.55);
+  background:rgba(6,10,18,.9)}
+.dact .orbs i.on{background:radial-gradient(circle at 40% 35%,#FFF0C8,var(--dom));border-color:var(--gold);
+  box-shadow:0 0 10px rgba(255,209,102,.9)}
+.dsupp{position:absolute;left:960px;top:136px;transform:translateX(-50%);display:none;font-size:11.5px;
+  letter-spacing:.10em;color:#C3CCDA;background:rgba(8,14,26,.80);padding:2px 11px;clip-path:var(--cut5);
+  border:1px solid rgba(150,190,255,.22)}
+.dsupp.on{display:block}
+.modebar{position:absolute;left:600px;top:168px;width:720px;display:flex;justify-content:center;gap:8px}
+.modebar b{font-weight:400;font-size:10px;color:rgba(242,247,255,.72);border:1px solid var(--border);
+  padding:1px 8px;background:var(--mat2);clip-path:var(--cut5)}
+.modebar b.on{color:var(--aim);border-color:rgba(115,242,242,.45);background:rgba(115,242,242,.10)}
+
+/* ---------- 准星（修复：left/top 以容器中心为基准 + translate 居中） ---------- */
+#reticle{position:absolute;left:960px;top:540px;width:220px;height:220px;margin:-110px 0 0 -110px;opacity:0;
+  transition:opacity .18s}
+body.ranged #reticle{opacity:1}
+#reticle i{position:absolute;transform:translate(-50%,-50%);background:#CCE6FF;
+  transition:all .1s linear;box-shadow:0 0 7px currentColor,0 0 2px rgba(0,0,0,.9)}
+#reticle .ring{position:absolute;inset:0;overflow:visible}
+#reticle .ring circle{fill:none;stroke:var(--chg);stroke-width:2;opacity:0;transition:opacity .18s;
+  transform:rotate(-90deg);transform-origin:110px 110px}
+body.charging #reticle .ring circle{opacity:.95}
+#reticle .ring circle.bg{stroke:rgba(150,190,255,.18);opacity:.85}
+body.charging #reticle .ring circle.bg{opacity:.30}
+
+/* ---------- 下中：蓄力环 + 形态圆盘（与技能区共用圆形语言） ---------- */
+#cannon{position:absolute;left:820px;top:794px;width:280px;height:280px}
+#cannon svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#cannon .halo{fill:none;stroke:rgba(31,180,240,.10);stroke-width:34}
+#cannon .trk{fill:none;stroke:rgba(0,0,0,.62);stroke-width:24}
+#cannon .trk2{fill:none;stroke:rgba(150,190,255,.13);stroke-width:18}
+#cannon .paid{fill:none;stroke:var(--chg);stroke-width:18;filter:drop-shadow(0 0 9px rgba(255,230,51,.8));
+  transition:stroke .2s}
+#cannon .over{fill:none;stroke:var(--danger);stroke-width:18}
+#cannon.full .paid{stroke:var(--gold);filter:drop-shadow(0 0 14px rgba(255,209,102,.95))}
+#cannon .rim{fill:none;stroke:rgba(150,190,255,.20);stroke-width:1}
+#cannon .rim2{fill:none;stroke:rgba(150,190,255,.08);stroke-width:1}
+#cannon .ticks line{stroke:rgba(150,190,255,.20);stroke-width:1.5}
+#cannon .ticks line.lit{stroke:var(--chg);filter:drop-shadow(0 0 4px rgba(255,230,51,.8))}
+#cannon .dot{fill:#fff;filter:drop-shadow(0 0 8px rgba(255,230,51,1))}
+#formDisc{position:absolute;left:902px;top:876px;width:116px;height:116px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  background:radial-gradient(closest-side,rgba(31,180,240,.22),rgba(6,10,18,.96) 76%);
+  border:1px solid rgba(150,190,255,.30);
+  box-shadow:inset 0 0 24px rgba(0,0,0,.85),0 0 0 6px rgba(4,8,14,.55),0 6px 20px rgba(0,0,0,.6);
+  transition:background .2s}
+#formDisc::after{content:'';position:absolute;inset:9px;border-radius:50%;
+  border:1px solid rgba(150,190,255,.12)}
+#formDisc.ranged{background:radial-gradient(closest-side,rgba(115,242,242,.22),rgba(6,10,18,.96) 76%)}
+#formDisc svg{width:32px;height:32px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;
+  stroke-linejoin:round;position:relative;z-index:1;filter:drop-shadow(0 0 6px rgba(204,230,255,.35))}
+#formDisc .nm{font-size:12.5px;font-weight:700;letter-spacing:.16em;margin-top:5px;position:relative;z-index:1}
+/* 蓄力读数：贴在环顶的窄条，左缘用状态色起笔，不再是表格行 */
+#readout{position:absolute;left:790px;top:714px;width:340px;height:34px;display:flex;align-items:stretch;
+  background:linear-gradient(180deg,rgba(20,32,52,.94),rgba(8,13,24,.92));
+  border:1px solid rgba(150,190,255,.24);clip-path:var(--cut8);box-shadow:var(--glass),0 6px 18px rgba(0,0,0,.5)}
+#readout .edge{width:3px;background:var(--chg);box-shadow:0 0 12px rgba(255,230,51,.8);flex:none}
+#readout.full .edge{background:var(--gold);box-shadow:0 0 12px rgba(255,209,102,.9)}
+#readout.lim .edge{background:var(--danger);box-shadow:0 0 12px rgba(255,59,48,.9)}
+#readout .bd{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;font-size:10px;
+  color:var(--muted);padding:0 12px}
+#readout .mn{font-family:var(--en);font-size:15px;color:var(--chg)}
+#readout.full .mn{color:var(--gold)}
+#readout.lim .mn{color:var(--danger)}
+
+/* ---------- 右下：技能行（单排，非弧形） ----------
+   形制依据：ref-genshin-ui.png / ref-wuthering-waves-ui.png
+   —— 按钮上只有键位字母，没有任何技能名称 / 派生说明 / 秒数
+   —— 三格同排、圆心距一律 120px（= 参考图量得的 160px × 0.7503），左起 Q → E → R */
+#skills{position:absolute;inset:0;pointer-events:none}
+.skill{position:absolute;width:70px;height:70px;transform:translate(-50%,-50%);pointer-events:auto}
+.skill .orb{position:absolute;inset:0;border-radius:50%;padding:1px;
+  background:linear-gradient(180deg,rgba(255,255,255,.36),rgba(150,190,255,.14) 52%,rgba(255,255,255,.10));
+  box-shadow:0 6px 18px rgba(0,0,0,.55);transition:background .16s,box-shadow .2s}
+.skill .disc{position:absolute;inset:1px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(closest-side at 50% 34%,rgba(30,46,72,.96),rgba(7,11,21,.98));
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.9),inset 0 -1px 0 rgba(150,190,255,.10);transition:background .18s}
+.skill svg.ic{width:38px;height:38px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;
+  stroke-linejoin:round;position:relative;z-index:1;color:var(--fg)}
+.skill .key{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);font-family:var(--en);font-size:11px;
+  letter-spacing:.06em;color:var(--fg);background:rgba(3,6,12,.94);border:1px solid rgba(150,190,255,.30);
+  padding:0 6px;line-height:15px;clip-path:var(--cut5);z-index:3}
+/* 冷却中：自顶部顺时针扫过的暗色扇形，不写秒数 */
+.skill .sweep{position:absolute;inset:1px;border-radius:50%;display:none;z-index:2}
+/* 形态再切间隔 0.5s：收束的细弧，不写文字 */
+.skill .sw{position:absolute;inset:0;opacity:0;z-index:4;pointer-events:none}
+.skill .sw circle{fill:none;stroke:var(--aim);stroke-width:2;stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:35px 35px;filter:drop-shadow(0 0 6px rgba(115,242,242,.85))}
+.skill.switching .sw{opacity:1;animation:swArc .5s linear forwards}
+@keyframes swArc{from{stroke-dasharray:195 0}to{stroke-dasharray:0 195}}
+.skill.use .orb{background:linear-gradient(180deg,#FFF6B0,var(--chg) 46%,rgba(255,230,51,.25));
+  box-shadow:0 0 22px rgba(255,230,51,.55),0 6px 18px rgba(0,0,0,.5)}
+.skill.use .disc{background:radial-gradient(closest-side at 50% 34%,rgba(74,64,10,.96),rgba(12,12,8,.98))}
+.skill.use svg.ic{color:var(--chg);filter:drop-shadow(0 0 7px rgba(255,230,51,.85))}
+.skill.cool .orb{background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(150,190,255,.06))}
+.skill.cool svg.ic{color:rgba(242,247,255,.30)}
+.skill.cool .sweep{display:block}
+.skill.cool .disc{background:radial-gradient(closest-side at 50% 34%,rgba(18,26,42,.94),rgba(5,8,16,.98))}
+.skill.locked .orb{background:linear-gradient(180deg,rgba(198,150,255,.34),rgba(120,70,190,.18))}
+.skill.locked .disc{background:radial-gradient(closest-side at 50% 34%,rgba(46,26,70,.94),rgba(10,6,18,.98))}
+.skill.locked .disc::before{content:'';position:absolute;inset:0;border-radius:50%;
+  background:repeating-linear-gradient(135deg,rgba(166,77,230,.24) 0 3px,transparent 3px 9px)}
+.skill.locked svg.ic{color:rgba(214,180,255,.5)}
+/* 大招位：主位，Ø96（普通技 Ø70 × 1.37）；圆心 (1820,1004) → 键位标签中心距屏右 100px
+   与普通技 E(1700) 圆心距同为 120px；Ø96 与 Ø70 净间隙 = 120−48−35 = 37px，不挤 */
+.ult{position:absolute;left:1820px;top:1004px;width:96px;height:96px;transform:translate(-50%,-50%);
+  pointer-events:auto}
+.ult .orb{position:absolute;inset:0;border-radius:50%;padding:2px;
+  background:linear-gradient(180deg,rgba(255,226,160,.55),rgba(166,77,230,.35) 55%,rgba(255,255,255,.12));
+  box-shadow:0 8px 26px rgba(0,0,0,.6);transition:background .2s,box-shadow .25s}
+.ult .disc{position:absolute;inset:2px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(closest-side at 50% 32%,rgba(70,34,104,.95),rgba(8,8,18,.98));
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.9);transition:background .2s}
+.ult svg{width:46px;height:46px;fill:none;stroke:var(--gold);stroke-width:1.6;stroke-linecap:round;
+  stroke-linejoin:round;position:relative;z-index:1;filter:drop-shadow(0 0 8px rgba(255,209,102,.6))}
+/* 能量环：与圆盘同心并贴合外缘 —— viewBox 96 = 按钮 96px，r=45.5 → 环外缘 47，落在 48px 半径内 1px。
+   能量为 0 时只剩 .bgc 这圈极淡边光，读作按钮自身的边缘，而不是悬在按钮外的圆圈 */
+.ult .ring{position:absolute;left:0;top:0;width:96px;height:96px;transform:rotate(-90deg)}
+.ult .ring circle{fill:none;stroke-width:3;stroke-linecap:round}
+.ult .ring .bgc{stroke:rgba(150,190,255,.13)}
+/* 能量为 0 时隐藏 fgc：零长度 dash 在 round 线帽下会画出一个圆点（旧缺陷） */
+.ult .ring .fgc{stroke:var(--dom);stroke-dasharray:0 100;opacity:0;
+  transition:stroke-dasharray .25s ease-out,opacity .25s ease-out,stroke .2s ease-out;
+  filter:drop-shadow(0 0 6px rgba(166,77,230,.9))}
+/* 大招位只用键位字母 R：能量靠外环、可放靠金色高亮，均不写文字。
+   标签底边压在按钮下缘外 9px —— 键位标签中心落在 y=1039，与实测的原神标签带中心一致 */
+.ult .key{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);font-family:var(--en);font-size:11px;
+  letter-spacing:.06em;color:var(--gold);background:rgba(3,6,12,.94);border:1px solid rgba(255,209,102,.42);
+  padding:0 7px;line-height:15px;clip-path:var(--cut5);z-index:3}
+.ult.ready .orb{background:linear-gradient(180deg,#FFE9A8,var(--gold) 48%,rgba(166,77,230,.5));
+  box-shadow:0 0 30px rgba(255,209,102,.55),0 8px 26px rgba(0,0,0,.55);animation:ultReady 1.5s ease-in-out infinite}
+.ult.ready .ring .fgc{stroke:var(--gold);filter:drop-shadow(0 0 7px rgba(255,209,102,.95))}
+@keyframes ultReady{0%,100%{filter:none}50%{filter:drop-shadow(0 0 20px rgba(255,209,102,.95))}}
+.ult.locked .orb{background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(150,190,255,.08))}
+.ult.locked .disc{background:radial-gradient(closest-side at 50% 32%,rgba(24,30,46,.94),rgba(5,8,16,.98))}
+.ult.locked svg{stroke:rgba(242,247,255,.32);filter:none}
+.ult.locked .ring .fgc{stroke:rgba(150,190,255,.25)}
+
+/* ---------- 飘字 / 结果 / 键位 ---------- */
+#floats{position:absolute;inset:0;pointer-events:none}
+.fl{position:absolute;transform:translateX(-50%);font-family:var(--en);font-size:20px;font-weight:700;
+  color:#fff;text-shadow:0 2px 6px #000,0 0 16px rgba(0,0,0,.95);animation:rise .9s ease-out forwards;white-space:nowrap}
+.fl.gold{color:var(--gold);font-size:28px} .fl.cyan{color:var(--aim);font-size:15px}
+.fl.dom{color:var(--gold);font-size:22px} .fl.warn{color:var(--danger);font-size:14px}
+@keyframes rise{0%{opacity:0;margin-top:10px}22%{opacity:1}100%{opacity:0;margin-top:-44px}}
+#keys{position:absolute;left:32px;bottom:16px;display:flex;gap:18px;font-size:11px;color:var(--muted);
+  background:linear-gradient(180deg,rgba(8,13,24,.62),rgba(8,13,24,.30));border:1px solid rgba(150,190,255,.12);
+  padding:6px 14px;clip-path:var(--cut8)}
+#keys .k{display:flex;align-items:center;gap:5px}
+#keys .sep{width:1px;height:14px;background:rgba(150,190,255,.16)}
+kbd{font-family:var(--en);font-size:10px;color:var(--fg);background:linear-gradient(180deg,rgba(150,190,255,.20),rgba(150,190,255,.08));
+  border:1px solid var(--border);padding:0 5px;line-height:16px;clip-path:var(--cut5)}
+#result{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;background:rgba(5,10,22,.70);backdrop-filter:blur(3px)}
+body.result #result{display:flex}
+#result .t{font-family:var(--sr);font-size:46px;letter-spacing:.34em;text-indent:.34em;color:var(--aim);
+  text-shadow:0 0 30px rgba(115,242,242,.55)}
+#result .rule{width:560px;height:1px;background:linear-gradient(90deg,transparent,rgba(150,190,255,.5),transparent)}
+#result .s{font-size:13px;color:rgba(242,247,255,.82);letter-spacing:.1em}
+#result .k{font-size:11px;color:var(--muted);margin-top:6px}
+
+/* ---------- 状态控制台（开发用，不入正式 HUD） ---------- */
+#panel{position:absolute;left:32px;top:318px;width:196px;padding:1px;background:rgba(150,190,255,.22);
+  clip-path:var(--cut12)}
+#panel .bd{padding:10px 9px;background:var(--mat2);clip-path:var(--cut8);box-shadow:var(--glass)}
+#panel h4{font-size:11px;letter-spacing:.12em;color:var(--muted);margin-bottom:2px}
+#panel .sub{font-size:9px;color:var(--dim);margin-bottom:8px}
+#panel button{width:100%;text-align:left;margin-bottom:3px;padding:4px 7px;font-size:10.5px;cursor:pointer;
+  color:var(--muted);background:rgba(150,190,255,.05);border:1px solid rgba(150,190,255,.18);
+  clip-path:var(--cut5);font-family:var(--zh);transition:all .12s}
+#panel button:hover{color:var(--fg);border-color:rgba(150,190,255,.45);background:rgba(150,190,255,.10)}
+#panel button.on{color:var(--fg);background:rgba(31,180,240,.18);border-color:rgba(31,180,240,.65)}
+#panel .note{margin-top:8px;font-size:9px;color:var(--dim);line-height:1.5}
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="arena">
+    <div class="sky"></div><div class="dome"></div><div class="dome2"></div><div class="veil"></div>
+    <div class="plate"></div><div class="plate2"></div><div class="plate3"></div>
+    <div class="foe"></div><div class="me"></div>
+  </div>
+  <div id="topband"></div>
+
+  <!-- ===== 上左：玩家条组 ===== -->
+  <div class="ident" id="idP1" data-od-id="hud-ident-p1">
+    <div class="portrait" data-od-id="hud-portrait-p1">
+      <div class="inner"><div class="imgwrap">
+        <img src="data:image/jpeg;base64,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" alt="石流龙 头像"><span class="sheen"></span>
+      </div></div>
+      <span class="edge"></span><span class="tag">P1</span>
+    </div>
+    <div class="stack">
+      <div class="namerow">
+        <span class="nm">石流龙</span><span class="lvl">近战 / 咒力放出</span>
+        <span class="st" id="csNote">咒力已满</span>
+        <span class="hpv num" id="n1"><b>1000</b><span>/ 1000</span></span>
+      </div>
+      <div class="hpwrap"><div class="hpbar"><div class="hpclip">
+        <i class="ghost" id="g1"></i><i class="fill" id="f1"></i><i class="lead" id="ld1"></i>
+        <i class="sheen"></i>
+      </div></div></div>
+      <div class="cwrap"><div class="cbar"><span class="b"><i class="cf" id="cf1"></i></span></div><i class="cmin"></i></div>
+      <!-- 行动资源归玩家：一条连续长条，5 个单位只用上缘的极细刻度表达，不是格子 -->
+      <div class="aprow" id="aprow1" data-od-id="hud-action-p1">
+        <span class="aplab">行动</span>
+        <span class="apbar"><i class="aptrack"><i class="apfill" id="apf1"></i></i>
+          <i class="apmarks"><b></b><b></b><b></b><b></b></i></span>
+        <span class="apval num"><b id="apn1">5</b><span>/ 5</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 上右：对手条组（生命 + 咒力，不含行动资源） ===== -->
+  <div class="ident" id="idP2" data-od-id="hud-ident-p2">
+    <div class="portrait" data-od-id="hud-portrait-p2">
+      <div class="inner"><div class="imgwrap">
+        <img src="data:image/jpeg;base64,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" alt="石流龙 头像"><span class="sheen"></span>
+      </div></div>
+      <span class="edge"></span><span class="tag">P2</span>
+    </div>
+    <div class="stack">
+      <div class="namerow">
+        <span class="nm">石流龙</span><span class="lvl">近战 / 咒力放出</span>
+        <span class="st" id="csNote2">回气中 +6/s</span>
+        <span class="hpv num" id="n2"><b>1000</b><span>/ 1000</span></span>
+      </div>
+      <div class="hpwrap"><div class="hpbar"><div class="hpclip">
+        <i class="ghost" id="g2"></i><i class="fill" id="f2"></i><i class="lead" id="ld2"></i>
+        <i class="sheen"></i>
+      </div></div></div>
+      <div class="cwrap"><div class="cbar"><span class="b"><i class="cf" id="cf2"></i></span></div><i class="cmin"></i></div>
+    </div>
+  </div>
+
+  <!-- ===== 顶部中央：领域弧槽与展开读数 ===== -->
+  <svg class="domarcs" id="domarcs" viewBox="0 0 1920 120" data-od-id="hud-domain-arcs">
+    <path class="gl"  d="M940 60 Q800 18 660 54"/>
+    <path class="trk" d="M940 60 Q800 18 660 54"/>
+    <path class="fil" id="arcP1" d="M940 60 Q800 18 660 54" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+    <path class="gl"  d="M980 60 Q1120 18 1260 54"/>
+    <path class="trk" d="M980 60 Q1120 18 1260 54"/>
+    <path class="fil" id="arcP2" d="M980 60 Q1120 18 1260 54" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/>
+  </svg>
+  <div class="arclbl" id="lblP1">领域能量 <b id="dom1">0%</b></div>
+  <div class="arclbl" id="lblP2">领域能量 <b id="dom2">74%</b></div>
+  <div class="dchip" id="dchip"><kbd>R</kbd><span>可展开 · 极宴流光</span></div>
+  <div class="dact" id="dact" data-od-id="hud-domain-active">
+    <div class="title">领域展开 · 极宴流光</div>
+    <div class="rule"></div>
+    <div class="meta">
+      <span class="clock num" id="dclock">6.0</span>
+      <span class="ticks"><i class="bg"></i><b class="t0"></b><b class="t1"></b><b class="t2"></b><i class="ph" id="dph"></i></span>
+      <span class="next" id="dnext">下一发 0.3s</span>
+      <span class="orbs" id="dorbs"><i></i><i></i><i></i></span>
+    </div>
+  </div>
+  <div class="dsupp" id="dsupp">领域受压制 · 自动炮暂停</div>
+  <div class="modebar"><b id="mDummy">静止木桩</b><b id="mGuard">固定防御</b><b id="mAI">AI 对战</b><b id="mInfRes">无限资源</b></div>
+
+  <!-- ===== 中央准星（仅远程形态） ===== -->
+  <div id="reticle" data-od-id="hud-reticle">
+    <svg class="ring" viewBox="0 0 220 220">
+      <circle class="bg" cx="110" cy="110" r="86" pathLength="100"/>
+      <circle cx="110" cy="110" r="86" pathLength="100"/></svg>
+    <i class="v1"></i><i class="v2"></i><i class="h1"></i><i class="h2"></i><i class="core"></i>
+  </div>
+
+  <!-- ===== 下中：蓄力环 + 形态圆盘 ===== -->
+  <div id="readout" data-od-id="hud-charge-readout">
+    <span class="edge"></span>
+    <div class="bd"><span class="mn num" id="roMain">近战</span><span id="roSub">拳击 35 / 40 / 55 · 重拳 75 · 腿击 45 · 重踢 95</span></div>
+  </div>
+  <div id="cannon" data-od-id="hud-charge-ring">
+    <svg viewBox="0 0 280 280">
+      <circle class="halo" cx="140" cy="140" r="122"/>
+      <circle class="rim" cx="140" cy="140" r="138"/>
+      <circle class="rim2" cx="140" cy="140" r="96"/>
+      <path class="trk"  d="M52.32 227.68 A124 124 0 1 1 227.68 227.68"/>
+      <path class="trk2" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68"/>
+      <path class="over" id="cOver" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68" pathLength="100" stroke-dasharray="0 0 0 100"/>
+      <path class="paid" id="cPaid" d="M52.32 227.68 A124 124 0 1 1 227.68 227.68" pathLength="100" stroke-dasharray="0 100"/>
+      <g class="ticks" id="cTicks"></g>
+      <circle class="dot" id="cDot" cx="52.32" cy="227.68" r="3.4"/>
+    </svg>
+  </div>
+  <div id="formDisc" data-od-id="hud-form-disc">
+    <svg viewBox="0 0 24 24"><rect x="4.6" y="10.6" width="7.8" height="6.8" rx="2"/><path d="M7.2 10.6v6.8M9.8 10.6v6.8"/><path d="M14.2 8.2 16.4 9.8 14.2 11.4M14.2 11.8 16.4 13.4 14.2 15M14.2 15.4 16.4 17 14.2 18.6"/><path d="M7 19.4h10" stroke-opacity=".38"/></svg>
+    <span class="nm" id="formName">近战</span>
+  </div>
+
+  <!-- ===== 右下：技能行（Q / E 普通技 + R 大招主位，三格同排） ===== -->
+  <div id="skills" data-od-id="hud-skill-area">
+    <div id="normRow"></div>
+    <div class="ult" id="ultTile" data-od-id="hud-ult-slot">
+      <svg class="ring" viewBox="0 0 96 96">
+        <circle class="bgc" cx="48" cy="48" r="45.5" pathLength="100"/>
+        <circle class="fgc" id="ultRing" cx="48" cy="48" r="45.5" pathLength="100"/></svg>
+      <div class="disc"><span id="ultIcon"></span></div>
+      <span class="key">R</span>
+    </div>
+  </div>
+
+  <div id="floats"></div>
+  <div id="keys" data-od-id="hud-keyhints">
+    <span class="k"><kbd>WASD</kbd><span>移动</span></span>
+    <span class="k"><kbd>Shift</kbd><span>冲刺 / 后撤</span></span>
+    <span class="k"><kbd>F</kbd><span>防御</span></span>
+    <span class="sep"></span>
+    <span class="k"><kbd>左键</kbd><span>攻击 / 蓄力</span></span>
+    <span class="k"><kbd>右键</kbd><span>瞄准</span></span>
+    <span class="k"><kbd>E</kbd><span>切形态</span></span>
+    <span class="k"><kbd>Q</kbd><span>超级炮</span></span>
+    <span class="k"><kbd>R</kbd><span>领域</span></span>
+    <span class="k"><kbd>Tab</kbd><span>锁定</span></span>
+    <span class="k"><kbd>F1</kbd><span>训练设置</span></span>
+  </div>
+
+  <div id="result">
+    <div class="t" id="resT">玩家胜利</div>
+    <div class="rule"></div>
+    <div class="s">命中 12　最大连段 5　领域展开 2</div>
+    <div class="k">[空格] 重新开始　[F1] 训练设置</div>
+  </div>
+
+  <div id="panel" data-od-id="hud-state-console">
+    <div class="bd">
+      <h4>状态控制台</h4>
+      <div class="sub">点击或按 1–9 / 0 / - / =</div>
+      <div id="btns"></div>
+      <div class="note">v2.0 交付稿 · 数值取自项目设计文档调试参数<br>右键按住 = 瞄准准星（#73F2F2 / Gap 8）</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==================== 石流龙技能图标 v2（圆形构图版） ====================
+   母题：M1 高耸飞机头 · M2 毛领尖齿 · M3 方形腰带扣 · M4 头部炮击 · M5 咒力绽放
+   圆形构图：安全圈以 (12,12) 为心、r≈10，重心居中；三层语言——
+     主线 1.6px（满不透明）/ 二级线（.4–.6）/ 能量填充（fill-opacity .16–.35）
+   统一记号：底部擂台线 y=19.4（大招用同位置地平弧替代） */
+const BASE='<path d="M7 19.4h10" stroke-opacity=".38"/>';
+const ICON = {
+  /* 1 三段拳：拳峰（能量填充）+ 拳面分隔 + 三段连打节奏 */
+  punch:BASE+'<rect x="4.4" y="10.4" width="8" height="7" rx="2.1"/>'+
+    '<rect x="4.4" y="10.4" width="8" height="7" rx="2.1" fill="currentColor" fill-opacity=".14" stroke="none"/>'+
+    '<path d="M7 10.4v7M9.6 10.4v7" stroke-opacity=".8"/>'+
+    '<path d="M13.8 8.2 16 9.8 13.8 11.4M13.8 11.8 16 13.4 13.8 15M13.8 15.4 16 17 13.8 18.6"/>',
+  /* 2 重拳：拳峰放大 + 毛领尖齿（重击记号） */
+  heavy:BASE+'<rect x="3.6" y="10" width="9.4" height="7.6" rx="2.4"/>'+
+    '<rect x="3.6" y="10" width="9.4" height="7.6" rx="2.4" fill="currentColor" fill-opacity=".18" stroke="none"/>'+
+    '<path d="M6.8 10v7.6" stroke-opacity=".8"/>'+
+    '<path d="M5.4 7.8 7 5.6 8.6 7.8 10.2 5.6 11.8 7.8 13.4 5.6 15 7.8"/>'+
+    '<path d="M16.6 14h2.6" stroke-opacity=".55"/>',
+  /* 3 腿击：方形腰带扣（髋部支点）+ 腿弧 + 命中记号 —— 无文字后靠"扣+腿+冲击"三件套独立表意 */
+  kick:BASE+'<rect x="4.4" y="3.6" width="6.2" height="6.2" rx=".8"/>'+
+    '<rect x="6.4" y="5.6" width="2.2" height="2.2" fill="currentColor" fill-opacity=".45" stroke="none"/>'+
+    '<path d="M7.8 10.4 10.2 15.6 15.6 18.2"/>'+
+    '<path d="M15.2 18.7 18.8 17.1M14.8 15.5 17.6 14.5" stroke-opacity=".75"/>',
+  /* 4 重踢：腿弧 + 毛领尖齿 + 击倒地平线 */
+  hkick:'<rect x="4.6" y="4.2" width="5.4" height="5.4" rx=".6"/>'+
+    '<rect x="6.4" y="6" width="1.8" height="1.8" fill="currentColor" fill-opacity=".35" stroke="none"/>'+
+    '<path d="M6.8 9.8 9 14.9l5 2.2"/>'+
+    '<path d="M14.8 15.4 16.2 13.4 17.6 15.4 19 13.4"/>'+
+    '<path d="M5.4 19.4h13.2"/>',
+  /* 5 切形态：飞机头（实心块面，提升剪影感）+ 双向箭头 */
+  swap:'<path d="M9.9 9.2V7a2.1 2.1 0 0 1 2.1-2.1h.1A2.1 2.1 0 0 1 14.2 7v2.2" fill="currentColor" fill-opacity=".30"/>'+
+    '<path d="M9.9 9.2V7a2.1 2.1 0 0 1 2.1-2.1h.1A2.1 2.1 0 0 1 14.2 7v2.2"/>'+
+    '<path d="M8.2 9.4h7.6"/>'+
+    '<path d="M4.8 13.6h10.4l-2.5-2.3M19.2 18.2H8.8l2.5 2.3"/>',
+  /* 6 蓄力炮：飞机头化作头部炮座，炮口在头顶（术式=咒力放出） */
+  blast:BASE+'<path d="M9.6 14.4V10M14.4 14.4V10"/>'+
+    '<path d="M9.6 10a2.4 2.4 0 0 1 4.8 0"/>'+
+    '<circle cx="12" cy="6.9" r="2"/>'+
+    '<circle cx="12" cy="6.9" r=".9" fill="currentColor" stroke="none" fill-opacity=".85"/>'+
+    '<path d="M12 4.1V2.5M9.1 4.9 8 3.6M14.9 4.9 16 3.6" stroke-opacity=".85"/>'+
+    '<path d="M6.6 16.6h10.8" stroke-opacity=".45"/>',
+  /* 7 超级炮：同构加重量级 —— 宽炮座 / 双环炮口 / 三向出力 */
+  sblast:BASE+'<path d="M8.8 15.2V10.2M15.2 15.2V10.2"/>'+
+    '<path d="M8.8 10.2a3.2 3.2 0 0 1 6.4 0"/>'+
+    '<circle cx="12" cy="6.1" r="2.6"/>'+
+    '<circle cx="12" cy="6.1" r="1.1" fill="currentColor" stroke="none" fill-opacity=".85"/>'+
+    '<path d="M12 2.7V1M8 3.7 6.7 2.3M16 3.7 17.3 2.3" stroke-opacity=".85"/>'+
+    '<path d="M5.8 17.6h12.4" stroke-opacity=".45"/>',
+  /* 8 瞄准：方形腰带扣化作锁定框 + 四向刻度 */
+  aim:BASE+'<rect x="6.2" y="5.8" width="11.6" height="11.6" rx=".8"/>'+
+    '<path d="M6.2 8.6V5.8h2.8M15 5.8h2.8v2.8" stroke-opacity=".5"/>'+
+    '<circle cx="12" cy="11.6" r="3.1"/>'+
+    '<circle cx="12" cy="11.6" r="1.1" fill="currentColor" stroke="none"/>'+
+    '<path d="M12 2.8v3M12 17.4v3M2.8 11.6h3M18.2 11.6h3"/>',
+  /* 9 大招「极宴流光」：不对称烟火绽放（避开太阳符号），核心实心以增强剪影 */
+  domain:'<circle cx="12.4" cy="10.4" r="2.2" fill="currentColor" fill-opacity=".42"/>'+
+    '<circle cx="12.4" cy="10.4" r="2.2"/>'+
+    '<path d="M11.2 20.4c.3-2.4.7-4.6 1.1-7.3"/>'+
+    '<path d="M12.4 8.3 11.9 3.1"/>'+
+    '<path d="M14.3 9.1 18.4 6.5"/>'+
+    '<path d="M14.8 11.4c1.7.2 3.2 1 4.4 2.3"/>'+
+    '<path d="M11 12 8.3 15.6"/>'+
+    '<path d="M10.6 9.6 6.4 7.4"/>'+
+    '<path d="M13.2 12.2c1 1.4 1.3 2.9 1.1 4.6"/>'+
+    '<circle cx="11.8" cy="2.5" r=".85" fill="currentColor" stroke="none"/>'+
+    '<circle cx="19" cy="6.1" r=".85" fill="currentColor" stroke="none"/>'+
+    '<circle cx="7.9" cy="15.8" r=".85" fill="currentColor" stroke="none"/>'+
+    '<circle cx="6" cy="7.2" r=".85" fill="currentColor" stroke="none"/>'+
+    '<circle cx="14.8" cy="17.6" r=".7" fill="currentColor" stroke="none" fill-opacity=".7"/>'+
+    '<path d="M3.6 21c2.6-1.1 5.9-1.7 9.2-1.7s6.4.5 8.6 1.5" stroke-opacity=".5"/>'
+};
+
+/* 招位：每形态 2 个普通技 + 1 个大招；按钮上只有键位字母，技能靠图标本身体现 */
+/* 技能行：单排 —— 圆心 y=1004，圆心距 120px。Q(1580) E(1700) 普通技 Ø70；R(1820) 大招 Ø96。
+   最右的 R 键位标签中心距屏右 100px（= 参考图量得 133px × 0.7503）；
+   圆心 y=1004 使键位标签中心落在 y≈1039，等于参考图量到的标签带中心 1027–1051 → 1039 */
+const ROW={y:1004, x0:1580, step:120};
+const SETS = {
+  melee:[
+    {i:'kick', k:'Q', n:'腿击'},
+    {i:'swap', k:'E', n:'切远程'}
+  ],
+  ranged:[
+    {i:'sblast',k:'Q', n:'超级炮'},
+    {i:'swap',  k:'E', n:'切近战'}
+  ]
+};
+
+const MAX = {hp:1000, ap:5, curse:100, dom:100};
+const TICKT = [0.3, 2.3, 4.3];
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+function chargeInfo(t, curse){
+  const q = clamp(t/1.2,0,1);
+  const paid = Math.min(8 + 16*q, curse);
+  const qPaid = clamp((paid-8)/16,0,1);
+  return {q, qPaid, dmg:30+60*qPaid, limited:qPaid < q-0.01};
+}
+
+const S = {
+  id:1, form:'melee', hp1:1000, g1:1000, hp2:1000, g2:1000,
+  curse1:100, curse2:74, ap:5, dom1:0, dom2:74,
+  charge:null, phase:'idle', phaseT:0, tick:[0,0,0], supp:false, infRes:false,
+  result:null, cdLeft:0, aim:false
+};
+
+/* ---------- 状态按钮 ---------- */
+const STATES = [
+  ['1','待机 · 近战'],['2','待机 · 远程'],['3','三段连击'],['4','蓄力炮 · 蓄力中'],
+  ['5','蓄力炮 · 已满蓄'],['6','领域就绪'],['7','超级炮 · 冷却中'],
+  ['8','领域展开中'],['9','双领域压制'],['0','咒力不足 · 强度受限'],
+  ['-','濒死'],['=','对战结果']
+];
+const btns = document.getElementById('btns');
+STATES.forEach(([k,n])=>{
+  const b=document.createElement('button');
+  b.textContent = k+'　'+n; b.dataset.k=k;
+  b.onclick=()=>setState(k);
+  btns.appendChild(b);
+});
+
+const $ = s=>document.querySelector(s);
+const txt = (s,v)=>{const e=$(s); if(e) e.textContent=v;};
+const setW = (id,w)=>{const e=document.getElementById(id); if(e) e.style.width=w+'%';};
+
+/* 蓄力环刻度：60 格细刻度，按蓄力进度点亮 */
+(function(){
+  const g=$('#cTicks'); if(!g) return;
+  for(let i=0;i<60;i++){
+    const a=(135+270*i/59)*Math.PI/180;
+    const r1=110, r2=118;
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',(140+r1*Math.cos(a)).toFixed(2)); l.setAttribute('y1',(140+r1*Math.sin(a)).toFixed(2));
+    l.setAttribute('x2',(140+r2*Math.cos(a)).toFixed(2)); l.setAttribute('y2',(140+r2*Math.sin(a)).toFixed(2));
+    g.appendChild(l);
+  }
+})();
+
+function tileHTML(d){
+  return `<div class="skill" data-n="${d.n}" data-k="${d.k}" data-od-id="hud-skill-${d.i}">
+    <div class="orb"><div class="disc"><svg class="ic" viewBox="0 0 24 24">${ICON[d.i]}</svg></div>
+      <div class="sweep" data-sweep></div></div>
+    <svg class="sw" viewBox="0 0 70 70"><circle cx="35" cy="35" r="31"/></svg>
+    <span class="key">${d.k}</span></div>`;
+}
+function rebuildSkills(){
+  const ranged = S.form==='ranged';
+  const list = SETS[ranged?'ranged':'melee'];
+  $('#normRow').innerHTML = list.map(tileHTML).join('');
+  /* 单排：三格同一 y，圆心距恒为 120px；最右大招位由 CSS 定位在 (1820,1004) */
+  const tiles=[...$('#normRow').children];
+  tiles.forEach((el,i)=>{
+    el.style.left=(ROW.x0+i*ROW.step)+'px';
+    el.style.top =ROW.y+'px';
+  });
+}
+
+function render(){
+  const ranged = S.form==='ranged';
+  document.body.classList.toggle('ranged', ranged);
+  $('#formDisc').classList.toggle('ranged', ranged);
+  txt('#formName', ranged?'远程':'近战');
+  $('#formDisc').querySelector('svg').innerHTML = ranged
+    ? ICON.blast : ICON.punch;
+
+  /* 生命：即时 120ms；虚血 0.6s 延迟 + 0.35s 回落 */
+  const p1=S.hp1/MAX.hp*100, p2=S.hp2/MAX.hp*100;
+  setW('f1',p1); setW('g1',p1); setW('f2',p2); setW('g2',p2);
+  $('#ld1').style.left='calc('+p1+'% - 2px)';
+  $('#ld2').style.right='calc('+p2+'% - 2px)';
+  $('#n1').querySelector('b').textContent = Math.round(S.hp1);
+  $('#n2').querySelector('b').textContent = Math.round(S.hp2);
+  $('#n1').classList.toggle('bump', S.hp1<MAX.hp);
+  $('#n2').classList.toggle('bump', S.hp2<MAX.hp);
+
+  /* 咒力：P1 左锚定 / P2 右锚定 */
+  txt('#cs1', Math.round(S.curse1)); setW('cf1', S.curse1/MAX.curse*100);
+  txt('#cs2', Math.round(S.curse2)); setW('cf2', S.curse2/MAX.curse*100);
+  const note = v => v>=100?'咒力已满':(v<8?'咒力不足 · 无法开炮':'回气中 +6/s');
+  txt('#csNote', note(S.curse1)); txt('#csNote2', note(S.curse2));
+  $('#csNote').classList.toggle('warn2', S.curse1<8);
+  $('#csNote2').classList.toggle('warn2', S.curse2<8);
+  document.body.classList.toggle('dry', S.curse1<8);
+
+  /* 行动资源（玩家侧）：连续条按 5 点比例填充，刻度只是标尺 —— 读数单独给出 */
+  const apv = Math.max(0, Math.floor(S.ap));
+  setW('apf1', apv/MAX.ap*100);
+  txt('#apn1', apv);
+  $('#aprow1').classList.toggle('spent', apv===0);
+
+  /* 领域弧槽 */
+  /* 领域弧槽：填充长度 = 100 − dashoffset；v<0.5 时整体隐藏，
+     避免零长度 dash 在 stroke-linecap:round 下于弧内端画出一个圆点 */
+  const arcSet=(el,v)=>{el.setAttribute('stroke-dashoffset',(100-v).toFixed(2));
+    el.style.opacity = v>=0.5 ? 1 : 0;};
+  arcSet($('#arcP1'), clamp(S.dom1,0,100));
+  arcSet($('#arcP2'), clamp(S.dom2,0,100));
+  txt('#dom1', Math.round(S.dom1)+'%'); txt('#dom2', Math.round(S.dom2)+'%');
+  const armed = S.dom1>=100, active = S.phase==='active';
+  $('#domarcs').classList.toggle('armed', armed && !active);
+  $('#domarcs').classList.toggle('supp', active && S.supp);
+  $('#dchip').classList.toggle('on', armed && !active);
+  $('#dact').classList.toggle('on', active);
+  $('#dsupp').classList.toggle('on', active && S.supp);
+  document.body.classList.toggle('dom', active);
+  document.body.classList.toggle('supp', active && S.supp);
+  const nxt = TICKT.filter((t,i)=>!S.tick[i])[0];
+  txt('#dnext', S.supp?'自动炮暂停':(nxt!==undefined?'下一发 '+nxt.toFixed(1)+'s':'本轮结束'));
+  [...$('#dact').querySelectorAll('.ticks b')].forEach((b,i)=>{
+    b.classList.toggle('done', S.tick[i]===1);
+    b.classList.toggle('skip', S.tick[i]===2);
+    b.classList.toggle('next', S.tick[i]===0 && !S.supp);
+  });
+  const orbCount=S.tick.filter(v=>v===1).length;
+  [...$('#dorbs').children].forEach((o,i)=>o.classList.toggle('on', i<orbCount));
+
+  /* 蓄力环 */
+  const info = S.charge ? chargeInfo(S.charge.t, S.curse1) : null;
+  const paidPct = info?info.qPaid*100:0, overPct = info?Math.max(0,info.q-info.qPaid)*100:0;
+  $('#cPaid').setAttribute('stroke-dasharray', paidPct.toFixed(2)+' 100');
+  $('#cOver').setAttribute('stroke-dasharray','0 '+paidPct.toFixed(2)+' '+overPct.toFixed(2)+' 100');
+  $('#cannon').classList.toggle('full', !!(info && info.q>=1 && !info.limited));
+  /* 刻度与前沿光点：按时间进度 q（时间决定强度上限） */
+  const qPct = info?info.q:0;
+  [...$('#cTicks').children].forEach((l,i)=>l.classList.toggle('lit', (i/59)<=qPct));
+  const aEnd=(135+270*qPct)*Math.PI/180;
+  const dot=$('#cDot');
+  dot.setAttribute('cx',(140+124*Math.cos(aEnd)).toFixed(2));
+  dot.setAttribute('cy',(140+124*Math.sin(aEnd)).toFixed(2));
+  dot.style.opacity = info?1:0;
+  const rd=$('#readout');
+  rd.classList.toggle('full', !!(info && info.q>=1 && !info.limited));
+  rd.classList.toggle('lim', !!(info && info.limited));
+  document.body.classList.toggle('charging', !!S.charge);
+  if(info){
+    txt('#roMain', info.limited?'强度上限 '+Math.round(info.dmg):'伤害 '+Math.round(info.dmg));
+    txt('#roSub', info.limited
+      ? '咒力不足 · 继续持炮不会变强'
+      : '蓄力 '+Math.min(S.charge.t,1.2).toFixed(2)+' / 1.20s · 已支付 '+Math.round(8+16*info.qPaid)+' 咒力');
+  } else if(ranged){
+    txt('#roMain','待机'); txt('#roSub','左键蓄力炮 30→90 · Q 超级炮 150→220');
+  } else {
+    txt('#roMain','近战'); txt('#roSub','拳击 35 / 40 / 55 · 重拳 75 · 腿击 45 · 重踢 95');
+  }
+
+  /* 准星：Gap 静止 14 / 瞄准 8 / 蓄力 12→4；线长 10（领域 16）；线宽 2（领域 3）
+     容器 220×220、中心即 (960,540)；left/top 以容器中心为基准，元素自带 translate(-50%,-50%) */
+  const gap = S.charge ? 12-8*S.charge.qPaid : (S.aim?8:14);
+  const len = active?16:10, w = active?3:2;
+  const col = active?'#FF6633':(S.charge?'#FFE633':(S.aim?'#73F2F2':'#CCE6FF'));
+  const R=$('#reticle');
+  const st=(el,x,y,ww,hh)=>{el.style.left=(110+x)+'px';el.style.top=(110+y)+'px';
+    el.style.width=ww+'px';el.style.height=hh+'px';el.style.background=col;el.style.color=col;};
+  st(R.querySelector('.v1'), 0, -(gap+len/2), w, len);
+  st(R.querySelector('.v2'), 0,  (gap+len/2), w, len);
+  st(R.querySelector('.h1'), -(gap+len/2), 0, len, w);
+  st(R.querySelector('.h2'),  (gap+len/2), 0, len, w);
+  st(R.querySelector('.core'), 0, 0, w+2, w+2);
+  R.querySelector('.ring circle:not(.bg)').setAttribute('stroke-dasharray',(info?info.q*100:0).toFixed(2)+' 100');
+  R.querySelector('.ring circle:not(.bg)').style.stroke = col;
+  R.querySelector('.ring circle.bg').style.stroke = col;
+
+  /* 大招位 */
+  /* 大招能量环：dasharray 与不透明度同时受控 —— 低能量不留圆头端点；
+     跨过阈值时两者一起过渡（0.25s），小弧是淡入而不是"啪"地跳出 */
+  const uR = clamp(S.dom1,0,100), uShow = uR >= 0.5;
+  $('#ultRing').setAttribute('stroke-dasharray', (uShow?uR:0).toFixed(1)+' 100');
+  $('#ultRing').style.opacity = uShow ? 1 : 0;
+  $('#ultTile').classList.toggle('ready', uR>=100 && !active);
+  $('#ultTile').classList.toggle('locked', active);
+  $('#ultIcon').innerHTML = '<svg class="ic" viewBox="0 0 24 24">'+ICON.domain+'</svg>';
+
+  /* 招位状态（无文字）：Q 冷却=顶部顺时针扫过的暗色扇形；领域期=封印斜纹 */
+  const cooling = (S.id==='7'), domOn = active;
+  [...$('#normRow').children].forEach(el=>{
+    const n = el.dataset.n;
+    const isSuper = n==='超级炮';
+    el.classList.toggle('cool', isSuper && cooling);
+    el.classList.toggle('locked', !!domOn && isSuper);
+    if(cooling && isSuper){
+      const deg=(1-clamp(S.cdLeft/10,0,1))*360;
+      el.querySelector('[data-sweep]').style.background =
+        'conic-gradient(from -90deg,rgba(4,8,16,0) 0 '+deg+'deg,rgba(4,8,16,.74) '+deg+'deg 360deg)';
+    }
+  });
+
+  $('#mInfRes').classList.toggle('on', S.infRes);
+  document.body.classList.toggle('result', !!S.result);
+  if(S.result) txt('#resT', S.result);
+  [...btns.children].forEach(b=>b.classList.toggle('on', b.dataset.k===String(S.id)));
+}
+
+/* ---------- 状态机（规则数值未改） ---------- */
+function reset(){
+  S.form='melee'; S.hp1=1000; S.g1=1000; S.hp2=1000; S.g2=1000;
+  S.curse1=100; S.curse2=74; S.ap=5; S.dom1=0; S.dom2=74;
+  S.charge=null; S.phase='idle'; S.supp=false; S.infRes=false; S.result=null;
+  S.tick=[0,0,0]; S.cdLeft=0; S.aim=false;
+  document.getElementById('floats').innerHTML='';
+}
+function float(txtv, cls, x, y){
+  const d=document.createElement('div');
+  d.className='fl '+(cls||''); d.textContent=txtv;
+  d.style.left=(x||960)+'px'; d.style.top=(y||520)+'px';
+  document.getElementById('floats').appendChild(d);
+  setTimeout(()=>d.remove(),1000);
+}
+let loopTimer=null;
+function setState(k){
+  reset(); S.id=k;
+  if(loopTimer){clearInterval(loopTimer);loopTimer=null;}
+  switch(String(k)){
+    case '2': S.form='ranged'; S.dom1=46; break;
+    case '3': S.dom1=56;
+      [[420,35,false],[980,40,false],[1500,55,true]].forEach(([d,dmg,kb])=>setTimeout(()=>{
+        S.hp2=Math.max(0,S.hp2-dmg); S.curse1=Math.min(100,S.curse1+3);
+        S.dom1=Math.min(100,S.dom1+dmg*0.05);
+        float(String(dmg), kb?'gold':'', 1000, 400);
+      },d));
+      break;
+    case '4': S.form='ranged'; S.dom1=62; S.curse1=72; S.charge={t:0,target:0.72}; break;
+    case '5': S.form='ranged'; S.dom1=62; S.curse1=72; S.charge={t:0,target:1.2}; break;
+    case '6': S.dom1=100; S.phase='armed'; break;
+    case '7': S.form='ranged'; S.dom1=62; S.curse1=87; S.cdLeft=10; break;
+    case '8': S.form='ranged'; S.dom1=0; S.curse1=100; S.infRes=true; S.phase='active'; S.phaseT=performance.now();
+              float('领域追踪 220','dom',1000,300); break;
+    case '9': S.form='ranged'; S.dom1=0; S.dom2=100; S.infRes=true; S.phase='active'; S.supp=true; S.phaseT=performance.now(); break;
+    case '0': S.form='ranged'; S.dom1=62; S.curse1=16; S.charge={t:1.2,target:1.2}; break;
+    case '-': S.hp1=220; S.g1=304; S.dom1=80; S.curse1=40; S.ap=2; break;
+    case '=': S.hp2=0; S.g2=0; S.dom1=62; S.result='玩家胜利'; break;
+  }
+  rebuildSkills();
+  loopTimer=setInterval(tick,66);
+  render(); tick();
+}
+function tick(){
+  const now=performance.now();
+  if(S.charge && S.charge.target!==undefined && S.charge.t<S.charge.target){
+    S.charge.t=Math.min(S.charge.target, S.charge.t+0.066*1.1);
+  }
+  if(S.phase==='active'){
+    const t=(now-S.phaseT)/1000;
+    txt('#dclock', Math.max(0,6-t).toFixed(1));
+    $('#dph').style.left=(Math.min(t,6)/6*100)+'%';
+    if(!S.supp){
+      TICKT.forEach((tt,i)=>{
+        if(S.tick[i]===0 && t>=tt){
+          if(S.curse1>=65||S.infRes){ S.tick[i]=1; if(!S.infRes) S.curse1=Math.max(0,S.curse1-65);
+            float('领域追踪 220','dom',1000,300); }
+          else { S.tick[i]=2; float('咒力不足 · 跳过此次','warn',1000,240); }
+        }
+      });
+    }
+    if(t>6.4){ S.phase='idle'; S.tick=[0,0,0]; }
+  } else txt('#dclock','6.0');
+  if(S.cdLeft>0) S.cdLeft=Math.max(0,S.cdLeft-0.066);
+  if(S.curse1<100 && !S.charge) S.curse1=Math.min(100,S.curse1+0.4);
+  render();
+}
+
+/* ---------- 键盘 / 鼠标 ---------- */
+addEventListener('keydown', e=>{
+  const k=e.key;
+  if('1234567890-='.includes(k) && k.length===1){ setState(k); e.preventDefault(); }
+  else if(k==='e'||k==='E'){
+    S.form = S.form==='melee'?'ranged':'melee';
+    if(S.form==='melee'){S.charge=null;S.aim=false;}
+    rebuildSkills(); render();
+    /* 0.5s 再切间隔：只在新形态的 E 格上画一圈收束细弧，不写文字 */
+    const eTile=$('#normRow').querySelector('[data-k="E"]');
+    if(eTile){
+      eTile.classList.remove('switching'); void eTile.offsetWidth; eTile.classList.add('switching');
+      setTimeout(()=>eTile.classList.remove('switching'),520);
+    }
+  }
+  else if((k==='q'||k==='Q') && S.form==='ranged' && !S.charge){ S.charge={t:0,target:1.2}; render(); }
+});
+addEventListener('keyup', e=>{ if((e.key==='q'||e.key==='Q') && S.charge){ S.charge=null; render(); } });
+addEventListener('contextmenu', e=>e.preventDefault());
+addEventListener('mousedown', e=>{
+  if(e.target.closest('#panel'))return;
+  if(e.button===2 && S.form==='ranged'){ S.aim=true; render(); }
+});
+addEventListener('mouseup', e=>{ if(e.button===2 && S.aim){ S.aim=false; render(); } });
+
+function fit(){
+  const vp=document.getElementById('viewport');
+  const k=Math.min(innerWidth/1920, innerHeight/1080);
+  vp.style.transform='scale('+k+')';
+}
+addEventListener('resize',fit); fit();
+setState('1');
+</script>
+</body>
+</html>

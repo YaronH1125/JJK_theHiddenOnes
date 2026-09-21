@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JJK: The Hidden Ones — 对战 HUD 分状态设计板与规范 v1.0</title>
+<style>
+:root{
+  --bg:#070B14; --fg:#EAF6FF; --panel:rgba(8,14,26,.80); --border:rgba(150,190,255,.18);
+  --muted:rgba(150,190,255,.55); --dim:rgba(150,190,255,.32); --line:rgba(150,190,255,.14);
+  --line2:rgba(150,190,255,.30);
+  --p1:#1FB4F0; --p2:#FF5F1F;
+  /* ---- v6.0 明度阶梯（目标＝渲染后 luma）---- */
+  --t0:#04070E; --t1:#0A1220; --t2:#18233A; --t3:#3C4E70; --t4:#7C93B4; --t5:#EAF6FF;
+  --lit:rgba(255,255,255,.16); --shade:rgba(0,0,0,.60);
+  --bevel:inset 1px 1px 0 var(--lit),inset -1px -1px 0 var(--shade);
+  /* ---- v5.0 三条资源条在色相上分开：橙 / 深蓝 / 金；v6.0 起改为管体五段 ---- */
+  --hpc1:#6E3003; --hpc2:#C05A0B; --hpc3:#FFD08A; --hpc4:#FF8C22; --hpc5:#A8440A;
+  --ghost1:#5A2506; --ghost2:#2A0D03;
+  --curse:#1B4FD8; --curse1:#0A1E63; --curse2:#12359B; --curse3:#7FB0FF; --curse4:#1B4FD8; --curse5:#0E2670;
+  --ap:#C08A14; --ap1:#5E4207; --ap2:#A8760F; --ap3:#FFE0A0; --ap4:#C08A14; --ap5:#6E4E08;
+  /* 领域能量：浅青蓝（原紫色 --dom 已拆成 --deng 与 --domact 两枚） */
+  --deng:#3FDCFF; --deng2:#A9F0FF; --deng3:#E6FBFF;
+  --domact:#A64DE6; --gold:#FFD166; --danger:#FF3B30;
+  --rc-idle:rgba(204,230,255,.95); --rc-aim:#73F2F2; --rc-chg:#FFE633; --rc-dom:#FF6633;
+  --en:'Arial Black','Impact','Microsoft YaHei',sans-serif;
+  --zh:'Microsoft YaHei','PingFang SC','Hiragino Sans GB',sans-serif;
+  --sr:'Songti SC','SimSun',Georgia,serif;
+  --mo:Consolas,'Cascadia Mono',monospace;
+  --cut8:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  --cut12:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  --mat:linear-gradient(180deg,rgba(20,32,52,.94),rgba(8,13,24,.92));
+  --mat2:linear-gradient(180deg,rgba(14,24,40,.90),rgba(6,10,19,.94));
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#04060B;color:var(--fg);font-family:var(--zh);font-size:13px;line-height:1.75;
+  -webkit-font-smoothing:antialiased}
+.page{max-width:1520px;margin:0 auto;padding:56px 40px 96px}
+h1{font-size:30px;font-weight:900;letter-spacing:.04em}
+h2{font-size:17px;font-weight:700;letter-spacing:.10em;margin:0 0 4px}
+h3{font-size:13px;font-weight:700;letter-spacing:.08em}
+.sub{color:var(--muted);font-size:12px}
+.num{font-family:var(--en);font-variant-numeric:tabular-nums}
+header.top{border-bottom:1px solid var(--line);padding-bottom:26px}
+.kicker{font-family:var(--mo);font-size:11px;letter-spacing:.18em;color:var(--rc-aim);margin-bottom:12px}
+.notice{margin-top:18px;padding:10px 14px;border:1px solid rgba(255,209,102,.32);background:rgba(255,209,102,.06);
+  color:rgba(255,209,102,.92);font-size:12px;clip-path:var(--cut8)}
+.metaline{margin-top:14px;display:flex;gap:26px;flex-wrap:wrap;font-family:var(--mo);font-size:11px;color:var(--dim)}
+section{margin-top:56px}
+.shead{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:22px}
+.shead .ix{font-family:var(--en);font-size:12px;color:var(--rc-aim);letter-spacing:.1em}
+.reasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px}
+.reason{padding:18px;border:1px solid var(--line);background:rgba(8,14,26,.66);clip-path:var(--cut8)}
+.reason h3{margin-bottom:8px}
+.reason h3 i{font-style:normal;color:var(--rc-aim);font-family:var(--en);margin-right:8px;font-size:12px}
+.reason p{color:rgba(234,246,255,.86);font-size:13px}
+.reason .k{color:var(--gold)}
+.iconset{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.icard{border:1px solid var(--line);background:rgba(8,14,26,.62);padding:14px;clip-path:var(--cut8)}
+.icard .hd{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.icard .big{width:72px;height:72px;flex:none;display:flex;align-items:center;justify-content:center;
+  background:var(--mat2);border:1px solid var(--line2);clip-path:var(--cut8)}
+.icard .big svg{width:48px;height:48px;fill:none;stroke:var(--fg);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.icard .t{font-size:13px;font-weight:700;letter-spacing:.06em}
+.icard .m{font-size:10.5px;color:var(--rc-aim);font-family:var(--mo);margin-top:2px}
+.icard p{font-size:12px;color:rgba(234,246,255,.82)}
+.states5{display:flex;gap:14px;flex-wrap:wrap}
+.mini5{width:72px;text-align:center}
+.mini5 .tile{position:relative;width:64px;height:64px;margin:0 auto 4px;padding:1px;background:rgba(150,190,255,.26);
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+.mini5 .tile>i{position:absolute;inset:1px;display:flex;align-items:center;justify-content:center;background:var(--mat);
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px))}
+.mini5 svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.mini5 .cap{font-size:10px;color:var(--muted)}
+/* 圆形状态五式：冷却扇形 / 形态再切细弧 / 领域封印斜纹 / 大招可用金环 */
+.mini5 .sweep{position:absolute;inset:1px;border-radius:50%;
+  background:conic-gradient(from -90deg,rgba(4,8,16,0) 0 108deg,rgba(4,8,16,.74) 108deg 360deg)}
+.mini5.cool .tile{background:rgba(150,190,255,.14)} .mini5.cool svg{stroke:rgba(242,247,255,.30)}
+.mini5 .sw{position:absolute;inset:0;opacity:0}
+.mini5.switching .sw{opacity:1;animation:swArc .5s linear forwards}
+.mini5.switching .sw circle{fill:none;stroke:var(--rc-aim);stroke-width:2;stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:32px 32px}
+.mini5.locked .tile{background:rgba(166,77,230,.30)} .mini5.locked svg{stroke:rgba(214,180,255,.45)}
+.mini5.locked .tile>i::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(135deg,rgba(166,77,230,.22) 0 3px,transparent 3px 8px)}
+.mini5.ready .tile{background:linear-gradient(180deg,var(--deng3),var(--deng) 48%,rgba(166,77,230,.5))}
+.mini5.ready svg{stroke:var(--deng3)}
+.mini5.ready .tile::after{content:'';position:absolute;inset:-7px;border-radius:50%;
+  border:2px solid rgba(63,220,255,.45);
+  background:radial-gradient(closest-side,rgba(63,220,255,.26),rgba(63,220,255,0) 78%)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(700px,1fr));gap:26px}
+figure.thumb{background:rgba(8,14,26,.5);border:1px solid var(--line);padding:12px;clip-path:var(--cut8)}
+figcaption{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+figcaption b{font-size:13px;letter-spacing:.06em}
+figcaption b em{font-style:normal;font-family:var(--en);color:var(--rc-aim);margin-right:8px;font-size:11px}
+figcaption b .kbd-hint{font-style:normal;font-family:var(--mo);font-size:10px;color:var(--muted);
+  border:1px solid var(--line);padding:0 5px;margin-left:9px;vertical-align:1px}
+figcaption span{font-family:var(--mo);font-size:11px;line-height:1.9;color:var(--muted)}
+.mwrap{position:relative;width:640px;height:360px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
+.mstage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform:scale(.333333);transform-origin:0 0}
+.msky{position:absolute;inset:0;background:radial-gradient(140% 90% at 50% 112%,#12203A,#0A1220 44%,transparent 74%),
+  linear-gradient(#04060D,#070C18 46%,#0B1424 64%,#05080F)}
+.mdome{position:absolute;left:50%;top:2%;width:1700px;height:860px;margin-left:-850px;border-radius:50%;
+  border:1px solid rgba(120,170,255,.11);background:radial-gradient(closest-side,rgba(60,110,220,.14),transparent 78%)}
+.mplat{position:absolute;left:50%;bottom:-16%;width:1500px;height:600px;margin-left:-750px;border-radius:50%;
+  border:1px solid rgba(150,190,255,.22);background:radial-gradient(closest-side,rgba(150,190,255,.12),rgba(10,18,32,.90) 70%)}
+.msil{position:absolute;left:50%;clip-path:polygon(34% 0,66% 0,100% 30%,86% 100%,14% 100%,0 30%)}
+.msil.p1{top:52%;width:130px;height:310px;margin-left:-65px;background:linear-gradient(rgba(31,180,240,.30),rgba(31,180,240,.04));
+  border:1px solid rgba(31,180,240,.55)}
+.msil.p2{top:33%;width:88px;height:210px;margin-left:-44px;background:linear-gradient(rgba(255,95,31,.32),rgba(255,95,31,.05));
+  border:1px solid rgba(255,95,31,.55)}
+.mid{position:absolute;top:30px;display:flex;align-items:flex-start;gap:10px}
+.mid.p1{left:34px}
+.mid.p2{right:34px;flex-direction:row-reverse}
+.mport{position:relative;width:92px;height:92px;padding:1px;flex:none;
+  background:linear-gradient(160deg,rgba(31,180,240,.55),rgba(150,190,255,.16));clip-path:var(--cut12)}
+.mid.p2 .mport{background:linear-gradient(160deg,rgba(255,95,31,.55),rgba(150,190,255,.16))}
+.mport img{width:100%;height:100%;object-fit:cover;display:block;clip-path:var(--cut12);filter:saturate(.9)}
+.mport .ed{position:absolute;left:0;top:0;width:3px;height:100%;background:var(--p1)}
+.mid.p2 .mport .ed{left:auto;right:0;background:var(--p2)}
+.mst{display:flex;flex-direction:column;width:500px}
+.mid.p2 .mst{align-items:flex-end}
+.mnm{display:flex;align-items:baseline;gap:9px;width:100%;height:19px;font-size:14.5px;font-weight:700;letter-spacing:.1em}
+.mid.p2 .mnm{flex-direction:row-reverse}
+.mnm b{margin-left:auto;font-size:12.5px;font-weight:400;color:rgba(242,247,255,.62)}
+.mid.p2 .mnm b{margin-left:0;margin-right:auto}
+.mhp{position:relative;width:100%;height:15px;margin-top:3px;padding:1px;
+  background:linear-gradient(90deg,rgba(31,180,240,.70),rgba(150,190,255,.22));
+  clip-path:polygon(10px 0,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,0 100%)}
+.mid.p2 .mhp{background:linear-gradient(270deg,rgba(255,95,31,.70),rgba(150,190,255,.22));
+  clip-path:polygon(calc(100% - 10px) 0,15px 0,0 50%,15px 100%,100% 100%)}
+.mhp .bd{position:relative;width:100%;height:100%;overflow:hidden;background:rgba(4,8,16,.95);
+  clip-path:polygon(9px 0,calc(100% - 14px) 0,calc(100% - 2px) 50%,calc(100% - 14px) 100%,1px 100%)}
+.mid.p2 .mhp .bd{clip-path:polygon(calc(100% - 9px) 0,14px 0,2px 50%,14px 100%,calc(100% - 1px) 100%)}
+.mhp i{position:absolute;left:0;top:0;height:100%}
+.mid.p2 .mhp i{left:auto;right:0}
+.mhp .gh{background:linear-gradient(180deg,var(--ghost1),var(--ghost2))}
+.mhp .fl{background:linear-gradient(180deg,var(--hpc1) 0%,var(--hpc2) 17%,var(--hpc3) 38%,var(--hpc4) 62%,var(--hpc5) 100%);box-shadow:0 0 10px rgba(255,140,34,.6)}
+.mfoe{position:absolute;inset:-5px;border-radius:3px;border:2px solid rgba(166,77,230,.85);
+  box-shadow:0 0 18px rgba(166,77,230,.75),inset 0 0 14px rgba(166,77,230,.35)}
+.mtopband{position:absolute;left:0;top:0;width:100%;height:230px;
+  background:linear-gradient(180deg,rgba(3,6,12,.72),rgba(3,6,12,.42) 42%,rgba(3,6,12,0))}
+/* 咒力条：.bd 同样带 overflow:hidden，8% 门槛的"出头"部分必须挂在 .mcw 上 */
+.mcw{position:relative;width:100%}
+.mcs{position:relative;width:100%;height:11px;padding:1px;background:rgba(27,79,216,.46);
+  clip-path:polygon(7px 0,calc(100% - 11px) 0,100% 50%,calc(100% - 11px) 100%,0 100%)}
+.mid.p2 .mcs{clip-path:polygon(calc(100% - 7px) 0,11px 0,0 50%,11px 100%,100% 100%)}
+.mcs .bd{position:relative;width:100%;height:100%;overflow:hidden;background:rgba(4,7,15,.96);
+  clip-path:polygon(6px 0,calc(100% - 10px) 0,calc(100% - 2px) 50%,calc(100% - 10px) 100%,1px 100%)}
+.mid.p2 .mcs .bd{clip-path:polygon(calc(100% - 6px) 0,10px 0,2px 50%,10px 100%,calc(100% - 1px) 100%)}
+.mcs i{position:absolute;left:0;top:0;height:100%;background:linear-gradient(180deg,var(--curse1) 0%,var(--curse2) 16%,var(--curse3) 36%,var(--curse4) 64%,var(--curse5) 100%)}
+.mid.p2 .mcs i{left:auto;right:0}
+.mcw .mn{position:absolute;left:8%;top:-4px;bottom:-4px;width:2px;background:var(--danger)}
+.mid.p2 .mcw .mn{left:auto;right:8%}
+/* 行动资源（玩家侧）：与原型同形 —— 一条连续长条 + 上缘 4 道极细刻度，不是 5 个格子 */
+/* 行动资源（玩家侧）：v6.0 由连续条改为 5 颗菱形豆（与原型同形制）。
+   离散豆能表达"一次扣 2 点"——两颗同时暗下去，连续条做不到 */
+.map{display:flex;align-items:center;gap:9px;width:100%;height:20px;margin-top:6px}
+.map .lb{font-size:9px;letter-spacing:.14em;color:var(--t4);white-space:nowrap;flex:none}
+/* 与原型同几何：边长 13 -> 视觉 18.4px；间隙 11 -> 中心距 24px（否则菱形会互相压住）*/
+.mpips{position:relative;display:flex;align-items:center;gap:11px;flex:none;height:20px;padding-right:3px}
+.mpip{position:relative;width:13px;height:13px;flex:none;transform:rotate(45deg);
+  background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(150,190,255,.10) 52%,rgba(0,0,0,.55));
+  box-shadow:0 2px 5px rgba(0,0,0,.55),0 0 9px rgba(192,138,20,.45)}
+.mpip>i{position:absolute;inset:1px;display:block;
+  background:linear-gradient(180deg,var(--ap1) 0%,var(--ap2) 18%,var(--ap3) 40%,var(--ap4) 64%,var(--ap5) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,244,214,.85),inset 0 -1px 0 rgba(0,0,0,.6)}
+.mpip>i::after{content:'';position:absolute;left:1px;top:1px;width:3.5px;height:3.5px;
+  background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,255,255,0));
+  clip-path:polygon(0 0,100% 0,0 100%)}
+.mpip.off{background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(150,190,255,.05) 52%,rgba(0,0,0,.5));
+  box-shadow:0 2px 4px rgba(0,0,0,.5)}
+.mpip.off>i{background:linear-gradient(180deg,#1A2130 0%,#141A27 40%,#0D121C 100%);
+  box-shadow:inset 0 1px 0 rgba(150,190,255,.14),inset 0 -1px 0 rgba(0,0,0,.6)}
+.mpip.off>i::after{opacity:.18}
+.map .vl{display:flex;align-items:baseline;gap:4px;flex:1;justify-content:flex-start;
+  font-size:9px;color:var(--t4)}
+.map .vl b{font-family:var(--en);font-size:12px;color:var(--t5);opacity:.86}
+.mmid{position:absolute;left:960px;transform:translateX(-50%);text-align:center}
+/* 可展开 chip：v5.0 起跟能量同色（浅青蓝），不再用金色 —— 金已归行动资源 */
+.mchip2{display:inline-flex;gap:7px;height:26px;padding:0 12px;line-height:26px;font-size:11px;color:var(--deng2);
+  background:rgba(6,34,46,.86);border:1px solid rgba(63,220,255,.42)}
+.mtitle{font-family:var(--sr);font-size:26px;letter-spacing:.34em;color:var(--gold);text-indent:.34em}
+.mmeta{margin-top:6px;display:flex;align-items:center;justify-content:center;gap:16px;font-size:11px;color:var(--muted)}
+.mmeta .clk{font-family:var(--en);font-size:16px;color:var(--fg)}
+.mtl{position:relative;width:300px;height:12px}
+.mtl .bg{position:absolute;left:0;top:5px;width:100%;height:2px;background:rgba(150,190,255,.18)}
+.mtl b{position:absolute;top:2px;width:9px;height:9px;transform:rotate(45deg);
+  border:1px solid rgba(255,209,102,.5);background:rgba(6,10,18,.9)}
+.mtl b.t0{left:5%}.mtl b.t1{left:38.3%}.mtl b.t2{left:71.7%}
+.mtl b.hit{background:var(--gold);border-color:var(--gold)}
+.mtl b.skip{border-color:var(--danger);background:rgba(255,59,48,.25)}
+.mtl .ph{position:absolute;top:0;width:2px;height:12px;background:var(--gold)}
+.msup{display:inline-block;font-size:11.5px;letter-spacing:.1em;color:#C3CCDA;padding:2px 11px;
+  background:rgba(8,14,26,.78);border:1px solid rgba(150,190,255,.22)}
+.mchain{position:absolute;left:820px;top:44px;width:280px;height:9px;
+  background:linear-gradient(90deg,rgba(150,190,255,0),#8A93A6 12%,#8A93A6 88%,rgba(150,190,255,0))}
+.mchain:before,.mchain:after{content:'';position:absolute;left:0;width:100%;height:1px;background:#8A93A6;top:0}
+.mchain:after{top:8px}
+.mmodes{position:absolute;left:600px;top:164px;width:720px;display:flex;justify-content:center;gap:8px;font-size:10px}
+.mmodes span{padding:1px 8px;color:var(--muted);border:1px solid var(--border)}
+.mmodes span.on{color:var(--rc-aim);border-color:rgba(115,242,242,.45)}
+.mret{position:absolute;left:960px;top:540px;width:0;height:0}
+.mret i{position:absolute;box-shadow:0 0 6px currentColor}
+.mcn{position:absolute;left:640px;top:794px;width:280px;height:280px}
+.mfd{position:absolute;left:722px;top:876px;width:116px;height:116px;border-radius:50%;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;font-weight:700;
+  letter-spacing:.14em;border:1px solid rgba(150,190,255,.28);color:var(--fg);
+  background:radial-gradient(closest-side,rgba(31,180,240,.20),rgba(6,10,18,.95) 78%)}
+.mfd svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+.mfd.ranged{background:radial-gradient(closest-side,rgba(115,242,242,.20),rgba(6,10,18,.95) 78%);color:var(--rc-aim)}
+.mro{position:absolute;left:610px;top:672px;width:340px;height:30px;display:flex;align-items:center;
+  justify-content:center;gap:8px;font-size:10px;background:var(--mat);border:1px solid rgba(150,190,255,.26);
+  clip-path:var(--cut8)}
+.mro .mn{font-family:var(--en);font-size:14px;color:var(--rc-chg)}
+.mro.full .mn{color:var(--gold)} .mro.lim .mn{color:var(--danger)}
+/* 右下：技能行（单排：Q/E 普通技 + R 大招主位；按钮上只有键位字母），与原型同一套几何 */
+.msk{position:absolute;inset:0}
+.mskill{position:absolute;width:70px;height:70px;transform:translate(-50%,-50%);border-radius:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,.36),rgba(150,190,255,.14) 52%,rgba(255,255,255,.10));
+  box-shadow:0 6px 18px rgba(0,0,0,.55)}
+.mskill>i{position:absolute;inset:1px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(closest-side at 50% 34%,rgba(30,46,72,.96),rgba(7,11,21,.98));color:var(--fg)}
+.mskill svg.ic{width:38px;height:38px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* 普攻位的键位标识 = 鼠标左键图标 */
+.mskill .key.keyicon{display:flex;align-items:center;justify-content:center;padding:0 5px}
+.mskill .key.keyicon svg{width:14px;height:14px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.mskill .key{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);font-family:var(--en);font-size:11px;
+  letter-spacing:.06em;color:var(--fg);background:rgba(3,6,12,.94);border:1px solid rgba(150,190,255,.30);
+  padding:0 6px;line-height:15px}
+/* 形态再切间隔 0.5s：收束细弧，不写文字 */
+.mskill .sw{position:absolute;inset:0;opacity:0}
+.mskill .sw circle{fill:none;stroke:var(--aim);stroke-width:2;stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:35px 35px}
+.mskill.switching .sw{opacity:1;animation:swArc .5s linear forwards}
+@keyframes swArc{from{stroke-dasharray:195 0}to{stroke-dasharray:0 195}}
+.mskill.use{background:linear-gradient(180deg,#FFF6B0,var(--rc-chg) 46%,rgba(255,230,51,.25))}
+.mskill.use>i{background:radial-gradient(closest-side at 50% 34%,rgba(74,64,10,.96),rgba(12,12,8,.98))}
+.mskill.use svg.ic{stroke:var(--rc-chg)}
+.mskill.cool{background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(150,190,255,.06))}
+.mskill.cool svg.ic{stroke:rgba(242,247,255,.30)}
+.mskill.cool .sweep{position:absolute;inset:1px;border-radius:50%;
+  background:conic-gradient(from -90deg,rgba(4,8,16,0) 0 108deg,rgba(4,8,16,.74) 108deg 360deg)}
+.mskill.locked{background:linear-gradient(180deg,rgba(198,150,255,.34),rgba(120,70,190,.18))}
+.mskill.locked>i{background:radial-gradient(closest-side at 50% 34%,rgba(46,26,70,.94),rgba(10,6,18,.98))}
+.mskill.locked>i::before{content:'';position:absolute;inset:0;border-radius:50%;
+  background:repeating-linear-gradient(135deg,rgba(166,77,230,.24) 0 3px,transparent 3px 9px)}
+.mskill.locked svg.ic{stroke:rgba(214,180,255,.5)}
+/* 大招主位：Ø96（普通技 Ø70 × 1.37），圆心 (1820,1004) —— 键位标签中心距屏右 100px。
+   v5.0：这枚按钮就是领域能量表（顶部弧槽已移除），满值时外溢 */
+.mult{position:absolute;left:1820px;top:1004px;width:96px;height:96px;transform:translate(-50%,-50%);border-radius:50%;
+  padding:2px;background:linear-gradient(180deg,rgba(226,246,255,.45),rgba(166,77,230,.35) 55%,rgba(255,255,255,.12));
+  box-shadow:0 8px 26px rgba(0,0,0,.6)}
+.mult>i{position:absolute;inset:2px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(closest-side at 50% 32%,rgba(48,30,84,.95),rgba(8,8,18,.98))}
+.mult svg.ic{position:relative;z-index:1;width:46px;height:46px;fill:none;stroke:var(--fg);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.mult .ring{position:absolute;left:0;top:0;width:96px;height:96px;transform:rotate(-90deg);z-index:2}
+.mult .ring circle{fill:none;stroke-width:3.5;stroke-linecap:round}
+.mult .ring .bgc{stroke:rgba(150,190,255,.13)}
+.mult .ring .fgc{stroke:var(--deng)}
+/* 满能量：常驻外扩亮环 + 双层外扩柔光环（静态缩略图取扩散中段一帧）+ 6 颗粒子 */
+.mult .ov,.mult .pts{position:absolute;inset:0;pointer-events:none;opacity:0}
+.mult.ready .ov,.mult.ready .pts{opacity:1}
+.mult .ov .halo{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(63,220,255,.5);transform:scale(1.26)}
+.mult .ov .halo.h2{border-color:rgba(169,240,255,.34);transform:scale(1.12)}
+.mult .ov .glowring{position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(63,220,255,.55);
+  box-shadow:0 0 16px rgba(63,220,255,.75),inset 0 0 12px rgba(63,220,255,.35)}
+.mult .ov .bloom{position:absolute;inset:-21px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(63,220,255,.40),rgba(63,220,255,.13) 58%,rgba(63,220,255,0))}
+.mult .pt{position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;
+  background:radial-gradient(circle,#fff,var(--deng2) 45%,rgba(63,220,255,0) 100%)}
+.mult .key{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);font-family:var(--en);font-size:11px;
+  letter-spacing:.06em;color:var(--fg);background:rgba(3,6,12,.94);border:1px solid rgba(150,190,255,.30);
+  padding:0 7px;line-height:15px;z-index:3}
+.mult.ready{background:linear-gradient(180deg,var(--deng3),var(--deng) 48%,rgba(166,77,230,.45))}
+.mult.ready>i{background:radial-gradient(closest-side at 50% 32%,rgba(16,52,76,.96),rgba(10,8,16,.98))}
+.mult.ready .ring .fgc{stroke:var(--deng3)}
+.mult.ready svg.ic{stroke:var(--deng3)}
+.mult.ready .key{color:var(--deng2);border-color:rgba(63,220,255,.5)}
+.mult.locked{background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(150,190,255,.08))}
+.mult.locked>i{background:radial-gradient(closest-side at 50% 32%,rgba(24,30,46,.94),rgba(5,8,16,.98))}
+.mult.locked svg{stroke:rgba(242,247,255,.32)}
+.mult.locked .cap{color:rgba(242,247,255,.36)}
+.mult.locked .ring .fgc{stroke:rgba(150,190,255,.25)}
+.mfl{position:absolute;transform:translateX(-50%);font-family:var(--en);font-size:20px;font-weight:700;
+  text-shadow:0 2px 6px #000;white-space:nowrap}
+.mres{position:absolute;inset:0;background:rgba(5,10,22,.72);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px}
+.mres .rt{font-family:var(--sr);font-size:44px;letter-spacing:.34em;color:var(--rc-aim)}
+.mres .rs{font-size:13px;color:rgba(242,247,255,.8);letter-spacing:.1em}
+.mres .rk{font-size:11px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-weight:700;color:var(--muted);letter-spacing:.08em;font-size:11px;
+  padding:8px 10px;border-bottom:1px solid rgba(150,190,255,.28);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:rgba(234,246,255,.9)}
+td.v{font-family:var(--mo);white-space:nowrap}
+.sw{display:inline-block;width:12px;height:12px;margin-right:7px;vertical-align:-1px;border:1px solid rgba(255,255,255,.22)}
+.tagr{font-family:var(--mo);font-size:10px;padding:1px 6px;border:1px solid var(--line);color:var(--muted)}
+.tagr.del{border-color:rgba(255,59,48,.45);color:rgba(255,59,48,.9)}
+.tagr.keep{border-color:rgba(115,242,242,.4);color:rgba(115,242,242,.85)}
+.note{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.9}
+.note b{color:var(--fg)}
+footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mo);font-size:11px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+  <div class="kicker">JJK: THE HIDDEN ONES / UE 5.8 / 1v1 擂台训练 DEMO / HUD SPEC v1.0</div>
+  <h1>对战 HUD 分状态设计板与规范</h1>
+  <div class="sub" style="margin-top:10px">角色：石流龙（近战拳脚 + 头部咒力炮击 + 原创领域「极宴流光」）　参考画布：1920×1080　参考：火影究极风暴4 条组层次 · 异人之下 技能区 · 石流龙官方立绘 图标母题</div>
+  <div class="notice">交付稿 · 全部数值取自项目当前设计文档的调试参数；缩略画面为 1920×1080 参考画布等比 1/3，与 hud-prototype.html 共用同一套锚点与图标路径。</div>
+  <div class="metaline">
+    <span>交付物：hud-prototype.html（交互原型） / hud-states.html（本文件）</span>
+    <span>状态数：12</span><span>技能图标：9（上 HUD 4 张）</span><span>招位：单排 4 格，普攻/Q/E Ø70 + 大招 Ø96</span><span>色彩令牌：26（含 6 级明度阶梯）</span>
+  </div>
+</header>
+
+<section>
+  <div class="shead"><span class="ix">01</span><h2>设计说明</h2><span class="sub">三条取舍的理由</span></div>
+  <div class="reasons">
+    <div class="reason" data-od-id="board-rationale-symmetry">
+      <h3><i>A</i>为什么双方能量条对称排布</h3>
+      <p>照火影究极风暴4 的做法，把<span class="k">生命 → 咒力（紧贴）→ 行动资源条</span>集中在两侧上角并左右镜像：咒力决定对手还能不能开炮，是玩家真正会读的对抗信息，所以对手侧同样给满。但<span class="k">行动资源是玩家自己的资源</span>（躲闪消耗、1s 静止后每秒回 1），对手的行动点数不构成玩家可读的决策信息，因此这一行<b>只在玩家侧</b>。真正属于调试信息的（技能冷却、已支付咒力、领域会话、在途球数）留在调试层，不进主视野。</p>
+    </div>
+    <div class="reason" data-od-id="board-rationale-charge-cap">
+      <h3><i>B</i>为什么蓄力要显示强度上限</h3>
+      <p>伤害与咒力是两个耦合变量：<span class="k">已支付咒力不足时，继续持炮不会提升伤害</span>（仅剩 16 咒力时普通炮上限 60）。若不显式标出可支付区间，玩家会把“持炮更久”误当成“更强”。所以环上把超出支付能力的部分画成红橙虚线轮廓，读数直接锁在强度上限。</p>
+    </div>
+    <div class="reason" data-od-id="board-rationale-domain-top">
+      <h3><i>C</i>为什么领域能量搬到大招环上（v5.0 改动）</h3>
+      <p>原来顶部中央有一对弧槽分别显示双方领域能量。但领域能量的<b>用途只有一个</b>：告诉你 R 键能不能按。把它拆到屏幕顶部，玩家就得在"看对手"和"看自己能不能开大"之间来回扫视；而大招按钮本来就是回答这个问题的唯一位置。所以 v5.0 <span class="k">移除顶部弧槽，能量直接长在 R 键的环上</span>——蓄了多少、满没满、能不能按，全在同一处。</p>
+      <p><b>代价（必读）：</b>失去"同时看双方领域能量"的能力。原设计里双领域压制需要同时读两边，现在<b>对手的领域能量百分比在 HUD 上不可见</b>。替代表达见 <a href="#tradeoff" style="color:var(--deng2)">03·e 取舍说明</a>。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">02</span><h2>技能图标总览</h2><span class="sub">9 张技能图标 + 1 张键位标识（鼠标）· 24×24 网格 · 普通技 38px（Ø70 格内）/ 大招 46px（Ø96 格内）· 每张只承载 1–2 个母题</span></div>
+  <div class="iconset" id="iconset"></div>
+  <div class="shead" style="margin-top:40px"><span class="ix">02·b</span><h2>招位圆形状态五式</h2><span class="sub">就绪 / 冷却中 / 形态再切 / 领域封印 / 大招可用 —— 全部靠圆形语言，均不写文字</span></div>
+  <div class="states5" id="states5"></div>
+  <div class="note">五式只改<b>外框与遮罩</b>，不改图标本体：就绪 = 中性细环 + 深色底；冷却中 = 自顶部顺时针扫过的暗色扇形（不写秒数）；形态再切 = 按 E 后在新形态的 E 格上画一圈 0.5s 收束细弧；领域封印 = 整体降级 + 45° 斜纹（与冷却扇形明确区分）；<b>大招可用 = 能量环转亮 + 向外扩散的柔光晕（v5.0 由金色改为浅青蓝，见 03·e）</b>。按钮上始终只有键位字母 Q / E / R，待机时 R 与 Q/E 同款中性标签。</div>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">03</span><h2>条组规范</h2><span class="sub">头像 + 名 → 生命 → 咒力（0 间距）→ <b>5 颗菱形豆</b>（只在玩家侧）</span></div>
+  <table data-od-id="board-table-bargroup">
+    <thead><tr><th>层</th><th>尺寸 / 位置（1920×1080）</th><th>与上一层的关系</th><th>参考实测比例（火影截图 584×328）</th><th>UMG 落地</th></tr></thead>
+    <tbody>
+      <tr><td>头像位</td><td class="v">92 × 92，切角 12px，内缘 3px 身份色</td><td>条组最左端，与条栈间隔 10px</td><td class="v">参考：头像高约等于条组高，本稿 1:1</td><td>Image（方形）+ Material 切角；头像资源建议 192×192</td></tr>
+      <tr><td>角色名行</td><td class="v">500 × 19，14.5px / 700</td><td>位于生命条<b>上方</b>，与条体等宽</td><td class="v">参考：名字行高 ≈ 生命条的 1.3 倍</td><td>Horizontal Box：名 → 等级标签 → 咒力状态 → 生命数字</td></tr>
+      <tr><td>生命条</td><td class="v">500 × 15，chevron 斜切 13px，<b>无内部格子</b></td><td>条组最厚、最亮的一层（1.00）；可读性只由「填充 + 名字行里的 1000 / 1000 读数」承担</td><td class="v">参考：生命条 ≈ 3.5px / 584 宽，换算 1080 约 13px，本稿 15px</td><td>两层 Image 叠放（残影 + 即时），<b>不要用 ProgressBar，也不要叠等距刻度</b></td></tr>
+      <tr><td>咒力条</td><td class="v">500 × 11，chevron 斜切 11px，<b>margin-top: 0</b>，<b>无内部格子</b></td><td>紧贴生命条正下方，仅靠两层各自 1px 描边分隔；条上唯一的内部标记是 8% 门槛</td><td class="v">参考：咒力条 ≈ 3px ≈ 生命的 0.85 倍，本稿 0.73 倍</td><td>Image + Material 填充；<b>8% 处一条上下出头的危险色闸门刻度 + 上下三角</b> = 最低开炮门槛</td></tr>
+      <tr><td>菱形豆行 <span style="color:var(--deng2)">v6.0</span></td><td class="v">5 颗菱形豆，视觉宽 18.4px（边长 13），中心距 24px，间隙 5.6px；行高 20px，<b>margin-top 6px</b>；右侧读出 <b>行动 5 / 5</b>（次级）</td><td>位于咒力条正下方、与条体左缘对齐，<b>只在玩家（P1）侧</b>；对手侧没有这一行</td><td class="v">参考：ref-naruto-pips.png 的菱形宝石豆（豆 28px → 按 1.65 比例换算，见 03·f）</td><td>Horizontal Box + 5 ×（Overlay：菱形 Image + 内面 Material + 高光）；<b>满 / 空用两套 Material 参数，不用改色相</b>；读数用 TextBlock</td></tr>
+      <tr><td>状态小标签</td><td class="v">9px，行高 13px</td><td>并入名字行，不单独占行</td><td class="v">参考中该信息位于条组之外，本稿收进名字行</td><td>TextBlock；咒力 &lt; 8 时切危险色</td></tr>
+      <tr><td>条组整体</td><td class="v">宽 92 + 10 + 500 = 602；P1 栈高 74（名 20 + 生命 20 + 咒力 11 + 豆行 26），P2 栈高 51</td><td>上边距 30、左边距 34（右侧镜像）；右缘止于 x=636，条栈高度以头像 92px 为上限，两侧都不外溢</td><td class="v">参考：单侧条组约占屏宽 41%，本稿 31.4%（为顶部中央领域弧槽让出中缝）</td><td>一个 Canvas Panel 承载整组，内部固定偏移，便于整体缩放</td></tr>
+    </tbody>
+  </table>
+  <div class="note">填充几何（硬性校验点）：P1 咒力左锚定、P2 右锚定；<b>右锚定时必须同时把 left 置为 auto 并给出明确 width 百分比</b>，否则绝对定位的填充会塌成 0 宽。已按渲染图逐像素复核：P2 咒力 74% 时填充占据条体右侧 74% 宽度、右端与条体右端对齐，8% 门槛刻度落在距右端 8% 处（条体由 600 缩到 500 后一切按百分比等比，几何不变）。<br><b>去格子后的可读性</b>：生命 / 咒力两条内部原有的等距刻度叠层（repeating-linear-gradient）已整层删除。读数改由三件事承担 —— ① 填充长度；② 名字行右侧的大号数字（1000 / 1000、咒力 100 / 100）；③ 前沿 2px 白色光刃。唯一保留的内部标记是咒力条 8% 处的门槛闸门：去格子后它是条上唯一的内部记号，因此做成<b>上下各出头 6px 的 2px 危险色竖线 + 两端 8×4 三角</b>，即使缩到 1/3 缩略图也仍是一个明确的"闸门"而不是普通刻度。</div>
+
+  <div class="shead" style="margin-top:36px"><span class="ix">03·b</span><h2>条组材质（v2 升级手法）</h2><span class="sub">层次不变，只换表面处理；每一层都是"外描边 → 深色内槽 → 亮部高光"三段式</span></div>
+  <table data-od-id="board-table-barmaterial">
+    <thead><tr><th>部位</th><th>处理手法</th><th>为什么这样处理</th></tr></thead>
+    <tbody>
+      <tr><td>生命条槽体</td><td class="v">1px 亮描边 + 内槽 inset 上暗下亮的双向阴影 + 顶部 1px 白色斜面；<b>不叠任何等距刻度层</b></td><td>把"线框"变成"管子"：上缘亮、下缘暗，眼睛会自动读成有厚度的实体。管子内部一旦再画格子，就同时破坏了"连续量"的语义与管子的体积感</td></tr>
+      <tr><td>生命填充</td><td class="v">竖向三段渐变（<b>#FFD9A0 → #FF8C22 → #DB5B08</b>，v5.0 改为暖橙）+ 0 0 16px 暖橙外发光 + 内侧 1px 暖白高光</td><td>三段比双色更有体积；外发光让条体在暗场景里"亮起来"而不是"贴上去"。<b>橙与下方的金之间隔着深蓝咒力条，两者从不接触</b>（见 03·e 可区分性验证）</td></tr>
+      <tr><td>前沿光刃</td><td class="v">2px 纯白竖条 + 双层投影（10px 白 / 22px 青）</td><td>受击时最需要被看到的量就是"还剩多少"，前沿必须是最亮的一点</td></tr>
+      <tr><td>虚血残影</td><td class="v">暖橙深档竖向渐变（<b>#8A3A08 → #3E1404</b>）+ 上缘 1px 暖白高光；0.6s 延迟 / 0.35s 回落</td><td>加一道上缘高光后残影不再是一块死黑，读数时能分清"残影"与"空槽"。v5.0 起残影改用<b>与生命条同一色相</b>的深档（原来是暗红），受击时读作"这条血量掉了一截"，而不是另一条独立的红条</td></tr>
+      <tr><td>咒力条</td><td class="v">同语言、厚度 11px（生命 0.73 倍）+ 8% 处危险色闸门刻度（上下出头 6px + 两端三角）</td><td>两层条必须"同族不同级"：材质一致保证同一套读数节奏，厚度与色相区分层级。格子去掉后，8% 门槛成为咒力条上唯一的内部记号，它承载的是"能不能开炮"的决策信息，必须比装饰性强</td></tr>
+      <tr><td>头像框</td><td class="v">外 1px 亮线 → 2px 深色带 → 内层 1px；内缘 3px 身份色能量线（带 10px 光晕）+ 112° 斜向高光 + 底部 46% 暗角 + P1/P2 角标</td><td>外亮内深的双描边是金属/能量框的通用做法；斜向高光避免方形头像显得平；底部暗角保证角标可读</td></tr>
+      <tr><td>顶部压暗带</td><td class="v">顶部 230px 竖向渐变 rgba(3,6,12,.72) → 透明</td><td>条组直接压在擂台亮部会失去对比；一条压暗带让两侧条组"浮"出来，比给每个面板加底更干净</td></tr>
+      <tr><td>菱形豆 <span style="color:var(--deng2)">v6.0</span></td><td class="v">管体五段（<b>#5E4207 → #A8760F → #FFE0A0(40%) → #C08A14 → #6E4E08</b>）+ 左上角 3.5px 三角宝石高光 + 9px 金色外发光；空豆同形制、去发光、内面压到 <b>#1A2130 → #0D121C</b></td><td>行动资源是<b>可数的 5 个点</b>。v5.0 曾用"连续条 + 上缘刻度"，但连续条无法表达"一次扣 2 点"——掉 2/5 与回气到 3/5 完全同形。离散豆用"有没有光"区分满 / 空，扣点时两颗同时暗下去，读成一个事件</td></tr>
+    </tbody>
+  </table>
+
+  <div class="shead" style="margin-top:36px"><span class="ix">03·c</span><h2>技能区规范（单排招位）</h2><span class="sub">四格同排、圆心距一律 120px；普攻 / Q / E Ø70 + R 大招主位 Ø96</span></div>
+  <table data-od-id="board-table-cluster">
+    <thead><tr><th>项</th><th>规格</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>形状</td><td class="v">全部圆形，取消方角格</td><td>圆形天然承载扇形冷却、外圈能量弧与外发光，不需要再挂一个进度条</td></tr>
+      <tr><td>体量层级</td><td class="v">大招 Ø96 : 普通技 Ø70 = 1.37 : 1</td><td>1.37 倍足以读出「主位」，同时保证 Ø96 与相邻 Ø70 在 120px 圆心距下仍有 37px 净间隙（见下）</td></tr>
+      <tr><td>排列方式</td><td class="v"><b>单排，无弧线</b>：普攻(1460,1004) → Q(1580,1004) → E(1700,1004) → R(1820,1004)，圆心距恒为 120px，四点同一 y</td><td>参考图里 T↔E 圆心距 267、E↔Q 只有 160 —— 说明 E/Q 才是同一组技能，T 是被隔开的物品键。同排等距让"同一组"这件事由几何本身说明；斜弧排会引入一个参考图里并不存在的排布</td></tr>
+      <tr><td>纵向定位</td><td class="v">圆心 y=1004；键位标签中心落到 y≈1039，与参考图量得的标签带 1027–1051（中心 1039）重合；标签底边距屏底 32px</td><td>纵向锚点取自参考图实测的标签带，而不是按钮圆心——键位字母是玩家真正盯着找的东西，它该落在实测位置上</td></tr>
+      <tr><td>净距</td><td class="v">Q↔E 净距 50px（120 − 35 − 35）；E↔R 净距 37px（120 − 35 − 48）；R 右缘距屏右 52px</td><td>净距全部为正且 ≥37px，三格在 1/3 缩略图下也不会黏成一团</td></tr>
+      <tr><td>招位数量 <span style="color:var(--deng2)">v7.0</span></td><td class="v">每形态 <b>1 普攻 + 2 普通技 + 1 大招</b>：普攻（近战拳 / 远程咒力炮）、Q（近战腿击 / 远程超级炮）、E 切形态、R 领域</td><td>v6.0 只有 Q/E 两格、中间空 120px，视觉上"旷"。补上普攻位后四个按钮<b>连续无空缺</b>，这才是分组感的来源（见 03·i 的参考图实测）</td></tr>
+      <tr><td>轻 / 重共键</td><td class="v">招位只留键位字母；轻重共键关系移出 HUD，写在招式表与训练提示里</td><td>按钮上一旦承载说明文字，就会与图标本体的识别责任打架；参考图的招位也不写这些</td></tr>
+      <tr><td>按钮文字</td><td class="v">只有键位字母 Q / E / R（11px），无技能名、无派生说明、无秒数</td><td>形制取自两张实机参考图：原神与鸣潮的右下招位都<b>只标键位字母</b>，技能靠图标本身体现</td></tr>
+      <tr><td>冷却表现</td><td class="v">自顶部（-90°）顺时针扫过的暗色扇形（conic-gradient），<b>不写秒数</b></td><td>鸣潮 T 键那格的做法；圆形按钮的天然表达，替代底部进度条</td></tr>
+      <tr><td>形态再切间隔</td><td class="v">按 E 后在新形态的 E 格上画一圈 0.5s 收束细弧（Ø70 格：周长 195 → 0），无文字</td><td>同一状态不在形态圆盘与招位格上重复出现；指示器放在触发它的按钮上</td></tr>
+      <tr><td>能量表现</td><td class="v">大招能量环与按钮同心贴合：viewBox 96 = 按钮 96px，r=45.5 → 环外缘半径 47，落在按钮 48px 半径内 1px；<b>能量 &lt; 0.5% 时 fgc 不透明度归零</b></td><td>环必须落在按钮外缘之内，否则能量为 0 时只剩一圈悬在按钮外的淡蓝，被读成孤立圆圈。另：零长度 dash 在 round 线帽下会渲染出一个圆点，低能量必须连同不透明度一起归零，跨阈值时 dasharray 与 opacity 同步 0.25s 淡入</td></tr>
+      <tr><td>领域封印</td><td class="v">按钮整体降级 + 45° 斜纹遮罩，无文字</td><td>与冷却扇形明确区分（斜纹 vs 扇形），避免"弧 = 进度"的误读</td></tr>
+      <tr><td>可用态</td><td class="v">大招：外环转金 + 1.5s 呼吸外发光（环本身就是状态）</td><td>鸣潮 R 键的做法：用亮环表达可用，不加文字</td></tr>
+      <tr><td>占用与净空</td><td class="v">整行占 x 1545–1868 / y 956–1061（含键位标签）；与下中蓄力环（x 820–1100、y 794–1074）<b>x 向净空 445px</b></td><td>技能行整体抬到 y=1004、且最左格 x=1545 &gt; 蓄力环右缘 1100，两者在横向上完全分离，任何缩放下都不可能重叠</td></tr>
+    </tbody>
+  </table>
+
+  <div class="shead" style="margin-top:36px"><span class="ix">03·d</span><h2>参考图实测值</h2><span class="sub">两张实机截图均为 2559×1439；换算系数 1920 / 2559 = 0.7503</span></div>
+  <table data-od-id="board-table-measured">
+    <thead><tr><th>量到的对象</th><th>参考图原始像素（2559×1439）</th><th>换算到 1920×1080</th><th>用在哪里 / 置信度</th></tr></thead>
+    <tbody>
+      <tr><td>原神：键位标签块</td><td class="v">40 × 32，位于 y 1369–1401；两块中心 x = 2264.5 / 2424.5</td><td class="v">30 × 24；中心 x = 1699 / 1819，标签带 y = 1027–1051</td><td>两块形态完全一致、可重复检出 → <b>高置信</b>。本项目把 E / R 的键位标签中心放在 x=1700 / 1820（与量得的 1699 / 1819 差 1px，取整到 10px 栅格）</td></tr>
+      <tr><td>原神：标签中心间距</td><td class="v">160</td><td class="v"><b>120</b></td><td><b>高置信</b>。本项目三格圆心距一律取 120px，普通技净间隙 = 120 − 70 = 50px（量得净间隙 ≈65 → 49，吻合）</td></tr>
+      <tr><td>原神：最右标签距屏幕右缘</td><td class="v">133（2559 − 2426）</td><td class="v">100</td><td><b>高置信</b>。本项目大招圆心 x = 1820 → 键位标签中心距屏右 100px，与量得值一致（上一版是 78，本轮按实测校正）</td></tr>
+      <tr><td>原神：技能组按钮直径</td><td class="v">≈93–97（你的目视测量）</td><td class="v"><b>≈70</b>（×0.7503）</td><td><b>你提供的视觉测量</b>，本轮采用为普通技直径；大招按 1.37 倍取 Ø96，理由见 03·c「体量层级」</td></tr>
+      <tr><td>原神：T（物品）↔ E 圆心距</td><td class="v">267</td><td class="v">200</td><td><b>高置信</b>。267 明显大于技能组内的 160 → T 不属于技能组，据此<b>不把物品键并入技能行</b></td></tr>
+      <tr><td>两张图的多方法圆检测</td><td class="v">Hough / 环形对比度 / 圆周边缘占比 / 暗圆盘 四种方法返回的候选半径散布在 r=36–78（d 72–156）</td><td class="v">—</td><td><b>低置信</b>：两张图右下角都被明亮场景内容压住，自动测量没有收敛。因此本轮直径改用你的目视测量（≈93–97），不再由自动检测反推</td></tr>
+      <tr><td>鸣潮：冷却扇形 / 大招亮环</td><td class="v">结构与描述一致（自顶部顺时针的暗扇、橙色亮环）</td><td class="v">—</td><td><b>文字依据（你提供的描述）</b>，非像素实测；用于确定状态的<b>画法</b>而非尺寸</td></tr>
+      <tr><td>火影：体力条暖色族（本轮新增）</td><td class="v">缩放图 1200×480 逐像素：条核心 <code>#FFF67E</code> / <code>#F2E16C</code> / <code>#F4D961</code> / <code>#F0C955</code>；条边缘与暗部 <code>#8E6015</code> / <code>#825519</code>；全图"真橙"（hue 20–38°）分位 P50 <code>#B17C22</code>、P85 <code>#EABA6C</code>、P97 <code>#FDC566</code></td><td class="v">色相跨度 <b>34°–56°</b>（琥珀 → 金黄）</td><td><b>高置信（逐像素）</b>，但结论要如实说：<b>火影这条体力条实测是金黄，不是正橙</b>。详见下方配色说明</td></tr>
+      <tr><td>鸣潮：右下角浅青蓝（本轮新增）</td><td class="v">色相桶 h=195° 最亮 <code>#36E4FF</code>（luma 193）；h=180° 最亮 <code>#2AF0FF</code>；浅青蓝像素分位 中 <code>#84B9FF</code> / 亮 <code>#36E4FF</code> / 最亮 <code>#2EEBFF</code>（n=177）</td><td class="v"><b>#3FDCFF</b>（本稿 --deng，取最亮一档略压）</td><td><b>中置信</b>：样本 n=177，是右下技能区发光像素，不是一整块色域。<b>你提到的 ref-ult-cannon-blue.png 不在项目里</b>（见下方说明），所以领域能量色是从这张已有的鸣潮图取的，不是从那张图</td></tr>
+    </tbody>
+  </table>
+  <div class="note">依据强度说明：<b>条组</b>的层次与厚度来自火影截图逐像素实测；<b>招位圆心距、右边距、标签体量、T↔E 距离</b>来自两张二游截图里可重复检出的 UI 块（高置信）；<b>招位直径 ≈70</b> 来自你的目视测量；<b>大招 Ø96</b> 是本稿判断值（1.37 × 70），不是量到的；<b>圆形状态的画法</b>来自你提供的截图描述。正式美术期若拿到更清晰的界面图，请优先复核大招直径这一项。</div>
+
+  <div class="shead" id="tradeoff" style="margin-top:36px"><span class="ix">03·e</span><h2>v5.0 配色与领域能量迁移</h2><span class="sub">三条资源靠色相分开；领域能量从顶部弧槽搬到大招环 —— 含取舍说明</span></div>
+
+  <table data-od-id="board-table-palette-v5">
+    <thead><tr><th>令牌</th><th>取值（新）</th><th>旧值</th><th>色相 / OKLch</th><th>取色依据</th></tr></thead>
+    <tbody>
+      <tr><td>health/fill 亮端</td><td class="v" style="color:#FFD9A0">#FFD9A0</td><td class="v">#F6FDFF</td><td class="v">h=36.0° · oklch(.904 .084 77.5)</td><td rowspan="3">火影体力条暖色族实测跨度 hue 34–56°。取<b>琥珀端</b>（hue 34–38 的 <code>#8E6015</code> / <code>#B17C22</code> / <code>#EABA6C</code>）向橙推约 6°，落到 hue 24–36</td></tr>
+      <tr><td>health/fill 中段</td><td class="v" style="color:#FF8C22"><b>#FF8C22</b></td><td class="v">#A8ECF8</td><td class="v">h=28.8° · oklch(.751 .174 56.0)</td></tr>
+      <tr><td>health/fill 暗端</td><td class="v" style="color:#DB5B08">#DB5B08</td><td class="v">#5FC9E4</td><td class="v">h=23.6° · oklch(.626 .178 44.6)</td></tr>
+      <tr><td>虚血残影</td><td class="v" style="color:#8A3A08">#8A3A08 → #3E1404</td><td class="v">#8E2418 → #4A100C</td><td class="v">h=23.1° / 16.6° · oklch(.451 .122 45.7)</td><td>同色相更深一档（原来是偏红的暗红，现在跟生命条同族）</td></tr>
+      <tr><td>curse/fill 亮端</td><td class="v" style="color:#5E86EE">#5E86EE</td><td class="v">#A9CBFF</td><td class="v">h=223.3° · oklch(.641 .162 266.1)</td><td rowspan="3">按你的指定从 <code>#2E70FF</code> 往深走一档 → 主色 <code>#1B4FD8</code>（hue 223.5°）。亮端/暗端按同一色相同比推导</td></tr>
+      <tr><td>curse/fill 主色</td><td class="v" style="color:#1B4FD8"><b>#1B4FD8</b></td><td class="v">#2E70FF</td><td class="v">h=223.5° · oklch(.490 .216 264.0)</td></tr>
+      <tr><td>curse/fill 暗端</td><td class="v" style="color:#12359B">#12359B</td><td class="v">#1B49C8</td><td class="v">h=224.7° · oklch(.381 .170 264.6)</td></tr>
+      <tr><td>domain/energy</td><td class="v" style="color:#3FDCFF"><b>#3FDCFF</b></td><td class="v">#A64DE6（紫）</td><td class="v">h=190.9° · oklch(.829 .134 216.6)</td><td>鸣潮右下浅青蓝实测最亮 <code>#36E4FF</code>；取最亮一档略压，得到 <code>#3FDCFF</code>。满值转亮用 <code>#E6FBFF</code>（h=189.6°）</td></tr>
+      <tr><td>domain/active（环境）</td><td class="v" style="color:#A64DE6">#A64DE6</td><td class="v">#A64DE6</td><td class="v">h=274.9° · oklch(.603 .225 307.7)</td><td><b>保留</b>：领域展开期的金紫环境色相偏移不变（原 <code>--dom</code> 拆成 <code>--deng</code> 与 <code>--domact</code> 两枚，避免一个令牌同时表示"能量"和"展开"）</td></tr>
+      <tr><td>action（行动资源）</td><td class="v" style="color:#C08A14"><b>#C08A14</b></td><td class="v">#E6A81E</td><td class="v">h=41.2° · oklch(≈.682 .133 79)</td><td>色相不变，按你的许可压暗一档。<b>不改成新色相</b>（详见下方可区分性验证）</td></tr>
+      <tr><td>gold（领域期 / 蓄力满）</td><td class="v" style="color:#FFD166">#FFD166</td><td class="v">#FFD166</td><td class="v">h=42.0° · oklch(.880 .135 86.1)</td><td><b>保留但收窄用途</b>：只剩"领域展开期环境"与"蓄力炮满"两个瞬时高价值信号，不再表示大招可用</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>配色说明（必须如实记录的一条）：</b>你要求"血量用火影那种橙色"，但火影这张体力条<b>逐像素实测是金黄，不是正橙</b>——色相跨度 34°–56°，条核心是 <code>#FFF67E</code>/<code>#F0C955</code>（hue 49–56°），只有边缘暗部到 34–38°。若照字面取 <code>#F0C955</code>，生命条会落在 hue 49°，与行动资源金 <code>#C08A14</code>（hue 41.2°）落在同一段色相上，正是你担心的撞色。因此本稿取<b>该暖色族的琥珀端（hue 34–38°）再向橙推 6°</b>，落到 hue 24–36°：既保留火影那条"暖橙渐变"的观感，又与行动金拉开 <b>12.4°</b> 色相差。这是全稿唯一一处"没有照字面取色"的地方。</div>
+
+  <div class="note" style="margin-top:14px"><b>橙 / 金相邻的可区分性验证（实算，不是估计）：</b>三条资源条在色相上是 <b>生命 28.8° / 咒力 223.5° / 行动 41.2°</b>（领域能量 190.9° 是第四枚令牌，长在大招环上）。橙与金相距 <b>12.4°</b>，确实偏近，所以把行动金从 <code>#E6A81E</code> 压暗到 <code>#C08A14</code>：<br>
+  · <b>OKLab ΔE(生命橙, 行动金) = 0.075 → 0.111</b>（OKLab 的 JND≈0.02，即从约 3.7 个 JND 提到约 5.5 个 JND）；<br>
+  · <b>明度差 ΔL = 0.026 → 0.069</b>，行动条 luma 158 → 141（条底 luma≈10，读数不受影响）；<br>
+  · <b>位置上不相邻</b>：中间隔着 11px 的深蓝咒力条（与橙相差 194.7°），橙与金从不接触；<br>
+  · <b>体量与材质不同</b>：生命条 500×15、带白色光刃与暖橙外发光的"管体"；行动条 500×9、无光刃的哑光"标尺条"+ 4 道刻度。<br>
+  结论：<b>可以区分</b>，但余量不大（5.5 JND）。若正式美术期仍觉得近，下一步该动的是把生命条再向红推（hue ≈22°），而<b>不是</b>继续压暗行动金——再暗会伤到"5 格刻度"的可读性。另：咒力条与领域能量环虽然都在蓝区，但相差 32.6° 色相且明度差 0.339（oklch L 0.490 vs 0.829），不会混淆。</div>
+
+  <table style="margin-top:22px" data-od-id="board-table-domenergy-v5">
+    <thead><tr><th>项</th><th>规格</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>载体</td><td class="v">右下大招（R）按钮的外环，<b>与按钮同心贴合</b>：viewBox 96 = 按钮 96px，r=45.5、线宽 3.5 → 环带 r 43.75–47.25；<b>z-index 必须高于圆盘</b>（圆盘 inset 2px = 半径 46，环跨 43.75–47.25，不抬到圆盘之上会被吃掉三分之二）</td><td>领域能量的唯一用途是回答"R 能不能按"，那就该长在 R 上。环贴边不悬空，能量为 0 时只剩一圈极淡边光，读作按钮自己的边缘而不是一个孤立的圆</td></tr>
+      <tr><td>进度映射</td><td class="v">环 = 领域能量 0–100%，自顶部（-90°）顺时针填充；<b>不写数字</b></td><td>与超级炮冷却同用圆形进度语言，但方向语义相反：冷却扇是"暗色吃掉圆盘"，能量环是"亮线长出圆环"</td></tr>
+      <tr><td>满能量外溢：层数</td><td class="v"><b>3 层光 + 1 组粒子</b>：① 环体转亮（<code>#3FDCFF</code> → <code>#E6FBFF</code>，drop-shadow 由 6px 提到 9px）② 常驻外扩亮环 Ø112（inset −8px，2px 描边 + 内外双层辉光）③ 双层外扩柔光环（自按钮边缘 Ø96 推到 1.42 倍 = Ø134）④ 常驻柔光晕（inset −21px = Ø138，径向渐变，1.6s 呼吸）</td><td>外溢要读成"光在往外冒"，不是"又一个进度"。所以②③④都不是进度条性质，而是纯粹的扩散与呼吸</td></tr>
+      <tr><td>外溢：扩散范围</td><td class="v">自按钮 Ø96 扩到 <b>Ø138 = 按钮的 1.44 倍</b>；渲染实测含外溢整块占 <b>x 1720–1890 / y 930–1078</b>（距屏右 30px、距屏底 2px），仍在 1920×1080 内；最亮的常驻环在 Ø112，辉光溢出按钮边缘约 18px</td><td>1.44 倍是"明显溢出但不顶到屏幕右缘与底缘"的上限（右下角只剩 31px 横向 / 7px 纵向余量）。所有外扩层都<b>从按钮边缘之外起跳</b>（scale ≥ 1.0）——第一版从 scale 0.96 起跳，渲染实测被 Ø92 的圆盘完全盖住，按钮外一个像素都看不到</td></tr>
+      <tr><td>外溢：周期</td><td class="v">外扩柔光环 2.2s 一轮，两环错开 1.1s，自 opacity .6 缓出到 0；常驻亮环与柔光晕 1.6s 呼吸（scale .97↔1.04）</td><td>两环错相才能读成"持续在溢"，同相会读成"一次心跳"；1.6s 的呼吸周期与"大招可用"的旧版脉冲一致，玩家不需要重新学</td></tr>
+      <tr><td>外溢：粒子</td><td class="v"><b>6 颗</b>，自半径 60（常驻亮环 Ø112 之外）沿 6 个不等距角度（20°/80°/140°/200°/260°/320°）向外飞到半径 72，即飞 12px；2.2s 一轮，6 颗以 <b>负延迟</b>错峰（0 / −0.37 / … / −1.85s，每颗错开 0.37s = 2.2/6）</td><td>6 颗正好让"每 0.37s 出一颗"，读起来是持续外溢；不等距角度避免被读成放射线束。起点必须在常驻亮环之外，压在环上会被环吃掉</td></tr>
+      <tr><td>外溢：静止帧兼容<br><span style="color:var(--dim)">（渲染管线踩坑记录）</span></td><td class="v">所有动画层的<b>关键帧终态必须本身可见</b>：外扩环终态 opacity <b>.22</b>（不是 0）、粒子终态 opacity <b>.55</b>（不是 0）；容器用 <b>display 开关</b>而不是 opacity + transition；粒子缩放全程恒为 1</td><td>渲染/截图管线会把 CSS 动画停在最后一帧。实测：终态 <code>opacity:0</code> 的层在导出图里等于不存在（连输出字节数都完全不变）；容器用 0.28s opacity 过渡时，取帧正好落在过渡开始那一瞬，整层仍是透明。改成上述三条后实测 <b>6/6 颗粒子可见</b>（峰值 luma 142–145，同半径对照 20）</td></tr>
+      <tr><td>明确不是</td><td class="v"><b>不是一条扫过的弧</b>：外溢只有同心圆环与径向粒子，没有任何 conic / 旋转扫掠元素</td><td>扫过的弧已经是冷却语言（<code>.skill.cool</code> 的顶部顺时针暗扇），也是形态再切的语言（收束细弧）。外溢若用弧，会被读成"正在冷却"</td></tr>
+      <tr><td>待机与封印</td><td class="v">待机：环为 <code>#3FDCFF</code>、无外溢，R 键位标签与 Q/E <b>完全同款中性</b>；领域展开期或受压制：整钮降级（灰底），环压暗到 <code>rgba(150,190,255,.25)</code>，外溢消失</td><td>键位标签不该自带颜色——之前 R 是金色、Q/E 是中性，属于无理由的不一致。颜色只在"有状态"时出现</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note" data-od-id="board-note-tradeoff"><b>取舍说明（移除顶部双方弧槽的代价）：</b>v5.0 按你的要求移除了顶部中央那对领域能量弧槽，左上/右上条栈里也<b>不加</b>领域条。因此失去的是<b>"同时读双方领域能量百分比"的能力</b>——对手蓄到多少，HUD 上不再可见。这是明知的取舍，替代表达如下：<br>
+  ① <b>对手的领域是否已展开</b>：顶部中央 <code>领域受压制 · 自动炮暂停</code> 横幅（原有，保留）+ 双方领域之间的水平链锁横杠；<br>
+  ② <b>对方大招环的状态</b>：受压制时 <b>P2 头像外圈转紫（#A64DE6）并 1.6s 呼吸</b>——本轮新增元素，用已有的头像框承载，不新增条；<br>
+  ③ <b>自己还能不能展开</b>：R 按钮的电量环 + 满值外溢 + <code>R 可展开 · 极宴流光</code> chip + 展开期整钮降级。<br>
+  <b>没有替代的部分：</b>对手领域能量的<b>连续进度</b>（0–100%）确实不可见了。若后续需要，推荐的做法是在 P2 头像框加一圈同样的电量环（与 P1 的 R 环同语言、不新增条），而不是恢复顶部弧槽——但那属于新增信息，本轮按你的要求不做。</div>
+
+  <div class="shead" style="margin-top:36px"><span class="ix">03·i</span><h2>v7.0 两张新参考图的实测</h2><span class="sub">技能行补普攻位 + 生命/咒力改尖尾同族形制；哪些量到了、哪些没量到都写清楚</span></div>
+  <table data-od-id="board-table-v7refs">
+    <thead><tr><th>量到的对象</th><th>原始像素</th><th>换算 / 用法</th><th>置信度</th></tr></thead>
+    <tbody>
+      <tr><td>鸣潮技能行：键位标签中心距<br><span style="color:var(--dim)">ref-ww-skill-row.png（655×176）</span></td><td class="v">5 块的列连续段 x43–68 / 172–197 / 299–324 / 427–452 / 513–622，中心 55.5 / 184.5 / 311.5 / 439.5 / 567.5 → 间距 <b>129 / 127 / 128 / 128</b></td><td class="v">与本稿 <b>120px 等距</b>同一原则</td><td><b>高置信</b>（5 块形态一致、可重复检出）。<b>证实"等距、不靠间距分组"</b>：最大与最小间距只差 2px</td></tr>
+      <tr><td>鸣潮：键位标签块尺寸</td><td class="v">前四块各 <b>26 × 34</b>（第 5 块与辉光粘连，测得 110 宽）</td><td class="v">本稿标签徽标 24 × 17</td><td><b>中置信</b>。注意：参考标签比本稿<b>高得多</b>（34 vs 17），形状不同族 —— 所以它<b>不能当比例尺</b>用，见下</td></tr>
+      <tr><td>鸣潮：最右标签距画面右缘</td><td class="v">最右标签右缘 x=622 → 距 655 右缘 <b>33px</b>；其中心距右缘 <b>87.5px</b></td><td class="v">本稿 R 键位标签中心距屏右 <b>100px</b></td><td><b>中置信</b>（前提是这张裁切的右缘就是屏幕右缘）。87.5 vs 100 同量级 → 本稿"贴右缘"的做法与参考一致</td></tr>
+      <tr><td>鸣潮：标签带距画面底缘</td><td class="v">标签带 y124–157 → 距 176 底缘 <b>18px</b></td><td class="v">本稿大招键位标签底边距屏底 <b>23px</b></td><td><b>中置信</b>，同量级</td></tr>
+      <tr><td>鸣潮：<b>按钮直径</b></td><td class="v"><b>未能可靠量取。</b>按行扫"最宽亮区"得到 118–180px 不等（按钮 3 的竖直亮区 y41–139 也把下方标签并了进来）</td><td class="v">—</td><td><b>低置信，未采用</b>。该裁切里场景辉光与按钮外环同亮度，任何单一阈值都会把两者并成一个连通区。<b>所以本稿没有从这张图改直径</b>，继续用已锁定的 Ø70 / Ø96</td></tr>
+      <tr><td>火影查克拉条：<b>右端尖尾（关键实测）</b><br><span style="color:var(--dim)">ref-naruto-chakra-bar.png（624×159）</span></td><td class="v">青条右端逐列高度：x497 <b>83</b> → x501 76 → x505 62 → x509 63 → x513 58 → x517 69 → x521 65 → x525 49 → x529 48 → x533 38 → x537 <b>24</b> → x541 <b>5</b></td><td class="v">本稿锥度取<b>条高的 92%</b>：生命条 16px 高 → 15px 尖角；咒力条 11px → 11px 尖角</td><td><b>高置信</b>。高度在 44px 内从 83 单调降到 5 → <b>右端确实收成尖角</b>，不是斜边</td></tr>
+      <tr><td>火影：橙条右端尖角</td><td class="v"><b>未能量取</b>：该区域的橙色与角色服装同色，逐行橙色右缘停在 444–445 不动，分不出哪一段是条</td><td class="v">—</td><td><b>低置信</b>。按几何一致性推断两条同形制（用户描述也如此），但橙条的锥度角度<b>不是量到的</b></td></tr>
+      <tr><td>火影：条下方右侧的豆</td><td class="v">青条（y66–79）右端下方 y99–135 有一簇青色，逐行计数 59 → 19 递减，x 范围约 483–541</td><td class="v">本稿把 5 颗豆右对齐到条右端</td><td><b>中置信</b>。能确认"豆在条右端下方"，但<x>豆的颗数与尺寸量不出来</x>（簇宽仅 ~58px，若真是 5 颗 28px 的豆应占 ~180px，说明我的取样窗或该图裁切把豆截断了）</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>尺寸换算的结论（要说清楚）：</b>你给的豆 28×28 是我这次唯一能用的交叉校验值。它与本稿按"豆高 ÷ 条高 = 1.65"换算出的 <b>18px 视觉宽</b>差 1.55 倍。差异来自<b>缺少整帧参照</b>：<br>
+  · 若参考图是 1920 宽帧的 1:1 裁切 → 豆就是 28px，本稿应放大到 28；<br>
+  · 若参考图是 2559 宽帧的裁切 → 28 × 0.7503 = 21px；<br>
+  · 若参考图本身是放大特写（我按 1.65 比例反推的隐含缩放是 1.55×）→ 28 / 1.55 = 18px，与本稿一致。<br>
+  <b>三种读法都自洽，所以我保留 18px（= 与咒力条 11px 的比例关系），并把 28px 记在这里。</b>要定死的话只需要一个信息：这张 751 宽的裁切是从多宽的帧上裁的、有没有被放大过。你给这个数我就能一次改准。若你希望现在就按 28px 做，说一声——那会把豆行从 109px 撑到约 170px，条组左半会明显更挤。</div>
+
+  <div class="shead" style="margin-top:36px"><span class="ix">03·j</span><h2>生命 / 咒力条的尖尾同族形制（v7.0）</h2><span class="sub">照 ref-naruto-chakra-bar.png；两条同族、只有厚度与颜色分级</span></div>
+  <table data-od-id="board-table-taper">
+    <thead><tr><th>项</th><th>规格（P1；P2 全镜像）</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>形制</td><td class="v"><b>左端斜切 + 右端箭头尖角</b>：<code>polygon(10px 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%)</code></td><td>参考图的青条右端逐列高度 83→5（44px 内单调递减）＝尖角。<b>左端斜切</b>对应"上缘比下缘短 10px"；两条用同一族多边形，只按条高缩比例</td></tr>
+      <tr><td>锥度</td><td class="v">生命条 16px 高 → 尖角深 <b>15px</b>（条高的 94%）；咒力条 11px 高 → 尖角深 <b>11px</b>（100%）；左端斜切 10px / 7px</td><td>尖角深度必须接近条高，否则读起来仍是"斜边"而不是"箭头"。两条按高度等比，保持同族</td></tr>
+      <tr><td>内槽</td><td class="v">内层 <code>.hpclip / .b</code> 用同一多边形整体内缩 1px：<code>polygon(9px 0, calc(100% - 14px) 0, calc(100% - 2px) 50%, calc(100% - 14px) 100%, 1px 100%)</code></td><td>外层 1px 亮框沿尖角走线；不内缩的话尖角处描边会被内槽吃掉</td></tr>
+      <tr><td><b>深蓝条会不会失去参考图的通透感</b></td><td class="v">会。参考的清透来自<b>青是亮色</b>（oklch L≈0.83），而咒力深蓝 L=0.490。处理：<b>形制照搬、明度靠管内亮带补</b> —— 管体五段的亮带（38% 位置）保留 <code>#8FBCFF</code>（L≈0.79）并加一条 <code>inset 0 1px 0 rgba(214,232,255,.75)</code> 白热内高光，让深蓝条也有一条与参考青条同亮度的线</td><td>若为了通透把咒力整体提亮，会同时踩到两件已定的事：① 三条资源的色相分离（深蓝是其中一极）；② 8 点门槛刻度与咒力的对比（实测 3.24:1，填充再亮会掉）。所以<b>只提亮带、不提亮底</b></td></tr>
+      <tr><td>渲染实测</td><td class="v">生命条右端逐行亮区：y53 → x621，y59 → x630，y66 → x619（顶端 622 / 中点 637 / 底端 622）—— <b>锥度成立</b></td><td>尖角最末几像素被抗锯齿摊薄，探针读到的 630 而非 637 属于正常</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>行动豆的新位置（v7.0）：</b>照参考图"豆贴着条的下方、靠右端排开"，5 颗豆改为<b>右对齐到条的右端</b>（行内 <code>justify</code> 改为"标签 + 读数在左、豆在右"）。渲染实测：豆中心 530.0 / 553.5 / 578.0 / 601.5 / 625.0，间距 23.5–24.5，<b>最右豆右缘 x=631，条右端尖角在 637</b> —— 收在尖角内侧 6px，不会压住尖角。</div>
+
+  <div class="shead" style="margin-top:36px"><span class="ix">03·f</span><h2>菱形豆规范（v6.0 行动资源）</h2><span class="sub">照 ref-naruto-pips.png 的形制；离散豆是唯一能表达"一次扣 2 点"的画法</span></div>
+  <table data-od-id="board-table-pips">
+    <thead><tr><th>项</th><th>规格</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>形态</td><td class="v">菱形（正方形 rotate 45°），<b>不是圆、不是方块</b>。边长 13px → 视觉对角宽 18.4px</td><td>参考图是菱形宝石豆。注意：rotate(45°) 之后"视觉宽度"＝边长 × 1.414，按边长排布一定会互相压住——第一版边长 18、间距 6，中心距 24 &lt; 视觉宽 25.5，相邻豆直接叠在一起，渲染实测才发现</td></tr>
+      <tr><td>尺寸换算</td><td class="v">参考图豆 ≈ 28 × 28px；按<b>豆高 ÷ 同图咒力条高 = 1.65</b> 的比例换算到本稿 11px 咒力条 → <b>18px 视觉宽</b>（≈ 边长 13px）。<b>不是 1:1 移植</b>：参考图是"条组特写"裁切，没有整帧参照，直接搬 28px 会让豆比咒力条高 2.5 倍</td><td>把比例锚在"同一张图里豆与相邻条的高度比"上，比锚在绝对像素更稳；这也是唯一能从特写图里安全抽取的尺度信息</td></tr>
+      <tr><td>间距</td><td class="v">参考图豆间距 8–10px → 按同一比例 ×0.53 → <b>中心距 24px</b>（边长 13 + 间隙 11），相邻豆净间隙 5.6px。渲染实测中心距 23.0–24.5px</td><td>净间隙必须为正且 ≥5px，否则 1/3 缩略图上五颗豆会连成一条粗线</td></tr>
+      <tr><td>与上方咒力条的距离</td><td class="v">行 <code>margin-top: 6px</code>（同理 ×0.53 换算自参考图的 ~10px）；豆行高 20px，圆心 y≈95</td><td>豆要读成"条组附属的一行资源"，不能飘太远；同时条栈总高 74px 仍小于头像 92px，不撑破条组</td></tr>
+      <tr><td>满豆材质</td><td class="v">外层菱形框：<b>左上受光</b>（rgba(255,255,255,.42)）→ 右下背光（rgba(0,0,0,.55)）；内层菱形面：管体五段（<code>#5E4207 → #A8760F → #FFE0A0(40%) → #C08A14 → #6E4E08</code>）+ 左上角 3.5px 三角宝石高光 + 9px 金色外发光</td><td>与全局"光自左上"一致；高光带放在 40% 而不是正中，才读得出宝石的"切面"而不是一块渐变</td></tr>
+      <tr><td>空豆材质</td><td class="v">同形制，去掉外发光；外层框降到 rgba(255,255,255,.16)；内面压到 <code>#1A2130 → #141A27 → #0D121C</code>；宝石高光透明度降到 .18</td><td>满 / 空靠<b>"有没有光"</b>区分，不靠换色相——换色相会让空豆看起来像另一种资源</td></tr>
+      <tr><td>「扣 2 点」的表现</td><td class="v">左起第 i 颗亮 = i &lt; 行动点；被扣掉的那两颗<b>同时</b>转暗，并且各自跑一次 0.45s 的"泄光"动画（brightness 1.9 → 1），让扣点读成一个<b>事件</b>而不是一个状态</td><td>这是离散豆相对连续条的<b>唯一不可替代优势</b>：连续条掉 2/5 与回气到 3/5 长得一模一样，玩家分不清"我刚花了 2 点"还是"我在回气"</td></tr>
+      <tr><td>读数权重</td><td class="v">保留 <b>行动 5 / 5</b>，但降为次级：数字从金色高亮改为 <code>--t5</code>（luma 243）@ .86 不透明度，标签用 <code>--t4</code>；只有耗尽（0/5）时才转危险色并加光晕</td><td>豆已经能数出点数，读数退居"精确确认"。参考图没有读数，但我们的 5 点要参与<u>闪避是否够用</u>的决策，读数不能删</td></tr>
+      <tr><td>横向对齐 <span style="color:var(--deng2)">v7.0</span></td><td class="v"><b>右对齐到条的右端</b>（行内顺序：标签「行动」+ 读数 5/5 在左，5 颗豆在右）。渲染实测最右豆右缘 x=631，条右端尖角 637</td><td>照 ref-naruto-chakra-bar.png 的"豆贴着条下方、靠右端排开"。v6.0 放在左端标签后面，与参考图相反</td></tr>\n      <tr><td>色相</td><td class="v"><b>沿用行动金</b>（<code>#C08A14</code> 族），<b>不采用参考图的青蓝</b> <code>rgb(32,128,144)</code></td><td>你的硬约束要求保住 橙 / 深蓝 / 金 的三色相分离（实算 ΔHue ≥ 12.4°）；若照参考图改成青蓝，行动行会引入第四种色相，且与咒力深蓝、领域青蓝一起把冷色区挤成三档。<b>只取参考图的形制与材质，不取它的色相</b>——如果你要的就是那个青蓝，说一声，改一个令牌即可</td></tr>
+    </tbody>
+  </table>
+
+  <div class="shead" style="margin-top:36px"><span class="ix">03·g</span><h2>材质与明度阶梯规范（v6.0）</h2><span class="sub">每层的色值、渲染后 luma、受光方向与描边权重</span></div>
+  <table data-od-id="board-table-ladder">
+    <thead><tr><th>层级</th><th>令牌 / 色值</th><th>渲染后 luma（实测）</th><th>用在哪</th><th>描边权重</th></tr></thead>
+    <tbody>
+      <tr><td>L0 底</td><td class="v"><code>--t0 #04070E</code> / 舞台底 <code>#0A1226</code></td><td class="v">5 / 10</td><td>舞台、条槽最深处</td><td class="v">—</td></tr>
+      <tr><td>L1 面</td><td class="v"><code>--t1 #0A1220</code></td><td class="v">17</td><td>顶带、面板底、条槽</td><td class="v">内侧 1px 暗角</td></tr>
+      <tr><td>L2 结构</td><td class="v"><code>--t2 #18233A</code></td><td class="v">27–32</td><td>面板按钮、内槽分隔、徽标底</td><td class="v">1px <code>--t3</code> + 内斜面</td></tr>
+      <tr><td>L3 描边</td><td class="v"><code>--t3 #3C4E70</code></td><td class="v">64–75（头像外框实测 63）</td><td>所有外框、分隔线、键帽底</td><td class="v"><b>1px 实线</b>（旧版 .18 alpha 合成只有 luma 21，与底分不开）</td></tr>
+      <tr><td>L4 内容</td><td class="v"><code>--t4 #7C93B4</code></td><td class="v">132</td><td>次级文字、单位、标签</td><td class="v">—</td></tr>
+      <tr><td>L5 焦点</td><td class="v"><code>--t5 #EAF6FF</code></td><td class="v">243</td><td>主文字、数值、键位字母</td><td class="v">+ 1px 冷白高光</td></tr>
+      <tr><td>强调（资源）</td><td class="v">生命橙 <code>#FF9A33</code> / 咒力深蓝 <code>#2258EE</code> / 行动金 <code>#C08A14</code></td><td class="v">149 / 102 / 133</td><td>三条资源填充</td><td class="v">—</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>阶梯的可测性：</b>L0→L5 的渲染后 luma 为 <b>5 / 17 / 27 / 64 / 132 / 243</b>，相邻最小步进 10、最大 111。旧版把"结构 / 描边 / 内容"全塞在 <code>rgba(150,190,255,.18)</code> 上下，合成 luma 只差 8–27，成片上看不出层级——这是"廉价感"最直接的一条。<br>
+  <b>统一受光：光自左上方 45°。</b>所有面共用一对令牌：<code>--lit:rgba(255,255,255,.16)</code> 与 <code>--shade:rgba(0,0,0,.60)</code>，通过 <code>--bevel: inset 1px 1px 0 var(--lit), inset -1px -1px 0 var(--shade)</code> 一次性施加。落点：① 面板/键帽/徽标 = 左上 1px 亮 + 右下 1px 暗；② 条体管状填充 = 亮带在 38–40% 高度（偏上），上下各自压暗；③ 头像 = 左上 1.5px 冷白边光 + 右下 1.5px 暗边 + 四角径向压暗；④ 技能按钮 = 外环 158° 渐变（左上亮 → 右下入黑）+ 内盘 42%/26% 偏心柔光。<br>
+  <b>管体填充（照参考图横截面实测）：</b>橙条实测 luma 暗边 74 / 主色 123 / <b>亮带 199</b> → 亮带:主色 ≈ 1.6×，主色:暗边 ≈ 1.7×。三条资源一律改成五段：<code>暗边 → 暗 → 亮带(38%) → 主色 → 暗底</code>，另加 <code>inset 0 1px 0</code> 暖白高光与 <code>inset 0 -1px 0</code> 暗底。旧版的"两段线性渐变"没有任何横向亮带，所以怎么调都像色块。</div>
+
+  <div class="shead" style="margin-top:36px"><span class="ix">03·h</span><h2>头像正式资产规格</h2><span class="sub">当前是官方立绘的降级裁切；这一节是给美术的补画规格</span></div>
+  <table data-od-id="board-table-portrait">
+    <thead><tr><th>项</th><th>规格</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>现状（降级方案）</td><td class="v">从 <code>ref-ishigori-official.jpg</code>（1200×1039）裁 <b>Rectangle(200,88,168,168)</b> → 缩到 192×192 → JPEG q86 → base64 内联；显示时 92×92</td><td>等于把一张 <b>168px 的图放大到 92px 再裁掉一圈</b>，有效细节只有 168px。这是全屏最显廉价的一处</td></tr>
+      <tr><td>为什么必须补画</td><td class="v">实测：该裁切区内<b>肤色像素只有个位数</b>（整幅 168×168 里 warm 命中 8px），而原图整体是 hue 25–29°、sat .66 的暗琥珀调 —— 自动找脸在这个色调上不收敛</td><td>也就是说这块图<b>不可靠地包含头部</b>，且整幅偏暗，本身不适合做 92px 头像。与其猜一个裁切框，不如把规格交给美术</td></tr>
+      <tr><td>交付尺寸</td><td class="v"><b>512 × 512 PNG</b>（1×）+ 256 / 128 / 92 四档导出；另出一张 <b>1024 × 1024 无暗角母版</b></td><td>92px 显示位在 4K 下会被放大到 ~184px，512 是安全下限。母版不带暗角/边光，让 UI 侧统一施加受光（见 03·g）</td></tr>
+      <tr><td>构图</td><td class="v"><b>头肩像</b>：头顶留白 8–12%，下巴落在画幅 52–58% 高度；面部中心水平居中（±3%）；视线朝画面<b>右下</b>（面向对手侧）</td><td>方形头像里"头占 50–60%"最稳；留白给切角与边光，太满会在 92px 下被切到额头</td></tr>
+      <tr><td>受光与层次</td><td class="v">主光左上方 45°；面部亮部与发梢要有<b>分离边缘</b>（rim light）；背景压到 L1–L2（luma 17–32）</td><td>UI 侧会再加一层边光与暗角，所以原图需要自带体积感，否则加了也是平的</td></tr>
+      <tr><td>裁切安全区</td><td class="v">以中心为原点，保留 <b>直径 = 边长 88% 的内切圆</b>内的全部关键信息；四角 12px 会被 <code>--cut12</code> 切掉</td><td>切角是 12px 斜切，四角本来就不显示，不要把耳朵/肩线放进去</td></tr>
+      <tr><td>两人区分</td><td class="v">P1 / P2 同角色时靠<b>框内边光颜色</b>区分（P1 <code>#1FB4F0</code> / P2 <code>#FF5F1F</code>），不要求两张不同立绘；若对手换角色则各出一张</td><td>身份色已经承担了区分职责，头像本身不必再区分</td></tr>
+      <tr><td>命名</td><td class="v"><code>portrait_ishigori_p1_512.png</code> / <code>..._p2_512.png</code></td><td>—</td></tr>
+    </tbody>
+  </table>
+  <div class="note">本轮的临时处理（在没有新资产前）：把现有裁切 <b>放大 1.16 倍并下移 4%</b>，让人脸推向上三分之一；加左上 1.5px 冷白边光、右下 1.5px 暗边、四角径向压暗（中心 0 → 78% 处 .55 → 100% .85）、底部 44% 渐隐；色彩 <code>saturate(1.08) contrast(1.14) brightness(1.06)</code>（<b>提亮而不是压暗</b>）。实测头像内平均亮度 209 → 225，外框从 luma 27 提到 63，至少不再是"一块贴在黑底上的亮照片"。<b>但这只是缓解，真正的解法仍是上面那张 512 母版。</b></div>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">04</span><h2>图标规范</h2><span class="sub">统一记号 / 网格 / 线宽 / 切角 / 母题对照</span></div>
+  <table data-od-id="board-table-iconspec">
+    <thead><tr><th>项</th><th>规格</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>画布与输出</td><td class="v">24×24 网格；HUD 内 <b>38px（普通技，Ø70 格内）/ 46px（大招，Ø96 格内）</b>；头像位预览 48px</td><td>坐标落在 0.5 网格；交付时附 24 / 38 / 46 / 48 四档导出。图标尺寸随格径等比缩放（Ø70×0.54、Ø96×0.48）</td></tr>
+      <tr><td>线宽</td><td class="v">1.6px（24 网格内），圆头圆角</td><td>与界面线性语言一致；大招不靠加粗、靠尺寸与元素数量区分层级</td></tr>
+      <tr><td>填充</td><td class="v">仅低透明度实心（fill-opacity .18–.55）+ 少量火花原点</td><td>保持细线几何质感，避免实心块面把 38px 塞满</td></tr>
+      <tr><td>角度语言</td><td class="v">近战只用 45°/90°；远程一律以头部为原点向外辐射</td><td>近战 = 直角、远程 = 径向，缩略尺寸下两组也能分辨</td></tr>
+      <tr><td>统一记号</td><td class="v">底线锚 y=20.6、长 12.8、透明度 .42</td><td>9 张全部保留的「擂台 / 肩线」底线；大招用同位置地平弧替代直线</td></tr>
+      <tr><td>母题分配</td><td class="v">M1 飞机头 · M2 毛领尖齿 · M3 方形腰带扣 · M4 头部炮击 · M5 咒力绽放</td><td>每张 1–2 个：拳击 = 拳峰 + 三段节奏；重拳 = 拳峰 + M2；腿击 = M3 + 腿弧；重踢 = 腿弧 + M2；切形态 = M1；蓄力炮 = M4；超级炮 = M4 加强；瞄准 = M3 作锁定框；大招 = M5</td></tr>
+      <tr><td>大招禁令</td><td class="v">禁止等距放射线 + 闭合圆盘</td><td>该组合在 46px 下会被读成太阳 / 齿轮。本稿改为不对称绽放：长短不一的尾迹（含两条带弧的「柳」）、4 个火花点、底部擂台弧</td></tr>
+      <tr><td>外框与切角</td><td class="v">普通技 Ø70 圆形；大招 Ø96 圆形 + 能量环贴外缘（r=45.5）</td><td>删掉文字后按钮改回纯圆形，不再需要切角方框来承载两行标签</td></tr>
+      <tr><td>HUD 用图 / 招式表用图 <span style="color:var(--deng2)">v7.0</span></td><td class="v">技能区共 <b>6 张</b>技能图标：拳击（普攻·近战）/ 腿击（Q·近战）/ 切形态（E）/ 蓄力炮（普攻·远程）/ 超级炮（Q·远程）/ 领域展开（R）；另有 <b>1 张键位标识</b>：鼠标左键。其余 <b>3 张</b> —— 重拳、重踢、瞄准 —— 只用于<b>招式表、连段示意与训练场提示</b>，不出现在招位格上。合计仍是 9 张</td><td>普攻与 Q 两格都随形态换图标，所以技能图从 v6.0 的 4 张涨到 6 张（不是 5 张 —— 两个会换图的槽各需 2 张）；拳击与蓄力炮原本只用于底部形态圆盘，现在同时上招位，复用同一张，不额外出图。键位标识（鼠标）不算技能图标</td></tr>
+      <tr><td>圆形状态五式</td><td class="v">见 02·b</td><td>图标本体不变，仅外框 / 遮罩变化：就绪 = 中性细环；冷却 = 顶部顺时针暗扇；形态再切 = 0.5s 收束细弧；领域封印 = 降级 + 斜纹；大招可用 = 金环 + 呼吸</td></tr>
+      <tr><td>正式美术细化方向</td><td class="v">—</td><td>① 飞机头在 48px 以上加一条内侧断层线强化体积；② 毛领尖齿固定 3 齿，不加齿数；③ 腰带扣保持方框 + 内横杠，可加 0.5px 金属高光；④ 大招尾迹可增 1–2 个粒子点，但保持角度不等距</td></tr>
+    </tbody>
+  </table>
+  <table style="margin-top:22px" data-od-id="board-table-iconmap">
+    <thead><tr><th>图标</th><th>招式 / 按键</th><th>母题</th><th>设计依据</th></tr></thead>
+    <tbody id="iconmap"></tbody>
+  </table>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">05</span><h2>分状态缩略画面</h2><span class="sub">12 states · 640×360（1920×1080 等比 1/3）· 编号与快捷键同交互原型控制台顺排</span></div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">06</span><h2>颜色令牌</h2><span class="sub">权威值来自需求文档；OKLch 为派生 / 透明度处理用值</span></div>
+  <table data-od-id="board-table-colors">
+    <thead><tr><th>名称</th><th>色值</th><th>OKLch 等价</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sw" style="background:#070B14"></span>舞台底色</td><td class="v">#070B14</td><td class="v">oklch(.150 .021 266)</td><td>舞台、暗场、面板底衬</td></tr>
+      <tr><td><span class="sw" style="background:rgba(8,14,26,.8)"></span>面板底</td><td class="v">rgba(8,14,26,.80)</td><td class="v">oklch(.178 .028 262 / .80)</td><td>面板 / 控制台；配 backdrop-filter: blur(6px)</td></tr>
+      <tr><td><span class="sw" style="background:rgba(150,190,255,.18)"></span>结构描边</td><td class="v">rgba(150,190,255,.18)</td><td class="v">oklch(.780 .080 262 / .18)</td><td>1px 描边；切角由 clip-path 斜切实现，斜边同样有线</td></tr>
+      <tr><td><span class="sw" style="background:#EAF6FF"></span>主文字</td><td class="v">#EAF6FF</td><td class="v">oklch(.960 .015 240)</td><td>常驻读数、键位、面板标题</td></tr>
+      <tr><td><span class="sw" style="background:rgba(150,190,255,.55)"></span>次级文字</td><td class="v">rgba(150,190,255,.55)</td><td class="v">oklch(.780 .080 262 / .55)</td><td>单位、说明小字、模式徽标默认态</td></tr>
+      <tr><td><span class="sw" style="background:#1FB4F0"></span>P1 身份色</td><td class="v">#1FB4F0</td><td class="v">oklch(.730 .150 232)</td><td>P1 头像内缘、条体描边、形态圆盘</td></tr>
+      <tr><td><span class="sw" style="background:#FF5F1F"></span>P2 身份色</td><td class="v">#FF5F1F</td><td class="v">oklch(.680 .200 41)</td><td>P2 头像内缘、条体描边、锁定标记</td></tr>
+      <tr><td><span class="sw" style="background:#1B4FD8"></span>咒力</td><td class="v">#1B4FD8（上缘 #5E86EE / 下缘 #12359B）</td><td class="v">oklch(.490 .216 264.0)</td><td>咒力条填充（深蓝，hue 223.5°）</td></tr>
+      <tr><td><span class="sw" style="background:#C08A14"></span>行动资源</td><td class="v">#C08A14（亮 #E8C468 / 暗 #8A6010）</td><td class="v">oklch(≈.682 .133 79)</td><td>连续条填充（玩家侧），上缘刻度同色。色相不变、压暗一档（ΔE 对生命橙 0.111）</td></tr>
+      <tr><td><span class="sw" style="background:#3FDCFF"></span>领域能量</td><td class="v">#3FDCFF（满值 #E6FBFF / 柔光 #A9F0FF）</td><td class="v">oklch(.829 .134 216.6)</td><td><b>大招（R）能量环</b>；顶部弧槽已移除</td></tr>
+      <tr><td><span class="sw" style="background:#A64DE6"></span>领域展开（紫）</td><td class="v">#A64DE6</td><td class="v">oklch(.620 .210 305)</td><td>展开期环境色相偏移、在途球、P2 头像受压制外圈</td></tr>
+      <tr><td><span class="sw" style="background:#FFD166"></span>领域激活（金）</td><td class="v">#FFD166</td><td class="v">oklch(.870 .120 85)</td><td>展开期结界名与三发刻度、蓄力炮满。<b>不再表示"大招可用"</b></td></tr>
+      <tr><td><span class="sw" style="background:#FF3B30"></span>危险 / 不足</td><td class="v">#FF3B30</td><td class="v">oklch(.630 .230 28)</td><td>强度上限虚线、8 点门槛刻度、濒死红晕、行动耗尽</td></tr>
+      <tr><td><span class="sw" style="background:linear-gradient(90deg,#FFD9A0,#FF8C22,#DB5B08)"></span>生命填充</td><td class="v">#FFD9A0 → #FF8C22 → #DB5B08</td><td class="v">oklch(.902 .071 71 → .611 .186 44)</td><td>双侧统一暖橙三段渐变（hue 26–31°）</td></tr>
+      <tr><td><span class="sw" style="background:#8A3A08"></span>虚血残影</td><td class="v">#8A3A08 → #3E1404</td><td class="v">oklch(.452 .124 46)</td><td>即时填充之下的受击残影（0.6s 延迟 + 0.35s 回落），与生命条同色相</td></tr>
+      <tr><td><span class="sw" style="background:rgba(204,230,255,.95)"></span>准星 · 默认</td><td class="v">rgba(204,230,255,.95)</td><td class="v">oklch(.940 .030 240 / .95)</td><td>远程形态静止</td></tr>
+      <tr><td><span class="sw" style="background:#73F2F2"></span>准星 · 瞄准</td><td class="v">#73F2F2</td><td class="v">oklch(.910 .100 195)</td><td>右键瞄准；训练标签、调试层同色</td></tr>
+      <tr><td><span class="sw" style="background:#FFE633"></span>准星 · 蓄力</td><td class="v">#FFE633</td><td class="v">oklch(.930 .190 105)</td><td>蓄力中；蓄力环已支付段；招位格「正在使用」</td></tr>
+      <tr><td><span class="sw" style="background:#FF6633"></span>准星 · 领域</td><td class="v">#FF6633</td><td class="v">oklch(.700 .200 40)</td><td>领域展开期准星（线长 16px / 线宽 3px）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">07</span><h2>字号阶梯与组件锚点</h2><span class="sub">坐标为 1920×1080 绝对像素，可直接换算 UMG Canvas Panel 锚点与偏移</span></div>
+  <table data-od-id="board-table-anchors">
+    <thead><tr><th>组件</th><th>锚点</th><th>偏移</th><th>尺寸</th><th>UMG 控件建议</th></tr></thead>
+    <tbody>
+      <tr><td>P1 条组</td><td>左上</td><td class="v">(34, 30)</td><td class="v">602 × 92</td><td>Canvas Panel + Horizontal Box（头像 / 纵向条栈）</td></tr>
+      <tr><td>P2 条组</td><td>右上</td><td class="v">(−34, 30)</td><td class="v">602 × 92</td><td>同 P1，Horizontal Alignment = Right，切角与锚定方向镜像</td></tr>
+      <tr><td>头像位</td><td>条组最左 / 最右</td><td class="v">条组内 (0,0) / (610,0)</td><td class="v">92 × 92</td><td>Image + Material（12px 切角）；内缘 3px 身份色发光条</td></tr>
+      <tr><td>名字行</td><td>条体上方</td><td class="v">(102, 0) / (−102, 0)</td><td class="v">500 × 19</td><td>Horizontal Box：名 → 等级标签 → 咒力状态 → 生命数字</td></tr>
+      <tr><td>生命 / 咒力 / 资源格</td><td>条栈</td><td class="v">y 22 / 37 / 53</td><td class="v">500 × 15 / 500 × 11 / 500 × 9</td><td>见 03 条组规范；咒力条 margin-top 必须为 0</td></tr>
+      <tr><td><b>大招能量环（= 领域能量表）</b></td><td>右下大招位</td><td class="v">与按钮同心：viewBox 96、r=45.5、线宽 3；环外缘 47 ≤ 按钮半径 48</td><td class="v">Ø91 环（贴 Ø96 按钮内缘）</td><td>Material 参数 0–100 直接驱动 dasharray；<b>满值额外挂三层外溢</b>（外扩柔光环 ×2 + 常驻柔光 + 6 粒子），全部为同心扩散，禁止 conic 扫掠</td></tr>
+      <tr><td><s>领域弧槽</s></td><td>—</td><td class="v">v5.0 已移除</td><td class="v">—</td><td>能量改由大招环承载；顶部只保留状态文字（见 03·e 取舍说明）</td></tr>
+      <tr><td>领域标题 / 节拍器</td><td>顶部居中</td><td class="v">(960, 58) 起</td><td class="v">700 × 62</td><td>Vertical Box；三时点 0.3 / 2.3 / 4.3s 映射轴 5% / 38.3% / 71.7%</td></tr>
+      <tr><td>R 可展开提示</td><td>顶部居中</td><td class="v">(960, 70) 居中</td><td class="v">自适应 × 26</td><td>仅能量满 100 且未展开时可见</td></tr>
+      <tr><td>压制横幅</td><td>顶部居中</td><td class="v">(960, 132) 居中</td><td class="v">自适应 × 22</td><td>与领域读数同时显示（压制只暂停自动炮，计时继续）</td></tr>
+      <tr><td>模式徽标</td><td>顶部居中</td><td class="v">(960, 164) 居中</td><td class="v">720 × 22</td><td>Horizontal Box；训练标签用虚线边框</td></tr>
+      <tr><td>准星</td><td>屏幕正中</td><td class="v">(960, 540)</td><td class="v">220 × 220（线长 10 / 领域 16）</td><td>自绘 Widget；Gap 14 / 8 / 12→4 由 Padding 绑定；外圈进度环 r=86</td></tr>
+      <tr><td>蓄力读数板</td><td>下中</td><td class="v">(610, 672)</td><td class="v">340 × 30</td><td>Widget Switcher 三态：蓄力中 / 满蓄 / 强度受限</td></tr>
+      <tr><td>蓄力环</td><td>以形态圆盘为同心圆的外环</td><td class="v">同心圆心 (780, 934)，环带半径 96 → 140</td><td class="v">280 × 280（环宽 44）</td><td>与形态圆盘共用同一 Canvas 容器、两层同心：外层 = 蓄力环（Material 双标量 PaidPercent / OverPercent），内层 = 形态圆盘；环内缘与盘外缘留 38px 空隙</td></tr>
+      <tr><td>形态圆盘</td><td>蓄力环同心内盘</td><td class="v">(780, 934) 圆心</td><td class="v">116 × 116</td><td>Image（圆形）+ 两个子 Widget 交叉淡化 120ms；切换冷却弧 500ms 收束</td></tr>
+      <tr><td>技能区（普通技）</td><td>右下单排</td><td class="v">圆心 Q(1580, 1004) / E(1700, 1004)，两点同一 y、圆心距 120</td><td class="v">Ø70 / 个；净间隙 50px</td><td>每个 = Overlay + Image（圆形底）+ 图标 + 冷却扇形遮罩 + 键位角标；<b>无名称文字</b></td></tr>
+      <tr><td>大招位</td><td>右下单排最右</td><td class="v">圆心 (1820, 1004)；键位标签中心距屏右 100px；圆心距屏底 76px</td><td class="v">Ø96（= 普通技 1.37 倍）+ 能量环贴外缘 r=45.5</td><td>独立圆形：领域能量环（Material 参数 0–100，与按钮同心贴合）+ Ø46 图标；与 E 圆心距 120、边缘净距 37</td></tr>
+      <tr><td>底部键位</td><td>左下 / 中左</td><td class="v">(34, 1068) / (470, 1068)</td><td class="v">自适应</td><td>Horizontal Box + RichText；右下让位给技能区</td></tr>
+      <tr><td>对战结果</td><td>全屏</td><td class="v">居中</td><td class="v">自适应</td><td>Overlay + Vertical Box；暗场 .72，不做霸屏弹窗</td></tr>
+    </tbody>
+  </table>
+  <div class="note">字号阶梯：生命数字 14px / 900 · 角色名 14.5px / 700 · 等级与状态标签 9–9.5px · 蓄力读数主 14px / 900 · 副 10px · 领域结界名 26px（宋体，字距 .34em）· 倒计时 16px / 900 · 技能名 10px · 模式徽标 10px · 命中飘字 20px（暴击 27px）。所有数字 tabular-nums。</div>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">08</span><h2>动效时长表</h2><span class="sub">一律 ease-out，禁止夸张弹跳；仅蓄力与领域脉冲例外</span></div>
+  <table data-od-id="board-table-motion">
+    <thead><tr><th>动效</th><th>时长</th><th>缓动</th><th>触发与说明</th></tr></thead>
+    <tbody>
+      <tr><td>生命即时填充</td><td class="v">120ms</td><td class="v">ease-out</td><td>受击瞬间直推，不做插值拖尾</td></tr>
+      <tr><td>虚血残影回落</td><td class="v">0.6s 延迟 + 0.35s</td><td class="v">ease-out</td><td>残影停在受伤前数值，再回落至当前生命</td></tr>
+      <tr><td>生命数字受击放大</td><td class="v">240ms</td><td class="v">ease-out</td><td>字号 14 → 16.5，同时提亮到纯白</td></tr>
+      <tr><td>濒死呼吸脉冲</td><td class="v">1.2s 循环</td><td class="v">ease-in-out</td><td>生命 &lt; 30%：条体 drop-shadow 红晕</td></tr>
+      <tr><td>形态交叉淡化 / 切换冷却弧</td><td class="v">120ms / 500ms</td><td class="v">ease-out</td><td>图标与文案交叉淡化；外圈弧线自全长收束到 0，不显示数字</td></tr>
+      <tr><td>命中飘字</td><td class="v">900ms</td><td class="v">ease-out</td><td>自对手头部上飘 42px 并淡出</td></tr>
+      <tr><td>蓄力填充</td><td class="v">线性 0→1.2s</td><td class="v">linear</td><td>蓄力进度即伤害刻度，缓动会误导读数</td></tr>
+      <tr><td>领域结印 / 持续 / 自动炮</td><td class="v">1.0s / 6.0s / 0.3 · 2.3 · 4.3s</td><td class="v">linear</td><td>结印可被打断，失败不退已提交的 100 能量</td></tr>
+      <tr><td>领域环境色偏</td><td class="v">300ms</td><td class="v">ease-out</td><td>仅作用于场景层；HUD 文字不参与滤镜，可读性不变</td></tr>
+      <tr><td>超级炮冷却</td><td class="v">10.0s</td><td class="v">linear</td><td>发射或已付费中断后计时；格内遮罩 + 居中倒数</td></tr>
+      <tr><td>招位格状态切换</td><td class="v">160ms</td><td class="v">ease-out</td><td>就绪 / 长按 / 使用中 / 冷却 / 封印 之间的外框与遮罩过渡</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">09</span><h2>正式美术期应删除的调试内容</h2><span class="sub">判断标准：该信息是否服务于“玩家在对局中的决策”</span></div>
+  <table data-od-id="board-table-debug">
+    <thead><tr><th>项目</th><th>当前位置</th><th>处理</th><th>原因</th></tr></thead>
+    <tbody>
+      <tr><td>状态控制台（12 状态按钮）</td><td>左上，y 330 起</td><td><span class="tagr del">删除</span></td><td>评审用控件，不是游戏 HUD 的一部分</td></tr>
+      <tr><td>调试层（已支付咒力 · 领域会话 · 在途球数 · 移速）</td><td>仅调试层</td><td><span class="tagr del">删除</span></td><td>可由开发者控制台承载；主视野只留玩家会读的量</td></tr>
+      <tr><td>训练标签「无限资源」</td><td>顶部中央</td><td><span class="tagr keep">训练场景保留</span></td><td>训练场状态声明，正式对局隐藏</td></tr>
+      <tr><td>8 点最低开炮门槛刻度</td><td>咒力条上</td><td><span class="tagr keep">保留</span></td><td>属于决策信息（还能不能开炮），正式美术可弱化但不要删</td></tr>
+      <tr><td>头像立绘</td><td>条组最外端</td><td><span class="tagr keep">替换</span></td><td>当前为官方立绘裁切，仅作排版占位；正式版替换为项目自制 2D 半身像（192×192）</td></tr>
+      <tr><td>角色与擂台占位块面</td><td>场景层</td><td><span class="tagr del">替换</span></td><td>正式美术期替换为场景与骨骼网格</td></tr>
+      <tr><td>全部数值（拳 35/40/55 · 重拳 75 · 腿 45 · 重踢 95 · 蓄力炮 30→90 / 8→24 咒力 · 超级炮 150→220 / 45→65 · 追踪炮 220 / 65 · 生命 1000 · 行动 5 · 咒力 100 · 领域 100）</td><td>全 HUD</td><td><span class="tagr del">以数据表为准</span></td><td>取自项目当前设计文档的调试参数；HUD 只负责呈现</td></tr>
+    </tbody>
+  </table>
+  <div class="note">排版约束（硬性）：中央 960×620 安全区不得放置常驻面板；两侧条组不得越过屏宽 40%；条组内三层之间不加额外行；任何文字不得被裁切或与描边重叠；HUD 描边与文字在领域色偏期间保持原色。</div>
+</section>
+
+<footer>
+  JJK: THE HIDDEN ONES — 对战 HUD 规范 v1.0 · 角色：石流龙 · 参考画布 1920×1080 · 数值取自项目当前设计文档的调试参数<br>
+  本文件与 hud-prototype.html 共用同一套令牌、锚点与图标路径；缩略画面为静态渲染，交互与实时计时见交互原型。
+</footer>
+</div>
+
+<script>
+"use strict";
+/* ===== 与原型完全一致的图标路径（24×24 网格） ===== */
+const BASE='<path d="M7 19.4h10" stroke-opacity=".38"/>';
+const ICON={
+ /* 普攻位的键位标识：鼠标左键（24×24 线性），与原型同路径 */
+ mouse:'<path d="M12 2.6c3.5 0 6.3 2.6 6.3 5.9v6.9c0 3.4-2.8 6-6.3 6s-6.3-2.6-6.3-6V8.5c0-3.3 2.8-5.9 6.3-5.9Z"/><path d="M12 2.6v6.1" stroke-opacity=".55"/><path d="M5.7 8.7h12.6" stroke-opacity=".55"/><path d="M12 2.9c-3.1 0-5.6 2.3-5.6 5.3v.2h5.6Z" fill="currentColor" fill-opacity=".55" stroke="none"/><path d="M5.9 3.4c1.5-1 3.4-1.5 5.3-1.5" stroke-opacity=".35"/>',
+ punch:BASE+'<rect x="4.4" y="10.4" width="8" height="7" rx="2.1"/><rect x="4.4" y="10.4" width="8" height="7" rx="2.1" fill="currentColor" fill-opacity=".14" stroke="none"/><path d="M7 10.4v7M9.6 10.4v7" stroke-opacity=".8"/><path d="M13.8 8.2 16 9.8 13.8 11.4M13.8 11.8 16 13.4 13.8 15M13.8 15.4 16 17 13.8 18.6"/>',
+ heavy:BASE+'<rect x="3.6" y="10" width="9.4" height="7.6" rx="2.4"/><rect x="3.6" y="10" width="9.4" height="7.6" rx="2.4" fill="currentColor" fill-opacity=".18" stroke="none"/><path d="M6.8 10v7.6" stroke-opacity=".8"/><path d="M5.4 7.8 7 5.6 8.6 7.8 10.2 5.6 11.8 7.8 13.4 5.6 15 7.8"/><path d="M16.6 14h2.6" stroke-opacity=".55"/>',
+ kick:BASE+'<rect x="5.2" y="4.6" width="5.4" height="5.4" rx=".6"/><rect x="7" y="6.4" width="1.8" height="1.8" fill="currentColor" fill-opacity=".35" stroke="none"/><path d="M7.4 10.2 9.4 14.8l4.6 2.2"/><path d="M14 17 16.6 15.8M14.2 14.6 16.4 13.8" stroke-opacity=".55"/>',
+ hkick:'<rect x="4.6" y="4.2" width="5.4" height="5.4" rx=".6"/><rect x="6.4" y="6" width="1.8" height="1.8" fill="currentColor" fill-opacity=".35" stroke="none"/><path d="M6.8 9.8 9 14.9l5 2.2"/><path d="M14.8 15.4 16.2 13.4 17.6 15.4 19 13.4"/><path d="M5.4 19.4h13.2"/>',
+ swap:'<path d="M9.9 9.2V7a2.1 2.1 0 0 1 2.1-2.1h.1A2.1 2.1 0 0 1 14.2 7v2.2"/><path d="M9.9 9.2V7a2.1 2.1 0 0 1 2.1-2.1h.1A2.1 2.1 0 0 1 14.2 7v2.2" fill="currentColor" fill-opacity=".16" stroke="none"/><path d="M8.2 9.4h7.6"/><path d="M4.8 13.6h10.4l-2.5-2.3M19.2 18.2H8.8l2.5 2.3"/>',
+ blast:BASE+'<path d="M9.6 14.4V10M14.4 14.4V10"/><path d="M9.6 10a2.4 2.4 0 0 1 4.8 0"/><circle cx="12" cy="6.9" r="2"/><circle cx="12" cy="6.9" r=".9" fill="currentColor" stroke="none" fill-opacity=".85"/><path d="M12 4.1V2.5M9.1 4.9 8 3.6M14.9 4.9 16 3.6" stroke-opacity=".85"/><path d="M6.6 16.6h10.8" stroke-opacity=".45"/>',
+ sblast:BASE+'<path d="M8.8 15.2V10.2M15.2 15.2V10.2"/><path d="M8.8 10.2a3.2 3.2 0 0 1 6.4 0"/><circle cx="12" cy="6.1" r="2.6"/><circle cx="12" cy="6.1" r="1.1" fill="currentColor" stroke="none" fill-opacity=".85"/><path d="M12 2.7V1M8 3.7 6.7 2.3M16 3.7 17.3 2.3" stroke-opacity=".85"/><path d="M5.8 17.6h12.4" stroke-opacity=".45"/>',
+ aim:BASE+'<rect x="6.2" y="5.8" width="11.6" height="11.6" rx=".8"/><path d="M6.2 8.6V5.8h2.8M15 5.8h2.8v2.8" stroke-opacity=".5"/><circle cx="12" cy="11.6" r="3.1"/><circle cx="12" cy="11.6" r="1.1" fill="currentColor" stroke="none"/><path d="M12 2.8v3M12 17.4v3M2.8 11.6h3M18.2 11.6h3"/>',
+ domain:'<circle cx="12.4" cy="10.4" r="2.2" fill="currentColor" fill-opacity=".30"/><circle cx="12.4" cy="10.4" r="2.2"/><path d="M11.2 20.4c.3-2.4.7-4.6 1.1-7.3"/><path d="M12.4 8.3 11.9 3.1"/><path d="M14.3 9.1 18.4 6.5"/><path d="M14.8 11.4c1.7.2 3.2 1 4.4 2.3"/><path d="M11 12 8.3 15.6"/><path d="M10.6 9.6 6.4 7.4"/><path d="M13.2 12.2c1 1.4 1.3 2.9 1.1 4.6"/><circle cx="11.8" cy="2.5" r=".85" fill="currentColor" stroke="none"/><circle cx="19" cy="6.1" r=".85" fill="currentColor" stroke="none"/><circle cx="7.9" cy="15.8" r=".85" fill="currentColor" stroke="none"/><circle cx="6" cy="7.2" r=".85" fill="currentColor" stroke="none"/><circle cx="14.8" cy="17.6" r=".7" fill="currentColor" stroke="none" fill-opacity=".7"/><path d="M3.6 21c2.6-1.1 5.9-1.7 9.2-1.7s6.4.5 8.6 1.5" stroke-opacity=".5"/>'
+};
+const PORTRAIT='data:image/jpeg;base64,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';
+const svg=k=>`<svg viewBox="0 0 24 24">${ICON[k]}</svg>`;
+
+const CARDS=[
+ ['mouse','鼠标左键 · 键位标识（非技能图）','左键','鼠标侧视轮廓 + 左键面','24×24 线性图标：鼠标外形 + 中心分隔线，左前面 fill-opacity .55 提亮表示左键，右半留空。<b>它是键位标识、不是技能图标</b>，不参与 M1–M5 母题系统。'],
+ ['punch','三段拳 A1–A3 · 普攻（近战）','左键','拳峰 + 三段节奏','右侧三个右向尖角 = 35/40/55 的三连节奏；拳峰内两条分隔线表示拳面。<b>v7.0 起上 HUD 普攻位（近战）</b>，同时仍用于招式表。'],
+ ['heavy','重拳 75 · 招式表用图','左键长按','拳峰（加大）+ M2 毛领尖齿','长按派生图标，与「三段拳」共用左键；<b>不上 HUD 招位</b>，用于招式表与训练提示。尖齿是「重」的统一记号。'],
+ ['kick','腿击 45','Q','M3 方形腰带扣 + 腿弧','腰带扣放在髋部作发力支点，腿弧自扣下方甩出，把角色的方形金属扣转义为关节记号。'],
+ ['hkick','重踢 95 · 招式表用图（击倒）','Q 长按','腿弧 + M2 毛领尖齿','长按派生图标，与「腿击」共用 Q；<b>不上 HUD 招位</b>。底线锚在此兼作击倒地平线，对应击倒规则。'],
+ ['swap','切形态','E','M1 高耸飞机头','形态切换不是攻击，只放角色记号本身 + 双向箭头：图标即角色。'],
+ ['blast','蓄力炮 30→90 · 普攻（远程）','左键','M4 头部炮击（飞机头化作炮座）','炮口位于头部圆顶上方，两侧竖直边即剃短的侧面；术式 = 咒力放出。<b>v7.0 起上 HUD 普攻位（远程）</b>，同时仍用于招式表。'],
+ ['sblast','超级炮 150→220','Q','M4 头部炮击 · 加强','同构图加宽炮座、双环炮口、中心实心点、三向出力——用「量级」而非换母题来区分。'],
+ ['aim','瞄准 · 招式表用图','右键','M3 方形腰带扣作锁定框','方形金属扣转义为锁定方框 + 四向刻度，把角色记号放进功能图标里；<b>不上 HUD 招位</b>（右键瞄准不占按钮）。'],
+ ['domain','领域展开「极宴流光」','R','M5 咒力绽放','不对称烟火绽放替代太阳符号：长短不一的尾迹（含两条带弧的柳）、4 点火花、底部擂台弧。']
+];
+document.getElementById('iconset').innerHTML = CARDS.map(([k,n,key,m,d])=>`
+ <div class="icard" data-od-id="board-icon-${k}">
+   <div class="hd"><div class="big">${svg(k)}</div>
+     <div><div class="t">${n}</div><div class="m">${key} · 母题：${m}</div></div></div>
+   <p>${d}</p></div>`).join('');
+document.getElementById('iconmap').innerHTML = CARDS.map(([k,n,key,m,d])=>
+  `<tr><td class="v">${k}</td><td>${n} · ${key}</td><td class="v">${m}</td><td>${d}</td></tr>`).join('');
+
+/* 圆形状态五式（全部靠圆形语言，无文字）：就绪 / 冷却扇形 / 形态再切 / 领域封印 / 大招可用 */
+const FIVE=[['','就绪',''],['cool','冷却中','<div class="sweep"></div>'],['switching','形态再切',''],
+  ['locked','领域封印',''],['ready','大招可用','']];
+document.getElementById('states5').innerHTML = FIVE.map(([c,n,ex])=>
+  `<div class="mini5 ${c}"><div class="tile"><i>${svg(c==='ready'?'domain':'sblast')}</i>${ex}${c==='switching'?'<svg class="sw" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29"/></svg>':''}</div><span class="cap">${n}</span></div>`).join('');
+
+/* ===== 缩略画面 ===== */
+const pct=v=>Math.max(0,Math.min(100,v)).toFixed(1)+'%';
+function identity(side,c){
+  const p2=side==='p2';
+  const hp=p2?c.hp2:c.hp, gh=p2?c.g2:c.g, cs=p2?c.curse2:c.curse;
+  /* 行动资源只在玩家侧：5 颗菱形豆逐颗点亮（第 i 颗亮 = i < ap）。
+     ap=2 时右起三颗暗 → 一眼读出"扣了 3 点"或"只剩 2 点" */
+  const ap=Math.max(0,Math.floor(c.ap));
+  const apRow=p2?'':`<div class="map"><span class="lb">行动</span>
+      <span class="vl"><b>${ap}</b><span>/ 5</span></span>
+      <span class="mpips">${[0,1,2,3,4].map(i=>`<i class="mpip${i<ap?'':' off'}"><i></i></i>`).join('')}</span></div>`;
+  return `<div class="mid ${side}">
+    <div class="mport"><img src="${PORTRAIT}" alt=""><span class="ed"></span>
+      ${p2&&c.supp?'<span class="mfoe"></span>':''}</div>
+    <div class="mst">
+      <div class="mnm"><span>石流龙</span><b>${Math.round(hp)} / 1000</b></div>
+      <div class="mhp"><div class="bd"><i class="gh" style="width:${pct(Math.max(hp,gh)/10)}"></i>
+        <i class="fl" style="width:${pct(hp/10)}"></i></div></div>
+      <div class="mcw"><div class="mcs"><div class="bd"><i style="width:${pct(cs)}"></i></div></div><span class="mn"></span></div>
+      ${apRow}
+    </div></div>`;
+}
+/* v5.0：顶部双方弧槽已移除。领域能量改在大招环上表达，这里只保留
+   「压制」的横向链锁（受压制时双方领域互相锁住）与状态文字 */
+function arcs(c){
+  return c.supp?'<div class="mchain"></div>':'';
+}
+function domUI(c){
+  if(c.dom>=100&&c.phase!=='active')return '<div class="mmid" style="top:70px"><span class="mchip2">R　可展开 · 极宴流光</span></div>';
+  if(c.phase!=='active')return '';
+  const supp=c.supp;
+  const tk=(c.ticks||[0,0,0]).map((s,i)=>`<b class="t${i} ${s===1?'hit':(s===2?'skip':'')}"></b>`).join('');
+  return `<div class="mmid" style="top:58px"><div class="mtitle">领域展开 · 极宴流光</div>
+    <div class="mmeta"><span class="clk">${c.clock||'6.0'}</span>
+      <span class="mtl"><i class="bg"></i>${tk}<i class="ph" style="left:${c.ph||0}%"></i></span>
+      <span style="color:rgba(255,209,102,.92)">${supp?'自动炮暂停':(c.next||'')}</span>
+      <span style="color:rgba(255,209,102,.92)">在途 ${(c.ticks||[]).filter(v=>v===1).length}/3</span></div></div>
+    ${supp?'<div class="mmid" style="top:132px"><span class="msup">领域受压制 · 自动炮暂停</span></div>':''}`;
+}
+function reticle(c){
+  if(!c.ret)return '';
+  const r=c.ret, seg=(x,y,w,h)=>`<i style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;background:${r.color};color:${r.color}"></i>`;
+  return `<div class="mret">${seg(-r.w/2,-r.gap-r.len,r.w,r.len)}${seg(-r.w/2,r.gap,r.w,r.len)}
+    ${seg(-r.gap-r.len,-r.w/2,r.len,r.w)}${seg(r.gap,-r.w/2,r.len,r.w)}
+    <i style="left:-2px;top:-2px;width:4px;height:4px;border-radius:50%;background:${r.color}"></i></div>`;
+}
+/* 招位：每形态 2 个普通技 + 1 个大招；按钮上只有键位字母，技能靠图标本身体现（形制见 ref-genshin-ui.png / ref-wuthering-waves-ui.png） */
+const KEYSETS={
+  melee:[
+    {icon:'punch', key:'', keyIcon:1, n:'普攻'},
+    {icon:'kick',  key:'Q', n:'腿击'},
+    {icon:'swap',  key:'E', n:'切形态'}
+  ],
+  ranged:[
+    {icon:'blast', key:'', keyIcon:1, n:'普攻'},
+    {icon:'sblast',key:'Q', n:'超级炮'},
+    {icon:'swap',  key:'E', n:'切形态'}
+  ]
+};
+function tilesFor(c){
+  const list=KEYSETS[c.form==='ranged'?'ranged':'melee'].map(t=>Object.assign({},t,{cls:''}));
+  if(c.form==='ranged'){
+    list.forEach(t=>{
+      if(c.coolBlast&&t.icon==='sblast')t.cls='cool';
+      if(c.useBlast&&t.icon==='sblast')t.cls='use';
+      if(c.domActive&&t.icon==='sblast')t.cls='locked';
+    });
+  }
+  return list;
+}
+function bottom(c){
+  const arc='M52.32 227.68 A124 124 0 1 1 227.68 227.68';
+  let ring=`<path d="${arc}" fill="none" stroke="rgba(0,0,0,.60)" stroke-width="24"/>
+            <path d="${arc}" fill="none" stroke="rgba(150,190,255,.14)" stroke-width="18"/>`;
+  if(c.charge)ring+=`<path d="${arc}" fill="none" stroke="${c.charge.full?'#FFD166':'#FFE633'}" stroke-width="18" pathLength="100" stroke-dasharray="${c.charge.paid} 100"/>`;
+  if(c.charge&&c.charge.over>0)ring+=`<path d="${arc}" fill="none" stroke="#FF3B30" stroke-width="18" pathLength="100" stroke-dasharray="0 ${c.charge.paid} ${c.charge.over} 100"/>`;
+  /* 技能行：单排（不是弧形）—— 大招主位 (1820,1004) Ø96；普通技 Q(1580) E(1700) Ø70，
+     圆心距一律 120px = 参考图量到的键位标签间距 160px@2559 换算到 1920 的 120px */
+  const ROW={y:1004,x0:1460,step:120};
+  const list=tilesFor(c);
+  const tiles=list.map((t,i)=>{
+    const x=(ROW.x0+i*ROW.step).toFixed(1), y=ROW.y;
+    return `<div class="mskill ${t.cls} ${t.icon==='swap'&&c.switching?'switching':''}" style="left:${x}px;top:${y}px"><i>${svg(t.icon)}</i>`+
+      (t.cls==='cool'?'<div class="sweep"></div>':'')+
+      (t.icon==='swap'&&c.switching?'<svg class="sw" viewBox="0 0 70 70"><circle cx="35" cy="35" r="31"/></svg>':'')+
+      (t.keyIcon?`<span class="key keyicon">${svg('mouse')}</span>`:`<span class="key">${t.key||''}</span>`)+`</div>`;
+  }).join('');
+  return `<div class="mfd ${c.form==='ranged'?'ranged':''}">${svg(c.form==='ranged'?'blast':'punch')}<span>${c.form==='ranged'?'远程':'近战'}</span></div>
+    <svg class="mcn" viewBox="0 0 280 280"><circle cx="140" cy="140" r="138" fill="none" stroke="rgba(150,190,255,.22)" stroke-width="1"/>
+      <circle cx="140" cy="140" r="96" fill="none" stroke="rgba(150,190,255,.09)" stroke-width="1"/>${ring}</svg>
+    <div class="mro ${c.roCls||''}"><span class="mn">${c.ro}</span><span>${c.roSub||''}</span></div>
+    <div class="msk">${tiles}
+      <div class="mult ${c.ult==='ready'?'ready':(c.domActive?'locked':'')}">
+        <div class="ov"><i class="bloom"></i><i class="glowring"></i><i class="halo"></i><i class="halo h2"></i></div>
+        <svg class="ring" viewBox="0 0 96 96"><circle class="bgc" cx="48" cy="48" r="45.5" pathLength="100"/>
+          <circle class="fgc" cx="48" cy="48" r="45.5" pathLength="100" stroke-dasharray="${c.dom>=0.5?c.dom:0} 100" opacity="${c.dom>=0.5?1:0}"/></svg>
+        <i>${svg('domain')}</i>
+        <div class="pts"><i class="pt" style="transform:translate(56.4px,20.5px)"></i><i class="pt" style="transform:translate(10.4px,59.1px)"></i><i class="pt" style="transform:translate(-46px,38.6px)"></i><i class="pt" style="transform:translate(-56.4px,-20.5px)"></i><i class="pt" style="transform:translate(-10.4px,-59.1px)"></i><i class="pt" style="transform:translate(46px,-38.6px)"></i></div>
+        <span class="key">R</span></div></div>`;
+}
+function mini(c){
+  const d=Object.assign({hp:1000,g:1000,hp2:1000,g2:1000,curse:100,curse2:74,ap:5,dom:0,dom2:74,
+    phase:'idle',form:'melee',ro:'近战',roSub:'拳击 35 / 40 / 55 · 重拳 75'},c);
+  return `<figure class="thumb" data-od-id="board-state-${c.i}"><div class="mwrap"><div class="mstage">
+    <div class="msky"></div><div class="mdome"></div><div class="mplat"></div>
+    <div class="msil p1"></div><div class="msil p2"></div>
+    <div class="mtopband"></div>
+    ${identity('p1',d)}${identity('p2',d)}
+    ${arcs(d)}${domUI(d)}${reticle(d)}
+    <div class="mmodes">${(c.modes||[['静止木桩','on'],['固定防御'],['AI 对战']]).map(m=>`<span class="${m[1]||''}">${m[0]}</span>`).join('')}</div>
+    ${bottom(d)}
+    ${(c.floats||[]).map(f=>`<div class="mfl" style="left:${f[1]}px;top:${f[2]}px;color:${f[3]}">${f[0]}</div>`).join('')}
+    ${c.result?'<div class="mres"><div class="rt">玩家胜利</div><div class="rs">命中 12　最大连段 5　领域展开 2</div><div class="rk">[空格] 重新开始　[F1] 训练设置</div></div>':''}
+  </div></div><figcaption><b><em>${String(c.i).padStart(2,'0')}</em>${c.name}<i class="kbd-hint">键 ${c.key}</i></b><span>${c.reads.join('　·　')}</span></figcaption></figure>`;
+}
+
+const M=[
+{ i:1,key:'1',name:'待机 · 近战',hp:1000,g:1000,hp2:1000,g2:1000,curse:100,curse2:74,ap:5,dom:0,dom2:74,form:'melee',
+  ro:'近战',roSub:'拳击 35 / 40 / 55 · 重拳 75 · 腿击 45 · 重踢 95',
+  reads:['条组：头像 + 名 → 生命 500×15 → 咒力 500×11（0 间距）→ 行动条 500×9','生命 1000 / 1000 · 咒力 100 / 100 · 行动 5 / 5','行动资源只在玩家侧；对手侧止于咒力条','条上无格子，咒力 8% 处只有一道闸门刻度','领域弧槽 0% / 74% · 招位行 Q / E / R 就绪']},
+{ i:2,key:'2',name:'待机 · 远程（显示准星）',hp:1000,g:1000,hp2:1000,g2:1000,curse:87,curse2:74,ap:5,dom:46,dom2:74,form:'ranged',
+  ret:{gap:14,len:10,w:2,color:'rgba(204,230,255,.95)'},ro:'待机',roSub:'左键蓄力炮 30→90 · Q 超级炮 150→220',
+  reads:['准星 Gap 14 / 线长 10 / 线宽 2','远程招位：蓄力炮 / 超级炮 / 瞄准 / 切近战','咒力 87 / 100 · 状态标签「回气中 +6/s」','领域 46%']},
+{ i:3,key:'3',name:'三段连击（A1 → A2 → A3）',hp:1000,g:1000,hp2:870,g2:925,curse:96,curse2:74,ap:5,dom:62,dom2:74,form:'melee',
+  floats:[['55',1000,420,'#FFD166'],['40',1046,470,'#fff'],['35',960,520,'#fff']],
+  ro:'近战',roSub:'拳击 35 / 40 / 55 · 重拳 75',
+  reads:['A1 / A2 / A3 = 35 / 40 / 55，A3 击退','生命 1000 → 870；虚血残影 0.6s 后 0.35s 回落','咒力 +3 / 每次近战有效命中','领域 56% → 62%（伤害 5%，单次上限 10）']},
+{ i:4,key:'4',name:'蓄力炮 · 蓄力中（60%）',hp:1000,g:1000,hp2:1000,g2:1000,curse:72,curse2:74,ap:5,dom:62,dom2:74,form:'ranged',
+  ret:{gap:7.2,len:10,w:2,color:'#FFE633'},useBlast:1,charge:{paid:60,over:0},
+  ro:'伤害 66',roSub:'蓄力 0.72 / 1.20s · 已支付 18 咒力',
+  reads:['伤害 66 = 30 + 60 × qPaid（qPaid 0.60）· 文档 §7.2','蓄力环填充 60%，准星 Gap 12 → 4 收拢','招位格「正在使用」：外框转蓄力黄','移动速度降至 55% · 射程 18m']},
+{ i:5,key:'5',name:'蓄力炮 · 已满蓄',hp:1000,g:1000,hp2:1000,g2:1000,curse:72,curse2:74,ap:5,dom:62,dom2:74,form:'ranged',
+  ret:{gap:4,len:10,w:2,color:'#FFE633'},useBlast:1,charge:{paid:100,over:0,full:1},
+  ro:'满蓄 90',roSub:'松开左键才发射 · 已支付 24 咒力',roCls:'full',
+  reads:['满蓄 90 = 30 + 60 × qPaid（qPaid = 1.0）','环体转金 + 向内收束短线','继续持炮不再提升伤害','中心点变六边形描边并轻微燃烧抖动']},
+{ i:6,key:'6',name:'领域就绪 · 可展开',hp:1000,g:1000,hp2:1000,g2:1000,curse:100,curse2:74,ap:5,dom:100,dom2:74,form:'melee',
+  ro:'近战',roSub:'拳击 35 / 40 / 55 · 重拳 75',ult:'ready',ultCap:'领域展开 · 可放',
+  reads:['领域能量 100 / 100：大招环转亮为 #E6FBFF + 外溢','外溢 = 双层外扩柔光环（Ø92→Ø136 / 2.2s）+ 6 颗粒子','大招位呼吸发光，按 R 才结印','结印 1.0s 可被打断，失败不退已提交的 100 能量','此阶段不含倒计时 / 刻度 / 在途球']},
+{ i:7,key:'7',name:'超级炮 · 冷却中（10s）',hp:1000,g:1000,hp2:1000,g2:1000,curse:87,curse2:74,ap:5,dom:62,dom2:74,form:'ranged',
+  ret:{gap:14,len:10,w:2,color:'rgba(204,230,255,.95)'},coolBlast:1,cd:7,
+  ro:'超级炮冷却 7.0s',roSub:'发射或已付费中断后 10 秒冷却',
+  reads:['招位格「冷却中」：遮罩 + 居中倒数 7','伤害 150 → 220（1.2s 起 / 2.4s 封顶）· 咒力 45 → 65','射程 24m','其余招位保持就绪']},
+{ i:8,key:'8',name:'领域展开中 · 极宴流光',hp:1000,g:1000,hp2:780,g2:780,curse:100,curse2:74,ap:5,dom:0,dom2:74,form:'ranged',
+  phase:'active',domActive:1,clock:'3.5',ph:41.7,ticks:[1,1,0],next:'下一发 1.8s',
+  ret:{gap:14,len:16,w:3,color:'#FF6633'},ro:'满蓄 90',roSub:'松开左键才发射',roCls:'full',
+  floats:[['领域追踪 220',1000,300,'#A64DE6'],['220',1058,360,'#FFD166']],
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战'],['无限资源','on']],
+  reads:['剩余 3.5s + 节拍器轴，三时点 0.3 / 2.3 / 4.3s','已发刻度点亮、临近刻度脉冲，越过的标红叉','单发 220 / 65 咒力 · 在途 1 / 3','招位格「领域封印」：蓄力类被领域顶掉','穹顶与石台偏金紫，HUD 文字保持原色']},
+{ i:9,key:'9',name:'双领域压制',hp:1000,g:1000,hp2:1000,g2:1000,curse:100,curse2:74,ap:5,dom:0,dom2:0,form:'ranged',
+  phase:'active',supp:1,domActive:1,clock:'3.2',ph:46.7,ticks:[0,0,0],next:'自动炮暂停',
+  ret:{gap:14,len:16,w:3,color:'#FF6633'},ro:'满蓄 90',roSub:'松开左键才发射',roCls:'full',
+  reads:['压制横幅保留，同时显示领域剩余时间 3.2s','压制只暂停自动炮：计时不暂停、不延长（§8.3）','P2 头像外圈转紫 1.6s 呼吸 = 对方大招环状态','大招环压暗降级 = 自己现在不能展开','水平链锁横杠贯穿两侧','三发刻度全部保持待发，不消耗咒力']},
+{ i:10,key:'0',name:'咒力不足 · 强度受限',hp:1000,g:1000,hp2:1000,g2:1000,curse:16,curse2:74,ap:5,dom:62,dom2:74,form:'ranged',
+  ret:{gap:4,len:10,w:2,color:'#FFE633'},useBlast:1,charge:{paid:50,over:50},
+  ro:'强度上限 60',roSub:'咒力不足 · 继续持炮不会变强',roCls:'lim',
+  reads:['qPaid = clamp((已支付 16 − 8) / 16, 0, 1) = 0.5（§7.2）','伤害 = 30 + 60 × qPaid = 60（SLL-T17 口径）','第一帧即受限：红橙虚线轮廓 + 上限读数','咒力条 16%，8 点门槛刻度右侧一段为实色']},
+{ i:11,key:'-',name:'濒死（生命 22%）',hp:220,g:304,hp2:1000,g2:1000,curse:40,curse2:74,ap:2,dom:80,dom2:74,form:'melee',
+  ro:'近战',roSub:'拳击 35 / 40 / 55 · 重拳 75',ultCap:'领域展开 80%',
+  reads:['生命 220 / 1000（22%）· 生命条呼吸脉冲 1.2s','虚血残影仍在回落中','行动资源 2 / 5 —— 玩家侧条只亮到 40%','领域 80% · 大招环四分之三']},
+{ i:12,key:'=',name:'对战结果（玩家胜利）',hp:1000,g:1000,hp2:0,g2:0,curse:62,curse2:74,ap:5,dom:62,dom2:0,form:'melee',
+  result:1,ro:'近战',roSub:'拳击 35 / 40 / 55 · 重拳 75',
+  reads:['冷蓝暗场 .72，擂台保持可见','中央：玩家胜利 / 对手胜利 / 平局','一行动作统计：命中 12　最大连段 5　领域展开 2','非霸屏弹窗，条组与技能区保持原样']}
+];
+document.getElementById('grid').innerHTML=M.map(mini).join('');
+</script>
+</body>
+</html>

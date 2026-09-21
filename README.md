@@ -74,6 +74,8 @@ Source/JJK_theHiddenOnes/Training/
 - [01 需求说明](Docs/01_需求说明.md)
 - [08 石流龙战斗系统设计](Docs/08_石流龙战斗系统设计.md)
 - [11 道场场景接入](Docs/11_日式道场场景接入说明.md)
+- [13 对战 HUD 设计稿](Docs/13_对战HUD设计稿.md)
+- [14 HUD 开发指引](Docs/14_HUD开发指引.md) — 交给实现者的施工说明（视觉基准 `Docs/assets/hud-prototype-v7.0.html`）
 - [12 版本控制与素材依赖](Docs/12_版本控制与素材依赖.md)
 - [Scripts 自动化说明](Scripts/README.md)
 

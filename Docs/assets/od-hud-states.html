@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JJK: The Hidden Ones — 对战 HUD 分状态设计板与规范</title>
+<style>
+:root{
+  --bg:#070B14; --fg:#EAF6FF; --panel:rgba(8,14,26,.80); --border:rgba(150,190,255,.18);
+  --muted:rgba(150,190,255,.55); --dim:rgba(150,190,255,.32); --line:rgba(150,190,255,.14);
+  --p1:#1FB4F0; --p2:#FF5F1F; --curse:#2E70FF; --ap:#E6A81E; --dom:#A64DE6; --gold:#FFD166; --danger:#FF3B30;
+  --rc-idle:rgba(204,230,255,.95); --rc-aim:#73F2F2; --rc-chg:#FFE633; --rc-dom:#FF6633;
+  --ghost:oklch(.33 .11 27);
+  --en:'Arial Black','Impact','Haettenschweiler','Microsoft YaHei',sans-serif;
+  --zh:'Microsoft YaHei','PingFang SC','Hiragino Sans GB','Source Han Sans SC',sans-serif;
+  --sr:'Songti SC','SimSun','Noto Serif SC',Georgia,serif;
+  --mo:Consolas,'Cascadia Mono','SFMono-Regular',monospace;
+  --cut8:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#04060B;color:var(--fg);font-family:var(--zh);font-size:13px;line-height:1.75;
+  -webkit-font-smoothing:antialiased}
+.page{max-width:1500px;margin:0 auto;padding:56px 40px 96px}
+h1{font-size:30px;font-weight:900;letter-spacing:.04em}
+h2{font-size:17px;font-weight:700;letter-spacing:.10em;margin:0 0 4px}
+h3{font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--fg)}
+.sub{color:var(--muted);font-size:12px}
+.mono{font-family:var(--mo)}
+.num{font-family:var(--en);font-variant-numeric:tabular-nums}
+header.top{border-bottom:1px solid var(--line);padding-bottom:26px}
+.kicker{font-family:var(--mo);font-size:11px;letter-spacing:.18em;color:var(--rc-aim);margin-bottom:12px}
+.notice{margin-top:18px;padding:10px 14px;border:1px solid rgba(255,209,102,.32);background:rgba(255,209,102,.06);
+  color:rgba(255,209,102,.92);font-size:12px;clip-path:var(--cut8)}
+.metaline{margin-top:14px;display:flex;gap:26px;flex-wrap:wrap;font-family:var(--mo);font-size:11px;color:var(--dim)}
+section{margin-top:56px}
+.shead{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:22px}
+.shead .ix{font-family:var(--en);font-size:12px;color:var(--rc-aim);letter-spacing:.1em}
+.reasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px}
+.reason{padding:18px;border:1px solid var(--line);background:rgba(8,14,26,.66);clip-path:var(--cut8)}
+.reason h3{margin-bottom:8px}
+.reason h3 i{font-style:normal;color:var(--rc-aim);font-family:var(--en);margin-right:8px;font-size:12px}
+.reason p{color:rgba(234,246,255,.86);font-size:13px}
+.reason .k{color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(700px,1fr));gap:26px}
+figure.thumb{background:rgba(8,14,26,.5);border:1px solid var(--line);padding:12px;clip-path:var(--cut8)}
+figcaption{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+figcaption b{font-size:13px;letter-spacing:.06em}
+figcaption b em{font-style:normal;font-family:var(--en);color:var(--rc-aim);margin-right:8px;font-size:11px}
+figcaption b .kbd-hint{font-style:normal;font-family:var(--mo);font-size:10px;color:var(--muted);
+  border:1px solid var(--line);padding:0 5px;margin-left:9px;vertical-align:1px}
+figcaption span{font-family:var(--mo);font-size:11px;line-height:1.9;color:var(--muted)}
+/* ---- 缩略画面：1920x1080 等比 1/3 ---- */
+.mwrap{position:relative;width:640px;height:360px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
+.mstage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform:scale(.333333);transform-origin:0 0}
+.msky{position:absolute;inset:0;background:radial-gradient(120% 64% at 50% 86%,#17273F 0%,#0C1626 40%,#070B14 76%)}
+.mplat{position:absolute;left:300px;top:640px;width:1320px;height:380px;border-radius:50%;border:1px solid rgba(150,190,255,.13);
+  background:radial-gradient(closest-side,rgba(34,54,82,.95) 0%,rgba(20,32,50,.92) 56%,rgba(11,18,29,.55) 100%)}
+.msil{position:absolute;background:linear-gradient(104deg,#0B111C,#182233)}
+.mid{position:absolute;top:34px;width:560px}
+.mid.p1{left:40px}
+.mid.p2{left:1320px;text-align:right}
+.mplate{display:inline-flex;align-items:baseline;gap:9px;height:26px;padding:0 11px;line-height:26px;
+  background:rgba(8,14,26,.8);border-left:2px solid var(--p1);font-size:16px;font-weight:700}
+.mplate.p2{border-left:0;border-right:2px solid var(--p2)}
+.mplate b{font-family:var(--en);font-size:12px;color:var(--p1);letter-spacing:.12em}
+.mplate.p2 b{color:var(--p2)}
+.mbar{position:relative;margin-top:8px;height:20px;padding:1px;background:linear-gradient(90deg,rgba(31,180,240,.62),rgba(150,190,255,.18));
+  clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%)}
+.mid.p2 .mbar{background:linear-gradient(270deg,rgba(255,95,31,.62),rgba(150,190,255,.18));
+  clip-path:polygon(18px 0,100% 0,100% 100%,0 100%)}
+.mbar>b{position:relative;display:block;height:100%;overflow:hidden;background:rgba(4,8,16,.94);
+  clip-path:polygon(0 0,100% 0,calc(100% - 17px) 100%,0 100%)}
+.mid.p2 .mbar>b{clip-path:polygon(17px 0,100% 0,100% 100%,0 100%)}
+.mbar .g{position:absolute;left:0;top:0;height:100%;background:var(--ghost)}
+.mbar .f{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#EAF6FF,#9FE8F5)}
+.mid.p2 .mbar .g,.mid.p2 .mbar .f{left:auto;right:0}
+.mid.p2 .mbar .f{background:linear-gradient(270deg,#EAF6FF,#9FE8F5)}
+.mnum{margin-top:7px;font-family:var(--en);font-size:17px;font-variant-numeric:tabular-nums;color:rgba(234,246,255,.55)}
+.marcs{position:absolute;left:0;top:0;width:1920px;height:120px}
+.marcs path{fill:none;stroke-width:5;stroke-linecap:round}
+.marcs .mt{stroke:rgba(150,190,255,.16)}
+.mlbl{position:absolute;top:48px;width:168px;font-size:11px;color:var(--muted)}
+.mlbl.p1{left:456px;text-align:right}
+.mlbl.p2{left:1296px}
+.mdc{position:absolute;left:960px;transform:translateX(-50%);text-align:center}
+.mchip{display:inline-flex;align-items:center;gap:8px;height:26px;padding:0 12px;line-height:26px;font-size:12px;
+  color:var(--gold);background:rgba(20,14,4,.74);border:1px solid rgba(255,209,102,.42)}
+.msup{display:inline-block;font-size:12px;letter-spacing:.08em;color:#9AA4B6;padding:2px 12px;
+  background:rgba(10,14,22,.74);border:1px solid rgba(150,190,255,.22)}
+.mchain{position:absolute;left:820px;top:44px;width:280px;height:9px;
+  background:linear-gradient(90deg,rgba(150,190,255,0),#8A93A6 12%,#8A93A6 88%,rgba(150,190,255,0))}
+.mchain:before,.mchain:after{content:'';position:absolute;left:0;width:100%;height:1px;background:#8A93A6;top:0}
+.mchain:after{top:8px}
+.mdtl{position:relative;width:260px;height:10px;display:inline-block;vertical-align:middle}
+.mdtl .bg{position:absolute;left:0;top:4px;width:100%;height:2px;background:rgba(150,190,255,.18)}
+.mdtl b{position:absolute;top:5px;width:8px;height:8px;margin:-4px 0 0 -4px;transform:rotate(45deg);
+  border:2px solid rgba(150,190,255,.35);background:rgba(7,11,20,.9)}
+.mdtl b.t0{left:5%}.mdtl b.t1{left:38.3%}.mdtl b.t2{left:71.7%}
+.mdtl b.hit{border-color:var(--gold);background:var(--gold)}
+.mdtl b.skip{border-color:var(--danger);background:rgba(255,59,48,.25)}
+.mdtl .ph{position:absolute;top:0;width:2px;height:10px;background:var(--gold)}
+.mtitle{font-family:var(--sr);font-size:20px;font-weight:700;letter-spacing:.30em;text-indent:.30em;color:var(--gold)}
+.mret{position:absolute;left:960px;top:540px;width:0;height:0}
+.mret i{position:absolute;box-shadow:0 0 7px currentColor}
+.msel{position:absolute;left:960px;top:92px;transform:translate(-50%,-50%);display:flex;align-items:center;gap:14px;
+  font-size:13px;color:var(--dom);letter-spacing:.06em}
+.mmodes{position:absolute;left:620px;top:154px;width:680px;display:flex;justify-content:center;gap:8px;font-size:11px}
+.mmodes span{height:22px;padding:0 10px;line-height:22px;color:var(--muted);border:1px solid var(--border)}
+.mmodes span.on{color:var(--fg);border-color:rgba(31,180,240,.55);background:rgba(31,180,240,.12)}
+.mmodes span.tg{color:var(--rc-aim);border:1px dashed rgba(115,242,242,.42)}
+.mdome{position:absolute;left:400px;top:730px;width:1120px;height:350px}
+.mdome path{fill:none;stroke:rgba(150,190,255,.20);stroke-width:1}
+.mdome .fillp{fill:rgba(8,14,26,.55);stroke:none}
+.mwing{position:absolute;top:918px;width:180px}
+.mwing.l{left:620px;text-align:right}
+.mwing.r{left:1120px}
+.mwing .wh{font-size:11px;color:var(--muted);margin-bottom:7px}
+.mwing .wh b{font-family:var(--en);font-size:15px;color:var(--fg)}
+.maprow{display:flex;gap:7px}
+.mwing.l .maprow{justify-content:flex-end}
+.map{width:28px;height:28px;padding:1px;background:rgba(150,190,255,.26)}
+.map>b{display:block;width:100%;height:100%;background:rgba(6,10,18,.92)}
+.map.on{background:rgba(230,168,30,.65)}
+.map.on>b{background:linear-gradient(160deg,#F2C24A,#B9811A)}
+.mcbar{height:14px;padding:1px;background:rgba(150,190,255,.26)}
+.mcbar>b{position:relative;display:block;width:100%;height:100%;background:rgba(6,10,18,.92);overflow:hidden}
+.mcbar .cf{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#1B49C8,var(--curse))}
+.mwing .wn{font-size:10px;color:var(--dim);margin-top:7px}
+.mdisc{position:absolute;left:902px;top:882px;width:116px;height:116px;border-radius:50%;
+  background:radial-gradient(circle at 50% 32%,rgba(22,34,55,.92),rgba(8,14,26,.96));
+  box-shadow:0 0 0 1px rgba(150,190,255,.30);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;font-size:13px;font-weight:700;letter-spacing:.12em}
+.mcn{position:absolute;left:820px;top:800px;width:280px;height:280px}
+.mro{position:absolute;left:830px;top:1031px;width:260px;height:30px;display:flex;align-items:center;
+  justify-content:center;gap:8px;font-size:12px;background:rgba(8,14,26,.9);border:1px solid rgba(150,190,255,.26)}
+.mkeys{position:absolute;top:1042px;display:flex;gap:20px;font-size:12px;color:var(--muted)}
+.mkeys.l{left:40px}.mkeys.r{right:40px}
+.mcombo{position:absolute;left:1132px;top:512px;font-family:var(--en);font-size:44px;color:var(--gold);line-height:1}
+.mcombo span{font-family:var(--zh);font-size:14px;letter-spacing:.14em;margin-left:8px}
+.mlock{position:absolute;left:950px;top:592px;width:100px;height:192px}
+.mlock i{position:absolute;width:14px;height:14px;border:2px solid var(--p2)}
+.mlock i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0}
+.mlock i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0}
+.mlock i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0}
+.mlock i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0}
+.mfl{position:absolute;font-family:var(--en);font-size:26px;white-space:nowrap;text-shadow:0 2px 10px rgba(0,0,0,.9)}
+.mres{position:absolute;inset:0;background:rgba(7,11,20,.55);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px}
+.mres .rt{font-size:64px;font-weight:900;letter-spacing:.22em;text-indent:.22em;color:var(--rc-aim)}
+.mres .rs{display:flex;gap:38px;font-size:15px}
+.mres .rs b{font-family:var(--en);font-size:22px;color:var(--gold)}
+.mres .rk{display:flex;gap:26px;font-size:13px;color:var(--muted)}
+.mdrawer{position:absolute;left:1330px;top:200px;width:390px;height:640px;background:rgba(8,14,26,.92);
+  border:1px solid rgba(150,190,255,.28);padding:18px;font-size:12px;color:var(--muted)}
+.mdrawer .dt{font-size:14px;font-weight:700;color:var(--fg);letter-spacing:.12em;margin-bottom:14px}
+.mdrawer .dr{height:38px;border-bottom:1px solid rgba(150,190,255,.10);display:flex;align-items:center;justify-content:space-between}
+.mdrawer .seg{display:flex;gap:6px;margin:10px 0 14px}
+.mdrawer .seg span{flex:1;height:32px;line-height:30px;text-align:center;border:1px solid var(--border)}
+.mdrawer .seg span.on{color:var(--fg);border-color:rgba(31,180,240,.62);background:rgba(31,180,240,.16)}
+.mdebug{position:absolute;left:40px;top:150px;width:380px;padding:10px 12px;font-family:var(--mo);font-size:11px;
+  line-height:1.75;color:rgba(115,242,242,.8);background:rgba(4,10,16,.74);border:1px solid rgba(115,242,242,.22)}
+/* ---- 规范表 ---- */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-weight:700;color:var(--muted);letter-spacing:.08em;font-size:11px;
+  padding:8px 10px;border-bottom:1px solid rgba(150,190,255,.28);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:rgba(234,246,255,.9)}
+td.v{font-family:var(--mo);white-space:nowrap}
+.sw{display:inline-block;width:12px;height:12px;margin-right:7px;vertical-align:-1px;border:1px solid rgba(255,255,255,.22)}
+.tagr{font-family:var(--mo);font-size:10px;padding:1px 6px;border:1px solid var(--line);color:var(--muted)}
+.tagr.del{border-color:rgba(255,59,48,.45);color:rgba(255,59,48,.9)}
+.tagr.keep{border-color:rgba(115,242,242,.4);color:rgba(115,242,242,.85)}
+.note{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.9}
+footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mo);font-size:11px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+  <div class="kicker">JJK: THE HIDDEN ONES / UE 5.8 / 1v1 擂台训练 DEMO / HUD CONCEPT v1</div>
+  <h1>对战 HUD 分状态设计板与规范</h1>
+  <div class="sub" style="margin-top:10px">角色：石流龙（近战拳脚 + 咒力炮击 + 原创领域「极宴流光」）　参考画布：1920×1080　版式：混合式（上左/上右身份生命 · 顶部中央领域 · 下中自身资源 · 中央仅准星与飘字）</div>
+  <div class="notice">概念稿 · 全部数值取自项目当前设计文档的调试参数，未做任何平衡性改写；缩略画面为 1920×1080 参考画布等比 1/3 缩小，比例与锚点与交互原型一致。</div>
+  <div class="metaline">
+    <span>交付物：hud-prototype.html（交互原型） / hud-states.html（本文件）</span>
+    <span>状态数：13</span><span>色彩令牌：18</span><span>UMG 锚点：22</span>
+  </div>
+</header>
+
+<section>
+  <div class="shead"><span class="ix">01</span><h2>设计说明</h2><span class="sub">三条取舍的理由</span></div>
+  <div class="reasons">
+    <div class="reason" data-od-id="board-rationale-opponent-resources">
+      <h3><i>A</i>为什么把对手资源收起来</h3>
+      <p>对手的<span class="k">行动资源与咒力</span>属于读招与调试信息，玩家在对局中不会实时读取，把它们放进主视野只会持续占用中央视野、并让两侧读数节奏失衡。因此对手一侧<span class="k">只保留生命与领域</span>两条与胜负、威胁直接相关的信息，其余移入调试层。</p>
+    </div>
+    <div class="reason" data-od-id="board-rationale-charge-cap">
+      <h3><i>B</i>为什么蓄力要显示强度上限</h3>
+      <p>伤害与咒力是两个耦合变量：<span class="k">已支付咒力不足时，继续持炮不会提升伤害</span>（仅剩 16 咒力时普通炮上限 60）。若不显式标出可支付区间，玩家会把“持炮更久”误当成“更强”。所以盘面把超出支付能力的部分画成红橙虚线轮廓，并直接给出强度上限数值。</p>
+    </div>
+    <div class="reason" data-od-id="board-rationale-domain-top">
+      <h3><i>C</i>为什么领域状态放顶部中央</h3>
+      <p>领域是<span class="k">全局状态</span>：它同时影响双方，并决定接下来 6 秒的输出节奏。放在顶部中央，视线不离开对手即可读到剩余时间、三次自动炮时点与压制状态，同时完全不侵入中央擂台区。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">02</span><h2>分状态缩略画面</h2><span class="sub">13 states · 640×360（1920×1080 等比 1/3）· 编号与快捷键同交互原型控制台顺排</span></div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">03</span><h2>颜色令牌</h2><span class="sub">权威值来自需求文档；OKLch 为派生/透明度处理用值</span></div>
+  <table data-od-id="board-table-colors">
+    <thead><tr><th>名称</th><th>色值</th><th>OKLch 等价</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sw" style="background:#070B14"></span>舞台底色</td><td class="v">#070B14</td><td class="v">oklch(.150 .021 266)</td><td>舞台、暗场、面板底衬</td></tr>
+      <tr><td><span class="sw" style="background:rgba(8,14,26,.8)"></span>面板底</td><td class="v">rgba(8,14,26,.80)</td><td class="v">oklch(.178 .028 262 / .80)</td><td>所有面板 / 抽屉 / 控制台，配 backdrop-filter: blur(6px)</td></tr>
+      <tr><td><span class="sw" style="background:rgba(150,190,255,.18)"></span>结构描边</td><td class="v">rgba(150,190,255,.18)</td><td class="v">oklch(.780 .080 262 / .18)</td><td>1px 描边；8px 切角由外层 1px + 内层 1px 内缩同形切角实现</td></tr>
+      <tr><td><span class="sw" style="background:#EAF6FF"></span>主文字</td><td class="v">#EAF6FF</td><td class="v">oklch(.960 .015 240)</td><td>常驻读数、键位、面板标题</td></tr>
+      <tr><td><span class="sw" style="background:rgba(150,190,255,.55)"></span>次级文字</td><td class="v">rgba(150,190,255,.55)</td><td class="v">oklch(.780 .080 262 / .55)</td><td>单位、说明小字、模式徽标默认态</td></tr>
+      <tr><td><span class="sw" style="background:#1FB4F0"></span>P1 身份色</td><td class="v">#1FB4F0</td><td class="v">oklch(.730 .150 232)</td><td>P1 名条、条体描边、形态冷却弧</td></tr>
+      <tr><td><span class="sw" style="background:#FF5F1F"></span>P2 身份色</td><td class="v">#FF5F1F</td><td class="v">oklch(.680 .200 41)</td><td>P2 名条、条体描边、锁定标记</td></tr>
+      <tr><td><span class="sw" style="background:#2E70FF"></span>咒力</td><td class="v">#2E70FF</td><td class="v">oklch(.600 .210 265)</td><td>咒力连续条填充与恢复段</td></tr>
+      <tr><td><span class="sw" style="background:#E6A81E"></span>行动资源</td><td class="v">#E6A81E</td><td class="v">oklch(.750 .150 82)</td><td>5 格离散充能方块</td></tr>
+      <tr><td><span class="sw" style="background:#A64DE6"></span>领域能量</td><td class="v">#A64DE6</td><td class="v">oklch(.620 .210 305)</td><td>顶部弧槽填充（未满）、结印环、追踪炮</td></tr>
+      <tr><td><span class="sw" style="background:#FFD166"></span>领域激活</td><td class="v">#FFD166 + #A64DE6</td><td class="v">oklch(.870 .120 85) + oklch(.620 .210 305)</td><td>满值 / 展开期金紫；全局唯一“高价值”色信号</td></tr>
+      <tr><td><span class="sw" style="background:#FF3B30"></span>危险 / 不足</td><td class="v">#FF3B30</td><td class="v">oklch(.630 .230 28)</td><td>强度上限虚线、濒死红晕、结印警示线</td></tr>
+      <tr><td><span class="sw" style="background:linear-gradient(90deg,#EAF6FF,#9FE8F5)"></span>生命填充</td><td class="v">#EAF6FF → #9FE8F5</td><td class="v">oklch(.960 .015 240 → .910 .060 205)</td><td>双侧统一冷白→浅青渐变，保证读数节奏一致</td></tr>
+      <tr><td><span class="sw" style="background:oklch(.33 .11 27)"></span>虚血残影</td><td class="v">派生</td><td class="v">oklch(.330 .110 27)</td><td>位于即时填充之下的受击残影</td></tr>
+      <tr><td><span class="sw" style="background:rgba(204,230,255,.95)"></span>准星 · 默认</td><td class="v">rgba(204,230,255,.95)</td><td class="v">oklch(.940 .030 240 / .95)</td><td>远程形态静止</td></tr>
+      <tr><td><span class="sw" style="background:#73F2F2"></span>准星 · 瞄准</td><td class="v">#73F2F2</td><td class="v">oklch(.910 .100 195)</td><td>右键瞄准；训练标签、调试层同色</td></tr>
+      <tr><td><span class="sw" style="background:#FFE633"></span>准星 · 蓄力</td><td class="v">#FFE633</td><td class="v">oklch(.930 .190 105)</td><td>蓄力中；蓄力盘已支付段</td></tr>
+      <tr><td><span class="sw" style="background:#FF6633"></span>准星 · 领域</td><td class="v">#FF6633</td><td class="v">oklch(.700 .200 40)</td><td>领域展开期准星（线长 16px / 线宽 3px）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">04</span><h2>字号阶梯</h2><span class="sub">全部数字 font-variant-numeric: tabular-nums</span></div>
+  <table data-od-id="board-table-type">
+    <thead><tr><th>用途</th><th>字号 / 字重</th><th>字体栈</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>生命数字（常驻）</td><td class="v">17px / 900</td><td class="v">--en（Arial Black / Impact 类）</td><td>常驻透明度 .45；受击 240ms 放大至 1.20 并提亮</td></tr>
+      <tr><td>生命数字（受伤瞬间）</td><td class="v">20.4px / 900</td><td class="v">--en</td><td>白色 + 14px 暖色发光，240ms 后回落</td></tr>
+      <tr><td>角色名</td><td class="v">16px / 700</td><td class="v">--zh（微软雅黑 / 苹方）</td><td>名条内，字距 .10em；P1/P2 数字标签 12px</td></tr>
+      <tr><td>面板标签 / 说明</td><td class="v">11–13px / 400–700</td><td class="v">--zh</td><td>次级读数一律 ≤.55 透明度</td></tr>
+      <tr><td>资源数字</td><td class="v">15px / 900</td><td class="v">--en</td><td>行动资源 5 / 5、咒力 87 / 100</td></tr>
+      <tr><td>蓄力读数（主）</td><td class="v">16px / 900</td><td class="v">--en</td><td>伤害 66 / 满蓄 90 / 强度上限 60（均由 qPaid 推出）</td></tr>
+      <tr><td>蓄力读数（副）</td><td class="v">10px / 400</td><td class="v">--zh</td><td>已支付咒力、持炮说明</td></tr>
+      <tr><td>领域结界名</td><td class="v">20px / 700</td><td class="v">--sr（宋体 / 思源宋体）</td><td>字距 .30em，金紫渐变字；唯一使用衬线的位置</td></tr>
+      <tr><td>领域节拍器 / 计数</td><td class="v">12–17px / 700–900</td><td class="v">--en + --zh</td><td>6.0 倒计时 17px；下一发 / 状态 12px</td></tr>
+      <tr><td>连击计数</td><td class="v">44px / 900 + 14px / 700</td><td class="v">--en + --zh</td><td>数字金色，180ms 缩放弹入（1 → 1.5 → 1）</td></tr>
+      <tr><td>命中飘字</td><td class="v">26px（暴击 32px）</td><td class="v">--en</td><td>白 / 金；判定类飘字（格挡 50%、闪避成功）用 20px 中文</td></tr>
+      <tr><td>结果标题</td><td class="v">64px / 900</td><td class="v">--zh</td><td>字距 .22em，冷白→浅青渐变字</td></tr>
+      <tr><td>调试层</td><td class="v">11px / 400</td><td class="v">--mo（Consolas / Cascadia Mono）</td><td>出货版本整层删除</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">05</span><h2>组件锚点表</h2><span class="sub">坐标为 1920×1080 参考画布绝对像素，可直接换算 UMG Canvas Panel 的锚点与偏移</span></div>
+  <table data-od-id="board-table-anchors">
+    <thead><tr><th>组件</th><th>锚点</th><th>偏移</th><th>尺寸</th><th>UMG 控件建议</th></tr></thead>
+    <tbody>
+      <tr><td>P1 身份与生命</td><td>左上</td><td class="v">(40, 34)</td><td class="v">560 × 86</td><td>Canvas Panel + Vertical Box；名条 = Border + TextBlock（左侧 2px 身份色边）</td></tr>
+      <tr><td>P2 身份与生命</td><td>右上</td><td class="v">(−40, 34)</td><td class="v">560 × 86</td><td>同 P1，Horizontal Alignment = Right，切角方向镜像</td></tr>
+      <tr><td>生命条（即时 + 虚血）</td><td>左上 / 右上</td><td class="v">(40, 68) / (−40, 68)</td><td class="v">560 × 20</td><td>两种填充叠放：<b>不要用 ProgressBar</b>。用 Image + Material（chevron 遮罩）；即时 Percent 120ms 直推，虚血 Percent 走 0.6s 延迟 + 0.35s InterpTo</td></tr>
+      <tr><td>生命数字</td><td>左上 / 右上</td><td class="v">(40, 95) / (−40, 95)</td><td class="v">自适应</td><td>TextBlock，数字用 Tabular Figures；受击走 240ms 缩放动画</td></tr>
+      <tr><td>领域弧槽 P1</td><td>顶部居中</td><td class="v">内端 (940, 60) → 外端 (640, 54)</td><td class="v">弧长 300，线宽 5</td><td>不建议 ProgressBar：用 Material 沿弧线 UV 参数化填充，或 2 段 Spline Mesh + 参数材质</td></tr>
+      <tr><td>领域弧槽 P2</td><td>顶部居中</td><td class="v">内端 (980, 60) → 外端 (1280, 54)</td><td class="v">弧长 300，线宽 5</td><td>同 P1 镜像；两侧共用同一 Material，参数只差方向</td></tr>
+      <tr><td>弧槽读数</td><td>弧外端</td><td class="v">左 (456–624, 48) / 右 (1296–1464, 48)</td><td class="v">168 × 16</td><td>TextBlock；满值时整体转金 #FFD166</td></tr>
+      <tr><td>R 可展开提示</td><td>顶部居中</td><td class="v">(960, 70) 居中</td><td class="v">自适应 × 26</td><td>Border + Horizontal Box（键位 + 文案），仅能量满 100 且未展开时可见</td></tr>
+      <tr><td>结印环</td><td>顶部居中</td><td class="v">(960, 92) 圆心</td><td class="v">52 × 52（环 r=17，20 条刻度）</td><td>Widget + Material 参数驱动刻度点亮；1.0s 线性，受击打断时立即隐藏</td></tr>
+      <tr><td>结印警示线</td><td>结印环右侧</td><td class="v">文字下方</td><td class="v">190 × 1</td><td>Image（危险色）+ 呼吸动画；文案「结印中 · 受击可打断」</td></tr>
+      <tr><td>领域标题 + 节拍器</td><td>顶部居中</td><td class="v">(960, 62) 起</td><td class="v">680 × 56</td><td>Vertical Box；三个菱形时点用 3 个 Rotated Image，时点 0.3 / 2.3 / 4.3s 映射到轴 5% / 38.3% / 71.7%</td></tr>
+      <tr><td>链锁横杠（压制）</td><td>顶部居中</td><td class="v">(820, 44)</td><td class="v">280 × 9</td><td>Image + 3 条竖线；同时把两条弧槽的填充色切换为 #7C879B</td></tr>
+      <tr><td>模式徽标 / 训练标签</td><td>顶部居中</td><td class="v">(960, 139) 居中</td><td class="v">680 × 22</td><td>Horizontal Box；模式三选互斥，训练标签为虚线边框仅在训练场景显示</td></tr>
+      <tr><td>中央准星</td><td>屏幕正中</td><td class="v">(960, 540)</td><td class="v">220 × 220（线长 10 / 领域 16，线宽 2 / 领域 3）</td><td>自绘 Widget：Gap 由 4 个 Image 的 Padding 绑定（14 / 8 / 12→4），蓄力进度环用 Material 参数</td></tr>
+      <tr><td>锁定标记</td><td>跟随对手</td><td class="v">屏幕投影坐标</td><td class="v">100 × 192 + 标签</td><td>Screen-space Widget + ProjectWorldToScreen；距离读数需接入真实距离</td></tr>
+      <tr><td>命中飘字</td><td>对手头部</td><td class="v">世界坐标投影，上飘 72px</td><td class="v">自适应</td><td>World-space Widget Component + Animation 曲线（900ms）</td></tr>
+      <tr><td>连击计数</td><td>对手右上</td><td class="v">(1132, 512)</td><td class="v">160 × 60</td><td>Overlay + TextBlock；数字 180ms 缩放，1.6s 无命中后淡出</td></tr>
+      <tr><td>半球底座</td><td>下中</td><td class="v">(400, 780)，左/中/右三段弧</td><td class="v">1120 × 300</td><td>Image（切角/弧线由美术资源提供）+ 半透明底渐变；三段弧是同一资源的三段切分，便于分段高亮</td></tr>
+      <tr><td>行动资源（5 格）</td><td>下中左翼</td><td class="v">右缘 (800, 918)</td><td class="v">180 × 80</td><td>Horizontal Box + 5 个 Image；<b>离散格不用 Percent</b>，按充能数切换可见性</td></tr>
+      <tr><td>咒力条</td><td>下中右翼</td><td class="v">左缘 (1120, 918)</td><td class="v">180 × 80</td><td>唯一可使用连续 Percent 的资源；延迟恢复段用独立 Material 参数「PendingWidth」</td></tr>
+      <tr><td>形态圆盘</td><td>下中圆心（与蓄力环同心，位于环内）</td><td class="v">(960, 940) 圆心</td><td class="v">116 × 116（外圈切换冷却弧 136）</td><td>Image（圆形）+ 两个子 Widget 交叉淡化 120ms；切换冷却弧 500ms 收束且不显示数字；层级在蓄力环之上，盘底半透明，方案 B 的凝聚球光晕从盘后透出</td></tr>
+      <tr><td>蓄力环（A / B 两案）</td><td>以形态圆盘为同心圆的外环</td><td class="v">同心圆心 (960, 940)；环带半径 96 → 140</td><td class="v">外环 280 × 280（环宽 44；方案 B 刻度带半径 119）</td><td>与形态圆盘共用同一个 Canvas 容器、按同心圆两层排布：外层 = 蓄力环（Material 双标量 PaidPercent / OverPercent，已支付段实色、超出段红橙虚线），内层 = 形态圆盘；环内缘与盘外缘留 38px 空隙，两者不共用 Percent、互不遮挡</td></tr>
+      <tr><td>蓄力读数板</td><td>下中偏下</td><td class="v">(830, 1031)</td><td class="v">260 × 30</td><td>Widget Switcher 三态：蓄力中 / 满蓄 / 强度受限；冷却态复用同一板位</td></tr>
+      <tr><td>技能提示条</td><td>下中上方</td><td class="v">(630, 700)</td><td class="v">660 × 34</td><td>Widget Switcher 两套（近战 / 远程），随形态 120ms 交叉淡化</td></tr>
+      <tr><td>底部键位</td><td>左下 / 右下</td><td class="v">(40, 1035) / (−40, 1035)</td><td class="v">自适应</td><td>Horizontal Box + RichText；中央留空以避开蓄力盘</td></tr>
+      <tr><td>对战结果</td><td>全屏</td><td class="v">中心块 (960, 452)</td><td class="v">900 × 260</td><td>Overlay + Vertical Box；暗场为全屏 Border（.55 透明度），不做霸屏弹窗</td></tr>
+      <tr><td>训练设置抽屉</td><td>右侧</td><td class="v">(1330, 200)</td><td class="v">390 × 640</td><td>Overlay + Vertical Box；开关自绘（默认 CheckBox 与切角风格不统一）</td></tr>
+      <tr><td>中央安全区</td><td>—</td><td class="v">以 (960, 540) 为中心的 960 × 620</td><td class="v">—</td><td>禁止放置常驻面板；只允许准星、飘字、锁定标记与角色占位</td></tr>
+    </tbody>
+  </table>
+  <div class="note">坐标系约定：所有偏移为 1920×1080 画布绝对像素，P1 侧以左边缘为基准、P2 侧以右边缘为基准（镜像）。若目标平台使用 16:9 之外的画幅，只允许整体等比缩放 + 中央安全区外扩，不允许重排组件顺序。<br>
+  下中资源聚类的层次（自下而上）：半球底座三段弧 + 渐变底 → 蓄力环（与形态圆盘同心，半径 96–140）→ 形态圆盘（116 × 116，同心内盘）。行动资源（右缘 800）与咒力（左缘 1120）并排在同一水平带（y 918–994）上、与环带外缘保持约 22px 间距，<b>不参与同心层级</b>，因此三者与蓄力读数板在任何状态下都不会互相遮挡；UMG 中把这一整块做成一个独立的「下中资源聚类」Widget，内部用 Overlay + 绝对偏移定位，便于整体缩放与复用。</div>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">06</span><h2>动效时长表</h2><span class="sub">一律 ease-out，禁止夸张弹跳；仅蓄力与领域脉冲例外</span></div>
+  <table data-od-id="board-table-motion">
+    <thead><tr><th>动效</th><th>时长</th><th>缓动</th><th>触发与说明</th></tr></thead>
+    <tbody>
+      <tr><td>状态 / 面板切换</td><td class="v">160ms</td><td class="v">ease-out</td><td>原型控制台切换状态时的过渡上限，不闪跳</td></tr>
+      <tr><td>生命即时填充</td><td class="v">120ms</td><td class="v">ease-out</td><td>受击瞬间直推，不做插值拖尾</td></tr>
+      <tr><td>虚血残影回落</td><td class="v">0.6s 延迟 + 0.35s</td><td class="v">ease-out</td><td>暗红残影停留在受伤前数值，再线性回落至当前生命</td></tr>
+      <tr><td>生命数字受击放大</td><td class="v">240ms</td><td class="v">ease-out</td><td>scale 1 → 1.20 → 1，同时透明度 .45 → 1</td></tr>
+      <tr><td>濒死呼吸脉冲</td><td class="v">1.2s 循环</td><td class="v">ease-in-out</td><td>生命 &lt; 30%：条体 drop-shadow 红晕 0 → 11px</td></tr>
+      <tr><td>形态交叉淡化</td><td class="v">120ms</td><td class="v">ease-out</td><td>拳形图标 + 「近战」 ↔ 炮口图标 + 「远程」</td></tr>
+      <tr><td>形态切换冷却弧</td><td class="v">500ms</td><td class="v">ease-out</td><td>外圈弧线由全长收束到 0，不显示数字</td></tr>
+      <tr><td>命中飘字</td><td class="v">900ms</td><td class="v">ease-out</td><td>自对手头部上飘 72px 并淡出；暴击式放大 32px</td></tr>
+      <tr><td>蓄力填充</td><td class="v">线性 0→1.2s / 0→2.4s</td><td class="v">linear</td><td>不做缓动：蓄力进度即伤害刻度，缓动会误导读数</td></tr>
+      <tr><td>满蓄抖动</td><td class="v">280ms 循环</td><td class="v">alternate</td><td>中心点变六边形描边 + 轻微燃烧抖动</td></tr>
+      <tr><td>领域结印</td><td class="v">1.0s</td><td class="v">linear</td><td>20 条刻度依次点亮；受击可打断，失败不退已提交的 100 能量</td></tr>
+      <tr><td>领域持续 / 自动炮时点</td><td class="v">6.0s / 0.3 · 2.3 · 4.3s</td><td class="v">—</td><td>节拍器轴长 260px，三个菱形时点已过点亮、临近 0.55s 脉冲</td></tr>
+      <tr><td>烟火引信火星</td><td class="v">1.1s 循环</td><td class="v">ease-out</td><td>能量满 100 时沿弧槽取样点闪烁，提示「R 可展开」</td></tr>
+      <tr><td>领域环境色偏</td><td class="v">350ms</td><td class="v">ease-out</td><td>场景层 hue-rotate −16° / saturate 1.35；HUD 文字层不参与滤镜</td></tr>
+      <tr><td>超级炮冷却</td><td class="v">10.0s</td><td class="v">linear</td><td>发射或已付费中断后计时；冷却中 Q 图标降至 35% 不透明度</td></tr>
+      <tr><td>压制状态切换</td><td class="v">250ms</td><td class="v">ease-out</td><td>弧槽转灰、链锁横杠出现、穹顶降饱和（saturate .42）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="shead"><span class="ix">07</span><h2>正式美术期应删除的调试内容</h2><span class="sub">判断标准：该信息是否服务于“玩家在对局中的决策”</span></div>
+  <table data-od-id="board-table-debug">
+    <thead><tr><th>项目</th><th>当前位置</th><th>处理</th><th>原因</th></tr></thead>
+    <tbody>
+      <tr><td>状态控制台（12 状态按钮 / A·B 方案切换）</td><td>屏幕右侧</td><td><span class="tagr del">删除</span></td><td>评审与展示用控件，不是游戏 HUD 的一部分</td></tr>
+      <tr><td>调试层（锁定目标 / 当前能力 / 形态 / 蓄力秒数 / 已支付咒力 / 领域会话 ID / 在途球数 / 移速）</td><td>左上</td><td><span class="tagr del">删除</span></td><td>全部可由开发者控制台或调试 HUD 承载</td></tr>
+      <tr><td>准星距离读数（如 12.4m）</td><td>锁定标记</td><td><span class="tagr keep">待定</span></td><td>保留则必须接入运行时真实距离，不得写死</td></tr>
+      <tr><td>对手行动资源与咒力</td><td>不在主视野</td><td><span class="tagr del">不加入</span></td><td>观战 / 回放模式如需展示，另做一套观战 HUD，不回流到对战 HUD</td></tr>
+      <tr><td>模式徽标与「无限生命 / 无限资源 / 无冷却」标签</td><td>顶部中央</td><td><span class="tagr keep">训练场景保留</span></td><td>正式对局隐藏；它们是训练场状态声明，不是战斗读数</td></tr>
+      <tr><td>无冷却态下的删除线冷却数字</td><td>蓄力读数板</td><td><span class="tagr keep">训练场景保留</span></td><td>删除线 + 青色描边表示「该倒计时不生效」，只在训练开关开启时出现</td></tr>
+      <tr><td>训练设置抽屉</td><td>右侧</td><td><span class="tagr keep">训练场景保留</span></td><td>入口从对战 HUD 移除，改为暂停菜单或训练场专用入口</td></tr>
+      <tr><td>角色与擂台占位块面、放射状咒力烟火</td><td>场景层</td><td><span class="tagr del">替换</span></td><td>正式美术期替换为场景与骨骼网格；本稿仅用纯 CSS 渐变示意第三人称占位构图</td></tr>
+      <tr><td>全部数值（拳 35/40/55 · 重拳 75 · 腿 45 · 重踢 95 · 蓄力炮 30→90 / 8→24 咒力 · 超级炮 150→220 / 45→65 · 追踪炮 220 / 65 · 生命 1000 · 行动 5 · 咒力 100 · 领域 100 · 伤害 5% 转化、单次上限 10）</td><td>全 HUD</td><td><span class="tagr del">以数据表为准</span></td><td>取自项目当前设计文档的调试参数；正式平衡期由数值表驱动，HUD 只负责呈现</td></tr>
+    </tbody>
+  </table>
+  <div class="note">排版约束（硬性）：中央 960×620 安全区不得放置常驻面板；半球底座与蓄力盘不得越过中轴线侵入上半屏；任何文字不得被裁切或与描边重叠；HUD 描边与文字在领域色偏期间保持原色。</div>
+</section>
+
+<footer>
+  JJK: THE HIDDEN ONES — 对战 HUD 概念稿 v1 · 角色：石流龙 · 参考画布 1920×1080 · 数值取自项目当前设计文档的调试参数<br>
+  本设计板与 hud-prototype.html 使用同一套令牌与锚点；缩略画面为静态渲染，交互与实时计时见交互原型。
+</footer>
+</div>
+
+<script>
+"use strict";
+const ARC='M52.32 227.68 A124 124 0 1 1 227.68 227.68';
+const pct=(v,max)=>Math.max(0,Math.min(100,v/max*100)).toFixed(2)+'%';
+const off=v=>100-Math.max(0,Math.min(100,v));
+
+function ident(side,hp,g){
+  const p2=side==='p2';
+  return '<div class="mid '+side+'">'+
+    '<div class="mplate '+side+'"><b>'+(p2?'P2':'P1')+'</b><span>石流龙</span></div>'+
+    '<div class="mbar"><b><i class="g" style="width:'+pct(g,1000)+'"></i>'+
+    '<i class="f" style="width:'+pct(hp,1000)+'"></i></b></div>'+
+    '<div class="mnum">'+Math.round(hp)+'<span style="color:var(--muted);font-size:14px"> / 1000</span></div></div>';
+}
+function arcs(dom,dom2,supp,armed){
+  const col=supp?'#7C879B':(armed?'#FFD166':'#A64DE6');
+  const glow=supp?'':' style="filter:drop-shadow(0 0 6px rgba(166,77,230,.7))"';
+  return '<svg class="marcs" viewBox="0 0 1920 120">'+
+    '<path class="mt" d="M940 60 Q780 18 640 54"/>'+
+    '<path d="M940 60 Q780 18 640 54" pathLength="100" stroke="'+col+'" stroke-dasharray="100" stroke-dashoffset="'+off(dom)+'"'+glow+'/>'+
+    '<path class="mt" d="M980 60 Q1140 18 1280 54"/>'+
+    '<path d="M980 60 Q1140 18 1280 54" pathLength="100" stroke="'+col+'" stroke-dasharray="100" stroke-dashoffset="'+off(dom2)+'"'+glow+'/>'+
+    '</svg>'+
+    '<div class="mlbl p1">领域能量 <b style="font-family:var(--en);font-size:13px;color:'+col+'">'+Math.round(dom)+'%</b></div>'+
+    '<div class="mlbl p2">领域能量 <b style="font-family:var(--en);font-size:13px;color:'+col+'">'+Math.round(dom2)+'%</b></div>'+
+    (supp?'<div class="mchain"></div>':'');
+}
+function domUI(d){
+  if(!d)return '';
+  if(d.mode==='armed')
+    return '<div class="mdc" style="top:70px"><span class="mchip">R　可展开 · 极宴流光</span></div>';
+  if(d.mode==='seal')
+    return '<div class="msel">'+
+      '<svg width="52" height="52" viewBox="0 0 56 56">'+
+      '<circle cx="28" cy="28" r="17" fill="none" stroke="#A64DE6" stroke-width="2.5" stroke-dasharray="100" stroke-dashoffset="'+(100-d.p)+'" transform="rotate(-90 28 28)"/>'+
+      '<circle cx="28" cy="28" r="19" fill="none" stroke="rgba(166,77,230,.45)" stroke-width="2" stroke-dasharray="2 4"/></svg>'+
+      '<span>结印中 · 受击可打断<i style="display:block;margin-top:6px;width:190px;height:1px;background:#FF3B30"></i></span></div>';
+  const supp=d.mode==='supp';
+  const tk=(d.ticks||[0,0,0]).map((s,i)=>{
+    const cls=s===1?'hit':(s===2?'skip':'');
+    return '<b class="t'+i+' '+cls+'"></b>';}).join('');
+  /* 展开中与压制中共用同一套读数：结界名 + 剩余时间 + 三刻度；
+     压制只是把「下一发」换成「自动炮暂停」，计时照常走 */
+  return '<div class="mdc" style="top:64px"><div class="mtitle">领域展开 · 极宴流光</div>'+
+      '<div style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:14px;font-size:12px;color:var(--muted)">'+
+      '<span style="font-family:var(--en);font-size:17px;color:var(--fg)">'+d.clock+'</span>'+
+      '<span class="mdtl"><i class="bg"></i>'+tk+'<i class="ph" style="left:'+d.ph+'%"></i></span>'+
+      '<span style="color:var(--gold)">'+(supp?'自动炮暂停':d.next)+'</span></div></div>'+
+      (supp?'<div class="mdc" style="top:126px"><span class="msup">领域受压制 · 自动炮暂停</span></div>':'');
+}
+function reticle(r){
+  if(!r)return '';
+  const g=r.gap,l=r.len,w=r.w,c=r.color;
+  const seg=(cls,extra)=>'<i class="'+cls+'" style="'+extra+'background:'+c+';color:'+c+'"></i>';
+  return '<div class="mret">'+
+    seg('','left:'+(-w/2)+'px;top:'+(-g-l)+'px;width:'+w+'px;height:'+l+'px;')+
+    seg('','left:'+(-w/2)+'px;top:'+g+'px;width:'+w+'px;height:'+l+'px;')+
+    seg('','left:'+(-g-l)+'px;top:'+(-w/2)+'px;width:'+l+'px;height:'+w+'px;')+
+    seg('','left:'+g+'px;top:'+(-w/2)+'px;width:'+l+'px;height:'+w+'px;')+
+    (r.hex?'<i style="left:-7.5px;top:-7.5px;width:15px;height:15px;border:2px solid '+c+';background:none;transform:rotate(45deg)"></i>'
+          :'<i style="left:-2px;top:-2px;width:4px;height:4px;border-radius:50%;background:'+c+'"></i>')+
+    (r.ring?'<svg style="position:absolute;left:-34px;top:-34px;width:68px;height:68px;transform:rotate(-90deg)">'+
+      '<circle cx="34" cy="34" r="30" fill="none" stroke="'+c+'" stroke-width="2" pathLength="100" stroke-dasharray="'+r.ring+' 100"/></svg>':'')+
+    '</div>';
+}
+function bottom(c){
+  const ap=Math.round(c.ap);
+  let blocks='';for(let i=0;i<5;i++)blocks+='<span class="map'+(i<ap?' on':'')+'"><b></b></span>';
+  let ring='';
+  if(c.charge){
+    ring='<path d="'+ARC+'" pathLength="100" fill="none" stroke="'+c.charge.color+'" stroke-width="18" stroke-dasharray="'+c.charge.paid+' 100"/>'+
+      (c.charge.over>0?'<path d="'+ARC+'" pathLength="100" fill="none" stroke="#FF3B30" stroke-width="18" stroke-dasharray="0 '+c.charge.paid+' '+c.charge.over+' 100"/>':'');
+  }
+  if(c.cd>0)
+    ring+='<circle cx="140" cy="140" r="138" fill="none" stroke="#73F2F2" stroke-width="2" pathLength="100" stroke-dasharray="'+(c.cd/10*100)+' 100" transform="rotate(-90 140 140)"/>';
+  return '<svg class="mdome" viewBox="0 0 1120 350">'+
+      '<path class="fillp" d="M120 350 Q180 110 400 60 Q560 12 720 60 Q940 110 1000 350 Z"/>'+
+      '<path d="M120 350 Q180 110 400 60"/><path d="M400 60 Q560 12 720 60"/><path d="M720 60 Q940 110 1000 350"/></svg>'+
+    '<div class="mwing l"><div class="wh">行动资源　<b>'+ap+'</b> / 5</div><div class="maprow">'+blocks+'</div>'+
+      '<div class="wn">闪避 1　取消闪避 2　停用 1s 后每秒 +1</div></div>'+
+    '<div class="mwing r"><div class="wh">咒力　<b>'+Math.round(c.curse)+'</b> / 100</div>'+
+      '<div class="mcbar"><b><i class="cf" style="width:'+pct(c.curse,100)+'"></i></b></div>'+
+      '<div class="wn">'+(c.curseNote||'')+'</div></div>'+
+    '<svg class="mcn" viewBox="0 0 280 280">'+
+      '<circle cx="140" cy="140" r="138" fill="none" stroke="rgba(150,190,255,.20)" stroke-width="1"/>'+
+      '<path d="'+ARC+'" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="22"/>'+
+      '<path d="'+ARC+'" fill="none" stroke="rgba(150,190,255,.16)" stroke-width="18"/>'+ring+'</svg>'+
+    '<div class="mdisc" style="color:'+(c.form==='ranged'?'var(--rc-aim)':'var(--fg)')+'">'+
+      (c.form==='ranged'?'▷':'◉')+'<span style="font-size:13px">'+(c.form==='ranged'?'远程':'近战')+'</span></div>'+
+    '<div class="mro" style="color:'+(c.roColor||'var(--fg)')+'">'+
+      (c.roVoid?'<span style="text-decoration:line-through;-webkit-text-stroke:1px #73F2F2">'+c.ro+'</span>':(c.ro||''))+'</div>';
+}
+function mini(c){
+  const h=c;
+  return '<figure class="thumb" data-od-id="board-state-'+h.i+'"><div class="mwrap"><div class="mstage">'+
+    '<div class="msky"></div><div class="mplat"></div>'+
+    '<div class="msil" style="left:971px;top:614px;width:58px;height:152px;border-radius:29px;'+
+      'filter:drop-shadow(3px 0 0 rgba(255,95,31,.5)) drop-shadow(-3px 0 0 rgba(31,180,240,.25))"></div>'+
+    '<div class="msil" style="left:330px;top:620px;width:180px;height:400px;border-radius:70px;opacity:.95;'+
+      'filter:drop-shadow(5px 0 0 rgba(31,180,240,.4))"></div>'+
+    ident('p1',h.hp1,h.g1)+ident('p2',h.hp2,h.g2)+
+    arcs(h.dom,h.dom2,h.supp,h.armed)+domUI(h.domUI)+
+    reticle(h.ret)+
+    '<div class="mmodes">'+h.modes.map(m=>'<span class="'+(m[1]||'')+'">'+m[0]+'</span>').join('')+'</div>'+
+    bottom(h)+
+    (h.combo?'<div class="mcombo">'+h.combo+'<span>连击</span></div>':'')+
+    (h.lock?'<div class="mlock"><i></i><i></i><i></i><i></i></div>':'')+
+    (h.floats||[]).map(f=>'<div class="mfl" style="left:'+f[1]+'px;top:'+f[2]+'px;color:'+f[3]+'">'+f[0]+'</div>').join('')+
+    (h.debug?'<div class="mdebug">锁定目标　P2 石流龙<br>当前能力　'+h.debug+'<br>形态　'+(h.form==='ranged'?'远程':'近战')+
+      '<br>蓄力秒数　'+(h.ct||'— / —')+'<br>已支付咒力　'+(h.cost||'— / —')+'<br>领域会话 ID　DOM-317<br>在途球数　'+(h.orbs||'0 / 3')+'<br>移速　'+(h.spd||'100%')+'</div>':'')+
+    (h.drawer?'<div class="mdrawer"><div class="dt">训练设置</div>'+
+      '<div style="font-size:11px;color:var(--dim);letter-spacing:.1em;margin-bottom:8px">对手模式</div>'+
+      '<div class="seg"><span>静止木桩</span><span class="on">固定防御</span><span>AI 对战</span></div>'+
+      '<div class="dr"><span>无限生命</span><span style="color:var(--rc-aim)">开</span></div>'+
+      '<div class="dr"><span>无限资源</span><span>关</span></div>'+
+      '<div class="dr"><span>无冷却</span><span style="color:var(--rc-aim)">开</span></div>'+
+      '<div class="dr"><span>自动恢复生命</span><span>3.0s</span></div>'+
+      '<div class="dr"><span>咒力恢复延迟</span><span>2.0s</span></div>'+
+      '<div class="dr"><span>行动资源恢复</span><span>1.0s / +1</span></div>'+
+      '<div style="margin-top:18px;height:38px;border:1px solid rgba(255,59,48,.45);background:rgba(255,59,48,.12);'+
+      'line-height:36px;text-align:center;color:var(--fg);font-size:13px">快速重置</div></div>':'')+
+    (h.result?'<div class="mres"><div class="rt">玩家胜利</div>'+
+      '<div style="width:640px;height:1px;background:rgba(150,190,255,.3)"></div>'+
+      '<div class="rs"><span>命中 <b>12</b></span><span>最大连段 <b>5</b></span><span>领域展开 <b>2</b></span></div>'+
+      '<div class="rk"><span>[空格] 重新开始</span><span>[F1] 训练设置</span></div></div>':'')+
+    '</div></div><figcaption><b><em>'+String(h.i).padStart(2,'0')+'</em>'+h.name+
+      '<i class="kbd-hint">键 '+h.key+'</i></b><span>'+h.reads.join('　·　')+'</span></figcaption></figure>';
+}
+
+const M=[
+{ i:1,key:'1',name:'待机 · 近战',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:5,curse:100,dom:0,dom2:74,form:'melee',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],ro:'近战',roColor:'var(--fg)',
+  reads:['生命 1000 / 1000','行动 5 / 5','咒力 100 / 100','领域 0%','形态：近战（拳 / 重拳 / 腿 / 重踢）']},
+
+{ i:2,key:'2',name:'待机 · 远程（显示准星）',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:3,curse:87,dom:46,dom2:74,form:'ranged',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],ret:{gap:14,len:10,w:2,color:'rgba(204,230,255,.95)'},
+  lock:true,curseNote:'回气中 · 1.4s 后每秒 +6',ro:'待机',roColor:'var(--fg)',
+  reads:['准星 Gap 14px / 线长 10px / 线宽 2px','咒力 87 / 100 · 回气中','行动 3 / 5 回充','领域 46%']},
+
+{ i:3,key:'3',name:'三段连击（A1 → A2 → A3）',hp1:1000,g1:1000,hp2:870,g2:925,ap:5,curse:96,dom:62,dom2:74,form:'melee',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],combo:'3',lock:true,
+  floats:[['55',1000,560,'var(--gold)'],['格挡 50%',1060,632,'#B8C8DE'],['闪避成功',940,676,'#73F2F2']],
+  ro:'近战',roColor:'var(--fg)',
+  reads:['A1 / A2 / A3 = 35 / 40 / 55，A3 击退','生命 1000 → 870，虚血残影滞后 0.6s','连击 3（1.6s 无命中后淡出）','领域 56% → 62%（有效伤害 5%，单次上限 10）','咒力 +3 / 每次近战有效命中']},
+
+{ i:4,key:'4',name:'蓄力炮 · 蓄力中（60%）',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:5,curse:72,dom:62,dom2:74,form:'ranged',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],ret:{gap:7.2,len:10,w:2,color:'#FFE633',ring:60},
+  charge:{paid:60,over:0,color:'#FFE633'},lock:true,ro:'伤害 66',roColor:'#FFE633',
+  reads:['伤害 66 = 30 + 60 × qPaid（qPaid 0.60）· 文档 §7.2','蓄力 0.72 / 1.20s · 封顶 1.20s','已支付咒力 18 / 24','移动速度降至 55% · 射程 18m','准星 Gap 12 → 4px 向心收拢']},
+
+{ i:5,key:'5',name:'蓄力炮 · 已满蓄',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:5,curse:72,dom:62,dom2:74,form:'ranged',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],ret:{gap:4,len:10,w:2,color:'#FFE633',ring:100,hex:true},
+  charge:{paid:100,over:0,color:'#FFD166'},lock:true,ro:'满蓄 90',roColor:'var(--gold)',
+  reads:['满蓄 90 = 30 + 60 × qPaid（qPaid = 1.0）','金色环体 + 向内收束短线','提示「松开左键才发射」· 已支付咒力 24 / 24','中心点变六边形描边并轻微燃烧抖动','继续持炮不再提升伤害']},
+
+{ i:6,key:'6',name:'领域就绪 · 可展开',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:5,curse:100,dom:100,dom2:74,form:'melee',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],armed:true,domUI:{mode:'armed'},
+  ro:'近战',roColor:'var(--fg)',
+  reads:['领域能量 100 / 100，弧槽转金 #FFD166 并起烟火引信火星','此阶段只有「就绪」，不含倒计时 / 刻度 / 在途球','按 R 才开始结印 1.0s，可被打断','结印失败不退已提交的 100 能量','原型内按 R 可完整演示 结印 → 展开 全流程']},
+
+{ i:7,key:'7',name:'超级炮 · 冷却中（10s）',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:5,curse:87,dom:62,dom2:74,form:'ranged',cd:7.4,
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],ret:{gap:14,len:10,w:2,color:'rgba(204,230,255,.95)'},
+  lock:true,ro:'超级炮冷却 7.4s',roColor:'var(--rc-aim)',
+  reads:['冷却环 10.0s 倒数 · Q 图标降至 35% 不透明度','伤害 150 → 220（1.2s 起 / 2.4s 封顶）','咒力 45 → 65','射程 24m','发射或已付费中断后进入冷却']},
+
+{ i:8,key:'8',name:'领域展开中 · 极宴流光',hp1:1000,g1:1000,hp2:780,g2:780,ap:5,curse:100,dom:0,dom2:74,form:'ranged',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战'],['无限资源','tg']],
+  domUI:{mode:'active',clock:'3.5',ph:41.7,ticks:[1,1,0],next:'下一发 1.8s'},
+  ret:{gap:14,len:16,w:3,color:'#FF6633'},lock:true,
+  floats:[['领域追踪 220',1000,560,'#A64DE6'],['220',1058,626,'#FFD166']],
+  ro:'满蓄 90',roColor:'var(--gold)',
+  reads:['剩余 3.5s 倒计时 + 节拍器轴 260px，三时点 0.3 / 2.3 / 4.3s','已发刻度点亮、临近刻度脉冲，越过的刻度标红叉','单发 220 伤害 / 65 咒力 · 在途球数 1 / 3','本演示态开启无限资源以连续展示三发满威力追踪炮','穹顶与石台色相偏金紫，HUD 文字保持原色']},
+
+{ i:9,key:'9',name:'双领域压制',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:5,curse:100,dom:0,dom2:0,form:'ranged',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],supp:true,
+  domUI:{mode:'supp',clock:'3.2',ph:46.7,ticks:[0,0,0]},
+  ret:{gap:14,len:16,w:3,color:'#FF6633'},lock:true,ro:'满蓄 90',roColor:'var(--gold)',
+  reads:['压制横幅保留，同时显示领域剩余时间 3.2s','压制只暂停自动炮：计时不暂停、不延长（文档 §8.3）','两侧弧槽转灰 #7C879B + 水平链锁横杠贯穿','三发刻度全部保持待发，不消耗咒力','穹顶与石台降饱和 saturate .42']},
+
+{ i:10,key:'0',name:'咒力不足 · 强度受限',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:5,curse:16,dom:62,dom2:74,form:'ranged',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],ret:{gap:4,len:10,w:2,color:'#FFE633',ring:100},
+  charge:{paid:50,over:50,color:'#FFE633'},lock:true,ro:'强度上限 60',roColor:'var(--danger)',
+  reads:['qPaid = clamp((已支付 16 − 8) / 16, 0, 1) = 0.5（文档 §7.2）','伤害 = 30 + 60 × qPaid = 60 · 文档 SLL-T17 口径','一进场即为受限持炮态，虚线轮廓与上限读数从第一帧生效','任何持炮时长下读数恒为「强度上限 60」，不出现更低数字','继续持炮不再增强（调试层标注「持炮已超封顶」）']},
+
+{ i:11,key:'-',name:'濒死（生命 22%）',hp1:220,g1:304,hp2:1000,g2:1000,ap:2,curse:40,dom:80,dom2:74,form:'melee',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],ro:'近战',roColor:'var(--fg)',
+  floats:[['95',1000,566,'var(--gold)']],
+  reads:['生命 220 / 1000（22%）','虚血残影仍在回落中（0.6s 延迟 + 0.35s）','条体呼吸脉冲 1.2s + 边缘红晕','领域 80%（接近可展开）','咒力 40 · 行动 2 / 5']},
+
+{ i:12,key:'=',name:'对战结果（玩家胜利）',hp1:1000,g1:1000,hp2:0,g2:120,ap:5,curse:62,dom:62,dom2:0,form:'melee',
+  modes:[['静止木桩','on'],['固定防御'],['AI 对战']],result:true,ro:'近战',roColor:'var(--fg)',
+  reads:['半透明冷蓝暗场（.55），擂台保持可见','中央：玩家胜利 / 对手胜利 / 平局','一行动作统计：命中 12　最大连段 5　领域展开 2','底部：[空格] 重新开始　[F1] 训练设置','非霸屏弹窗，HUD 保持原样显示']},
+
+{ i:13,key:'\\',name:'训练设置面板展开',hp1:1000,g1:1000,hp2:1000,g2:1000,ap:5,curse:87,dom:62,dom2:74,form:'ranged',
+  modes:[['静止木桩'],['固定防御','on'],['AI 对战'],['无限生命','tg'],['无冷却','tg']],
+  ret:{gap:14,len:10,w:2,color:'rgba(204,230,255,.95)'},lock:true,drawer:true,cd:6,
+  curseNote:'回气中 · 0.9s 后每秒 +6',ro:'超级炮冷却 6.0s',roColor:'rgba(115,242,242,.55)',roVoid:true,
+  reads:['右侧抽屉 390 × 640，深色半透明 + 细描边','对手模式三选 / 训练开关 / 恢复延迟数值 / 快速重置','无冷却生效：冷却数字删除线 + 青色描边，表示实际不生效','训练标签在顶部中央同步显示','关闭后 HUD 恢复常规读数']}
+];
+document.getElementById('grid').innerHTML=M.map(mini).join('');
+</script>
+</body>
+</html>
