@@ -11,6 +11,7 @@ class ATrainingGameMode;
 class UInputAction;
 class UTrainingPanelWidget;
 class UCombatHudWidget;
+class UArenaCombatHudWidget;
 
 /**
  * 训练场玩家控制器：输入入口与镜头协调。
@@ -57,9 +58,14 @@ public:
  UPROPERTY(EditDefaultsOnly, Category="Training|UI") TSubclassOf<UTrainingPanelWidget> TrainingPanelClass;
  UPROPERTY(BlueprintReadOnly, Category="Training|UI") TObjectPtr<UTrainingPanelWidget> TrainingPanel;
  UPROPERTY(BlueprintReadOnly, Category="Training|UI") TObjectPtr<UCombatHudWidget> CombatHud;
+ /** 正式战斗 HUD（14_HUD开发指引.md）：与调试层并存，JJKCombatHud 切换显隐 */
+ UPROPERTY(BlueprintReadOnly, Category="Training|UI") TObjectPtr<UArenaCombatHudWidget> ArenaHud;
  UFUNCTION(BlueprintCallable, Category="Training|UI") void SetTrainingPanelOpen(bool bOpen);
  UFUNCTION(BlueprintCallable, Category="Training|UI") void ToggleTrainingPanel();
  UFUNCTION(BlueprintCallable, Category="Training|UI") void RebuildTrainingPanel();
+ /** 调试数值卡片显隐（JJKDebugHud 驱动；不修改 UCombatHudWidget 本身） */
+ UFUNCTION(BlueprintCallable, Category="Training|UI") void SetDebugCardsVisible(bool bVisible);
+ UFUNCTION(BlueprintCallable, Category="Training|UI") void ToggleCombatHud();
  /** Development verification through Slate's real key routing, including engine debug bindings. */
  UFUNCTION(BlueprintCallable, Category="Training|Debug") void DebugSendKey(FName KeyName, bool bPressed);
  UFUNCTION(BlueprintPure, Category="Training|Debug") bool IsWireframeView() const;
@@ -107,8 +113,9 @@ private:
 	void HandleKickReleased();
 	void HandleStanceSwitchPressed();
 	void HandleDomainPressed();
-	void HandleAimPressed();
-	void HandleAimReleased();
+ void HandleAimPressed();
+ void HandleAimReleased();
+ void HandleRestartPressed();
 
 	/** 应用失焦：清攻击会话，恢复后要求重新按下（08 第 4.2 节） */
 	UFUNCTION(BlueprintCallable, Category = "Training|Input")

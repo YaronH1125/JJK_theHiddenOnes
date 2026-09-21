@@ -27,6 +27,28 @@ enum class EMatchOutcome : uint8
 	Draw
 };
 
+/** 领域会话只读视图（正式 HUD 专用，见 14_HUD开发指引.md §10.3；不暴露可变引用） */
+USTRUCT(BlueprintType)
+struct FDomainStatusView
+{
+	GENERATED_BODY()
+
+	/** 该术者是否有有效领域会话 */
+	UPROPERTY(BlueprintReadOnly, Category = "Training|Domain") bool bActive = false;
+	/** 是否处于双领域压制（自动炮与球体全部暂停） */
+	UPROPERTY(BlueprintReadOnly, Category = "Training|Domain") bool bSuppressed = false;
+	/** 领域剩余秒数 */
+	UPROPERTY(BlueprintReadOnly, Category = "Training|Domain") float RemainingSeconds = 0.f;
+	/** 距下一发自动炮秒数；无下一发（压制/临近结束）为 -1 */
+	UPROPERTY(BlueprintReadOnly, Category = "Training|Domain") float NextOrbIn = -1.f;
+	/** 在途球数 */
+	UPROPERTY(BlueprintReadOnly, Category = "Training|Domain") int32 OrbsInFlight = 0;
+	/** 已到点的发炮时点数（0..3；与是否实际发射无关，压制期按计划表继续推进） */
+	UPROPERTY(BlueprintReadOnly, Category = "Training|Domain") int32 TickIndex = 0;
+	/** 下一发预计被跳过（压制或咒力不足） */
+	UPROPERTY(BlueprintReadOnly, Category = "Training|Domain") bool bNextOrbSkipped = false;
+};
+
 /** 对手行为模式；Static 仅停止主动决策，角色 Tick/ASC/碰撞/动画保持正常 */
 UENUM(BlueprintType)
 enum class EOpponentMode : uint8
@@ -59,6 +81,8 @@ public:
  UFUNCTION(BlueprintPure, Category="Training") bool IsModeAvailable(EOpponentMode Value) const { return Value==EOpponentMode::Static || Value==EOpponentMode::FixedGuard || Value==EOpponentMode::AI; }
  UFUNCTION(BlueprintPure, Category="Training") EMatchOutcome GetMatchOutcome() const { return MatchOutcome; }
  UFUNCTION(BlueprintPure, Category="Training") bool IsMatchResolved() const { return bMatchResolved; }
+ UFUNCTION(BlueprintPure, Category="Training|Domain") FDomainStatusView GetDomainStatusFor(const AFighterCharacter* Fighter) const;
+ UFUNCTION(BlueprintPure, Category="Training|Debug") bool IsDebugHudVisible() const { return bDebugHud; }
  UFUNCTION(BlueprintCallable, Category="Training") void RestartMatch();
  UFUNCTION(BlueprintCallable, Category="Training") void SetTrainingMenuOpen(bool bOpen);
  UFUNCTION(BlueprintPure, Category="Training") bool IsTrainingMenuOpen() const { return bMenuOpen; }
@@ -159,6 +183,9 @@ public:
 	/** 调试：开关战斗 HUD（请求结果/阶段/标签/实例/命中/生命） */
 	UFUNCTION(Exec, Category = "Training|Debug")
 	void JJKDebugHud();
+	/** 调试：开关正式战斗 HUD（14_HUD开发指引.md 正式层） */
+	UFUNCTION(Exec, Category = "Training|Debug")
+	void JJKCombatHud();
 	UFUNCTION(Exec, Category = "Training|Debug")
 	void JJKOpponentGuard(bool bHeld);
 	UFUNCTION(Exec, Category = "Training|Debug")

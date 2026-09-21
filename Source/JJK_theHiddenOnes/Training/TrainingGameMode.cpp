@@ -315,7 +315,62 @@ void ATrainingGameMode::JJKOpponentAttack()
 void ATrainingGameMode::JJKDebugHud()
 {
 	bDebugHud = !bDebugHud;
+	if (auto* PC = Cast<AArenaPlayerController>(GetWorld()->GetFirstPlayerController()))
+	{
+		PC->SetDebugCardsVisible(bDebugHud);
+	}
 	UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 调试 HUD = %d"), bDebugHud ? 1 : 0);
+}
+
+void ATrainingGameMode::JJKCombatHud()
+{
+	if (auto* PC = Cast<AArenaPlayerController>(GetWorld()->GetFirstPlayerController()))
+	{
+		PC->ToggleCombatHud();
+		UE_LOG(LogTemp, Log, TEXT("[TrainingGM] 正式战斗 HUD 已切换"));
+	}
+}
+
+FDomainStatusView ATrainingGameMode::GetDomainStatusFor(const AFighterCharacter* Fighter) const
+{
+	FDomainStatusView View;
+	if (Fighter == nullptr) return View;
+
+	for (const FDomainSessionData& S : DomainSessions)
+	{
+		if (S.Caster.Get() != Fighter) continue;
+
+		const double Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+		const UFighterDefinition* Def = Fighter->GetDefinition();
+		const float Duration = Def ? Def->DomainConfig.Duration : 6.f;
+		const float FirstDelay = Def ? Def->DomainConfig.FirstOrbDelay : 0.3f;
+		const float Interval = Def ? Def->DomainConfig.OrbInterval : 2.f;
+
+		View.bActive = true;
+		View.bSuppressed = S.bSuppressed;
+		View.RemainingSeconds = FMath::Max(0.f, static_cast<float>(S.EndTime - Now));
+		int32 OrbCount = 0;
+		for (const TWeakObjectPtr<ADomainOrb>& Orb : S.Orbs) if (Orb.IsValid()) ++OrbCount;
+		View.OrbsInFlight = OrbCount;
+
+		// 已到点的发炮时点按计划表推进（与是否实际发射无关；压制期原调度保留、恢复不补发）
+		const float Elapsed = FMath::Max(0.f, Duration - View.RemainingSeconds);
+		int32 Passed = 0;
+		for (int32 i = 0; i < 3; ++i)
+		{
+			if (Elapsed >= FirstDelay + Interval * i) Passed = i + 1;
+		}
+		View.TickIndex = Passed;
+
+		const bool bNextScheduled = !S.bSuppressed && View.TickIndex < 3;
+		if (bNextScheduled)
+		{
+			View.NextOrbIn = FMath::Max(0.f, static_cast<float>(S.NextSpawnTime - Now));
+			View.bNextOrbSkipped = Def && Fighter->GetCursedEnergy() < Def->DomainConfig.OrbCost;
+		}
+		break;
+	}
+	return View;
 }
 
 void ATrainingGameMode::JJKOpponentGuard(bool bHeld)

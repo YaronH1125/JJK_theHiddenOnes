@@ -7,6 +7,7 @@
 #include "InputCoreTypes.h"
 #include "Training/TrainingPanelWidget.h"
 #include "Training/CombatHudWidget.h"
+#include "Training/ArenaCombatHudWidget.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Engine/World.h"
 #include "Engine/GameViewportClient.h"
@@ -25,6 +26,11 @@ void AArenaPlayerController::BeginPlay()
  {
   CombatHud=CreateWidget<UCombatHudWidget>(this);
   CombatHud->AddToViewport(5);
+  // 正式战斗 HUD（14 §1/§8.1）：默认替换开发用数值卡片的观感；调试卡片保持已回归的类不动，
+  // 仅由 JJKDebugHud 驱动显隐（并存，开关切换）
+  ArenaHud=CreateWidget<UArenaCombatHudWidget>(this);
+  ArenaHud->AddToViewport(6);
+  CombatHud->SetVisibility(ESlateVisibility::Collapsed);
  }
 	if (PlayerCameraManager != nullptr)
 	{
@@ -45,6 +51,7 @@ void AArenaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 	if(TrainingPanel) { TrainingPanel->RemoveFromParent(); TrainingPanel=nullptr; }
  if(CombatHud) { CombatHud->RemoveFromParent(); CombatHud=nullptr; }
+ if(ArenaHud) { ArenaHud->RemoveFromParent(); ArenaHud=nullptr; }
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -72,6 +79,7 @@ void AArenaPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	InputComponent->BindKey(EKeys::F1,IE_Pressed,this,&AArenaPlayerController::ToggleTrainingPanel);
 	InputComponent->BindKey(EKeys::R,IE_Pressed,this,&AArenaPlayerController::HandleDomainPressed);
+	InputComponent->BindKey(EKeys::SpaceBar,IE_Pressed,this,&AArenaPlayerController::HandleRestartPressed);
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
@@ -222,6 +230,25 @@ void AArenaPlayerController::HandleAimPressed()
 void AArenaPlayerController::HandleAimReleased()
 {
 	if (auto* F = GetPlayerFighter()) F->SetAimIntent(false);
+}
+
+void AArenaPlayerController::HandleRestartPressed()
+{
+	// 结果层提示的 [空格] 重新开始：只在已结算的对局生效，不影响战斗输入
+	if (ATrainingGameMode* GM = GetTrainingGameMode())
+	{
+		if (GM->IsMatchResolved()) GM->RestartMatch();
+	}
+}
+
+void AArenaPlayerController::SetDebugCardsVisible(bool bVisible)
+{
+	if (CombatHud) CombatHud->SetVisibility(bVisible ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+}
+
+void AArenaPlayerController::ToggleCombatHud()
+{
+	if (ArenaHud) ArenaHud->SetHudVisible(ArenaHud->GetVisibility() == ESlateVisibility::Collapsed);
 }
 
 void AArenaPlayerController::ToggleLock()
