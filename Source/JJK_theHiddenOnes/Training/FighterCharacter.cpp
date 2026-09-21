@@ -785,9 +785,21 @@ void AFighterCharacter::ApplyKnockdownNow(const FCombatEvent& Event)
 
 	FVector Dir = Event.KnockbackDirection.IsNearlyZero() ? -GetActorForwardVector() : Event.KnockbackDirection;
 	Dir.Z = 0.f;
-	LaunchCharacter(Dir.GetSafeNormal() * FMath::Max(Event.KnockbackStrength, 200.f) + FVector(0, 0, 250), false, true);
-
+	// 先刷新移动锁定（内部会 StopMovementImmediately 清速），击退在其之后施加。
 	RefreshMovementControl();
+	// 击飞 = 物理布娃娃（手感对齐 FPS_Start 丧尸）：胶囊让位、骨骼网格开模拟，
+	// 沿击退方向施加冲量，身体真实被打飞并物理落地；起身时从落点恢复（见 BeginGetUp）。
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->DisableMovement();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// 附着状态下直接开物理会被附件约束拉住（脚黏地、上半身弹簧甩）——先脱离再模拟
+	GetMesh()->DetachFromComponent(FDetachmentTransformRules(
+		EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true));
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->AddImpulse(Dir.GetSafeNormal() * FMath::Max(Event.KnockbackStrength, 200.f) + FVector(0, 0, 260), NAME_None, true);
+
 	const float Duration = Definition ? Definition->KnockdownDuration : 1.5f;
  GetWorldTimerManager().SetTimer(GetUpTimerHandle, this, &AFighterCharacter::BeginGetUp,
   FMath::Max(.01f, Duration - (Definition ? Definition->GetUpDuration : .4f)), false);
@@ -795,13 +807,27 @@ void AFighterCharacter::ApplyKnockdownNow(const FCombatEvent& Event)
 		&AFighterCharacter::EndKnockdown, Duration, false);
 
 	if (UAnimMontage* M = GetHitReactMontage()) PlayAnimMontage(M, M->GetPlayLength()/FMath::Max(Duration, .1f));
-	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 倒地 %.2fs（来源 %s）"), *GetName(), Duration, *GetNameSafe(Event.Instigator.Get()));
+	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 倒地 %.2fs（来源 %s，击退方向 %s，冲量 %s）"), *GetName(), Duration, *GetNameSafe(Event.Instigator.Get()), *Dir.ToString(), *FString::Printf(TEXT("%.0f,%.0f,%.0f"), Dir.X, Dir.Y, Dir.Z));
 }
 
 void AFighterCharacter::BeginGetUp()
 {
  if (!IsDead() && HasCombatTag(TAG_State_KnockedDown))
+ {
+  // 从布娃娃恢复：胶囊传送到身体落点，网格按蓝图原始相对变换回到胶囊下
+  const FVector BodyLoc = GetMesh()->GetComponentTransform().GetLocation();
+  GetMesh()->SetSimulatePhysics(false);
+  GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
+  GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+  GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepWorldTransform);
+  if (const AFighterCharacter* CDO = GetClass()->GetDefaultObject<AFighterCharacter>())
+  {
+   GetMesh()->SetRelativeTransform(CDO->GetMesh()->GetRelativeTransform());
+  }
+  SetActorLocation(FVector(BodyLoc.X, BodyLoc.Y, GetActorLocation().Z), true, nullptr, ETeleportType::TeleportPhysics);
+  GetCharacterMovement()->SetMovementMode(MOVE_Walking);
   GetUpEffect = ApplyCombatState(TAG_State_GettingUp, Definition ? Definition->GetUpDuration : .4f);
+ }
 }
 
 void AFighterCharacter::EndKnockdown()

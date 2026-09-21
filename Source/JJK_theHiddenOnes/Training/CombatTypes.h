@@ -128,7 +128,7 @@ struct FRangedHitSettle
 	float GuardStunDuration = 0.6f;
 	float HitStunDuration = 0.4f;
 	float InterruptLevel = 1.f;
-	float KnockbackStrength = 500.f;
+	float KnockbackStrength = 0.f;
 };
 
 /** 本模块原生 GameplayTag（定义见 CombatNativeTags.cpp） */

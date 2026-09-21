@@ -139,7 +139,7 @@ void ADomainOrb::CheckContact()
 				Settle.bDodgeable = false;
 				Settle.bBlockable = false;
 				Settle.bGrantCurse = false;
-				Settle.KnockbackStrength = 800.f;
+				Settle.KnockbackStrength = 0.f;
 				Settle.AttackInstanceId = GetUniqueID();
 				Caster->SettleRangedHitOn(HitFighter, Settle);
 			}

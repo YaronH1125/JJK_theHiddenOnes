@@ -84,7 +84,7 @@ protected:
 	virtual float GetGuardStunDuration() const { return 0.6f; }
 	virtual float GetHitStunDuration() const { return 0.4f; }
 	virtual float GetInterruptLevel() const { return 1.f; }
-	virtual float GetKnockbackStrength() const { return 500.f; }
+	virtual float GetKnockbackStrength() const { return 0.f; }
 	/** 解析当前瞄准点（锁定目标 > 相机 > 朝向）；松开时捕获固定 */
 	FVector ResolveAimPoint() const;
 	/** 按当前蓄力时长结算一次成本/强度（帧指针挂时由松开补齐最后一段） */
