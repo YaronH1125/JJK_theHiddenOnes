@@ -429,11 +429,8 @@ FVector UChargedBlastAbilityBase::ResolveAimPoint() const
 	FVector AimPoint = Muzzle + Fighter->GetActorForwardVector() * GetRange();
 	if (auto* PC = Cast<APlayerController>(Fighter->GetController()))
 	{
+		// 完全无辅助：玩家炮弹严格沿相机准星射线，锁定目标不再吸附
 		if (PC->PlayerCameraManager) { PC->GetPlayerViewPoint(CamLoc, CamRot); AimPoint = CamLoc + CamRot.Vector() * GetRange(); }
-		// 锁定即瞄准：有效锁定目标优先于相机射线
-		if (auto* Targeting = Fighter->GetTargeting())
-			if (Targeting->IsTargetValid())
-				AimPoint = Targeting->GetCurrentTarget()->GetActorLocation() + FVector(0, 0, 30);
 	}
 	else if (auto* Target = Fighter->GetPreferredTargetFighter())
 	{

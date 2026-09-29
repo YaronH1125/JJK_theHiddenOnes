@@ -82,4 +82,8 @@ private:
 	TWeakObjectPtr<AFighterCharacter> BeamCaster;
 	float BeamWidthMin = 1.f;
 	float BeamWidthMax = 1.f;
+
+	/** 环形束笼：挂在 BeamComp 下的完整光束，半径随蓄力拉大（UpdateBeam）；Transient=每发重建不序列化 */
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UParticleSystemComponent>> RingComps;
 };
