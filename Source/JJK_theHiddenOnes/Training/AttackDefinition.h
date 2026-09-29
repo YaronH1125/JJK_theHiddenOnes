@@ -38,6 +38,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> Montage;
 
+	/** Montage position at which a held heavy attack waits; 0 disables charging. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation|Charge", meta = (ClampMin = "0.0"))
+	float ChargeHoldTime = 0.f;
+
 	/** 受击占位 Montage（可空；为空时受击仅硬直标签+禁止输入） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> HitReactMontage;

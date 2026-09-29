@@ -80,7 +80,7 @@ void UCombatHitComponent::SetWindowTickEnabled(bool bEnabled)
 	}
 }
 
-uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition)
+uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition, float MontageOffset)
 {
 	++InstanceCounter;
 	ActiveInstanceId = InstanceCounter;
@@ -93,7 +93,7 @@ uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition)
 	bCursedEnergyGranted = false;
 	bHadContact = false;
 	SegmentId = Definition ? Definition->SegmentId : 0;
-	SegmentBeginTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+	SegmentBeginTime = (GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0) - MontageOffset;
 	SetComponentTickEnabled(true);
 
 	UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 开始攻击实例 %llu（段 %d，伤害 %.0f）"),

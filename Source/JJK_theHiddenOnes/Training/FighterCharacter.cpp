@@ -199,7 +199,7 @@ UAttackDefinition* AFighterCharacter::ResolveAttackDefinition(ECachedAction Acti
 	case ECachedAction::HeavyPunch:
 		return Def->HeavyPunchDefinition;
 	case ECachedAction::Kick:
-		return Def->KickDefinition;
+		return Def->KickSegments.Num() > 0 ? Def->KickSegments[0] : Def->KickDefinition;
 	case ECachedAction::HeavyKick:
 		return Def->HeavyKickDefinition;
 	default:
@@ -221,9 +221,10 @@ bool AFighterCharacter::RequestAttackSequence(ECachedAction Action)
 	PendingSequence.Add(FirstDef);
 
 	// 连击链：A1 序列携带后续段，GA 在衔接窗口内推进
-	if (Action == ECachedAction::NextSegment && GetDefinition() != nullptr)
+	if ((Action == ECachedAction::NextSegment || Action == ECachedAction::Kick) && GetDefinition() != nullptr)
 	{
-		for (UAttackDefinition* Seg : GetDefinition()->ComboSegments)
+		const auto& Chain = Action == ECachedAction::Kick ? GetDefinition()->KickSegments : GetDefinition()->ComboSegments;
+		for (UAttackDefinition* Seg : Chain)
 		{
 			if (Seg != nullptr && Seg != FirstDef && !PendingSequence.Contains(Seg))
 			{
@@ -233,7 +234,6 @@ bool AFighterCharacter::RequestAttackSequence(ECachedAction Action)
 	}
 
 	PendingSegmentIndex = 0;
-	ApplyMeleeMagnetism();
 	const bool Activated = AbilitySystem != nullptr && AbilitySystem->TryActivateAbilityByClass(GetMeleeAttackAbilityClass());
 	if (!Activated) PendingSequence.Reset();
 	return Activated;
@@ -407,7 +407,7 @@ bool AFighterCharacter::RequestDodge(FVector Direction)
 
 	// 取消闪避判定：攻击中且处于该段取消窗口
 	const bool bCancel = IsAttacking();
-	if (bCancel && (!CombatHit || !CombatHit->IsCancelWindowOpen())) return false;
+	if (bCancel && !CombatInput->IsMeleeCharging() && (!CombatHit || !CombatHit->IsCancelWindowOpen())) return false;
 	const float Cost = bCancel && Definition ? Definition->DodgeConfig.CancelDodgeTotalCost
 											 : (Definition ? Definition->DodgeConfig.DodgeCost : 1.f);
 
@@ -1550,38 +1550,82 @@ void AFighterCharacter::Tick(float DeltaSeconds)
 	ProcessCombatEvents();
 	TickAimCamera(DeltaSeconds);
 	TickMeleeFacing(DeltaSeconds);
+	TickMeleeMagnetism(DeltaSeconds);
 	TickRangedFacing(DeltaSeconds);
 	TickCurseRegen(DeltaSeconds);
 	TickThrowPair();
 }
 
-void AFighterCharacter::ApplyMeleeMagnetism()
+void AFighterCharacter::ApplyMeleeMagnetism(float WindupSeconds)
 {
-	// 近战磁吸（业界三段式）：范围内前半球目标 → 转向；攻击距离外 → 滑步贴近（瞬移感）
+	ClearMeleeMagnetism();
+	// Acquire once per segment/release. The camera never participates.
 	if (GetStance() != EFighterStance::Melee || !Definition || !Definition->MeleeAutoFace) return;
-	auto* Target = GetPreferredTargetFighter();
-	if (!Target || Target->IsDead()) return;
+	auto* Target = Targeting ? Targeting->GetCurrentTarget() : nullptr;
+	if (!Target) Target = GetPreferredTargetFighter();
+	if (!IsValid(Target) || Target == this || Target->IsDead() || Target->GetWorld() != GetWorld()
+		|| !GetCharacterMovement()->IsMovingOnGround()) return;
 	const FVector D = Target->GetActorLocation() - GetActorLocation();
 	FVector Dir(D.X, D.Y, 0.f);
 	const float Dist = Dir.Size();
-	if (Dist < 1.f || Dist > Definition->MeleeAutoFaceRange) return;
+	if (Dist < 1.f || Dist > Definition->MeleeAutoFaceRange
+		|| FMath::Abs(D.Z) > GetCapsuleComponent()->GetScaledCapsuleHalfHeight()) return;
 	Dir = Dir.GetSafeNormal();
+	if (FVector::DotProduct(GetActorForwardVector(), Dir) < 0.f) return;
+	FCollisionQueryParams Query(SCENE_QUERY_STAT(JJKMeleeApproach), false, this);
+	Query.AddIgnoredActor(Target);
+	if (GetWorld()->LineTraceTestByChannel(GetActorLocation(), Target->GetActorLocation(), ECC_Visibility, Query)) return;
+	SetActorRotation(Dir.Rotation());
+	if (Dist > Definition->MagnetismRange) return;
+	MeleeApproachTarget = Target;
+	MeleeApproachRemaining = FMath::Max(Definition->MagnetismLunge, 0.f);
+	const float Gap = FMath::Clamp(Dist - Definition->AttackReach, 0.f, MeleeApproachRemaining);
+	MeleeApproachSpeed = FMath::Max(Definition->MagnetismSpeed, Gap / FMath::Max(WindupSeconds * .5f, .01f));
+}
 
-	// 前半球内才转向（背后目标不吸附）
-	const float AngleDeg = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(GetActorForwardVector(), Dir)));
-	if (AngleDeg <= 90.f)
-	{
-		SetActorRotation(Dir.Rotation());
-	}
+void AFighterCharacter::ClearMeleeMagnetism()
+{
+	MeleeApproachTarget.Reset();
+	MeleeApproachRemaining = 0.f;
+	MeleeApproachSpeed = 0.f;
+}
 
-	// 位移吸附：攻击有效距离外、磁吸范围内的空隙 → 一次滑步补上
-	auto* Move = GetCharacterMovement();
-	if (AngleDeg <= 90.f && Move && Dist > Definition->AttackReach && Dist <= Definition->MagnetismRange)
+void AFighterCharacter::TickMeleeMagnetism(float DeltaSeconds)
+{
+	auto* Target = MeleeApproachTarget.Get();
+	if (!IsValid(Target) || Target->IsDead() || IsDead() || !Definition || !Definition->MeleeAutoFace
+		|| !IsAttacking() || GetStance() != EFighterStance::Melee || CombatInput->IsMeleeCharging()
+		|| CombatHit->GetPhase() != EAttackPhase::Windup || !GetCharacterMovement()->IsMovingOnGround())
 	{
-		const float Lunge = FMath::Clamp(Dist - Definition->AttackReach, 0.f, Definition->MagnetismLunge);
-		FHitResult Hit;
-		SetActorLocation(GetActorLocation() + Dir * Lunge, true, &Hit);
+		ClearMeleeMagnetism();
+		return;
 	}
+	FVector Delta = Target->GetActorLocation() - GetActorLocation();
+	if (FMath::Abs(Delta.Z) > GetCapsuleComponent()->GetScaledCapsuleHalfHeight()) { ClearMeleeMagnetism(); return; }
+	Delta.Z = 0.f;
+	const float Distance = Delta.Size();
+	const FVector Direction = Delta.GetSafeNormal();
+	if (Distance < 1.f || Distance > Definition->MagnetismRange
+		|| FVector::DotProduct(GetActorForwardVector(), Direction) < 0.f) { ClearMeleeMagnetism(); return; }
+	FCollisionQueryParams Query(SCENE_QUERY_STAT(JJKMeleeApproach), false, this);
+	Query.AddIgnoredActor(Target);
+	if (GetWorld()->LineTraceTestByChannel(GetActorLocation(), Target->GetActorLocation(), ECC_Visibility, Query))
+	{
+		ClearMeleeMagnetism();
+		return;
+	}
+	SetActorRotation(Direction.Rotation());
+	const float CapsuleSeparation = GetCapsuleComponent()->GetScaledCapsuleRadius()
+		+ Target->GetCapsuleComponent()->GetScaledCapsuleRadius() + 4.f;
+	const float StopDistance = FMath::Max(Definition->AttackReach, CapsuleSeparation);
+	const float Step = FMath::Min3(FMath::Max(0.f, Distance - StopDistance), MeleeApproachRemaining,
+		MeleeApproachSpeed * FMath::Max(DeltaSeconds, 0.f));
+	if (Step <= 0.f) return;
+	const FVector Before = GetActorLocation();
+	FHitResult Hit;
+	SetActorLocation(Before + Direction * Step, true, &Hit);
+	MeleeApproachRemaining = FMath::Max(0.f, MeleeApproachRemaining - FVector::Dist2D(Before, GetActorLocation()));
+	if (Hit.bBlockingHit) ClearMeleeMagnetism();
 }
 
 void AFighterCharacter::TickRangedFacing(float DeltaSeconds)
@@ -1613,11 +1657,11 @@ void AFighterCharacter::TickMeleeFacing(float DeltaSeconds)
 	{
 		auto* Move = GetCharacterMovement();
 		// 硬锁或远程开火期间关闭朝移动方向，由面向逻辑接管
-		const bool bWantNoOrient = bLocked || bRangedFiring;
+		const bool bWantNoOrient = bLocked || bRangedFiring || IsAttacking();
 		if (Move && Move->bOrientRotationToMovement == bWantNoOrient)
 			Move->bOrientRotationToMovement = !bWantNoOrient;
 	}
-	if (!bLocked || GetStance() != EFighterStance::Melee || !Definition) return;
+	if (IsAttacking() || !bLocked || GetStance() != EFighterStance::Melee || !Definition) return;
 	auto* Target = TargetingComp->GetCurrentTarget();
 	if (!Target || Target->IsDead()) return;
 	const FVector D = Target->GetActorLocation() - GetActorLocation();

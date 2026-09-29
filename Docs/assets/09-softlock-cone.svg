@@ -12,9 +12,9 @@
   <circle cx="430" cy="480" r="300" fill="none" stroke="#8250df" stroke-width="2.5" stroke-dasharray="3 7"/>
 
   <!-- 圈标注 -->
-  <text x="430" y="402" text-anchor="middle" font-size="13" fill="#1f883d">攻击有效距离 180</text>
+  <text x="430" y="402" text-anchor="middle" font-size="13" fill="#1f883d">停止中心间距 120</text>
   <text x="120" y="305" text-anchor="middle" font-size="13" fill="#0969da">磁吸滑步 ≤350</text>
-  <text x="120" y="325" text-anchor="middle" font-size="12" fill="#0969da">（滑步 50–120cm 贴近）</text>
+  <text x="120" y="325" text-anchor="middle" font-size="12" fill="#0969da">（前摇贴近，每段 ≤250cm）</text>
   <text x="700" y="180" text-anchor="middle" font-size="13" fill="#8250df">面向吸附 ≤600</text>
   <text x="700" y="200" text-anchor="middle" font-size="12" fill="#8250df">（仅转向，不位移）</text>
 
@@ -22,7 +22,7 @@
   <circle cx="430" cy="480" r="16" fill="#24292f"/>
   <polygon points="430,458 420,474 440,474" fill="#24292f"/>
 
-  <!-- 目标 A：180–350 之间 → 转向 + 滑步 -->
+  <!-- 目标 A：120–350 之间 → 转向 + 滑步 -->
   <circle cx="255" cy="330" r="13" fill="#d73a49"/>
   <text x="255" y="306" text-anchor="middle" font-size="13" fill="#d73a49">目标 A（250）</text>
   <text x="255" y="352" text-anchor="middle" font-size="12" fill="#d73a49">转向 + 滑步贴近</text>

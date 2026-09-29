@@ -27,7 +27,7 @@ public:
 	UCombatHitComponent();
 
 	/** 攻击开始：分配实例并记录配置；窗口未开启，等待通知/定时打开 */
-	uint64 BeginAttack(const UAttackDefinition* Definition);
+	uint64 BeginAttack(const UAttackDefinition* Definition, float MontageOffset = 0.f);
 
 	/** 动画通知驱动的窗口开关；按实例校验，拒绝旧动画遗留事件 */
 	void HandleAnimWindowNotify(bool bOpen, const UAnimSequenceBase* Animation);

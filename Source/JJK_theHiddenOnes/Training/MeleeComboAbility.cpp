@@ -5,6 +5,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystemComponent.h"
 #include "Animation/AnimSequenceBase.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 #include "Training/AttackDefinition.h"
 #include "Training/CombatHitComponent.h"
 #include "Training/CombatInputComponent.h"
@@ -54,6 +56,7 @@ void UMeleeComboAbility::ClearTimers()
 		World->GetTimerManager().ClearTimer(ComboWindowOpenTimerHandle);
 		World->GetTimerManager().ClearTimer(ComboWindowCloseTimerHandle);
 		World->GetTimerManager().ClearTimer(ComboCachePollTimerHandle);
+		World->GetTimerManager().ClearTimer(ChargeTimerHandle);
 	}
 	bComboWindowOpen = false;
 }
@@ -124,6 +127,9 @@ void UMeleeComboAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		bAttackTagApplied = true;
 	}
 
+	const auto* Definition = Fighter->GetDefinition();
+	SequenceAction = (CurrentDef() == Definition->KickDefinition || Definition->KickSegments.Contains(CurrentDef()))
+		? ECachedAction::Kick : ECachedAction::NextSegment;
 	AdvanceToSegment(SegmentIndex);
 }
 
@@ -168,7 +174,30 @@ void UMeleeComboAbility::AdvanceToSegment(int32 Index)
 		return;
 	}
 
-	// 命中窗口（配置时间；通知路径见 M2 记录的偏差说明）
+	ChargeAction = Def == Fighter->GetDefinition()->HeavyPunchDefinition ? ECachedAction::HeavyPunch
+		: Def == Fighter->GetDefinition()->HeavyKickDefinition ? ECachedAction::HeavyKick : ECachedAction::None;
+	bCharging = Def->ChargeHoldTime > 0.f && Fighter->GetCombatInput()->IsHoldingMeleeCharge(ChargeAction);
+	if (bCharging)
+	{
+		Fighter->GetCombatInput()->RegisterMeleeCharge(this);
+		GetWorld()->GetTimerManager().SetTimer(ChargeTimerHandle, this, &UMeleeComboAbility::TickHeldCharge, 0.01f, true);
+	}
+	else StartAttackWindows();
+
+	MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this, TEXT("MeleeAttack"), Montage, 1.f, NAME_None, true);
+	MontageTask->OnCompleted.AddUniqueDynamic(this, &UMeleeComboAbility::HandleMontageCompleted);
+	MontageTask->OnInterrupted.AddUniqueDynamic(this, &UMeleeComboAbility::HandleMontageInterrupted);
+	MontageTask->OnCancelled.AddUniqueDynamic(this, &UMeleeComboAbility::HandleMontageInterrupted);
+	MontageTask->ReadyForActivation();
+}
+
+void UMeleeComboAbility::StartAttackWindows(float MontageOffset)
+{
+	AFighterCharacter* Fighter = GetFighter();
+	UAttackDefinition* Def = CurrentDef();
+	if (!Fighter || !Def) return;
+	// All timers use gameplay seconds after release, not wall time spent holding.
 	TWeakObjectPtr<UCombatHitComponent> WeakHit = Fighter->GetCombatHit();
 	const uint64 InstanceId = AttackInstanceId;
 	TWeakObjectPtr<UMeleeComboAbility> WeakAbility = this;
@@ -180,8 +209,9 @@ void UMeleeComboAbility::AdvanceToSegment(int32 Index)
 			WeakHit->HandleAnimWindowNotify(bOpen, nullptr);
 		}
 	};
-	const float Start = FMath::Max(Def->WindowStartTime, 0.f);
-	const float End = FMath::Max(Def->WindowEndTime, Start + 0.01f);
+	const float Start = FMath::Max(Def->WindowStartTime - MontageOffset, 0.001f);
+	const float End = FMath::Max(Def->WindowEndTime - MontageOffset, Start + 0.01f);
+	Fighter->ApplyMeleeMagnetism(Start);
 	if (!Def->bWindowFromAnimNotifies)
 	{
 	GetWorld()->GetTimerManager().SetTimer(WindowOpenTimerHandle,
@@ -191,31 +221,51 @@ void UMeleeComboAbility::AdvanceToSegment(int32 Index)
 	}
 
 	// 连击衔接窗口：轮询输入缓存（缓存消费点）
-	const bool bHasNext = Index + 1 < SegmentSequence.Num();
+	const bool bHasNext = SegmentIndex + 1 < SegmentSequence.Num();
 	const bool bAnyTransition = Def->bAllowNextSegment && bHasNext
 		|| Def->bAllowHeavyTransition || Def->bAllowKickTransition;
 	if (Def->ComboWindowEndTime > Def->ComboWindowStartTime && bAnyTransition)
 	{
-		const float ComboStart = FMath::Max(Def->ComboWindowStartTime, 0.f);
-		const float ComboEnd = FMath::Max(Def->ComboWindowEndTime, ComboStart + 0.05f);
+		const float ComboStart = FMath::Max(Def->ComboWindowStartTime - MontageOffset, 0.001f);
+		const float ComboEnd = FMath::Max(Def->ComboWindowEndTime - MontageOffset, ComboStart + 0.05f);
 		GetWorld()->GetTimerManager().SetTimer(ComboWindowOpenTimerHandle,
 			[WeakAbility, InstanceId]() { if (WeakAbility.IsValid() && WeakAbility->AttackInstanceId == InstanceId) WeakAbility->HandleWindowOpen(); }, ComboStart, false);
 		GetWorld()->GetTimerManager().SetTimer(ComboWindowCloseTimerHandle,
 			[WeakAbility, InstanceId]() { if (WeakAbility.IsValid() && WeakAbility->AttackInstanceId == InstanceId) WeakAbility->HandleWindowClose(); }, ComboEnd, false);
 		GetWorld()->GetTimerManager().SetTimer(ComboCachePollTimerHandle,
-			[WeakAbility]() { if (WeakAbility.IsValid()) WeakAbility->HandleCachePoll(); }, 0.05f, true);
+			[WeakAbility]() { if (WeakAbility.IsValid()) WeakAbility->HandleCachePoll(); }, 0.016f, true);
 	}
 
-	FinishMontageTask();
-	MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this, TEXT("MeleeAttack"), Montage, 1.f, NAME_None, true);
-	MontageTask->OnCompleted.AddUniqueDynamic(this, &UMeleeComboAbility::HandleMontageCompleted);
-	MontageTask->OnInterrupted.AddUniqueDynamic(this, &UMeleeComboAbility::HandleMontageInterrupted);
-	MontageTask->OnCancelled.AddUniqueDynamic(this, &UMeleeComboAbility::HandleMontageInterrupted);
-	MontageTask->ReadyForActivation();
+}
 
-	UE_LOG(LogTemp, Log, TEXT("[MeleeCombo] %s 段 %d 激活（实例 %llu，Montage %s）"),
-		*GetNameSafe(Fighter), Index, AttackInstanceId, *GetNameSafe(Montage));
+void UMeleeComboAbility::TickHeldCharge()
+{
+	AFighterCharacter* Fighter = GetFighter();
+	UAttackDefinition* Def = CurrentDef();
+	UAnimInstance* Anim = Fighter && Fighter->GetMesh() ? Fighter->GetMesh()->GetAnimInstance() : nullptr;
+	UAnimMontage* Montage = Def ? Def->Montage.Get() : nullptr;
+	if (!bCharging || !Anim || !Montage) { CancelHeldCharge(); return; }
+	if (Anim->Montage_GetPosition(Montage) + KINDA_SMALL_NUMBER < Def->ChargeHoldTime) return;
+	Anim->Montage_SetPosition(Montage, Def->ChargeHoldTime);
+	if (Fighter->GetCombatInput()->IsHoldingMeleeCharge(ChargeAction))
+	{
+		Anim->Montage_Pause(Montage);
+		return;
+	}
+	bCharging = false;
+	Fighter->GetCombatInput()->ClearMeleeCharge(this);
+	GetWorld()->GetTimerManager().ClearTimer(ChargeTimerHandle);
+	// Reset the hit instance clock so cancellation and hit timing cannot include the hold.
+	Fighter->GetCombatHit()->EndAttack();
+	AttackInstanceId = Fighter->GetCombatHit()->BeginAttack(Def, Def->ChargeHoldTime);
+	Fighter->GetCombatHit()->SetPhase(EAttackPhase::Windup);
+	Anim->Montage_Resume(Montage);
+	StartAttackWindows(Def->ChargeHoldTime);
+}
+
+void UMeleeComboAbility::CancelHeldCharge()
+{
+	if (IsActive() && bCharging) CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 }
 
 void UMeleeComboAbility::HandleCachePoll()
@@ -239,7 +289,7 @@ void UMeleeComboAbility::HandleCachePoll()
 	switch (Cached)
 	{
 	case ECachedAction::NextSegment:
-		if (Def->bAllowNextSegment && SegmentIndex + 1 < SegmentSequence.Num())
+		if (SequenceAction == ECachedAction::NextSegment && Def->bAllowNextSegment && SegmentIndex + 1 < SegmentSequence.Num())
 		{
 			Input->ConsumeCache(true);
 			AdvanceToSegment(SegmentIndex + 1);
@@ -249,15 +299,25 @@ void UMeleeComboAbility::HandleCachePoll()
 		if (Def->bAllowHeavyTransition && FighterDef->HeavyPunchDefinition != nullptr)
 		{
 			Input->ConsumeCache(true);
+			FinishMontageTask();
 			SegmentSequence = {TObjectPtr<UAttackDefinition>(FighterDef->HeavyPunchDefinition)};
+			SequenceAction = ECachedAction::HeavyPunch;
 			AdvanceToSegment(0);
 		}
 		break;
 	case ECachedAction::Kick:
-		if (Def->bAllowKickTransition && FighterDef->KickDefinition != nullptr)
+		if (SequenceAction == ECachedAction::Kick && Def->bAllowNextSegment && SegmentIndex + 1 < SegmentSequence.Num())
 		{
 			Input->ConsumeCache(true);
-			SegmentSequence = {TObjectPtr<UAttackDefinition>(FighterDef->KickDefinition)};
+			AdvanceToSegment(SegmentIndex + 1);
+		}
+		else if (SequenceAction != ECachedAction::Kick && Def->bAllowKickTransition && FighterDef->KickDefinition != nullptr)
+		{
+			Input->ConsumeCache(true);
+			FinishMontageTask();
+			SegmentSequence = FighterDef->KickSegments;
+			if (SegmentSequence.IsEmpty()) SegmentSequence.Add(FighterDef->KickDefinition);
+			SequenceAction = ECachedAction::Kick;
 			AdvanceToSegment(0);
 		}
 		break;
@@ -265,7 +325,9 @@ void UMeleeComboAbility::HandleCachePoll()
 		if (Def->bAllowKickTransition && FighterDef->HeavyKickDefinition != nullptr)
 		{
 			Input->ConsumeCache(true);
+			FinishMontageTask();
 			SegmentSequence = {TObjectPtr<UAttackDefinition>(FighterDef->HeavyKickDefinition)};
+			SequenceAction = ECachedAction::HeavyKick;
 			AdvanceToSegment(0);
 		}
 		break;
@@ -315,6 +377,10 @@ void UMeleeComboAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (AFighterCharacter* Fighter = CachedFighter.Get())
 	{
+		Fighter->GetCombatInput()->ClearMeleeCharge(this);
+		Fighter->ClearMeleeMagnetism();
+		if (bCharging) Fighter->GetCombatInput()->InvalidateSession(FText::FromString(TEXT("Melee charge ended")));
+		bCharging = false;
 		if (bInstanceActive && Fighter->GetCombatHit()->GetActiveInstanceId() == AttackInstanceId)
 		{
 			Fighter->GetCombatHit()->EndAttack();

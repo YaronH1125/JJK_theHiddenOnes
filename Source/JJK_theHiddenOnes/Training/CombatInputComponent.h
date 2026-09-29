@@ -9,6 +9,7 @@
 
 class AFighterCharacter;
 class UGameplayAbility;
+class UMeleeComboAbility;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJJKOnRequestResult, EActionRequestResult, Result, int32, SessionId);
 
@@ -27,6 +28,13 @@ class UCombatInputComponent : public UActorComponent
 
 public:
 	UCombatInputComponent();
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	bool IsHoldingMeleeCharge(ECachedAction Action) const;
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	bool IsMeleeCharging() const;
+	void RegisterMeleeCharge(UMeleeComboAbility* Ability);
+	void ClearMeleeCharge(UMeleeComboAbility* Ability);
 
 	/** 左键按下：建立会话（重复按下忽略） */
 	UFUNCTION(BlueprintCallable, Category = "Combat")
@@ -145,6 +153,9 @@ protected:
 	/** Q 会话 */
 	bool bKickSessionActive = false;
 	double KickPressGameTime = 0.0;
+	bool bHeavyPunchSubmitted = false;
+	bool bHeavyKickSubmitted = false;
+	TWeakObjectPtr<UMeleeComboAbility> ChargingAbility;
 	/** 远程形态按下标记：LMB/Q 走蓄力炮，松开只负责发射 */
 	bool bRangedLmbSession = false;
 	bool bRangedQSession = false;

@@ -11,10 +11,40 @@
 #include "Training/FighterDefinition.h"
 #include "Training/TargetingComponent.h"
 #include "Training/TrainingGameMode.h"
+#include "Training/MeleeComboAbility.h"
 
 UCombatInputComponent::UCombatInputComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
+bool UCombatInputComponent::IsHoldingMeleeCharge(ECachedAction Action) const
+{
+	return Action == ECachedAction::HeavyPunch ? bSessionActive && bHeavyPunchSubmitted
+		: Action == ECachedAction::HeavyKick && bKickSessionActive && bHeavyKickSubmitted;
+}
+
+bool UCombatInputComponent::IsMeleeCharging() const { return ChargingAbility.IsValid(); }
+void UCombatInputComponent::RegisterMeleeCharge(UMeleeComboAbility* Ability) { ChargingAbility = Ability; }
+void UCombatInputComponent::ClearMeleeCharge(UMeleeComboAbility* Ability)
+{
+	if (ChargingAbility.Get() == Ability) ChargingAbility.Reset();
+}
+
+void UCombatInputComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (!bRequestsEnabled) return;
+	if (bSessionActive && !bHeavyPunchSubmitted && Now() - PressGameTime >= LightHeavyThreshold)
+	{
+		bHeavyPunchSubmitted = true;
+		SubmitHeavyPunch();
+	}
+	if (bKickSessionActive && !bHeavyKickSubmitted && Now() - KickPressGameTime >= LightHeavyThreshold)
+	{
+		bHeavyKickSubmitted = true;
+		SubmitHeavyKick();
+	}
 }
 
 void UCombatInputComponent::BeginPlay()
@@ -79,6 +109,7 @@ void UCombatInputComponent::NotifyAttackPressed()
 	++SessionCounter;
 	ActiveSessionId = SessionCounter;
 	bSessionActive = true;
+	bHeavyPunchSubmitted = false;
 	PressGameTime = Now();
 	UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 建立左键会话 %d"), *GetNameSafe(GetOwner()), ActiveSessionId);
 }
@@ -113,6 +144,11 @@ void UCombatInputComponent::NotifyAttackReleased()
 	const int32 SessionId = ActiveSessionId;
 	bSessionActive = false;
 	ActiveSessionId = 0;
+	if (bHeavyPunchSubmitted)
+	{
+		bHeavyPunchSubmitted = false;
+		return; // The active charge resumes, or the already cached heavy is consumed once.
+	}
 
 	if (Held < LightHeavyThreshold)
 	{
@@ -147,6 +183,7 @@ void UCombatInputComponent::NotifyKickPressed()
 		return;
 	}
 	bKickSessionActive = true;
+	bHeavyKickSubmitted = false;
 	KickPressGameTime = Now();
 	UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 建立 Q 会话"), *GetNameSafe(GetOwner()));
 }
@@ -178,6 +215,11 @@ void UCombatInputComponent::NotifyKickReleased()
 	}
 	const double Held = Now() - KickPressGameTime;
 	bKickSessionActive = false;
+	if (bHeavyKickSubmitted)
+	{
+		bHeavyKickSubmitted = false;
+		return;
+	}
 
 	if (Held < LightHeavyThreshold)
 	{
@@ -237,6 +279,10 @@ void UCombatInputComponent::NotifyStanceSwitchPressed()
 
 void UCombatInputComponent::InvalidateSession(const FText& Reason)
 {
+	TWeakObjectPtr<UMeleeComboAbility> OldCharge = ChargingAbility;
+	ChargingAbility.Reset();
+	bHeavyPunchSubmitted = false;
+	bHeavyKickSubmitted = false;
 	if (bSessionActive)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[CombatInput] %s 会话 %d 失效：%s"), *GetNameSafe(GetOwner()), ActiveSessionId, *Reason.ToString());
@@ -254,6 +300,7 @@ void UCombatInputComponent::InvalidateSession(const FText& Reason)
 	bRangedLmbSession = false;
 	bRangedQSession = false;
 	ConsumeCache();
+	if (OldCharge.IsValid()) OldCharge->CancelHeldCharge();
 }
 
 void UCombatInputComponent::NotifyDomainPressed()

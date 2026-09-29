@@ -190,6 +190,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Combo")
 	TObjectPtr<UAttackDefinition> KickDefinition;
 
+	/** Q tap chain; an empty array preserves the legacy single kick. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Combo")
+	TArray<TObjectPtr<UAttackDefinition>> KickSegments;
+
 	/** 重踢（Q 长按，倒地） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M3|Combo")
 	TObjectPtr<UAttackDefinition> HeavyKickDefinition;
@@ -337,6 +341,10 @@ public:
 	/** 磁吸滑步最大距离（“瞬移到敌人面前”的吸引感，实测 50–120cm） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm"))
 	float MagnetismLunge = 100.f;
+
+	/** Windup approach speed; total travel is bounded by MagnetismLunge. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Melee", meta = (ClampMin = "0.0", ForceUnits = "cm/s"))
+	float MagnetismSpeed = 2500.f;
 
 	/** 远程开火朝向：蓄力/发射期间转向镜头 yaw 的限速（度/秒，PUBG 开火转身） */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "M6|Aim", meta = (ClampMin = "0.0"))

@@ -99,7 +99,12 @@ public:
 	void TickMeleeFacing(float DeltaSeconds);
 	bool IsHardLocked() const;
 	/** 出招磁吸（异人之下/鸣潮式）：面向 + 位移吸附；在出招前调用 */
-	void ApplyMeleeMagnetism();
+	void ApplyMeleeMagnetism(float WindupSeconds);
+	void TickMeleeMagnetism(float DeltaSeconds);
+	void ClearMeleeMagnetism();
+	TWeakObjectPtr<AFighterCharacter> MeleeApproachTarget;
+	float MeleeApproachRemaining = 0.f;
+	float MeleeApproachSpeed = 0.f;
 	/** 远程开火朝向：蓄力/发射期间平滑转向镜头 yaw（PUBG 开火转身） */
 	void TickRangedFacing(float DeltaSeconds);
 

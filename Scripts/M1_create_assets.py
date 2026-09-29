@@ -51,7 +51,7 @@ else:
     da = EAL.load_asset(da_path)
     log("DA_Fighter_Ishigori 已存在，跳过创建")
 
-da.set_editor_property("display_name", unreal.Text("石流龙(占位)"))
+da.set_editor_property("display_name", unreal.Text("石流龙"))
 da.set_editor_property("max_health", 1000.0)
 da.set_editor_property("initial_health", 1000.0)
 da.set_editor_property("max_action_resource", 100.0)

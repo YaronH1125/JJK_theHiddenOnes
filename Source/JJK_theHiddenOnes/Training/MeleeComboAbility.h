@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "Training/CombatTypes.h"
 #include "MeleeComboAbility.generated.h"
 
 class AFighterCharacter;
@@ -24,6 +25,7 @@ class UMeleeComboAbility : public UGameplayAbility
 
 public:
 	UMeleeComboAbility();
+	void CancelHeldCharge();
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -61,6 +63,12 @@ private:
 
 	void FinishMontageTask();
 	void ClearTimers();
+	void StartAttackWindows(float MontageOffset = 0.f);
+	void TickHeldCharge();
+	ECachedAction SequenceAction = ECachedAction::NextSegment;
+	ECachedAction ChargeAction = ECachedAction::None;
+	bool bCharging = false;
+	FTimerHandle ChargeTimerHandle;
 
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
