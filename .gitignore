@@ -32,6 +32,8 @@ Build/*/FileOpenOrder/
 # 开发过程文档（本地保留，不进公开仓库；构建/验收证据随本地归档）
 Docs/开发过程/
 Docs/求救信/
+Docs/打击感开发/
+Docs/20_打击感首轮设计需求与分工.md
 Docs/02_架构设计.md
 Docs/03_开发约束与决策记录.md
 Docs/04_旧项目评估与复用方案.md
@@ -39,6 +41,22 @@ Docs/05_开发计划与验收.md
 Docs/06_石流龙角色方案.md
 Docs/07_擂台与视觉参考.md
 pubg_store.html
+
+# 本地学习图、阶段性评审与自动检查产物（正式 HUD 原型、源图和运行纹理仍提交）
+/Docs/assets/gas-blast-hit*
+/Docs/assets/gas-overview*
+/Docs/assets/ue-gameplay-framework*
+/Docs/assets/ishigori-hud-concept.html
+/Docs/assets/*.visual-check.*
+/Docs/assets/hud-v*/verification.json
+/Docs/assets/hud-v*/preview-*.png
+/Docs/assets/hud-v*/board-*.png
+
+# 一次性探针与浏览器调试脚本（可复用构建/导入/回归脚本仍提交）
+/Scripts/_tmp_*.py
+/Scripts/M8_proj_read*.py
+/Scripts/M8_proj_track*.py
+/cdp-*.js
 
 # 第三方原素材：本地保留，依赖/哈希见 Scripts/Baselines/external_assets.json
 # 项目自有 Content/Maps 与 Content/Training 仍须提交，不能忽略整个 Content。
