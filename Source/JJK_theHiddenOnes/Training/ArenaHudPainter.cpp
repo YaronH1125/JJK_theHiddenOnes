@@ -7,6 +7,7 @@
 #include "Fonts/FontMeasure.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Rendering/SlateRenderer.h"
+#include "Engine/Texture2D.h"
 
 // ---------- 色板 ----------
 const FLinearColor FArenaHudPalette::Bg = FLinearColor::FromSRGBColor(FColor(7, 11, 20));
@@ -73,8 +74,21 @@ FVector2f FArenaHudCanvas::ToWindow(const FVector2f& DesignPos) const
 void FArenaHudCanvas::Box(const FVector2f& LocalPos, const FVector2f& LocalSize, const FLinearColor& Color, int32 Layer) const
 {
 	FSlateDrawElement::MakeBox(*Elements, Layer,
-		Geom->ToPaintGeometry(FVector2f(LocalSize), FSlateLayoutTransform(LocalPos)), White,
+		Geom->ToPaintGeometry(LocalSize * U, FSlateLayoutTransform(LocalPos * U)), White,
 		ESlateDrawEffect::None, Color);
+}
+
+void FArenaHudCanvas::Image(UTexture2D* Texture, const FVector2f& Pos, const FVector2f& Size,
+	const FLinearColor& Tint, int32 Layer, bool bMirror) const
+{
+	if (!Texture) return;
+	FSlateBrush Brush;
+	Brush.SetResourceObject(Texture);
+	Brush.DrawAs = ESlateBrushDrawType::Image;
+	Brush.ImageSize = Size;
+	Brush.Mirroring = bMirror ? ESlateBrushMirrorType::Horizontal : ESlateBrushMirrorType::NoMirror;
+	FSlateDrawElement::MakeBox(*Elements, Layer, Geom->ToPaintGeometry(Size * U,
+		FSlateLayoutTransform(Pos * U)), &Brush, ESlateDrawEffect::None, Tint);
 }
 
 void FArenaHudCanvas::SubmitVerts(const TArray<FVector2f>& DesignPts, const TArray<FLinearColor>& Colors, const TArray<SlateIndex>& Indices, int32 Layer) const
@@ -206,7 +220,8 @@ FVector2f FArenaHudCanvas::Measure(const FString& Text, float DesignFontSize) co
 {
 	if (Text.IsEmpty()) return FVector2f::ZeroVector;
 	FSlateFontInfo F = Font;
-	F.Size = FMath::Max(4, FMath::RoundToInt(DesignFontSize));
+	// Slate font sizes are points (96/72 px); all HUD inputs are design pixels.
+	F.Size = FMath::Max(4, FMath::RoundToInt(DesignFontSize * U * .75f));
 	const FVector2f Size(FSlateApplication::Get().GetRenderer()->GetFontMeasureService()->Measure(FStringView(Text), F));
 	return FVector2f(Size.X / U, Size.Y / U);
 }
@@ -216,7 +231,7 @@ void FArenaHudCanvas::Text(const FString& Text, const FVector2f& DesignPos, floa
 {
 	if (Text.IsEmpty()) return;
 	FSlateFontInfo F = Font;
-	F.Size = FMath::Max(4, FMath::RoundToInt(DesignFontSize));
+	F.Size = FMath::Max(4, FMath::RoundToInt(DesignFontSize * U * .75f));
 	const TSharedRef<FSlateFontMeasure> Measure = FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
 	const FVector2f Pixel(Measure->Measure(FStringView(Text), F));	const FVector2f DesignSize(Pixel.X / U, Pixel.Y / U);
 

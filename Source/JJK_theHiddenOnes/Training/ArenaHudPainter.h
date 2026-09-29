@@ -1,5 +1,5 @@
 // 正式战斗 HUD 自绘工具层：把 1920×1080 设计坐标的图元（多边形/环/扇形/文字/线性图标）
-// 翻译成 Slate 绘制调用。视觉基准 Docs/assets/hud-prototype-v7.0.html，规格见 14_HUD开发指引.md。
+// 翻译成 Slate 绘制调用。视觉基准 Docs/assets/hud-prototype-v9.0.html，规格见 14_HUD开发指引.md。
 
 #pragma once
 
@@ -11,6 +11,7 @@ struct FGeometry;
 class FSlateWindowElementList;
 struct FSlateBrush;
 struct FSlateFontInfo;
+class UTexture2D;
 
 /** v7.0 色板与令牌（14_HUD开发指引.md §4）；线性 0..1 色 */
 struct FArenaHudPalette
@@ -65,7 +66,8 @@ struct FArenaHudCanvas
 	FVector2f ToWindow(const FVector2f& DesignPos) const;
 
 	// ---- 图元 ----
-	void Box(const FVector2f& LocalPos, const FVector2f& LocalSize, const FLinearColor& Color, int32 Layer) const;
+	void Image(UTexture2D* Texture, const FVector2f& Pos, const FVector2f& Size, const FLinearColor& Tint, int32 Layer, bool bMirror = false) const;
+	void Box(const FVector2f& DesignPos, const FVector2f& DesignSize, const FLinearColor& Color, int32 Layer) const;
 	void Poly(const TArray<FVector2f>& DesignPts, const TArray<FLinearColor>& Colors, int32 Layer) const;
 	void Lines(const TArray<FVector2f>& DesignPts, const FLinearColor& Color, float DesignThickness, int32 Layer, bool bClosed = false) const;
 	void Disc(const FVector2f& DesignCenter, float DesignRadius, const FLinearColor& Color, int32 Layer) const;

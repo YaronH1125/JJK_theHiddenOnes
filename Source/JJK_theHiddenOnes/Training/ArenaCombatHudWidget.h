@@ -1,4 +1,4 @@
-// 正式战斗 HUD（14_HUD开发指引.md，视觉基准 hud-prototype-v7.0.html）。
+// 正式战斗 HUD（14_HUD开发指引.md，视觉基准 hud-prototype-v9.0.html）。
 // 与调试层 UCombatHudWidget 并存：本类只读战斗状态、不拥有任何战斗数据；
 // 连续量（虚血回落/蓄力环/倒计时/冷却扇形）在 Tick/Paint 按帧更新，不走 10Hz 定时器（§5.4）。
 
@@ -12,6 +12,7 @@
 
 class ATrainingGameMode;
 class AFighterCharacter;
+class UTexture2D;
 struct FArenaHudCanvas;
 struct FDomainStatusView;
 
@@ -106,6 +107,7 @@ class UArenaCombatHudWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UArenaCombatHudWidget(const FObjectInitializer& ObjectInitializer);
 	/** 正式层显隐（默认 HitTestInvisible；JJKCombatHud 切换） */
 	UFUNCTION(BlueprintCallable, Category = "Training|UI")
 	void SetHudVisible(bool bVisible);
@@ -117,6 +119,8 @@ protected:
 		FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
 private:
+	UPROPERTY() TMap<FName, TObjectPtr<UTexture2D>> HudTextures;
+	void DrawIcon(const FArenaHudCanvas& C, FName Id, const FVector2f& Center, float Size, const FLinearColor& Color, int32 Layer) const;
 	// ---------- 采集 ----------
 	void SnapshotSide(bool bPlayer, AFighterCharacter* Fighter, ATrainingGameMode* GM, FArenaHudSideView& OutView);
 	void UpdateSideAnim(const FArenaHudSideView& View, FArenaHudSideAnim& Anim, double Now, double DeltaSeconds);

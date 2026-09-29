@@ -5,6 +5,8 @@
 #include "Components/CanvasPanel.h"
 #include "Engine/Engine.h"
 #include "Engine/Font.h"
+#include "Engine/Texture2D.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Training/AttackDefinition.h"
@@ -17,9 +19,9 @@ namespace
 {
 	// ---- 几何常量（1920×1080 设计坐标，14_HUD开发指引.md §3） ----
 	constexpr float IdentX = 32.f, IdentY = 28.f;       // 身份块
-	constexpr float StackW = 500.f, PortraitS = 92.f, IdentGap = 11.f;
-	constexpr float HpY = 52.f, HpH = 16.f, HpSlant = 10.f, HpTip = 15.f;
-	constexpr float CurseY = 68.f, CurseH = 11.f, CurseSlant = 7.f, CurseTip = 11.f;
+	constexpr float StackW = 570.f, PortraitS = 92.f, IdentGap = 11.f;
+	constexpr float HpY = 91.f, HpH = 16.f, HpSlant = 10.f, HpTip = 12.f;
+	constexpr float CurseY = 107.f, CurseH = 12.f, CurseSlant = 7.f, CurseTip = 11.f;
 	constexpr float PipsY = 95.f;                        // 行动豆中心行
 	constexpr float ChargeCenterX = 960.f, ChargeCenterY = 934.f;
 	constexpr float SkillY = 1004.f, SkillR = 35.f, UltR = 48.f, UltX = 1820.f;
@@ -27,67 +29,6 @@ namespace
 	float EaseOut(float T) { T = FMath::Clamp(T, 0.f, 1.f); return 1.f - (1.f - T) * (1.f - T); }
 	FVector2f Vec(float X, float Y) { return FVector2f(X, Y); }
 	FLinearColor WithAlpha(const FLinearColor& C, float A) { return FLinearColor(C.R, C.G, C.B, C.A * A); }
-
-	/** 条内槽轮廓：斜切左端 + 箭头尖角右端（§3.1；P2 侧由调用方水平镜像填充方向） */
-	struct FBarProfile
-	{
-		float L = 0.f, R = 0.f, T = 0.f, B = 0.f, MidY = 0.f;
-		float SlantEnd = 0.f, TipStart = 0.f;
-
-		float TopAt(float X) const
-		{
-			if (X <= SlantEnd) return FMath::Lerp(B, T, (X - L) / FMath::Max(SlantEnd - L, 0.01f));
-			if (X >= TipStart) return FMath::Lerp(T, MidY, (X - TipStart) / FMath::Max(R - TipStart, 0.01f));
-			return T;
-		}
-		float BotAt(float X) const
-		{
-			if (X >= TipStart) return FMath::Lerp(B, MidY, (X - TipStart) / FMath::Max(R - TipStart, 0.01f));
-			return B;
-		}
-	};
-
-	FBarProfile MakeProfile(float W, float H, float LeftSlant, float TipLen)
-	{
-		FBarProfile P;
-		P.L = 1.f; P.R = W - 1.f; P.T = 1.f; P.B = H - 1.f; P.MidY = H * 0.5f;
-		P.SlantEnd = FMath::Max(LeftSlant - 1.f, P.L + 0.5f);
-		P.TipStart = FMath::Min(W - TipLen + 1.f, P.R - 0.5f);
-		return P;
-	}
-
-	/** 填充带：把 [Xa,Xb]×[RowT0,RowT1] 与轮廓求交，按断点拆成若干四边形逐个提交 */
-	void DrawFillBand(const FArenaHudCanvas& C, const FVector2f& Pos, const FBarProfile& P,
-		float Xa, float Xb, float RowT0, float RowT1, const FLinearColor& ColTop, const FLinearColor& ColBot, int32 Layer)
-	{
-		Xa = FMath::Max(Xa, P.L - 0.5f);
-		Xb = FMath::Min(Xb, P.R + 0.5f);
-		if (Xb - Xa < 0.4f || RowT1 - RowT0 < 0.003f) return;
-		float Break[4];
-		int32 N = 0;
-		Break[N++] = Xa;
-		if (P.SlantEnd > Xa && P.SlantEnd < Xb) Break[N++] = P.SlantEnd;
-		if (P.TipStart > Xa && P.TipStart < Xb) Break[N++] = P.TipStart;
-		Break[N++] = Xb;
-
-		const float RowTop = FMath::Lerp(P.T, P.B, RowT0);
-		const float RowBot = FMath::Lerp(P.T, P.B, RowT1);
-		const FLinearColor CT = FMath::Lerp(ColTop, ColBot, RowT0);
-		const FLinearColor CB = FMath::Lerp(ColTop, ColBot, RowT1);
-
-		for (int32 i = 0; i < N - 1; ++i)
-		{
-			const float A = Break[i], B = Break[i + 1];
-			const float TopA = FMath::Max(P.TopAt(A), RowTop), TopB = FMath::Max(P.TopAt(B), RowTop);
-			const float BotA = FMath::Min(P.BotAt(A), RowBot), BotB = FMath::Min(P.BotAt(B), RowBot);
-			if (TopA >= BotA - 0.2f || TopB >= BotB - 0.2f) continue;
-			TArray<FVector2f> Pts;
-			TArray<FLinearColor> Cs;
-			Pts.Add(Pos + Vec(A, TopA)); Pts.Add(Pos + Vec(B, TopB)); Pts.Add(Pos + Vec(B, BotB)); Pts.Add(Pos + Vec(A, BotA));
-			Cs.Add(CT); Cs.Add(CT); Cs.Add(CB); Cs.Add(CB);
-			C.Poly(Pts, Cs, Layer);
-		}
-	}
 
 	/** 菱形（旋转 45° 方块）四角点 */
 	void DiamondPts(const FVector2f& Center, float HalfDiag, TArray<FVector2f>& Out)
@@ -101,6 +42,28 @@ namespace
 }
 
 // ---------- 基础 ----------
+UArenaCombatHudWidget::UArenaCombatHudWidget(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	// Constructor references are tracked by the cooker; no runtime filesystem dependency.
+	for (const TCHAR* Name : { TEXT("scroll"), TEXT("portrait"), TEXT("punch"), TEXT("heavy"),
+		TEXT("kick"), TEXT("hkick"), TEXT("swap"), TEXT("blast"), TEXT("sblast"),
+		TEXT("aim"), TEXT("domain"), TEXT("mouse") })
+	{
+		const FString Path = FString::Printf(TEXT("/Game/UI/HUD/V9/T_%s.T_%s"), Name, Name);
+		ConstructorHelpers::FObjectFinder<UTexture2D> Asset(*Path);
+		if (Asset.Succeeded()) HudTextures.Add(FName(Name), Asset.Object);
+	}
+}
+
+void UArenaCombatHudWidget::DrawIcon(const FArenaHudCanvas& C, FName Id, const FVector2f& Center,
+	float Size, const FLinearColor& Color, int32 Layer) const
+{
+	if (const TObjectPtr<UTexture2D>* Texture = HudTextures.Find(Id))
+		C.Image(Texture->Get(), Center - Vec(Size * .5f, Size * .5f), Vec(Size, Size), Color, Layer);
+	else DrawArenaHudIcon(C, Id, Center, Size, Color, Layer);
+}
+
 void UArenaCombatHudWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -333,19 +296,21 @@ int32 UArenaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry
 	const double Now = LastTime;
 
 	int32 L = LayerId;
-	DrawTopBand(C, L++);
-	if (PlayerView.bValid) DrawFighterSide(C, true, PlayerView, PlayerAnim, Now, L++);
-	if (OpponentView.bValid) DrawFighterSide(C, false, OpponentView, OpponentAnim, Now, L++);
-	DrawCenterStatus(C, PlayerView, PlayerAnim, OpponentView, Now, L++);
+	DrawTopBand(C, L); L += 32;
+	if (PlayerView.bValid) DrawFighterSide(C, true, PlayerView, PlayerAnim, Now, L);
+	L += 32;
+	if (OpponentView.bValid) DrawFighterSide(C, false, OpponentView, OpponentAnim, Now, L);
+	L += 32;
+	DrawCenterStatus(C, PlayerView, PlayerAnim, OpponentView, Now, L); L += 32;
 	if (PlayerView.bValid)
 	{
-		DrawSkillArea(C, PlayerView, PlayerAnim, Now, L++);
-		DrawFormAndCharge(C, PlayerView, PlayerAnim, Now, L++);
-		DrawCrosshairChargeRing(C, L++);
+		DrawSkillArea(C, PlayerView, PlayerAnim, Now, L); L += 32;
+		DrawFormAndCharge(C, PlayerView, PlayerAnim, Now, L); L += 32;
+		DrawCrosshairChargeRing(C, L); L += 32;
 	}
-	DrawFloats(C, Now, L++);
-	DrawKeyHints(C, L++);
-	DrawResult(C, Now, L++);
+	DrawFloats(C, Now, L); L += 32;
+	DrawKeyHints(C, L); L += 32;
+	DrawResult(C, Now, L); L += 32;
 	return L;
 }
 
@@ -384,316 +349,93 @@ float UArenaCombatHudWidget::Chip(const FArenaHudCanvas& C, const FVector2f& Pos
 	return W;
 }
 
-void UArenaCombatHudWidget::DrawPointedBar(const FArenaHudCanvas& C, const FVector2f& Pos, float W, float H,
-	float LeftSlant, float TipLen, float Fill, float Ghost, const FLinearColor Seg[5], bool bRightAnchor,
-	double NowT, int32 Layer, bool bLowPulse) const
+void UArenaCombatHudWidget::DrawPointedBar(const FArenaHudCanvas& C, const FVector2f& Pos,
+	float W, float H, float LeftSlant, float TipLen, float FillFraction, float GhostFraction,
+	const FLinearColor Seg[5], bool bRightAnchor, double NowT, int32 Layer, bool bLowPulse) const
 {
-	// 低生命呼吸：整条外圈红光（1.2s ease-in-out 呼吸，§7）
-	if (bLowPulse)
+	auto Point = [&](float X, float Y) { return Pos + Vec(bRightAnchor ? W - X : X, Y); };
+	const FLinearColor Rail = FLinearColor::FromSRGBColor(FColor(210, 188, 120));
+	C.Poly({ Point(LeftSlant, 0), Point(W, 0), Point(W - TipLen, H), Point(0, H) },
+		{ Rail, Rail, Rail * .65f, Rail * .65f }, Layer);
+	// Thin, clipped scan strips preserve the parallelogram and mirror the complete P2 bar.
+	const float Fill = FMath::Clamp(FillFraction, 0.f, 1.f) * W;
+	const float Ghost = FMath::Clamp(GhostFraction, 0.f, 1.f) * W;
+	const float Stops[5] = {0.f, .22f, .49f, .70f, 1.f};
+	auto ColorAt = [&](float T) {
+		for (int32 I = 0; I < 4; ++I)
+			if (T <= Stops[I + 1]) return FMath::Lerp(Seg[I], Seg[I + 1], (T - Stops[I]) / (Stops[I + 1] - Stops[I]));
+		return Seg[4];
+	};
+	for (float Y = 2.f; Y < H - 2.f; Y += .5f)
 	{
-		const float Pulse = 0.5f - 0.5f * FMath::Cos(FMath::Fmod(NowT, 1.2) / 1.2 * 2.f * PI);
-		TArray<FVector2f> Glow;
-		Glow.Add(Pos + Vec(LeftSlant - 2.f, -2.f));
-		Glow.Add(Pos + Vec(W - TipLen + 2.f, -2.f));
-		Glow.Add(Pos + Vec(W + 4.f, H * 0.5f));
-		Glow.Add(Pos + Vec(W - TipLen + 2.f, H + 2.f));
-		Glow.Add(Pos + Vec(-2.f, H + 2.f));
-		Glow.Add(Pos + Vec(LeftSlant - 2.f, -2.f));
-		C.Lines(Glow, WithAlpha(FArenaHudPalette::Danger, 0.35f + 0.45f * Pulse), 4.f, Layer);
-	}
-
-	// 背景（外管：冷白高光 → 暗管底的竖向渐变）
-	{
-		TArray<FVector2f> Pts;
-		Pts.Add(Pos + Vec(LeftSlant, 0.f)); Pts.Add(Pos + Vec(W - TipLen, 0.f)); Pts.Add(Pos + Vec(W, H * 0.5f));
-		Pts.Add(Pos + Vec(W - TipLen, H)); Pts.Add(Pos + Vec(0.f, H));
-		TArray<FLinearColor> Cs;
-		const FLinearColor TopLight(0.75f, 0.83f, 0.95f, 0.40f);
-		const FLinearColor BotDark(0.04f, 0.08f, 0.16f, 0.60f);
-		for (const FVector2f& Pt : Pts) Cs.Add(FMath::Lerp(TopLight, BotDark, (Pt.Y - Pos.Y) / H));
-		C.Poly(Pts, Cs, Layer);
-	}
-	// 内槽（暗底）
-	const FBarProfile Inner = MakeProfile(W, H, LeftSlant, TipLen);
-	{
-		TArray<FVector2f> Pts;
-		Pts.Add(Pos + Vec(Inner.L, Inner.T)); Pts.Add(Pos + Vec(Inner.SlantEnd, Inner.T)); Pts.Add(Pos + Vec(Inner.R, Inner.MidY));
-		Pts.Add(Pos + Vec(Inner.SlantEnd, Inner.B)); Pts.Add(Pos + Vec(Inner.L, Inner.B));
-		C.Poly(Pts, { FArenaHudPalette::T0, FArenaHudPalette::T0, FArenaHudPalette::T1, FArenaHudPalette::T1, FArenaHudPalette::T0 }, Layer + 1);
-	}
-
-	// 填充按锚定侧算内槽宽度（§8.3：右锚定条按内层测量）；虚血残影在填充后方延伸到 Union 区间
-	const float InnerW = Inner.R - Inner.L;
-	const float FillEdge = bRightAnchor ? Inner.R - InnerW * FMath::Clamp(Fill, 0.f, 1.f)
-		: Inner.L + InnerW * FMath::Clamp(Fill, 0.f, 1.f);
-	const float GhostEdge = bRightAnchor ? Inner.R - InnerW * FMath::Clamp(Ghost, 0.f, 1.f)
-		: Inner.L + InnerW * FMath::Clamp(Ghost, 0.f, 1.f);
-	// 左锚定 = [内槽左缘, max(填充缘, 虚血缘)]；右锚定 = [min(...), 内槽右缘]
-	const float FillLo = bRightAnchor ? FMath::Min(FillEdge, GhostEdge) : Inner.L;
-	const float FillHi = bRightAnchor ? Inner.R : FMath::Max(FillEdge, GhostEdge);
-
-	// 虚血残影在填充后面（画整个 Union 区间，填充随后盖住重叠部分）
-	if (FMath::Abs(GhostEdge - FillEdge) > 0.8f)
-	{
-		DrawFillBand(C, Pos, Inner, FillLo, FillHi, 0.f, 1.f,
-			FArenaHudPalette::GhostSeg[0], FArenaHudPalette::GhostSeg[1], Layer + 2);
-	}
-	// 五段管体填充（亮带固定约 38% 高度，§3.1 实测；5 个色阶 = 4 段线性）；只覆盖填充自身区间
-	const float BandLo = bRightAnchor ? FillEdge : Inner.L;
-	const float BandHi = bRightAnchor ? Inner.R : FillEdge;
-	constexpr float Stops[5] = { 0.f, 0.17f, 0.38f, 0.62f, 1.f };
-	for (int32 i = 0; i < 4; ++i)
-	{
-		DrawFillBand(C, Pos, Inner, BandLo, BandHi, Stops[i], Stops[i + 1], Seg[i], Seg[i + 1], Layer + 3);
-	}
-	// 前沿光刃（2px 白 + 青白柔光）
-	if (Fill > 0.004f)
-	{
-		const float EdgeX = FMath::Clamp(FillEdge, Inner.L, Inner.R);
-		const float Top = Inner.TopAt(EdgeX), Bot = Inner.BotAt(EdgeX);
-		C.Lines({ Pos + Vec(EdgeX, Top), Pos + Vec(EdgeX, Bot) }, FLinearColor(0.62f, 0.91f, 0.96f, 0.35f), 6.f, Layer + 4);
-		C.Lines({ Pos + Vec(EdgeX, Top), Pos + Vec(EdgeX, Bot) }, FLinearColor(1.f, 1.f, 1.f, 0.9f), 2.f, Layer + 4);
-	}
-	// 外框 1px 冷白描边
-	{
-		TArray<FVector2f> Pts;
-		Pts.Add(Pos + Vec(LeftSlant, 0.f)); Pts.Add(Pos + Vec(W - TipLen, 0.f)); Pts.Add(Pos + Vec(W, H * 0.5f));
-		Pts.Add(Pos + Vec(W - TipLen, H)); Pts.Add(Pos + Vec(0.f, H));
-		C.Lines(Pts, FLinearColor(1.f, 1.f, 1.f, 0.42f), 1.f, Layer + 5, true);
+		const float Y1 = FMath::Min(Y + .5f, H - 2.f);
+		const float X0 = LeftSlant * (1.f - Y / H) + 1.f, X1 = W - TipLen * Y / H - 1.f;
+		const float X2 = LeftSlant * (1.f - Y1 / H) + 1.f, X3 = W - TipLen * Y1 / H - 1.f;
+		auto Strip = [&](float End, FLinearColor A, FLinearColor B, int32 L) {
+			if (End <= FMath::Max(X0, X2)) return;
+			C.Poly({ Point(X0,Y), Point(FMath::Min(X1,End),Y), Point(FMath::Min(X3,End),Y1), Point(X2,Y1) }, {A,A,B,B}, L);
+		};
+		const FLinearColor Empty = FLinearColor::FromSRGBColor(FColor(34,42,39));
+		Strip(W, Empty, Empty, Layer + 1);
+		Strip(Ghost, FArenaHudPalette::GhostSeg[1], FArenaHudPalette::GhostSeg[1], Layer + 2);
+		Strip(Fill, ColorAt((Y-2.f)/(H-4.f)), ColorAt((Y1-2.f)/(H-4.f)), Layer + 3);
 	}
 }
 
-void UArenaCombatHudWidget::DrawCurseGate(const FArenaHudCanvas& C, const FVector2f& BarPos, float W, float H,
-	float ThresholdFraction, bool bRightAnchor, int32 Layer) const
+void UArenaCombatHudWidget::DrawCurseGate(const FArenaHudCanvas& C, const FVector2f& Pos,
+	float W, float H, float ThresholdFraction, bool bRightAnchor, int32 Layer) const
 {
-	const float X = BarPos.X + (bRightAnchor ? W * (1.f - ThresholdFraction) : W * ThresholdFraction);
-	const float Y0 = BarPos.Y - 4.f, Y1 = BarPos.Y + H + 4.f;
-	// 白热描边负责对比、红色负责危险语义（§3.1 8 点门槛刻度；上下各出头 4px）
-	C.Lines({ Vec(X, Y0), Vec(X, Y1) }, FLinearColor(1.f, 0.956f, 0.941f, 0.92f), 4.f, Layer);
-	C.Lines({ Vec(X, Y0), Vec(X, Y1) }, FArenaHudPalette::Danger, 2.f, Layer + 1);
-	C.Poly({ Vec(X - 4.f, Y1), Vec(X + 4.f, Y1), Vec(X, Y1 + 4.f) },
-		{ FArenaHudPalette::Danger, FArenaHudPalette::Danger, FArenaHudPalette::Danger }, Layer + 1);
-	C.Poly({ Vec(X - 4.f, Y0), Vec(X + 4.f, Y0), Vec(X, Y0 - 4.f) },
-		{ FArenaHudPalette::Danger, FArenaHudPalette::Danger, FArenaHudPalette::Danger }, Layer + 1);
+	const float X = Pos.X + W * (bRightAnchor ? 1.f - ThresholdFraction : ThresholdFraction);
+	C.Lines({Vec(X,Pos.Y+3.f),Vec(X,Pos.Y+H-3.f)}, FLinearColor::FromSRGBColor(FColor(220,211,184)), 2.f, Layer);
 }
 
-void UArenaCombatHudWidget::DrawActionPips(const FArenaHudCanvas& C, const FVector2f& BarRightEnd,
+void UArenaCombatHudWidget::DrawActionPips(const FArenaHudCanvas& C, const FVector2f& Start,
 	const FArenaHudSideView& V, const FArenaHudSideAnim& A, double NowT, int32 Layer) const
 {
-	const float RightX = BarRightEnd.X;
-	const float HalfDiag = 9.2f;   // 13×13 菱形豆的半对角（§3.3 尺寸待决项取 13）
+	C.Text(TEXT("行动"), Start, 9.f, FArenaHudPalette::Fg, Layer);
 	const int32 Count = FMath::Clamp(FMath::FloorToInt32(V.MaxAction), 1, 5);
-	const float SpendPulse = FMath::Clamp(1.f - (NowT - A.PipSpendTime) / 0.45, 0.0, 1.0);
-
-	C.Text(TEXT("行动"), Vec(RightX - StackW, PipsY - 7.f), 9.f, FArenaHudPalette::T4, Layer, EArenaHudAlign::Left);
-	C.Text(FString::FromInt(A.PipCount),
-		Vec(RightX - 3.f - HalfDiag - (Count - 1) * 24.f - 14.f, PipsY - 8.f), 12.f,
-		A.PipCount == 0 ? FArenaHudPalette::Danger : WithAlpha(FArenaHudPalette::T5, 0.86f), Layer, EArenaHudAlign::Right);
-
-	for (int32 i = 0; i < Count; ++i)
+	for (int32 I = 0; I < Count; ++I)
 	{
-		const FVector2f Center(RightX - 3.f - HalfDiag - (Count - 1 - i) * 24.f, PipsY);
-		const bool bOn = i < A.PipCount;
-
-		// 外框菱形：左上受光、右下背光
-		TArray<FVector2f> Frame;
-		DiamondPts(Center, HalfDiag, Frame);
-		C.Poly(Frame, { FLinearColor(1, 1, 1, .40f), FLinearColor(.59f, .75f, 1, .12f), FLinearColor(0, 0, 0, .55f), FLinearColor(.59f, .75f, 1, .12f) }, Layer);
-		// 内面：满 = 行动金管体，空 = 暗灰阶（满/空靠"有没有光"区分，§3.3）
-		const float H2 = HalfDiag - 1.4f;
-		TArray<FVector2f> Face;
-		DiamondPts(Center, H2, Face);
-		TArray<FLinearColor> FaceColors;
-		if (bOn)
-		{
-			FaceColors = { FArenaHudPalette::ActionSeg[1], FArenaHudPalette::ActionSeg[2], FArenaHudPalette::ActionSeg[3], FArenaHudPalette::ActionSeg[1] };
-		}
-		else
-		{
-			FaceColors = { FArenaHudPalette::PipOffSeg[0], FArenaHudPalette::PipOffSeg[1], FArenaHudPalette::PipOffSeg[2], FArenaHudPalette::PipOffSeg[0] };
-		}
-		C.Poly(Face, FaceColors, Layer + 1);
-		// 宝石高光：左上小三角
-		if (bOn)
-		{
-			C.Poly({ Center + Vec(0.f, -H2 + 1.8f), Center + Vec(H2 - 1.8f, 0.f), Center + Vec(-H2 + 1.8f, 0.f) },
-				{ FLinearColor(1, 1, 1, .85f), FLinearColor(1, 1, 1, 0.f), FLinearColor(1, 1, 1, 0.f) }, Layer + 2);
-		}
-		// 刚被扣掉的豆：0.45s 泄光，把"扣 2 点"读成一个事件（§3.3）
-		if (!bOn && SpendPulse > 0.01f)
-		{
-			TArray<FLinearColor> Flash;
-			for (int32 K = 0; K < 4; ++K) Flash.Add(FLinearColor(1, 1, 1, 0.55f * SpendPulse));
-			C.Poly(Face, Flash, Layer + 2);
-		}
+		const FVector2f P = Start + Vec(28.f + I * 31.f, 2.f);
+		const bool bOn = I < A.PipCount;
+		const FLinearColor Top = FLinearColor::FromSRGBColor(bOn ? FColor(249,207,99) : FColor(54,59,44));
+		const FLinearColor Bottom = FLinearColor::FromSRGBColor(bOn ? FColor(211,148,44) : FColor(34,40,30));
+		C.Poly({P+Vec(2,0),P+Vec(29,0),P+Vec(27,7),P+Vec(0,7)}, {Top,Top,Bottom,Bottom}, Layer+1);
 	}
 }
 
 void UArenaCombatHudWidget::DrawPortrait(const FArenaHudCanvas& C, const FVector2f& Pos,
 	const FArenaHudSideView& V, bool bLeft, double NowT, int32 Layer) const
 {
-	constexpr float S = PortraitS, Cut = 12.f;
-	// 四角切角方框（切角 12px 安全区，§10.1）
-	auto CutPoly = [Pos, S, Cut](float Inset, TArray<FVector2f>& Out)
-	{
-		const float L = Pos.X + Inset, T = Pos.Y + Inset, R = Pos.X + S - Inset, B = Pos.Y + S - Inset;
-		const float K = Cut - Inset;
-		Out.Reset();
-		Out.Add(Vec(L + K, T)); Out.Add(Vec(R - K, T));
-		Out.Add(Vec(R, T + K)); Out.Add(Vec(R, B - K));
-		Out.Add(Vec(R - K, B)); Out.Add(Vec(L + K, B));
-		Out.Add(Vec(L, B - K)); Out.Add(Vec(L, T + K));
-	};
-
-	// 三层框：外细线渐变 / 深色带 / 暗像底
-	{
-		TArray<FVector2f> Pts;
-		CutPoly(0.f, Pts);
-		const FLinearColor TL(1, 1, 1, .34f), Mid(.59f, .75f, 1, .14f), BR(1, 1, 1, .16f);
-		TArray<FLinearColor> Cs;
-		for (const FVector2f& Pt : Pts)
-		{
-			const float K = ((Pt.X - Pos.X) + (Pt.Y - Pos.Y)) / (2.f * S);
-			Cs.Add(K < 0.5f ? FMath::Lerp(TL, Mid, K * 2.f) : FMath::Lerp(Mid, BR, (K - 0.5f) * 2.f));
-		}
-		C.Poly(Pts, Cs, Layer);
-	}
-	{
-		TArray<FVector2f> Pts;
-		CutPoly(1.f, Pts);
-		C.Poly(Pts, { FArenaHudPalette::T1, FArenaHudPalette::T1, FArenaHudPalette::T0, FArenaHudPalette::T0, FArenaHudPalette::T0, FArenaHudPalette::T0, FArenaHudPalette::T1, FArenaHudPalette::T1 }, Layer + 1);
-	}
-	{
-		TArray<FVector2f> Pts;
-		CutPoly(3.f, Pts);
-		C.Poly(Pts, { FArenaHudPalette::T2, FArenaHudPalette::T2, FArenaHudPalette::T0, FArenaHudPalette::T0, FArenaHudPalette::T0, FArenaHudPalette::T0, FArenaHudPalette::T2, FArenaHudPalette::T2 }, Layer + 2);
-	}
-
-	// 身份色边光条（P1 左缘 / P2 右缘）
-	const float EdgeX = bLeft ? Pos.X + 3.f : Pos.X + S - 5.f;
-	C.Box(Vec(EdgeX - (bLeft ? 3.f : -3.f), Pos.Y + 8.f), Vec(8.f, S - 16.f), WithAlpha(V.Identity, 0.16f), Layer + 2);
-	C.Box(Vec(EdgeX, Pos.Y + 8.f), Vec(2.f, S - 16.f), V.Identity, Layer + 3);
-
-	// 斜向高光（光自左上 45°）
-	C.Poly({ Pos + Vec(Cut, 0.f), Pos + Vec(34.f, 0.f), Pos + Vec(6.f, 36.f) },
-		{ FLinearColor(1, 1, 1, .16f), FLinearColor(1, 1, 1, .05f), FLinearColor(1, 1, 1, 0.f) }, Layer + 4);
-
-	// 占位字符（正式头像 512×512 资产就位后移除，§10.1）
-	if (V.Name.Len() > 0)
-	{
-		C.Text(V.Name.Left(1), Vec(Pos.X + S * 0.5f, Pos.Y + S * 0.5f - 17.f), 30.f, WithAlpha(FArenaHudPalette::Fg, 0.22f), Layer + 4, EArenaHudAlign::Center);
-	}
-
-	// P1/P2 角标
-	const float TagW = 22.f;
-	const float TagX = bLeft ? Pos.X + 3.f : Pos.X + S - 3.f - TagW;
-	C.Box(Vec(TagX, Pos.Y + S - 18.f), Vec(TagW, 15.f), FLinearColor(0.012f, 0.024f, 0.047f, 0.9f), Layer + 5);
-	C.Text(bLeft ? TEXT("P1") : TEXT("P2"), Vec(TagX + TagW * 0.5f, Pos.Y + S - 18.f + 2.f), 10.f, V.Identity, Layer + 6, EArenaHudAlign::Center);
-
-	// 双领域受压制的头像外圈转紫呼吸（§3.7）
-	if (V.bHasDomain && V.bDomainSuppressed)
-	{
-		const float Breath = 0.62f + 0.38f * (0.5f - 0.5f * FMath::Cos(FMath::Fmod(NowT, 1.6) / 1.6 * 2.f * PI));
-		TArray<FVector2f> RingPts;
-		const float Ex = 5.f;
-		RingPts.Add(Pos + Vec(-Ex + Cut, -Ex));
-		RingPts.Add(Pos + Vec(S + Ex - Cut, -Ex));
-		RingPts.Add(Pos + Vec(S + Ex, -Ex + Cut));
-		RingPts.Add(Pos + Vec(S + Ex, S + Ex - Cut));
-		RingPts.Add(Pos + Vec(S + Ex - Cut, S + Ex));
-		RingPts.Add(Pos + Vec(-Ex + Cut, S + Ex));
-		RingPts.Add(Pos + Vec(-Ex, S + Ex - Cut));
-		RingPts.Add(Pos + Vec(-Ex, -Ex + Cut));
-		RingPts.Add(Pos + Vec(-Ex + Cut, -Ex));
-		C.Lines(RingPts, WithAlpha(FArenaHudPalette::DomAct, Breath * 0.85f), 2.f, Layer + 5);
-	}
+	if (const auto* Texture = HudTextures.Find(TEXT("portrait")))
+		C.Image(Texture->Get(), Pos, Vec(92,100), FLinearColor::White, Layer, !bLeft);
+	if (V.bDomainSuppressed)
+		C.Ring(Pos+Vec(46,50),54,1.5f,WithAlpha(FArenaHudPalette::DomAct,.75f),Layer+2);
 }
 
-void UArenaCombatHudWidget::DrawFighterSide(const FArenaHudCanvas& C, bool bLeft, const FArenaHudSideView& V,
-	const FArenaHudSideAnim& A, double NowT, int32 Layer) const
+void UArenaCombatHudWidget::DrawFighterSide(const FArenaHudCanvas& C, bool bLeft,
+	const FArenaHudSideView& V, const FArenaHudSideAnim& A, double NowT, int32 Layer) const
 {
 	const float ViewW = DesignWidth(C);
-	const float RightX = bLeft ? IdentX + PortraitS + IdentGap + StackW : ViewW - IdentX;   // 条右端 635 / W-32
-	const float X0 = bLeft ? IdentX : RightX - (PortraitS + IdentGap + StackW);
-	const float StackX = X0 + PortraitS + IdentGap;
-	const float StackRight = StackX + StackW;
-
-	DrawPortrait(C, Vec(X0, IdentY), V, bLeft, NowT, Layer);
-	int32 L = Layer + 8;
-
-	// ---- 名字行：名 / 形态标签 / 咒力状态标签 / 生命数值 ----
-	const bool bRanged = V.Stance == EFighterStance::Ranged;
-	const float NameY = IdentY + 1.f;
-	const FVector2f NameSize = C.Measure(V.Name, 14.5f);
-	if (bLeft)
-	{
-		C.Text(V.Name, Vec(StackX, NameY), 14.5f, FArenaHudPalette::Fg, L, EArenaHudAlign::Left);
-		float Cur = StackX + NameSize.X + 9.f;
-		Cur += Chip(C, Vec(Cur, NameY + 1.f), 15.f, bRanged ? TEXT("远程 / 咒力放出") : TEXT("近战 / 咒力放出"),
-			9.f, FArenaHudPalette::T4, FArenaHudPalette::T3, WithAlpha(FArenaHudPalette::T2, 0.85f), L, EArenaHudAlign::Left) + 7.f;
-		// 咒力状态：已满 / 回气中 / 不足（warn2 红底）
-		const bool bDry = V.Curse < V.CurseMinCost;
-		const bool bFull = V.Curse >= V.MaxCurse - 0.5f;
-		const FString Note = bFull ? TEXT("咒力已满") : bDry ? TEXT("咒力不足 · 无法开炮")
-			: FString::Printf(TEXT("回气中 +%.0f/s"), V.CurseRegenPerSec);
-		Chip(C, Vec(Cur, NameY + 1.f), 15.f, Note, 9.f,
-			bDry ? FArenaHudPalette::Danger2 : FArenaHudPalette::T4,
-			bDry ? WithAlpha(FArenaHudPalette::Danger, 0.7f) : FArenaHudPalette::T3,
-			bDry ? WithAlpha(FLinearColor(0.35f, 0.08f, 0.05f), 0.92f) : WithAlpha(FArenaHudPalette::T2, 0.85f), L, EArenaHudAlign::Left);
-		// 生命数值（右对齐；受伤 0.18s 放大 1.18× 高亮）
-		const float Bump = EaseOut(1.f - FMath::Clamp((NowT - A.HpBumpTime) / 0.18, 0.0, 1.0));
-		const FString Suffix = FString::Printf(TEXT(" / %.0f"), V.MaxHealth);
-		const FString Main = FString::Printf(TEXT("%.0f"), V.Health);
-		const FVector2f SufSize = C.Measure(Suffix, 12.f);
-		const float MainSize = 15.f * (1.f + 0.18f * Bump);
-		C.Text(Suffix, Vec(StackRight, NameY + 3.f), 12.f, FArenaHudPalette::T4, L, EArenaHudAlign::Right);
-		C.Text(Main, Vec(StackRight - SufSize.X, NameY + 1.f), MainSize,
-			Bump > 0.01f ? FLinearColor(1, 1, 1, .98f) : WithAlpha(FArenaHudPalette::Fg, 0.92f), L, EArenaHudAlign::Right);
-	}
-	else
-	{
-		C.Text(V.Name, Vec(StackRight, NameY), 14.5f, FArenaHudPalette::Fg, L, EArenaHudAlign::Right);
-		float Cur = StackRight - NameSize.X - 9.f;
-		Cur -= Chip(C, Vec(Cur, NameY + 1.f), 15.f, bRanged ? TEXT("远程 / 咒力放出") : TEXT("近战 / 咒力放出"),
-			9.f, FArenaHudPalette::T4, FArenaHudPalette::T3, WithAlpha(FArenaHudPalette::T2, 0.85f), L, EArenaHudAlign::Right) + 7.f;
-		const bool bDry = V.Curse < V.CurseMinCost;
-		const bool bFull = V.Curse >= V.MaxCurse - 0.5f;
-		const FString Note = bFull ? TEXT("咒力已满") : bDry ? TEXT("咒力不足 · 无法开炮")
-			: FString::Printf(TEXT("回气中 +%.0f/s"), V.CurseRegenPerSec);
-		Cur -= Chip(C, Vec(Cur, NameY + 1.f), 15.f, Note, 9.f,
-			bDry ? FArenaHudPalette::Danger2 : FArenaHudPalette::T4,
-			bDry ? WithAlpha(FArenaHudPalette::Danger, 0.7f) : FArenaHudPalette::T3,
-			bDry ? WithAlpha(FLinearColor(0.35f, 0.08f, 0.05f), 0.92f) : WithAlpha(FArenaHudPalette::T2, 0.85f), L, EArenaHudAlign::Right) + 7.f;
-		const float Bump = EaseOut(1.f - FMath::Clamp((NowT - A.HpBumpTime) / 0.18, 0.0, 1.0));
-		// 镜像布局：当前值"1000 /"在左（随受伤放大），上限" 1000"跟在其后
-		const FString Main = FString::Printf(TEXT("%.0f /"), V.Health);
-		const FString Tail = FString::Printf(TEXT(" %.0f"), V.MaxHealth);
-		const float MainSize = 15.f * (1.f + 0.18f * Bump);
-		const FVector2f MainS = C.Measure(Main, MainSize);
-		C.Text(Main, Vec(StackX, NameY + 1.f), MainSize,
-			Bump > 0.01f ? FLinearColor(1, 1, 1, .98f) : WithAlpha(FArenaHudPalette::Fg, 0.92f), L, EArenaHudAlign::Left);
-		C.Text(Tail, Vec(StackX + MainS.X, NameY + 3.f), 12.f, FArenaHudPalette::T4, L, EArenaHudAlign::Left);
-	}
-	L += 2;
-
-	// ---- 生命条 / 咒力条（零间隙贴合，两条同族尖尾形制） ----
-	const bool bLowHp = V.Health / V.MaxHealth < 0.3f;
-	DrawPointedBar(C, Vec(StackX, HpY), StackW, HpH, HpSlant, HpTip, A.HpFillShown, A.GhostShown, FArenaHudPalette::HpSeg, !bLeft, NowT, L, bLowHp);
-	L += 7;
-	DrawPointedBar(C, Vec(StackX, CurseY), StackW, CurseH, CurseSlant, CurseTip, A.CurseShown, A.CurseShown, FArenaHudPalette::CurseSeg, !bLeft, NowT, L);
-	L += 7;
-	// 8 点门槛刻度（决策信息：低于该值无法开炮）
-	DrawCurseGate(C, Vec(StackX, CurseY), StackW, CurseH, FMath::Clamp(V.CurseMinCost / V.MaxCurse, 0.f, 1.f), !bLeft, L);
-	L += 3;
-
-	// ---- 行动点（只玩家侧；右对齐到条右端） ----
-	if (bLeft)
-	{
-		DrawActionPips(C, Vec(StackRight, PipsY), V, A, NowT, L);
-	}
+	const float StackX = bLeft ? 270.f : ViewW - 840.f;
+	if (const auto* Texture = HudTextures.Find(TEXT("scroll")))
+		C.Image(Texture->Get(), Vec(bLeft ? 90.f : ViewW - 870.f,32),Vec(780,155),FLinearColor::White,Layer,!bLeft);
+	DrawPortrait(C,Vec(bLeft ? 177.f : ViewW - 269.f,62),V,bLeft,NowT,Layer+1);
+	C.Text(V.Name,Vec(bLeft ? StackX+24.f : StackX+StackW-24.f,62),26.f,FArenaHudPalette::Fg,Layer+3,
+		bLeft ? EArenaHudAlign::Left : EArenaHudAlign::Right);
+	const float Hp = V.Health / V.MaxHealth;
+	auto S = [](const TCHAR* Hex) { return FLinearColor::FromSRGBColor(FColor::FromHex(Hex)); };
+	const FLinearColor Green[5] = {S(TEXT("366c4d")),S(TEXT("5eaa6c")),S(TEXT("88c18a")),S(TEXT("579760")),S(TEXT("3e7150"))};
+	const FLinearColor Yellow[5] = {S(TEXT("806b28")),S(TEXT("d0bf48")),S(TEXT("e0d16b")),S(TEXT("c2ad40")),S(TEXT("7e6d29"))};
+	const FLinearColor Red[5] = {S(TEXT("74251e")),S(TEXT("c14d36")),S(TEXT("e27654")),S(TEXT("af3c29")),S(TEXT("69251c"))};
+	const FLinearColor Blue[5] = {S(TEXT("25547a")),S(TEXT("5aace1")),S(TEXT("8dceef")),S(TEXT("4c99cf")),S(TEXT("234d78"))};
+	DrawPointedBar(C,Vec(StackX,HpY),StackW,HpH,10,12,A.HpFillShown,A.GhostShown,Hp<=.3f?Red:Hp<=.5f?Yellow:Green,!bLeft,NowT,Layer+4);
+	const FVector2f CursePos(StackX+(bLeft?-10.f:10.f),CurseY);
+	DrawPointedBar(C,CursePos,StackW,CurseH,7,11,A.CurseShown,A.CurseShown,Blue,!bLeft,NowT,Layer+9);
+	DrawCurseGate(C,CursePos,StackW,CurseH,V.CurseMinCost/V.MaxCurse,!bLeft,Layer+13);
+	if (bLeft) DrawActionPips(C,Vec(StackX,123),V,A,NowT,Layer+14);
 }
 
-// ---------- 顶部中央：模式徽标 + 领域状态文字（§3.7；一个字都不少） ----------
 void UArenaCombatHudWidget::DrawCenterStatus(const FArenaHudCanvas& C, const FArenaHudSideView& Player,
 	const FArenaHudSideAnim& PAnim, const FArenaHudSideView& Opponent, double NowT, int32 Layer) const
 {
@@ -740,18 +482,18 @@ void UArenaCombatHudWidget::DrawCenterStatus(const FArenaHudCanvas& C, const FAr
 	// ---- 展开中：大字结界名 + 倒计时 + 三个发炮刻度 + 在途球数 ----
 	if (Player.bValid && Player.bHasDomain)
 	{
-		C.Text(TEXT("领域展开 · 极宴流光"), Vec(CX, 52.f), 27.f, FArenaHudPalette::Gold, Layer, EArenaHudAlign::Center);
+		C.Text(TEXT("领域展开 · 极宴流光"), Vec(CX, 182.0f), 27.f, FArenaHudPalette::Gold, Layer, EArenaHudAlign::Center);
 		// 饰线 + 两端菱形
-		C.Lines({ Vec(CX - 230.f, 88.f), Vec(CX + 230.f, 88.f) }, WithAlpha(FArenaHudPalette::Gold, 0.5f), 1.f, Layer);
-		C.Disc(Vec(CX - 233.f, 88.f), 3.5f, FArenaHudPalette::Gold, Layer);
-		C.Disc(Vec(CX + 233.f, 88.f), 3.5f, FArenaHudPalette::Gold, Layer);
+		C.Lines({ Vec(CX - 230.f, 218.0f), Vec(CX + 230.f, 218.0f) }, WithAlpha(FArenaHudPalette::Gold, 0.5f), 1.f, Layer);
+		C.Disc(Vec(CX - 233.f, 218.0f), 3.5f, FArenaHudPalette::Gold, Layer);
+		C.Disc(Vec(CX + 233.f, 218.0f), 3.5f, FArenaHudPalette::Gold, Layer);
 
 		const bool bSupp = Player.bDomainSuppressed;
 		// 倒计时
-		C.Text(FString::Printf(TEXT("%.1f"), Player.DomainRemain), Vec(CX - 160.f, 92.f), 18.f, FArenaHudPalette::Fg, Layer + 1, EArenaHudAlign::Right);
+		C.Text(FString::Printf(TEXT("%.1f"), Player.DomainRemain), Vec(CX - 160.f, 222.0f), 18.f, FArenaHudPalette::Fg, Layer + 1, EArenaHudAlign::Right);
 		// 发炮刻度条（300×12）
 		const float BarL = CX - 150.f, BarW = 300.f;
-		C.Lines({ Vec(BarL, 103.f), Vec(BarL + BarW, 103.f) }, WithAlpha(FArenaHudPalette::T4, 0.22f), 2.f, Layer);
+		C.Lines({ Vec(BarL, 233.0f), Vec(BarL + BarW, 233.0f) }, WithAlpha(FArenaHudPalette::T4, 0.22f), 2.f, Layer);
 		for (int32 i = 0; i < 3; ++i)
 		{
 			const float Tx = BarL + BarW * (i == 0 ? 0.05f : i == 1 ? 0.383f : 0.717f);
@@ -768,7 +510,7 @@ void UArenaCombatHudWidget::DrawCenterStatus(const FArenaHudCanvas& C, const FAr
 			}
 			// 菱形刻度（9px 旋转 45°）
 			TArray<FVector2f> D;
-			DiamondPts(Vec(Tx, 103.f), 4.5f, D);
+			DiamondPts(Vec(Tx, 233.0f), 4.5f, D);
 			TArray<FLinearColor> Cs;
 			for (int32 K = 0; K < 4; ++K) Cs.Add(Fill);
 			C.Poly(D, Cs, Layer + 1);
@@ -776,25 +518,25 @@ void UArenaCombatHudWidget::DrawCenterStatus(const FArenaHudCanvas& C, const FAr
 		}
 		// 进度游标
 		const float Elapsed = FMath::Clamp(1.f - Player.DomainRemain / Player.DomainDuration, 0.f, 1.f);
-		C.Lines({ Vec(BarL + BarW * Elapsed, 95.f), Vec(BarL + BarW * Elapsed, 111.f) }, FArenaHudPalette::Gold, 2.f, Layer + 2);
+		C.Lines({ Vec(BarL + BarW * Elapsed, 225.0f), Vec(BarL + BarW * Elapsed, 241.0f) }, FArenaHudPalette::Gold, 2.f, Layer + 2);
 		// 下一发 / 压制文案
 		if (bSupp)
 		{
-			C.Text(TEXT("自动炮暂停"), Vec(CX + 160.f, 96.f), 11.f, FArenaHudPalette::Muted, Layer + 1, EArenaHudAlign::Left);
+			C.Text(TEXT("自动炮暂停"), Vec(CX + 160.f, 226.0f), 11.f, FArenaHudPalette::Muted, Layer + 1, EArenaHudAlign::Left);
 		}
 		else if (Player.NextOrbIn >= 0.f)
 		{
 			C.Text(Player.bNextOrbSkipped ? TEXT("咒力不足 · 本发跳过") : FString::Printf(TEXT("下一发 %.1fs"), Player.NextOrbIn),
-				Vec(CX + 160.f, 96.f), 11.f, Player.bNextOrbSkipped ? WithAlpha(FArenaHudPalette::Danger, 0.9f) : WithAlpha(FArenaHudPalette::Gold, 0.95f), Layer + 1, EArenaHudAlign::Left);
+				Vec(CX + 160.f, 226.0f), 11.f, Player.bNextOrbSkipped ? WithAlpha(FArenaHudPalette::Danger, 0.9f) : WithAlpha(FArenaHudPalette::Gold, 0.95f), Layer + 1, EArenaHudAlign::Left);
 		}
 		else
 		{
-			C.Text(TEXT("本轮结束"), Vec(CX + 160.f, 96.f), 11.f, FArenaHudPalette::Muted, Layer + 1, EArenaHudAlign::Left);
+			C.Text(TEXT("本轮结束"), Vec(CX + 160.f, 226.0f), 11.f, FArenaHudPalette::Muted, Layer + 1, EArenaHudAlign::Left);
 		}
 		// 在途球数
 		for (int32 i = 0; i < 3; ++i)
 		{
-			const FVector2f O(CX + 252.f + i * 14.f, 103.f);
+			const FVector2f O(CX + 252.f + i * 14.f, 233.f);
 			if (i < Player.OrbsInFlight)
 			{
 				C.Disc(O, 4.f, FArenaHudPalette::DomAct, Layer + 1);
@@ -809,19 +551,19 @@ void UArenaCombatHudWidget::DrawCenterStatus(const FArenaHudCanvas& C, const FAr
 	if (bSuppressed)
 	{
 		const float Breath = 0.6f + 0.4f * (0.5f - 0.5f * FMath::Cos(FMath::Fmod(NowT, 1.6) / 1.6 * 2.f * PI));
-		C.Lines({ Vec(CX - 260.f, 127.f), Vec(CX + 260.f, 127.f) }, WithAlpha(FArenaHudPalette::DomAct, 0.5f * Breath), 2.f, Layer);
+		C.Lines({ Vec(CX - 260.f, 257.0f), Vec(CX + 260.f, 257.0f) }, WithAlpha(FArenaHudPalette::DomAct, 0.5f * Breath), 2.f, Layer);
 		for (int32 i = -1; i <= 1; ++i)
 		{
 			TArray<FVector2f> D;
-			DiamondPts(Vec(CX + i * 40.f, 127.f), 4.5f, D);
+			DiamondPts(Vec(CX + i * 40.f, 257.0f), 4.5f, D);
 			C.Lines(D, WithAlpha(FArenaHudPalette::DomAct, 0.85f * Breath), 1.5f, Layer + 1, true);
 		}
-		C.Lines({ Vec(CX - 260.f, 123.f), Vec(CX - 260.f, 131.f) }, WithAlpha(FArenaHudPalette::DomAct, 0.7f), 2.f, Layer);
-		C.Lines({ Vec(CX + 260.f, 123.f), Vec(CX + 260.f, 131.f) }, WithAlpha(FArenaHudPalette::DomAct, 0.7f), 2.f, Layer);
+		C.Lines({ Vec(CX - 260.f, 253.0f), Vec(CX - 260.f, 261.0f) }, WithAlpha(FArenaHudPalette::DomAct, 0.7f), 2.f, Layer);
+		C.Lines({ Vec(CX + 260.f, 253.0f), Vec(CX + 260.f, 261.0f) }, WithAlpha(FArenaHudPalette::DomAct, 0.7f), 2.f, Layer);
 		const FString Banner = TEXT("领域受压制 · 自动炮暂停");
 		const FVector2f Bs = C.Measure(Banner, 11.5f);
-		C.Box(Vec(CX - Bs.X * 0.5f - 11.f, 138.f), Vec(Bs.X + 22.f, 19.f), FLinearColor(0.031f, 0.055f, 0.102f, 0.8f), Layer);
-		C.Text(Banner, Vec(CX, 140.5f), 11.5f, FLinearColor(0.765f, 0.8f, 0.855f, 1.f), Layer + 1, EArenaHudAlign::Center);
+		C.Box(Vec(CX - Bs.X * 0.5f - 11.f, 268.0f), Vec(Bs.X + 22.f, 149.0f), FLinearColor(0.031f, 0.055f, 0.102f, 0.8f), Layer);
+		C.Text(Banner, Vec(CX, 270.5f), 11.5f, FLinearColor(0.765f, 0.8f, 0.855f, 1.f), Layer + 1, EArenaHudAlign::Center);
 	}
 
 	// ---- 模式徽标（顶部中央 y=168：当前模式 + 训练开关） ----
@@ -893,20 +635,15 @@ void UArenaCombatHudWidget::DrawSkillArea(const FArenaHudCanvas& C, const FArena
 		const bool bUse = (Bi == 0 && bLmbUse) || (Bi == 1 && bQUse);
 		const bool bCool = Bi == 1 && bSuperCd;
 
-		// 外圈（受光环）
-		C.Disc(Center, B.R, bUse ? FLinearColor(1.f, 0.965f, 0.69f, 0.9f)
-			: bUlt ? (bReady ? WithAlpha(FArenaHudPalette::Deng3, 0.85f) : FLinearColor(0.886f, 0.965f, 1.f, 0.6f))
-			: FLinearColor(0.75f, 0.83f, 0.95f, 0.55f), Layer);
-		// 内盘（左上受光的暗盘）
-		C.Disc(Center, B.R - 1.6f, bCool ? FLinearColor(0.07f, 0.1f, 0.16f, 0.98f) : FLinearColor(0.08f, 0.12f, 0.19f, 0.99f), Layer + 1);
-		C.Disc(Center + Vec(-B.R * 0.2f, -B.R * 0.28f), (B.R - 2.f) * 0.8f, FLinearColor(0.1f, 0.15f, 0.24f, 0.9f), Layer + 2);
-		C.Disc(Center + Vec(-B.R * 0.2f, -B.R * 0.3f), (B.R - 2.f) * 0.42f, FLinearColor(1.f, 1.f, 1.f, 0.05f), Layer + 3);
+		// v9: white emblems over a quiet transparent disk; state rings stay legible.
+		if (Bi > 0) C.Ring(Center, B.R, .5f, WithAlpha(FArenaHudPalette::Fg,.18f),Layer);
+		if (bCool || bUse) C.Disc(Center,B.R,FLinearColor(0,0,0,bUse?.10f:.25f),Layer+1);
 
 		// 图标（只有图标，没有技能名文字 —— §3.4 明确设计决定）
 		const FLinearColor IconCol = bUse ? FArenaHudPalette::Chg
 			: bUlt ? (bReady ? FArenaHudPalette::Deng3 : WithAlpha(FArenaHudPalette::Fg, 0.85f))
 			: bCool ? WithAlpha(FArenaHudPalette::Fg, 0.3f) : FArenaHudPalette::Fg;
-		DrawArenaHudIcon(C, B.Icon, Center, bUlt ? 46.f : 38.f, IconCol, Layer + 4);
+		DrawIcon(C, B.Icon, Center, bUlt ? 76.f : 62.f, IconCol, Layer + 4);
 
 		// 超级炮冷却：自顶部顺时针的暗色扇形扫掠（不写秒数，§9）
 		if (bCool && CdFrac > 0.004f)
@@ -959,24 +696,24 @@ void UArenaCombatHudWidget::DrawSkillArea(const FArenaHudCanvas& C, const FArena
 		// 键位标识：压在按钮下缘外（bottom:-9px，高 15px）
 		if (B.bMouseKey)
 		{
-			C.Box(Vec(B.X - 14.f, SkillY + B.R + 1.5f), Vec(28.f, 15.f), FLinearColor(0.012f, 0.024f, 0.047f, 0.94f), Layer + 5);
+			C.Box(Vec(B.X - 14.f, SkillY + B.R + 1.5f), Vec(28.f, 15.f), FLinearColor(.91f,.90f,.82f,1.f), Layer + 5);
 			TArray<FVector2f> Outline;
 			Outline.Add(Vec(B.X - 13.5f, SkillY + B.R + 2.f)); Outline.Add(Vec(B.X + 13.5f, SkillY + B.R + 2.f));
 			Outline.Add(Vec(B.X + 13.5f, SkillY + B.R + 16.f)); Outline.Add(Vec(B.X - 13.5f, SkillY + B.R + 16.f));
 			C.Lines(Outline, FLinearColor(0.59f, 0.75f, 1.f, 0.3f), 1.f, Layer + 6, true);
-			DrawArenaHudIcon(C, FName("mouse"), Vec(B.X, SkillY + B.R + 9.f), 16.f, FArenaHudPalette::Fg, Layer + 6);
+			DrawIcon(C, FName("mouse"), Vec(B.X, SkillY + B.R + 9.f), 16.f, FArenaHudPalette::T0, Layer + 6);
 		}
 		else
 		{
 			const FString KeyStr = B.Key;
 			const FVector2f Ks = C.Measure(KeyStr, 11.f);
 			const float Kw = Ks.X + 12.f;
-			C.Box(Vec(B.X - Kw * 0.5f, SkillY + B.R + 1.5f), Vec(Kw, 15.f), FLinearColor(0.012f, 0.024f, 0.047f, 0.94f), Layer + 5);
+			C.Box(Vec(B.X - Kw * 0.5f, SkillY + B.R + 1.5f), Vec(Kw, 15.f), FLinearColor(.91f,.90f,.82f,1.f), Layer + 5);
 			TArray<FVector2f> Outline;
 			Outline.Add(Vec(B.X - Kw * 0.5f + 0.5f, SkillY + B.R + 2.f)); Outline.Add(Vec(B.X + Kw * 0.5f - 0.5f, SkillY + B.R + 2.f));
 			Outline.Add(Vec(B.X + Kw * 0.5f - 0.5f, SkillY + B.R + 16.f)); Outline.Add(Vec(B.X - Kw * 0.5f + 0.5f, SkillY + B.R + 16.f));
 			C.Lines(Outline, FLinearColor(0.59f, 0.75f, 1.f, 0.3f), 1.f, Layer + 6, true);
-			const FLinearColor KeyCol = (bUlt && bReady) ? FArenaHudPalette::Deng2 : FArenaHudPalette::Fg;
+			const FLinearColor KeyCol = FArenaHudPalette::T0;
 			C.Text(KeyStr, Vec(B.X, SkillY + B.R + 3.5f), 11.f, KeyCol, Layer + 6, EArenaHudAlign::Center);
 		}
 	}
@@ -996,6 +733,14 @@ void UArenaCombatHudWidget::DrawFormAndCharge(const FArenaHudCanvas& C, const FA
 	const bool bLimited = bCharging && QPaid < Q - 0.01f;
 	const bool bFull = bCharging && Q >= 1.f && !bLimited;
 	const float Damage = P.ChargeMinDmg + (P.ChargeMaxDmg - P.ChargeMinDmg) * QPaid;
+
+	if (!bCharging)
+	{
+		C.Disc(Center,40.f,FLinearColor(0,0,0,.18f),Layer);
+		DrawIcon(C,bRanged?FName("blast"):FName("punch"),Center,52.f,FArenaHudPalette::Fg,Layer+1);
+		C.Text(bRanged?TEXT("远程"):TEXT("近战"),Center+Vec(0,35),12.f,FArenaHudPalette::Fg,Layer+2,EArenaHudAlign::Center);
+		return;
+	}
 
 	// ---- 蓄力环（同心外环，绕在形态圆盘外圈） ----
 	C.Ring(Center, 122.f, 17.f, WithAlpha(FArenaHudPalette::P1, 0.10f), Layer);
@@ -1036,7 +781,7 @@ void UArenaCombatHudWidget::DrawFormAndCharge(const FArenaHudCanvas& C, const FA
 	// 形态图标 + 名（切换 120ms 淡入，§7）
 	const float FadeIn = FMath::Clamp((NowT - A.StanceSwitchTime) / 0.12, 0.0, 1.0);
 	const float IconAlpha = A.StanceSwitchTime > 0.0 ? 0.3f + 0.7f * FadeIn : 1.f;
-	DrawArenaHudIcon(C, bRanged ? FName("blast") : FName("punch"), Center + Vec(0.f, -10.f), 32.f, WithAlpha(FArenaHudPalette::Fg, IconAlpha), Layer + 3);
+	DrawIcon(C, bRanged ? FName("blast") : FName("punch"), Center + Vec(0.f, -10.f), 52.f, WithAlpha(FArenaHudPalette::Fg, IconAlpha), Layer + 3);
 	C.Text(bRanged ? TEXT("远程") : TEXT("近战"), Center + Vec(0.f, 10.f), 12.5f, WithAlpha(FArenaHudPalette::Fg, IconAlpha), Layer + 3, EArenaHudAlign::Center);
 
 	// ---- 蓄力读数条（340×34，环上方；左缘状态色起笔） ----
