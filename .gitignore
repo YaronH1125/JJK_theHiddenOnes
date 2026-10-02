@@ -70,3 +70,20 @@ pubg_store.html
 /Packages/
 /Dist/
 *.py[cod]
+
+# 菜单 UI 制作工作区（源图 assets/、brand-spec 与 ue-* 验收归档仍提交）
+/Docs/assets/menu-ui-v1/preview/
+/Docs/assets/menu-ui-v1/tools/
+
+# 一次性探针与一次性迁移脚本（ig21_probe 为文档 19 引用的验证入口，仍提交）
+/Scripts/hud_v9_*.py
+/Scripts/ig19_*.py
+/Scripts/ig20_inspect.py
+/Scripts/ig20_prepare_restart.py
+/Scripts/ishigori_switch.py
+/Scripts/ishigori_use_*.py
+/Scripts/ishigori_validate_pie.py
+/Scripts/validate_ishigori.py
+/Scripts/inspect-hud-reference.cjs
+/Scripts/menu_ui_probe.py
+
