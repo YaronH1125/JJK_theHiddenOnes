@@ -142,3 +142,40 @@ python Scripts/run_m5_package.py
 - `python Scripts/run_m5_followup.py M3` / `M4` / `M5`：使用原规则脚本生成独立 Followup 报告，保留历史 M5 证据。目标帧率规则在 nullrhi 编辑器中跑；视觉与按键另用图形 PIE。
 - `python Scripts/run_m5_package.py --report-prefix M5_Followup`：对更新后的同目录 Development 包生成独立报告。
 - 测试配置必须恢复后再保存/打包；M3/M4 的 DodgeConfig/ThrowConfig 使用文本快照，避免可变结构留下临时参数。异常中止后先清测试回调，必要时重启编辑器，不能在持续脚本报错的会话中继续计验收结果。
+
+
+## Feedback Agent A（2026-09-30）
+
+- `run_feedback_a.py`：串行创建新 PIE、运行指定测试、等待 JSON 并停止 PIE。先打开本项目 Editor，执行 `python Scripts/run_feedback_a.py regression`；`edge_cases`、`reentry`、`baseline_samples` 同理。
+- `feedback_a_regression.py`：结果/局部时钟/缓存/重置/PaidQ 回归，输出 `Saved/FeedbackA/regression.json`。临时简化渲染只为高帧率时钟检查，实际达到值写入报告，完成后恢复。
+- `feedback_a_edge_cases.py`：真实互击、免疫/霸体/致死、远程各结果；单独标识合成停顿上限/播速压力。输出 `edge_cases.json`。
+- `feedback_a_reentry.py`：新 PIE 与领域世界时钟/清理检查；需要三次时依次运行并复制每次报告，禁止并发 PIE。
+- `feedback_a_baseline_samples.py`：真实 A1/重拳/超级炮入口与 Master Mixer 录制尝试。必须检查 `audio_file_exists`；没有 WAV 不能写成有声验收。
+
+这些脚本只改测试会话，不保存招式/角色资产；所有输出在 `Saved/FeedbackA/`。正式 B–F 资产未接入时，测试不代表正式声画或独立包验收。
+
+## Feedback Agent A 第二阶段（2026-09-30）
+
+先构建当前 `JJK_theHiddenOnesEditor Win64 Development`，打开 `/Game/Maps/L_DojoArena`，确认没有已有 PIE。以下入口串行执行，不能同时操作 Editor/Cook。
+
+- `python Scripts/CombatFeedback/A2_run.py`：从磁盘正式绑定开始，先验证 A1/重拳/超级炮，再检查四拳/三腿/重踢、格挡完整接续、移动炮/领域、20 次混合重置及重置后样板。记录真实 Master Mixer WAV 和截图，不注入接触结果。
+- `python Scripts/CombatFeedback/A2_run.py extended`：超级炮 Guard/Immune/WorldImpact/Expire/炮口拒绝；真实背击和致死对格挡动作的优先级，以及 Reaction 关闭清理。
+- `python Scripts/CombatFeedback/A2_run.py loop`：真实近战/格挡→合法蓄力取消→手动炮→领域→真实伤害 KO/胜负→重开后不再重置地使用三个样板。领域起始能量 100 为临时布景，生命/咒力正常；暂停 AI 决策来固定接触位置，不注入死亡，不代替正常资源真人 AI 对局。由 `A2_loop.py` 实现，录音与真实接触序列同目录保存。
+- `python Scripts/CombatFeedback/A2_run.py shift`：`A2_shift.py` 检查两类炮在蓄力/前摇阶段的成功闪避中断、旧松键、下一次新会话、行动资源只扣一次和原移动速度恢复；实际空中状态拒绝闪避时原持炮仍可释放，成功 Fire 后闪避不取消在途弹体。
+- `python Scripts/CombatFeedback/A2_replay.py <case>`：在正式绑定上重跑已有用例。支持 `a-clock/a-edge/a-reentry/c-main/c-extra/d-main/e-edges/e-main/e-reentry/ig20/ig21`。使用 A2 的设置保存/恢复，不调用 B–E 的临时接线脚本；旧位置参数 `Rotator` 布景在内存中改为命名参数。CONTRACT/合成停顿的标记保留，不能当作真实命中证据。
+- `python Scripts/CombatFeedback/A2_validate.py`：按固定顺序运行余下回归；也可在命令末尾列出选定 case。每个子测试独占一次 PIE，确认上个测试已恢复设置后才继续，记录每次 DLL 哈希。`A2_run` 与 `A2_replay` 都把证据保存在 `Saved/FeedbackA2/` 的独立时间目录。
+- `python Scripts/ue_python.py Scripts/CombatFeedback/A2_audit.py`：冷启动、非 PIE 时核对保存的角色绑定、公共 Profile、受击库、全部反馈硬依赖、近战参数和通道默认值。引用可达不代表 Cook/独立包验收通过。
+- `A2_setup.py / A2_cleanup.py`：由运行器调用，保存/恢复后台声音、编辑器节流、窗口和 CVar，只重载本次测试的 Training 数据资产；不保存测试数值。`A2_pie.py / A2_extended.py` 由运行器启动 Slate 回调，不直接从终端执行。
+- `python Scripts/ue_python.py Scripts/CombatFeedback/A2_bind.py`：A 的正式资产接线入口，**会保存** `DA_Fighter_Ishigori` 和 `DA_CombatFeedback_Ishigori`；已经接线的候选无需重复运行。
+- `A2_snapshot.py baseline`：开发前保存当前脏工作区哈希与可恢复原件。`A2_freeze.py`：文档和回归完成后创建一次候选快照、差异和保留检查；不会覆盖已有冻结快照。`A2_release_editor.py`：确认无 PIE、无脏包后记录交接并退出 Editor。
+
+最终同版范围、未通过项和 F 入口以 [A 第二阶段交接](../Docs/打击感开发/Agent_A_战斗底座与集成.md) 为准。没有真人听音/键鼠、声画同步完整录像、性能对照或新 Cook 包时，报告必须保留这些待办。
+
+## R1 试玩反馈修复（2026-10-02）
+
+- `R1_apply_assets.py`：非 PIE 时保存本项目的顿帧 Profile、重受击动作、派生粒子及角色的两处光束引用。只操作项目派生特效，保留厂商原件和音频；不要拿来覆盖其他版本。
+- `python Scripts/CombatFeedback/R1_run.py`：真实共享输入验证轻重击、局部时钟、连段、命中/撞墙尾效和实际 30/60/120 FPS。未达到目标帧率要保留失败，不能只按 `t.MaxFPS` 数值判断通过。
+- `R1_run.py --capture --visual-only`：单独图形检查；截图取样会造成长帧，不计性能验收。`R1_replay.py <case>` 重跑 A/C/E 回归并独立归档，E 采用实际 1920×1080 窗口布景。
+- `python Scripts/ue_python.py Scripts/CombatFeedback/R1_audit.py`：保存后的硬依赖与派生光束引用核对。`R1_snapshot.py --freeze / --verify`：分别冻结构建输入、核对厂商素材/音频及构建输入保留情况，拒绝覆盖旧冻结记录。
+- `R1_release_editor.py`：核对无 PIE/脏包后退出。`powershell -File Scripts/CombatFeedback/R1_build.ps1`：独立构建到 `Saved/Packages/FeedbackR1_20261002/Windows/`，保留旧 F 包。
+- `R1_cook_audit.py` 使用本轮 `package-contents.csv`；`R1_package_smoke.py` 在新包两张地图开启顿帧运行有声图形烟测，明确含 debug 布景，不代表真人体验通过。所有新证据放在 `Saved/FeedbackRevisionR1/`。
