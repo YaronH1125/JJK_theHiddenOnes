@@ -15,7 +15,7 @@ class UAttackDefinition;
  * 命中检测与结算入口（M2.3/M2.4/M2.5）：
  * - 有效窗口内按拳部 Socket 帧间扫掠采样；组件仅在窗口期 Tick。
  * - 去重键 = 攻击实例 + 命中段 + 目标，保持到本段结束；新攻击实例不共享去重。
- * - 统一结算顺序：验证 → 去重 → 死亡过滤 → 生成结果 → GE 伤害 → 受击/死亡事件（延迟到受击方自身下一 Tick 处理，
+ * - 统一结算顺序：验证 → 去重 → 死亡过滤 → 生成结果 → GE 伤害 → 受击/死亡事件（延迟到世界帧末安全点处理，
  *   保证同帧互中按"已有效接触换血"结算，被打断者未来窗口接触无效）。
  */
 UCLASS(ClassGroup = (JJK), meta = (BlueprintSpawnableComponent))
@@ -27,6 +27,7 @@ public:
 	UCombatHitComponent();
 
 	/** 攻击开始：分配实例并记录配置；窗口未开启，等待通知/定时打开 */
+ void ResetSweepHistory() { bHasLastSocketLocation = false; }
 	uint64 BeginAttack(const UAttackDefinition* Definition, float MontageOffset = 0.f);
 
 	/** 动画通知驱动的窗口开关；按实例校验，拒绝旧动画遗留事件 */
@@ -82,6 +83,8 @@ protected:
 	{
 		TWeakObjectPtr<AFighterCharacter> Target;
 		FVector HitLocation;
+  FVector Normal = FVector::UpVector;
+  bool bFallback = false;
 	};
 
 	void ProcessSweep();

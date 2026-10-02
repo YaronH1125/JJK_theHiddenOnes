@@ -16,6 +16,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/TypeData/ParticleModuleTypeDataBeam2.h"
 #include "Training/FighterCharacter.h"
+#include "Training/CombatFeedbackComponent.h"
+#include "Training/TrainingTypes.h"
 
 ABlastProjectile::ABlastProjectile()
 {
@@ -42,6 +44,7 @@ void ABlastProjectile::InitBlast(AFighterCharacter* InCaster, const FVector& Dir
 {
 	Caster = InCaster;
 	Settle = InSettle;
+ if (!Settle.Feedback.RoundId) { Settle.Feedback.RoundId = UCombatFeedbackComponent::Round(GetWorld()); Settle.Feedback.SourceGeneration = InCaster->GetCombatFeedback()->GetGeneration(); }
 	LifeRemaining = InLife;
 	Sphere->InitSphereRadius(InRadius);
 	Velocity = Direction.GetSafeNormal() * InSpeed;
@@ -115,6 +118,8 @@ void ABlastProjectile::ApplyBeam(AFighterCharacter* InCaster, UParticleSystem* B
 	Comp->SetFloatParameter(TEXT("Beam Max Index"), 5.f);
 	UE_LOG(LogTemp, Log, TEXT("[BlastBeam] 发射 Q=%.2f → 8 条环束半径 3→55cm（Q 插值），主束点数 1→9"), ChargeQ);
 	Comp->SetFloatParameter(TEXT("Beam Flow Speed"), 1.f);
+	Comp->SetVectorParameter(TEXT("FeedbackBeamFade"), FVector::OneVector);
+	Comp->SetFloatParameter(TEXT("FeedbackBeamFadeAlpha"), 1.f);
 	Comp->ActivateSystem();
 	// 光束自带发光核心，隐藏占位小球
 	MeshComp->SetVisibility(false);
@@ -132,6 +137,8 @@ void ABlastProjectile::ApplyBeam(AFighterCharacter* InCaster, UParticleSystem* B
 		Ring->AttachToComponent(Comp, FAttachmentTransformRules::KeepRelativeTransform);
 		Ring->SetFloatParameter(TEXT("Beam Max Index"), 2.f);
 		Ring->SetFloatParameter(TEXT("Beam Flow Speed"), 1.f);
+		Ring->SetVectorParameter(TEXT("FeedbackBeamFade"), FVector::OneVector);
+		Ring->SetFloatParameter(TEXT("FeedbackBeamFadeAlpha"), 1.f);
 		Ring->SetEmitterEnable(TEXT("Smoke"), false);
 		RingComps.Add(Ring);
 	}
@@ -182,6 +189,10 @@ void ABlastProjectile::UpdateBeam()
 	}
 	const FRotator BeamRotation = Facing.IsNearlyZero() ? Comp->GetComponentRotation() : Facing.Rotation();
 	Comp->SetWorldLocationAndRotation(SrcWorld, BeamRotation);
+	const float FadeT = bBeamDraining ? FMath::Clamp(LingerRemaining / .55f, 0.f, 1.f) : 1.f;
+	const float Fade = FadeT * FadeT * (3.f - 2.f * FadeT);
+	Comp->SetVectorParameter(TEXT("FeedbackBeamFade"), FVector(Fade));
+	Comp->SetFloatParameter(TEXT("FeedbackBeamFadeAlpha"), Fade);
 	for (int32 EmitterIndex = 0; EmitterIndex < 6; ++EmitterIndex)
 	{
 		Comp->SetBeamSourcePoint(EmitterIndex, SrcWorld, 0);
@@ -202,7 +213,7 @@ void ABlastProjectile::UpdateBeam()
 			const FVector Ref = FMath::Abs(Dir.Z) < 0.95f ? FVector::UpVector : FVector::YAxisVector;
 			const FVector Right = FVector::CrossProduct(Ref, Dir).GetSafeNormal();
 			const FVector RingUp = FVector::CrossProduct(Dir, Right).GetSafeNormal();
-			const float Radius = FMath::Lerp(3.f, 55.f, ChargeQ);
+			const float Radius = FMath::Lerp(3.f, 55.f, ChargeQ) * Fade;
 			for (int32 i = 0; i < RingCount; ++i)
 			{
 				if (UParticleSystemComponent* Ring = RingComps[i].Get())
@@ -212,6 +223,8 @@ void ABlastProjectile::UpdateBeam()
 					const FVector RingSrc = SrcWorld + Offset;
 					const FVector RingEnd = EndWorld + Offset;
 					Ring->SetWorldLocation(RingSrc);
+					Ring->SetVectorParameter(TEXT("FeedbackBeamFade"), FVector(Fade));
+					Ring->SetFloatParameter(TEXT("FeedbackBeamFadeAlpha"), Fade);
 					Ring->SetBeamSourcePoint(0, RingSrc, 0);
 					Ring->SetBeamTargetPoint(0, RingEnd, 0);
 				}
@@ -225,6 +238,13 @@ void ABlastProjectile::UpdateBeam()
 void ABlastProjectile::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+ if (!Caster.IsValid() || Settle.Feedback.RoundId != UCombatFeedbackComponent::Round(GetWorld()))
+ { ForceCleanup(); return; }
+ // Clearing input/presentation (menu, focus loss, death) must not cancel an
+ // already-fired gameplay projectile. Only a new round invalidates its lifetime.
+ // A collision observed now is a fresh event; old captured callbacks keep their
+ // old generation and remain invalid after cleanup.
+ Settle.Feedback.SourceGeneration = Caster->GetCombatFeedback()->GetGeneration();
 	// 最大存在时间硬上限（用户要求）：飞行 + 停留总计超过即强制清理，
 	// 防止任何路径（如朝天空发射、组件回收失败）导致特效/弹体永不销毁。
 	if (GetGameTimeSinceCreation() >= MaxLifeTime)
@@ -244,14 +264,14 @@ void ABlastProjectile::Tick(float DeltaSeconds)
 	LifeRemaining -= DeltaSeconds;
 	if (LifeRemaining <= 0.f)
 	{
-		Finish();
+		Finish(ECombatFeedbackResult::None, nullptr, ECombatFeedbackEnd::Expire);
 		return;
 	}
 
 	UWorld* World = GetWorld();
 	if (!World)
 	{
-		Finish();
+		Finish(ECombatFeedbackResult::None, nullptr, ECombatFeedbackEnd::Expire);
 		return;
 	}
 
@@ -274,7 +294,7 @@ void ABlastProjectile::Tick(float DeltaSeconds)
 	if (bWallHit && (!bFighterHit || WallHit.Time <= SweepHit.Time))
 	{
 		UE_LOG(LogTemp, Log, TEXT("[BlastProj] 撞到 %s 销毁（无伤害）"), *GetNameSafe(WallHit.GetActor()));
-		Finish();
+		Finish(ECombatFeedbackResult::WorldImpact, &WallHit);
 		return;
 	}
 
@@ -285,11 +305,15 @@ void ABlastProjectile::Tick(float DeltaSeconds)
 		{
 			if (auto* C = Caster.Get())
 			{
+    Settle.bHasContactGeometry = true;
+    Settle.Feedback.Location = SweepHit.ImpactPoint; Settle.Feedback.Normal = SweepHit.ImpactNormal;
+    Settle.Feedback.Direction = Velocity.GetSafeNormal();
 				const ETrainingContact Result = C->SettleRangedHitOn(HitFighter, Settle);
+    Finish(Result == ETrainingContact::Hit ? ECombatFeedbackResult::Hit : Result == ETrainingContact::Guard ? ECombatFeedbackResult::Guard : Result == ETrainingContact::Immune ? ECombatFeedbackResult::Immune : ECombatFeedbackResult::None, &SweepHit);
 				UE_LOG(LogTemp, Log, TEXT("[BlastProj] 命中 %s（伤害 %.0f 结果=%d）"),
 					*GetNameSafe(HitFighter), Settle.Damage, static_cast<int32>(Result));
 			}
-			Finish();
+			if (!bFinished) Finish(ECombatFeedbackResult::None, &SweepHit, ECombatFeedbackEnd::Cancel);
 			return;
 		}
 	}
@@ -299,21 +323,34 @@ void ABlastProjectile::Tick(float DeltaSeconds)
 	UpdateBeam();
 }
 
-void ABlastProjectile::Finish()
+void ABlastProjectile::Finish(ECombatFeedbackResult Result, const FHitResult* Hit, ECombatFeedbackEnd Reason)
 {
 	if (bFinished) return;
 	bFinished = true;
-	ImpactLocation = GetActorLocation();
+ ImpactLocation = Hit ? FVector(Hit->ImpactPoint) : GetActorLocation();
+ SetActorLocation(ImpactLocation, false);
+ if (auto* C = Caster.Get()) {
+  if (Result == ECombatFeedbackResult::WorldImpact) {
+   auto E = Settle.Feedback; E.Source = C; E.AttackInstanceId = Settle.AttackInstanceId;
+   E.Result = Result; E.Location = ImpactLocation; E.Normal = Hit->ImpactNormal; E.Direction = Velocity.GetSafeNormal(); E.bRanged = true;
+   C->GetCombatFeedback()->PublishContact(E);
+  }
+  C->GetCombatFeedback()->Lifecycle(Settle.AttackInstanceId, Reason, ImpactLocation);
+ }
+ const bool bContact = Result == ECombatFeedbackResult::Hit || Result == ECombatFeedbackResult::Guard || Result == ECombatFeedbackResult::WorldImpact;
+ const bool bLegacyFX = Caster.IsValid() && Caster->GetCombatFeedback()->IsChannelEnabled(ECombatFeedbackChannel::RangedFX) && !Caster->GetCombatFeedback()->UsesExternalRangedImpact();
 
-	// 命中特效（Cascade）：命中与撞墙、寿命耗尽共用同一表现（伤害仍只在命中结算）
+	// Legacy impact fallback; expiry, immunity and cancellation never spawn an impact.
 	// 持续时间与光束停留共用同一条蓄力曲线（整体偏短，用户口径），并以配置最长存活封顶。
-	if (!ImpactEffect.ToSoftObjectPath().IsNull())
+	if (bContact && bLegacyFX && !ImpactEffect.ToSoftObjectPath().IsNull())
 	{
 		if (UParticleSystem* ImpactFx = ImpactEffect.LoadSynchronous())
 		{
 			const float Life = FMath::Clamp(FMath::Lerp(0.35f, 0.9f, ChargeQ), 0.2f, ImpactLife);
 			UParticleSystemComponent* ImpactComp = UGameplayStatics::SpawnEmitterAtLocation(
 				GetWorld(), ImpactFx, ImpactLocation, GetActorRotation(), FVector(ImpactScale), /*bAutoDestroy=*/true);
+   ActiveImpact = ImpactComp;
+   if (Caster.IsValid()) Caster->GetCombatFeedback()->TrackTransientEffect(ImpactComp);
 			if (ImpactComp != nullptr && Life > 0.f)
 			{
 				TWeakObjectPtr<UParticleSystemComponent> Weak = ImpactComp;
@@ -331,10 +368,11 @@ void ABlastProjectile::Finish()
 
 	// 有引导光束则进入停留态：端点冻结在命中点、起点跟随施术者额头，
 	// 时长从命中起算（飞行不计）；到点熄灭并销毁。
-	if (BeamComp.IsValid())
+	// C owns the impact burst, not the existing flight beam's visual tail.
+	if (bContact && Caster.IsValid() && Caster->GetCombatFeedback()->IsChannelEnabled(ECombatFeedbackChannel::RangedFX) && BeamComp.IsValid())
 	{
 		bLingering = true;
-		LingerRemaining = FMath::Lerp(0.6f, 1.5f, ChargeQ);
+		LingerRemaining = FMath::Lerp(0.18f, 0.38f, ChargeQ);
 		SetActorEnableCollision(false);
 		MeshComp->SetVisibility(false);
 		SetLifeSpan(0.f);   // 停留期由 TickLinger 自行收尾，禁用兜底寿命
@@ -349,10 +387,23 @@ void ABlastProjectile::TickLinger(float DeltaSeconds)
 {
 	// 停留期只固定命中端；额头起点、雾气朝向和环束仍随施术者移动更新。
 	LingerRemaining -= DeltaSeconds;
+	if (!Caster.IsValid() || !Caster->GetCombatFeedback()->IsChannelEnabled(ECombatFeedbackChannel::RangedFX))
+	{
+		ForceCleanup();
+		return;
+	}
 	if (LingerRemaining <= 0.f)
 	{
-		RecycleBeam();
-		return;
+		if (bBeamDraining)
+		{
+			RecycleBeam();
+			return;
+		}
+		bBeamDraining = true;
+		LingerRemaining = .55f;
+		if (UParticleSystemComponent* Beam = BeamComp.Get()) Beam->DeactivateSystem();
+		for (UParticleSystemComponent* Ring : RingComps) if (IsValid(Ring)) Ring->DeactivateSystem();
+		if (TrailComp.IsValid()) TrailComp->Deactivate();
 	}
 	UpdateBeam();
 }
@@ -399,4 +450,16 @@ void ABlastProjectile::ForceCleanup()
 		Comp->DestroyComponent();
 	}
 	Destroy();
+}
+
+void ABlastProjectile::EndPlay(const EEndPlayReason::Type Reason)
+{
+ if (!bFinished && Caster.IsValid()) Caster->GetCombatFeedback()->Lifecycle(Settle.AttackInstanceId,
+  Settle.Feedback.RoundId == UCombatFeedbackComponent::Round(GetWorld()) ? ECombatFeedbackEnd::Cancel : ECombatFeedbackEnd::Reset, GetActorLocation());
+ if (TrailComp.IsValid()) TrailComp->DestroyComponent();
+ if (BeamComp.IsValid()) BeamComp->DestroyComponent();
+ for (UParticleSystemComponent* Ring : RingComps) if (IsValid(Ring)) Ring->DestroyComponent();
+ RingComps.Reset();
+ if (ActiveImpact.IsValid() && (!Caster.IsValid() || !Caster->GetCombatFeedback()->IsCurrent(Settle.Feedback.RoundId, Settle.Feedback.SourceGeneration))) ActiveImpact->DestroyComponent();
+ Super::EndPlay(Reason);
 }

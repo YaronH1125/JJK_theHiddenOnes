@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Training/CombatHitComponent.h"
+#include "Training/CombatFeedbackComponent.h"
 
 #include "AbilitySystemComponent.h"
 #include "DrawDebugHelpers.h"
@@ -83,7 +84,7 @@ void UCombatHitComponent::SetWindowTickEnabled(bool bEnabled)
 uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition, float MontageOffset)
 {
 	++InstanceCounter;
-	ActiveInstanceId = InstanceCounter;
+	ActiveInstanceId = GetOwnerFighter()->GetCombatFeedback()->AllocateAttackId();
 	ActiveDefinition = Definition;
 	bAttackActive = true;
 	bWindowOpen = false;
@@ -93,7 +94,7 @@ uint64 UCombatHitComponent::BeginAttack(const UAttackDefinition* Definition, flo
 	bCursedEnergyGranted = false;
 	bHadContact = false;
 	SegmentId = Definition ? Definition->SegmentId : 0;
-	SegmentBeginTime = (GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0) - MontageOffset;
+	SegmentBeginTime = GetOwnerFighter()->GetActionTime() - MontageOffset;
 	SetComponentTickEnabled(true);
 
 	UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 开始攻击实例 %llu（段 %d，伤害 %.0f）"),
@@ -113,14 +114,14 @@ bool UCombatHitComponent::IsCancelWindowOpen() const
 	{
 		return false;
 	}
-	const float Elapsed = static_cast<float>(World->GetTimeSeconds() - SegmentBeginTime);
+	const float Elapsed = static_cast<float>(GetOwnerFighter()->GetActionTime() - SegmentBeginTime);
 	return Def->CancelWindowEndTime > 0.f && Elapsed >= Def->CancelWindowStartTime && Elapsed <= Def->CancelWindowEndTime;
 }
 
 float UCombatHitComponent::GetSegmentElapsedTime() const
 {
 	const UWorld* World = GetWorld();
-	return World != nullptr ? static_cast<float>(World->GetTimeSeconds() - SegmentBeginTime) : 0.f;
+	return World != nullptr ? static_cast<float>(GetOwnerFighter()->GetActionTime() - SegmentBeginTime) : 0.f;
 }
 
 void UCombatHitComponent::HandleAnimWindowNotify(bool bOpen, const UAnimSequenceBase* Animation)
@@ -189,9 +190,8 @@ void UCombatHitComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// 先扫掠（窗口期），再处理受击/死亡事件：
-	// 保证同帧互中时双方已完成扫掠的接触都有效（M2.5 换血），被打断者未来接触失效
-	if (bWindowOpen && bAttackActive)
+	// Sweep now; the shared world safe point processes every fighter queue afterwards.
+	if (bWindowOpen && bAttackActive && !GetOwnerFighter()->GetCombatFeedback()->IsStopped())
 	{
 		ProcessSweep();
 	}
@@ -199,7 +199,7 @@ void UCombatHitComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	AFighterCharacter* Fighter = GetOwnerFighter();
 	if (Fighter != nullptr)
 	{
-		Fighter->ProcessCombatEvents();
+		// The world post-actor safe point processes every fighter after all sweeps.
 	}
 
 	if (!bAttackActive && !bWindowOpen)
@@ -244,7 +244,7 @@ void UCombatHitComponent::ProcessSweep()
 		{
 			if (AFighterCharacter* Target = Cast<AFighterCharacter>(Hit.GetActor()))
 			{
-				Contacts.Push({Target, Hit.ImpactPoint});
+				Contacts.Push({Target, Hit.ImpactPoint, Hit.ImpactNormal, false});
 			}
 		}
 	}
@@ -257,7 +257,7 @@ void UCombatHitComponent::ProcessSweep()
 		{
 			if (AFighterCharacter* Target = Cast<AFighterCharacter>(Overlap.GetActor()))
 			{
-				Contacts.Push({Target, SocketPos});
+				Contacts.Push({Target, Target->GetMesh()->GetSocketLocation(TEXT("spine_03")), (SocketPos - Target->GetActorLocation()).GetSafeNormal(), true});
 			}
 		}
 	}
@@ -286,6 +286,8 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 	{
 		AFighterCharacter* Target;
 		FVector HitLocation;
+  FVector Normal;
+  bool bFallback;
 	};
 	TArray<FValidContact> ValidContacts;
 
@@ -313,7 +315,7 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		}
 		DedupKeys.Add(Key);
 		bHadContact = true;
-		ValidContacts.Push({Target, Candidate.HitLocation});
+		ValidContacts.Push({Target, Candidate.HitLocation, Candidate.Normal, Candidate.bFallback});
 	}
 
 	if (ValidContacts.IsEmpty())
@@ -335,10 +337,28 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 			continue;
 		}
 
+  FCombatContactFeedback Feedback;
+  Feedback.Source = Attacker; Feedback.Target = Target;
+  Feedback.RoundId = UCombatFeedbackComponent::Round(GetWorld());
+  Feedback.SourceGeneration = Attacker->GetCombatFeedback()->GetGeneration();
+  Feedback.TargetGeneration = Target->GetCombatFeedback()->GetGeneration();
+  Feedback.AttackInstanceId = ActiveInstanceId; Feedback.SegmentId = SegmentId;
+  Feedback.IncomingAttack = const_cast<UAttackDefinition*>(Def); Feedback.MoveId = Def->GetFName();
+  Feedback.Tier = Attacker->GetCombatFeedback()->GetAttackTier(Def);
+  Feedback.Location = Contact.HitLocation; Feedback.Normal = Contact.Normal; Feedback.bLocationFallback = Contact.bFallback;
+  Feedback.Direction = (Target->GetActorLocation() - Attacker->GetActorLocation()).GetSafeNormal();
+  const float BeforeHealth = Target->GetFighterAttributeSet()->GetHealth();
+  auto Publish = [&](ECombatFeedbackResult Result) {
+   Feedback.Result = Result; Feedback.ActualDamage = BeforeHealth - Target->GetFighterAttributeSet()->GetHealth();
+   Feedback.bLethal = Target->GetFighterAttributeSet()->GetHealth() <= 0.f;
+   Feedback.bArmored = Result == ECombatFeedbackResult::Hit && Target->ResistsInterruption(Def->InterruptLevel);
+   Attacker->GetCombatFeedback()->PublishContact(Feedback);
+  };
 		// 免疫（闪避无敌窗口）：无伤害、不受击
   if (Def->bDodgeable && Target->HasCombatTag(TAG_State_DodgeInvulnerable))
   {
    Target->NotifyDodgeAvoided();
+   Publish(ECombatFeedbackResult::Immune);
    if (auto* GM=GetWorld()->GetAuthGameMode<ATrainingGameMode>()) GM->RecordContact(Attacker,Target,ETrainingContact::Immune,Def->Damage,0,0);
 			UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 的接触被 %s 闪避免疫（实例 %llu）"),
 				*GetNameSafe(Attacker), *GetNameSafe(Target), ActiveInstanceId);
@@ -369,7 +389,10 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 			++HitCountThisAttack;
             const auto& Guard = Target->GetDefinition()->GuardConfig;
             Attacker->ApplyCombatDamage(Target,Def->Damage,Guard.bChipDamage ? Def->Damage * Guard.ChipDamageRatio : 0.f,ETrainingContact::Guard);
+   Publish(ECombatFeedbackResult::Guard);
 			FCombatEvent GuardEvent;
+   GuardEvent.Feedback = Feedback;
+   GuardEvent.bLethal = Feedback.bLethal;
 			GuardEvent.Type = FCombatEvent::EType::GuardStun;
 			GuardEvent.Instigator = Attacker;
 			GuardEvent.StunDuration = Def->GuardStunDuration;
@@ -407,9 +430,11 @@ void UCombatHitComponent::ApplyBatch(const TArray<FContactCandidate>& Contacts)
 		UE_LOG(LogTemp, Log, TEXT("[CombatHit] %s 命中 %s（实例 %llu 段 %d，伤害 %.0f，累计命中 %d，致死=%d）"),
 			*GetNameSafe(Attacker), *GetNameSafe(Target), ActiveInstanceId, SegmentId, Def->Damage, HitCountThisAttack, bLethal ? 1 : 0);
 
+  Publish(ECombatFeedbackResult::Hit);
 		// 受击/倒地进入受击方延迟队列：受击方自身下一 Tick 处理中断；
 		// 本帧（同一批次窗口内）双方已有效接触仍换血，被打断后未来接触失效
 		FCombatEvent Event;
+  Event.Feedback = Feedback;
 		Event.Type = Def->bKnockdown ? FCombatEvent::EType::Knockdown : FCombatEvent::EType::HitReact;
 		Event.Instigator = Attacker;
 		Event.InterruptLevel = Def->InterruptLevel;

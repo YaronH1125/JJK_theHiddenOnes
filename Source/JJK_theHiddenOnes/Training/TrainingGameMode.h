@@ -70,6 +70,8 @@ class ATrainingGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+ UFUNCTION(BlueprintPure, Category="Feedback") int32 GetFeedbackRoundId() const { return FeedbackRoundId; }
+ int32 FeedbackRoundId = 1;
  ATrainingGameMode();
  UPROPERTY(BlueprintReadOnly, Category="Training") FTrainingSettings Settings;
  UPROPERTY(BlueprintReadOnly, Category="Training") FTrainingStats PlayerStats;
@@ -229,6 +231,7 @@ protected:
 	struct FDomainSessionData
 	{
 		int32 SessionId = 0;
+  int64 FeedbackSessionId = 0;
 		TWeakObjectPtr<AFighterCharacter> Caster;
 		TWeakObjectPtr<AFighterCharacter> Victim;
 		double EndTime = 0.0;

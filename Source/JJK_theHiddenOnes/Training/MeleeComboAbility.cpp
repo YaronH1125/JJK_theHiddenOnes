@@ -9,6 +9,7 @@
 #include "Animation/AnimMontage.h"
 #include "Training/AttackDefinition.h"
 #include "Training/CombatHitComponent.h"
+#include "Training/CombatFeedbackComponent.h"
 #include "Training/CombatInputComponent.h"
 #include "Training/CombatTypes.h"
 #include "Training/FighterAbilitySystemComponent.h"
@@ -151,6 +152,8 @@ void UMeleeComboAbility::AdvanceToSegment(int32 Index)
 		Fighter->GetCombatHit()->EndAttack();
 	}
 
+ if (FeedbackSession) Fighter->GetCombatFeedback()->Action(FeedbackSession, ECombatActionStage::End, 0, ECombatFeedbackEnd::Completed);
+ FeedbackSession = Fighter->GetCombatFeedback()->BeginAction(Def->GetFName(), Fighter->GetCombatFeedback()->GetAttackTier(Def));
 	SegmentIndex = Index;
 	AttackInstanceId = Fighter->GetCombatHit()->BeginAttack(Def);
 	bInstanceActive = true;
@@ -377,6 +380,8 @@ void UMeleeComboAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (AFighterCharacter* Fighter = CachedFighter.Get())
 	{
+  Fighter->GetCombatFeedback()->Action(FeedbackSession, ECombatActionStage::End, 0, bWasCancelled ? ECombatFeedbackEnd::Interrupted : ECombatFeedbackEnd::Completed);
+  FeedbackSession = 0;
 		Fighter->GetCombatInput()->ClearMeleeCharge(this);
 		Fighter->ClearMeleeMagnetism();
 		if (bCharging) Fighter->GetCombatInput()->InvalidateSession(FText::FromString(TEXT("Melee charge ended")));
@@ -414,4 +419,13 @@ void UMeleeComboAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	if (bHadSequence && FinishedFighter.IsValid()) FinishedFighter->OnComboEnded.Broadcast();
+}
+
+void UMeleeComboAbility::PauseActionTimers(bool bPause)
+{
+ if (!GetWorld()) return;
+ auto& TM = GetWorld()->GetTimerManager();
+ for (auto H : {WindowOpenTimerHandle, WindowCloseTimerHandle, ComboWindowOpenTimerHandle,
+  ComboWindowCloseTimerHandle, ComboCachePollTimerHandle, ChargeTimerHandle})
+ { if (bPause) TM.PauseTimer(H); else TM.UnPauseTimer(H); }
 }

@@ -46,6 +46,9 @@ void UDodgeAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	// 方向：移动输入方向；无输入默认后撤（08 第 4 章）
 	const AFighterCharacter::FDodgeRequest Dodge = Fighter->ConsumePendingDodge();
 	if (!Dodge.bPending || !Fighter->GetDefinition()) { EndAbility(Handle, ActorInfo, ActivationInfo, false, true); return; }
+ // Commit succeeded: end the old charge/windup along with its feedback session.
+ // Otherwise InvalidateSession below leaves the ability charging behind a stale release.
+ Fighter->CancelActiveBlast();
 	FVector Dir = Dodge.Direction;
 	Dir.Z = 0.f;
 	if (Dir.IsNearlyZero())

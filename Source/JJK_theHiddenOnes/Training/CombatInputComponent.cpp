@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "Training/AttackDefinition.h"
 #include "Training/CombatHitComponent.h"
+#include "Training/CombatFeedbackComponent.h"
 #include "Training/CombatTypes.h"
 #include "Training/FighterAbilitySystemComponent.h"
 #include "Training/FighterCharacter.h"
@@ -59,7 +60,8 @@ AFighterCharacter* UCombatInputComponent::GetOwnerFighter() const
 
 double UCombatInputComponent::Now() const
 {
-	return GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+	const auto* F = GetOwnerFighter();
+ return F ? F->GetActionTime() : 0.0;
 }
 
 namespace
@@ -279,6 +281,7 @@ void UCombatInputComponent::NotifyStanceSwitchPressed()
 
 void UCombatInputComponent::InvalidateSession(const FText& Reason)
 {
+ if (auto* F = GetOwnerFighter()) F->bDeferredStopDodge = false;
 	TWeakObjectPtr<UMeleeComboAbility> OldCharge = ChargingAbility;
 	ChargingAbility.Reset();
 	bHeavyPunchSubmitted = false;
@@ -313,6 +316,7 @@ void UCombatInputComponent::NotifyDomainPressed()
 
 void UCombatInputComponent::ReleaseContinuousInputs()
 {
+ if (auto* F = GetOwnerFighter()) { F->GetCombatFeedback()->Cleanup(ECombatFeedbackEnd::Cancel); F->bDeferredStopDodge = false; F->CancelActiveBlast(); }
 	if (bGuardIntent)
 	{
 		bGuardIntent = false;

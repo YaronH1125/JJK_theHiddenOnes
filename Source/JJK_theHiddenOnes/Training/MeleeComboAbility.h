@@ -26,6 +26,8 @@ class UMeleeComboAbility : public UGameplayAbility
 public:
 	UMeleeComboAbility();
 	void CancelHeldCharge();
+ void PauseActionTimers(bool bPause);
+ int64 FeedbackSession = 0;
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,

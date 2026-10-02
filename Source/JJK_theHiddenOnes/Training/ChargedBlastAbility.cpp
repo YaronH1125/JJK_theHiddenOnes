@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Training/CombatTypes.h"
+#include "Training/CombatFeedbackComponent.h"
 #include "Training/DamageGameplayEffect.h"
 #include "Training/TargetingComponent.h"
 #include "Training/BlastProjectile.h"
@@ -109,6 +110,8 @@ void UChargedBlastAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle 
 		return;
 	}
 	CachedFighter = Fighter;
+ bSuperBlastFired = false; bAimPointCaptured = false; bReleaseSignaled = false;
+ FeedbackSession = 0; FeedbackEnd = ECombatFeedbackEnd::None;
 
 	if (GetCooldown() > 0.f && Fighter->HasCombatTag(TAG_State_SuperBlastCooldown))
 	{
@@ -133,6 +136,7 @@ void UChargedBlastAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle 
 	ApplyMoveSpeedScale(GetMoveSpeedScale());
 	Phase = EBlastPhase::Charging;
 	Fighter->RegisterActiveBlast(this);
+ FeedbackSession = Fighter->GetCombatFeedback()->BeginAction(HasMinChargeGate() ? TEXT("SuperBlast") : TEXT("MobileBlast"), HasMinChargeGate() ? ECombatFeedbackTier::SuperBlast : ECombatFeedbackTier::MobileBlast);
 	StartChargeTick();
 
 	UE_LOG(LogTemp, Log, TEXT("[Blast] %s 开始蓄力（成本 %.0f）"), *GetNameSafe(Fighter), GetMinCost());
@@ -197,10 +201,12 @@ void UChargedBlastAbilityBase::UpdateChargeProgress()
 				PaidCost += Curse; // 余额全部计入累计成本，不吞掉
 			}
 			PaidQ = CostSpan > 1.f ? FMath::Clamp((PaidCost - GetMinCost()) / CostSpan, 0.f, 1.f) : 0.f;
+   PublishCharge();
 			return;
 		}
 	}
 	PaidQ = CostSpan > 1.f ? FMath::Clamp((PaidCost - GetMinCost()) / CostSpan, 0.f, 1.f) : 1.f;
+ PublishCharge();
 }
 
 void UChargedBlastAbilityBase::NotifyExternalRelease()
@@ -215,6 +221,7 @@ void UChargedBlastAbilityBase::HandleExternalRelease()
 	const double Elapsed = Now() - ChargeStartTime;
 	if (HasMinChargeGate() && Elapsed < GetMinChargeTime())
 	{
+  FeedbackEnd = ECombatFeedbackEnd::Rejected;
 		AbortBlast(TEXT("低于最低蓄力门槛"), true);
 		return;
 	}
@@ -242,8 +249,9 @@ void UChargedBlastAbilityBase::HandleWindupDone()
 	if (Phase != EBlastPhase::Windup) return;
 	UE_LOG(LogTemp, Log, TEXT("[BlastDebug] %s 发射：Elapsed=%.3f PaidCost=%.3f PaidQ=%.3f"),
 		*GetNameSafe(CachedFighter.Get()), Now() - ChargeStartTime, PaidCost, PaidQ);
-	FireOnce();
-	if (HasMinChargeGate()) bSuperBlastFired = true;
+ const bool bSpawned = FireOnce();
+ if (HasMinChargeGate()) bSuperBlastFired = true; // Preserve existing cooldown rule on release rejection.
+ if (!bSpawned) FeedbackEnd = ECombatFeedbackEnd::Rejected;
 	Phase = EBlastPhase::Recovery;
 	ApplyMoveSpeedScale(1.f);
 	GetWorld()->GetTimerManager().SetTimer(PhaseTimerHandle, this,
@@ -261,7 +269,7 @@ void UChargedBlastAbilityBase::CancelFromOutside()
 {
 	if (Phase == EBlastPhase::Charging || Phase == EBlastPhase::Windup)
 	{
-		AbortBlast(TEXT("切形态中止持炮"), true);
+		AbortBlast(TEXT("外部中断持炮"), true);
 	}
 }
 
@@ -335,10 +343,10 @@ void UChargedBlastAbilityBase::RestoreMoveSpeed()
 	}
 }
 
-void UChargedBlastAbilityBase::FireOnce()
+bool UChargedBlastAbilityBase::FireOnce()
 {
 	auto* Fighter = CachedFighter.Get();
-	if (!Fighter) return;
+	if (!Fighter) return false;
 
 	const float Damage = GetMinDamage() + (GetMaxDamage() - GetMinDamage()) * PaidQ;
 	const float Range = GetRange();
@@ -366,7 +374,7 @@ void UChargedBlastAbilityBase::FireOnce()
 			if (!Cast<AFighterCharacter>(MuzzleHit.GetActor()))
 			{
 				UE_LOG(LogTemp, Log, TEXT("[Blast] %s 炮口嵌墙安全拒绝"), *GetNameSafe(Fighter));
-				return;
+				return false;
 			}
 		}
 	}
@@ -381,6 +389,11 @@ void UChargedBlastAbilityBase::FireOnce()
 	SpawnParams.Instigator = Fighter;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	FRangedHitSettle Settle;
+ Settle.Feedback.PaidQ = PaidQ;
+ Settle.Feedback.RoundId = UCombatFeedbackComponent::Round(GetWorld());
+ Settle.Feedback.SourceGeneration = Fighter->GetCombatFeedback()->GetGeneration();
+ Settle.Feedback.MoveId = HasMinChargeGate() ? TEXT("SuperBlast") : TEXT("MobileBlast");
+ Settle.Feedback.Tier = HasMinChargeGate() ? ECombatFeedbackTier::SuperBlast : ECombatFeedbackTier::MobileBlast;
 	Settle.Damage = Damage;
 	Settle.bDodgeable = true;
 	Settle.bBlockable = true;
@@ -389,7 +402,7 @@ void UChargedBlastAbilityBase::FireOnce()
 	Settle.HitStunDuration = GetHitStunDuration();
 	Settle.InterruptLevel = GetInterruptLevel();
 	Settle.KnockbackStrength = GetKnockbackStrength();
-	Settle.AttackInstanceId = (static_cast<uint64>(GetUniqueID()) << 20) | (++ShotCounter);
+	Settle.AttackInstanceId = Fighter->GetCombatFeedback()->AllocateAttackId();
 	if (auto* Proj = GetWorld()->SpawnActor<ABlastProjectile>(ABlastProjectile::StaticClass(),
 		Muzzle, Dir.Rotation(), SpawnParams))
 	{
@@ -415,7 +428,11 @@ void UChargedBlastAbilityBase::FireOnce()
 			Proj->ApplyBeam(Fighter, Beam.LoadSynchronous(), WidthMin, WidthMax, PaidQ);
 		}
 		UE_LOG(LogTemp, Log, TEXT("[Blast] %s 发射弹体（伤害 %.0f q=%.2f）"), *GetNameSafe(Fighter), Damage, PaidQ);
+  const FTransform FireMuzzle(Dir.Rotation(), Muzzle);
+		Fighter->GetCombatFeedback()->Action(FeedbackSession, ECombatActionStage::Fire, PaidQ, ECombatFeedbackEnd::None, Settle.AttackInstanceId, &FireMuzzle);
+  return true;
 	}
+ return false;
 }
 
 FVector UChargedBlastAbilityBase::ResolveAimPoint() const
@@ -450,8 +467,18 @@ void UChargedBlastAbilityBase::EndAbility(const FGameplayAbilitySpecHandle Handl
 	{
 		ClearChargeStateTags(Fighter->GetFighterAbilitySystemComponent());
 		if (bWasCancelled || bSuperBlastFired) ApplySuperBlastCooldown();
+  Fighter->GetCombatFeedback()->Action(FeedbackSession, ECombatActionStage::End, PaidQ, FeedbackEnd != ECombatFeedbackEnd::None ? FeedbackEnd : bWasCancelled ? ECombatFeedbackEnd::Interrupted : ECombatFeedbackEnd::Completed);
+  FeedbackSession = 0; Phase = EBlastPhase::None;
 		Fighter->NotifyBlastEnded(this);
 	}
 	CachedFighter = nullptr;
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UChargedBlastAbilityBase::PublishCharge()
+{
+ if (auto* F = CachedFighter.Get()) {
+  F->GetCombatFeedback()->Action(FeedbackSession, ECombatActionStage::Update, PaidQ);
+  F->GetCombatFeedback()->Action(FeedbackSession, ECombatActionStage::Full, PaidQ);
+ }
 }

@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "NativeGameplayTags.h"
+#include "Training/CombatFeedbackTypes.h"
 #include "CombatTypes.generated.h"
 
 class AActor;
 
-/** 命中引起的战斗事件：受击方向受击方队列投递，受击方在其命中组件 Tick 内、扫掠之后统一处理（M2.5 换血保证） */
+/** 命中引起的战斗事件：受击方向受击方队列投递，在世界 OnWorldPostActorTick 安全点、所有角色扫掠之后统一处理（同帧换血） */
 struct FCombatEvent
 {
 	/** 事件类型 */
@@ -20,6 +21,7 @@ struct FCombatEvent
 		Knockdown
 	};
 
+	FCombatContactFeedback Feedback;
 	EType Type = EType::HitReact;
 	TWeakObjectPtr<AActor> Instigator;
 	int32 InterruptLevel = 1;
@@ -120,6 +122,8 @@ struct FCombatHitDedupKey
 /** 远程命中共享结算参数（A02：手动炮/领域球与近战同口径） */
 struct FRangedHitSettle
 {
+ FCombatContactFeedback Feedback;
+ bool bHasContactGeometry = false;
 	float Damage = 0.f;
 	bool bDodgeable = true;   /* 可被闪避无敌窗免疫 */
 	bool bBlockable = true;   /* 可被正面防御（chip 伤 + 防御硬直） */

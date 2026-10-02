@@ -106,7 +106,10 @@ private:
 	void HandleWindupDone();
 	void HandleRecoveryDone();
 	void StartWindup();
-	void FireOnce();
+	bool FireOnce();
+ void PublishCharge();
+ int64 FeedbackSession = 0;
+ ECombatFeedbackEnd FeedbackEnd = ECombatFeedbackEnd::None;
 	void AbortBlast(const TCHAR* Reason, bool bPaidInterrupt);
 	void ApplySuperBlastCooldown();
 	void HandleCooldownDone();

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Training/CombatFeedbackTypes.h"
 #include "DomainOrb.generated.h"
 
 class AFighterCharacter;
@@ -27,6 +28,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	void SetOrbPaused(bool bPaused) { bPausedMovement = bPaused; }
 	bool HasHit() const { return bHasHit; }
+ int64 GetFeedbackAttackId() const { return Feedback.AttackInstanceId; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -51,5 +53,8 @@ private:
 
 	void SteerTowardTarget(float DT);
 	void CheckContact();
-	void DestroySelf();
+ void DestroySelf(ECombatFeedbackEnd Reason = ECombatFeedbackEnd::Expire);
+ virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+ FCombatContactFeedback Feedback;
+ bool bFeedbackEnded = false;
 };

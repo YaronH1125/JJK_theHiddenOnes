@@ -20,6 +20,7 @@
 #include "Training/TargetingComponent.h"
 #include "Training/TrainingProbeAbility.h"
 #include "Training/DomainOrb.h"
+#include "Training/CombatFeedbackComponent.h"
 #include "Training/ArenaCrosshairHud.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -274,6 +275,7 @@ void ATrainingGameMode::ResetTraining()
 {
  if (bResetting) return;
  bResetting=true;
+ ++FeedbackRoundId;
  ShutdownAllDomains();
  JJKClearBlockers();
  if(IsValid(OpponentAI)) OpponentAI->DeactivateAI();
@@ -739,6 +741,7 @@ bool ATrainingGameMode::TryOpenDomain(AFighterCharacter* Caster)
 	const double Now = GetWorld()->GetTimeSeconds();
 	Session.EndTime = Now + (Def ? Def->DomainConfig.Duration : 6.f);
 	Session.NextSpawnTime = Now + (Def ? Def->DomainConfig.FirstOrbDelay : 0.3f);
+ Session.FeedbackSessionId = Caster->GetCombatFeedback()->BeginAction(TEXT("Domain"), ECombatFeedbackTier::DomainOrb);
 	DomainSessions.Add(Session);
 
 	Caster->SetDomainActive(true);
@@ -768,6 +771,7 @@ void ATrainingGameMode::TickDomainSessions()
 			continue;
 		}
 
+ if (S.bSuppressed != bSuppressed) Caster->GetCombatFeedback()->Action(S.FeedbackSessionId, ECombatActionStage::Update, 1.f, bSuppressed ? ECombatFeedbackEnd::Suppressed : ECombatFeedbackEnd::None);
 		S.bSuppressed = bSuppressed;
 		// 压制（A05/SLL-T24）：销毁已在飞的球，保留原调度点；恢复后不补发
 		if (bSuppressed)
@@ -811,6 +815,7 @@ void ATrainingGameMode::EndDomainSession(int32 SessionId)
 
 	if (AFighterCharacter* Caster = S.Caster.Get())
 	{
+  Caster->GetCombatFeedback()->Action(S.FeedbackSessionId, ECombatActionStage::End, 1.f, bResetting ? ECombatFeedbackEnd::Reset : Caster->IsDead() ? ECombatFeedbackEnd::Death : ECombatFeedbackEnd::Completed);
 		Caster->SetDomainActive(false);
 	}
 	UE_LOG(LogTemp, Log, TEXT("[Domain] 会话 %d 结束"), SessionId);
@@ -854,6 +859,7 @@ void ATrainingGameMode::SpawnDomainOrb(FDomainSessionData& Session)
 	Caster->ModifyCursedEnergy(-Cfg.OrbCost);
 	Orb->InitOrb(Victim, Cfg.OrbDamage, Cfg.OrbLife, Cfg.OrbSpeed, Cfg.OrbRadius);
 	Session.Orbs.Add(Orb);
+ Caster->GetCombatFeedback()->Action(Session.FeedbackSessionId, ECombatActionStage::Fire, 1.f, ECombatFeedbackEnd::None, Orb->GetFeedbackAttackId());
 }
 
 void ATrainingGameMode::ShutdownAllDomains()

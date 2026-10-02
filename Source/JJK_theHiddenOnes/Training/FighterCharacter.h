@@ -17,6 +17,7 @@ class UCombatHitComponent;
 class UCombatInputComponent;
 class UChargedBlastAbilityBase;
 class UDomainOrb;
+class UCombatFeedbackComponent;
 class UFighterDefinition;
 class UGameplayAbility;
 class UAttackDefinition;
@@ -41,6 +42,15 @@ class AFighterCharacter : public AJJK_theHiddenOnesCharacter, public IAbilitySys
 
 public:
 	AFighterCharacter();
+ UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Feedback") TObjectPtr<UCombatFeedbackComponent> CombatFeedback;
+ UFUNCTION(BlueprintPure, Category="Feedback") UCombatFeedbackComponent* GetCombatFeedback() const { return CombatFeedback; }
+ UFUNCTION(BlueprintPure, Category="Feedback") double GetActionTime() const;
+ void PauseActionTimers(bool bPause);
+ bool ResistsInterruption(int32 Level) const;
+ UAnimMontage* ResolveIncomingReaction(const FCombatEvent& Event, bool bGuard) const;
+ UPROPERTY(Transient) TArray<TObjectPtr<UObject>> PreloadedFeedbackAssets;
+ bool bDeferredStopDodge = false;
+ FVector DeferredStopDodgeDirection;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 

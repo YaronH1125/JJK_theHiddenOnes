@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Training/BlastConfig.h"
+#include "Training/CombatFeedbackProfile.h"
 #include "FighterDefinition.generated.h"
 
+class UActorComponent;
 class UAttackDefinition;
 class UGameplayAbility;
 class UMaterialInterface;
@@ -120,6 +122,10 @@ class UFighterDefinition : public UDataAsset
 	GENERATED_BODY()
 
 public:
+ UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Feedback") TObjectPtr<UCombatFeedbackProfile> FeedbackProfile;
+ UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Feedback") TObjectPtr<UCombatReactionLibrary> ReactionLibrary;
+ /** A installs B-E components here during integration; each class is created once before combat. */
+ UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Feedback") TArray<TSubclassOf<UActorComponent>> FeedbackConsumerClasses;
 	UFighterDefinition();
 
 	/** 调试与训练面板显示用 */

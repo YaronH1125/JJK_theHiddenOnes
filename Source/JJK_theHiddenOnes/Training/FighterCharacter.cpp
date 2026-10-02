@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Training/FighterCharacter.h"
+#include "Training/ArenaPlayerController.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -20,6 +21,10 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 #include "Materials/MaterialInterface.h"
 #include "Training/AttackDefinition.h"
 #include "Training/CombatHitComponent.h"
+#include "Training/CombatFeedbackComponent.h"
+#include "Training/CombatFeedbackProfile.h"
+#include "NiagaraSystem.h"
+#include "Particles/ParticleSystem.h"
 #include "Training/ChargedBlastAbility.h"
 #include "Training/CombatInputComponent.h"
 #include "Training/CombatTypes.h"
@@ -49,6 +54,7 @@ AFighterCharacter::AFighterCharacter()
 
 	CombatInput = CreateDefaultSubobject<UCombatInputComponent>(TEXT("CombatInput"));
 	CombatHit = CreateDefaultSubobject<UCombatHitComponent>(TEXT("CombatHit"));
+ CombatFeedback = CreateDefaultSubobject<UCombatFeedbackComponent>(TEXT("CombatFeedback"));
 
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 	// 无控制器的静止对手仍需落地、保持移动物理与动画更新。
@@ -91,6 +97,18 @@ void AFighterCharacter::BeginPlay()
 	// 数值初始化的幂等保护保证双方各只执行一次
 	InitAbilityActorInfo();
 	InitializeFromDefinition();
+ if (Definition) {
+  auto Keep = [this](const auto& Ref) { if (!Ref.IsNull()) { if (auto* Asset = Ref.LoadSynchronous()) PreloadedFeedbackAssets.AddUnique(Asset); else UE_LOG(LogTemp, Warning, TEXT("[FeedbackFallback] unavailable %s"), *Ref.ToSoftObjectPath().ToString()); } };
+  TArray<TObjectPtr<UAttackDefinition>> Attacks = Definition->ComboSegments;
+  Attacks.Append(Definition->KickSegments);
+  Attacks.Append({Definition->AttackDefinition, Definition->HeavyPunchDefinition, Definition->HeavyKickDefinition, Definition->KickDefinition});
+  for (const auto& Attack : Attacks) if (Attack) { Keep(Attack->Montage); Keep(Attack->HitReactMontage); }
+  Keep(Definition->MobileBlast.TrailEffect); Keep(Definition->MobileBlast.ImpactEffect); Keep(Definition->MobileBlast.BeamEffect);
+  Keep(Definition->SuperBlast.TrailEffect); Keep(Definition->SuperBlast.ImpactEffect); Keep(Definition->SuperBlast.BeamEffect);
+  for (const auto& ConsumerClass : Definition->FeedbackConsumerClasses)
+   if (ConsumerClass && !GetComponentByClass(ConsumerClass)) { auto* Consumer = NewObject<UActorComponent>(this, ConsumerClass); AddInstanceComponent(Consumer); Consumer->RegisterComponent(); }
+  if (!Definition->ReactionLibrary) UE_LOG(LogTemp, Log, TEXT("[FeedbackFallback] %s uses default light reaction; heavy/guard library awaits B"), *GetName());
+ }
 	AddDefaultMappingContext();
 
 	// 生命变化监听：致死伤害进入延迟队列，与受击共用换血批次语义（M2.5）
@@ -411,6 +429,11 @@ bool AFighterCharacter::RequestDodge(FVector Direction)
 	const float Cost = bCancel && Definition ? Definition->DodgeConfig.CancelDodgeTotalCost
 											 : (Definition ? Definition->DodgeConfig.DodgeCost : 1.f);
 
+ if (CombatFeedback->IsStopped())
+ {
+  if (!AbilitySystem->HasInfiniteResources() && GetActionResource() < Cost) return false;
+  bDeferredStopDodge = true; DeferredStopDodgeDirection = Direction; return true;
+ }
 	// 先全部检查（含资源），通过才停止旧 GA（M3.4）
 	const bool bPaid = !AbilitySystem->HasInfiniteResources();
 	const double PreviousSpendTime = LastResourceSpendTime;
@@ -673,7 +696,7 @@ void AFighterCharacter::ApplyHitReactNow(const FCombatEvent& Event)
 	LastHitInstigator = Event.Instigator.Get();
 
 	// 霸体：伤害已照常结算，仅抵抗打断（M3-T12）
-	if (HasSuperArmor() && Event.InterruptLevel <= (ResolveCurrentAttackDefinition() ? ResolveCurrentAttackDefinition()->ArmorResistanceLevel : 0))
+	if (Event.Feedback.bArmored || ResistsInterruption(Event.InterruptLevel))
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Combat] %s 霸体抵抗打断（伤害已结算）"), *GetName());
 		return;
@@ -683,7 +706,7 @@ void AFighterCharacter::ApplyHitReactNow(const FCombatEvent& Event)
 	if (AbilitySystem != nullptr)
 	{
 		AbilitySystem->RemoveActiveGameplayEffect(StunEffect);
-		StunEffect = ApplyCombatState(TAG_State_HitStun, FMath::Max(Event.StunDuration,0.01f));
+		StunEffect = ApplyCombatState(TAG_State_HitStun, -1.f); // Removed by the same pausable timer as the action lock.
 	}
 	if (GetWorld() != nullptr)
 	{
@@ -704,22 +727,13 @@ void AFighterCharacter::ApplyHitReactNow(const FCombatEvent& Event)
 	CombatInput->InvalidateSession(FText::FromString(TEXT("受击中断")));
 
 	RefreshMovementControl();
-	UAnimMontage* ReactMontage = nullptr;
-	if (Definition != nullptr)
-	{
-		if (UAttackDefinition* Seg = ResolveCurrentAttackDefinition())
-		{
-			ReactMontage = Seg->HitReactMontage.LoadSynchronous();
-		}
-		if (ReactMontage == nullptr)
-		{
-			ReactMontage = Definition->AttackDefinition ? Definition->AttackDefinition->HitReactMontage.LoadSynchronous() : nullptr;
-		}
-	}
-	if (ReactMontage != nullptr)
-	{
-		PlayAnimMontage(ReactMontage);
-	}
+ UAnimMontage* ReactMontage = ResolveIncomingReaction(Event, false);
+ if (ReactMontage && CombatFeedback->IsChannelEnabled(ECombatFeedbackChannel::Reaction))
+ {
+  if (auto* Anim = GetMesh()->GetAnimInstance()) Anim->Montage_PlayWithBlendIn(ReactMontage, FAlphaBlendArgs(0.f));
+ }
+ if (CombatFeedback->IsStopped()) PauseActionTimers(true);
+ CancelActiveBlast();
 
 	// 击退（配置强度，沿攻击者指向）
 	if (Event.KnockbackStrength > 0.f)
@@ -750,11 +764,15 @@ void AFighterCharacter::ApplyGuardStunNow(const FCombatEvent& Event)
 	if (AbilitySystem != nullptr)
 	{
 		AbilitySystem->RemoveActiveGameplayEffect(StunEffect);
-		StunEffect = ApplyCombatState(TAG_State_GuardStun, FMath::Max(Event.StunDuration,0.01f));
+		StunEffect = ApplyCombatState(TAG_State_GuardStun, -1.f);
 	}
 	RefreshMovementControl();
 	GetWorldTimerManager().SetTimer(HitStunTimerHandle, this,
 		&AFighterCharacter::RemoveHitStun, FMath::Max(Event.StunDuration, 0.01f), false);
+ if (UAnimMontage* M = ResolveIncomingReaction(Event, true))
+  if (CombatFeedback->IsChannelEnabled(ECombatFeedbackChannel::Reaction))
+   if (auto* Anim = GetMesh()->GetAnimInstance()) Anim->Montage_PlayWithBlendIn(M, FAlphaBlendArgs(0.f));
+ if (CombatFeedback->IsStopped()) PauseActionTimers(true);
 	UE_LOG(LogTemp, Log, TEXT("[Combat] %s 防御硬直 %.2fs"), *GetName(), Event.StunDuration);
 }
 
@@ -878,6 +896,8 @@ void AFighterCharacter::Die(AActor* InInstigator)
 		return;
 	}
 	bDead = true;
+ CombatFeedback->Cleanup(ECombatFeedbackEnd::Death);
+ CancelActiveBlast();
 	SetAimIntent(false);
 	RestoreAimCamera();
 
@@ -956,6 +976,18 @@ void AFighterCharacter::PossessedBy(AController* NewController)
 	// 重新 Possess 更新控制信息；数值与能力授予由幂等保护兜住
 	InitAbilityActorInfo();
 	InitializeFromDefinition();
+ if (Definition) {
+  auto Keep = [this](const auto& Ref) { if (!Ref.IsNull()) { if (auto* Asset = Ref.LoadSynchronous()) PreloadedFeedbackAssets.AddUnique(Asset); else UE_LOG(LogTemp, Warning, TEXT("[FeedbackFallback] unavailable %s"), *Ref.ToSoftObjectPath().ToString()); } };
+  TArray<TObjectPtr<UAttackDefinition>> Attacks = Definition->ComboSegments;
+  Attacks.Append(Definition->KickSegments);
+  Attacks.Append({Definition->AttackDefinition, Definition->HeavyPunchDefinition, Definition->HeavyKickDefinition, Definition->KickDefinition});
+  for (const auto& Attack : Attacks) if (Attack) { Keep(Attack->Montage); Keep(Attack->HitReactMontage); }
+  Keep(Definition->MobileBlast.TrailEffect); Keep(Definition->MobileBlast.ImpactEffect); Keep(Definition->MobileBlast.BeamEffect);
+  Keep(Definition->SuperBlast.TrailEffect); Keep(Definition->SuperBlast.ImpactEffect); Keep(Definition->SuperBlast.BeamEffect);
+  for (const auto& ConsumerClass : Definition->FeedbackConsumerClasses)
+   if (ConsumerClass && !GetComponentByClass(ConsumerClass)) { auto* Consumer = NewObject<UActorComponent>(this, ConsumerClass); AddInstanceComponent(Consumer); Consumer->RegisterComponent(); }
+  if (!Definition->ReactionLibrary) UE_LOG(LogTemp, Log, TEXT("[FeedbackFallback] %s uses default light reaction; heavy/guard library awaits B"), *GetName());
+ }
 }
 
 void AFighterCharacter::OnRep_Controller()
@@ -1122,6 +1154,8 @@ void AFighterCharacter::AddDefaultMappingContext() const
 
 void AFighterCharacter::ResetToInitialState()
 {
+ CombatFeedback->Cleanup(ECombatFeedbackEnd::Reset);
+ bDeferredStopDodge = false;
 	const bool bResumeRequests = CombatInput->AreRequestsEnabled();
 	CombatInput->SetRequestsEnabled(false);
 	// 训练重置（M2.6 顺序：停请求 → 取消能力 → 清临时 → 复位 → 恢复属性）：
@@ -1276,6 +1310,7 @@ void AFighterCharacter::Jump()
 
 void AFighterCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
+ CombatFeedback->Cleanup(ECombatFeedbackEnd::Destroyed);
  EndThrowPair(true);
  if (AbilitySystem) AbilitySystem->CancelAllAbilities();
  GetWorldTimerManager().ClearAllTimersForObject(this);
@@ -1409,6 +1444,25 @@ void AFighterCharacter::SetDomainActive(bool bActive)
 
 ETrainingContact AFighterCharacter::SettleRangedHitOn(AFighterCharacter* Target, const FRangedHitSettle& Settle)
 {
+ FCombatContactFeedback Feedback = Settle.Feedback;
+ Feedback.Source = this; Feedback.Target = Target; Feedback.bRanged = true;
+ if (!Feedback.RoundId) { Feedback.RoundId = UCombatFeedbackComponent::Round(GetWorld()); Feedback.SourceGeneration = CombatFeedback->GetGeneration(); }
+ if (!CombatFeedback->IsCurrent(Feedback.RoundId, Feedback.SourceGeneration)) return ETrainingContact::Whiff;
+ Feedback.TargetGeneration = IsValid(Target) ? Target->GetCombatFeedback()->GetGeneration() : 0;
+ Feedback.AttackInstanceId = Settle.AttackInstanceId;
+ if (Feedback.MoveId.IsNone()) Feedback.MoveId = TEXT("RangedFallback");
+ if (!Settle.bHasContactGeometry)
+ {
+  Feedback.bLocationFallback = true;
+  if (IsValid(Target)) { Feedback.Location = Target->GetMesh()->GetSocketLocation(TEXT("spine_03")); Feedback.Direction = (Target->GetActorLocation() - GetActorLocation()).GetSafeNormal(); Feedback.Normal = -Feedback.Direction; }
+ }
+ const float BeforeHealth = IsValid(Target) ? Target->GetFighterAttributeSet()->GetHealth() : 0.f;
+ auto Publish = [&](ECombatFeedbackResult Result) {
+  Feedback.Result = Result; Feedback.ActualDamage = BeforeHealth - Target->GetFighterAttributeSet()->GetHealth();
+  Feedback.bLethal = Target->GetFighterAttributeSet()->GetHealth() <= 0.f;
+  Feedback.bArmored = Result == ECombatFeedbackResult::Hit && Target->ResistsInterruption(Settle.InterruptLevel);
+  CombatFeedback->PublishContact(Feedback);
+ };
 	// 保护：死亡/倒地/被投不进入普通结算（与近战口径一致）
 	if (!IsValid(Target) || Target == this || Target->IsDead() || Target->IsThrowPaired()
 		|| Target->HasCombatTag(TAG_State_KnockedDown))
@@ -1423,6 +1477,7 @@ ETrainingContact AFighterCharacter::SettleRangedHitOn(AFighterCharacter* Target,
 		Target->NotifyDodgeAvoided();
 		if (GM) GM->RecordContact(this, Target, ETrainingContact::Immune, Settle.Damage, 0.f, 0.f);
 		UE_LOG(LogTemp, Log, TEXT("[RangedHit] %s 的远程命中被 %s 闪避免疫"), *GetNameSafe(this), *GetNameSafe(Target));
+  Publish(ECombatFeedbackResult::Immune);
 		return ETrainingContact::Immune;
 	}
 
@@ -1433,11 +1488,14 @@ ETrainingContact AFighterCharacter::SettleRangedHitOn(AFighterCharacter* Target,
 	{
 		const FGuardConfig& Guard = Target->GetDefinition()->GuardConfig;
 		ApplyCombatDamage(Target, Settle.Damage, Guard.bChipDamage ? Settle.Damage * Guard.ChipDamageRatio : 0.f, ETrainingContact::Guard);
+  Publish(ECombatFeedbackResult::Guard);
 		FCombatEvent GuardEvent;
+  GuardEvent.Feedback = Feedback;
+  GuardEvent.bLethal = Feedback.bLethal;
 		GuardEvent.Type = FCombatEvent::EType::GuardStun;
 		GuardEvent.Instigator = this;
 		GuardEvent.StunDuration = Settle.GuardStunDuration;
-		GuardEvent.HitLocation = Target->GetActorLocation();
+		GuardEvent.HitLocation = Feedback.Location;
 		Target->QueueCombatEvent(GuardEvent);
 		UE_LOG(LogTemp, Log, TEXT("[RangedHit] %s 的远程命中被 %s 防御"), *GetNameSafe(this), *GetNameSafe(Target));
 		return ETrainingContact::Guard;
@@ -1449,13 +1507,15 @@ ETrainingContact AFighterCharacter::SettleRangedHitOn(AFighterCharacter* Target,
 	// 非领域期有效结算伤害 5% 转领域能量（领域期由 GainDomainEnergy 拒绝）
 	GainDomainEnergy(Settle.Damage, Settle.AttackInstanceId);
 	const bool bLethal = Target->GetFighterAttributeSet()->GetHealth() <= 0.f;
+ Publish(ECombatFeedbackResult::Hit);
 	FCombatEvent Event;
 	Event.Type = FCombatEvent::EType::HitReact;
 	Event.Instigator = this;
 	Event.InterruptLevel = Settle.InterruptLevel;
 	Event.StunDuration = Settle.HitStunDuration;
 	Event.bLethal = bLethal;
-	Event.HitLocation = Target->GetActorLocation();
+	Event.HitLocation = Feedback.Location;
+ Event.Feedback = Feedback;
 	Event.KnockbackStrength = Settle.KnockbackStrength;
 	Event.KnockbackDirection = (Target->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
 	Target->QueueCombatEvent(Event);
@@ -1547,11 +1607,14 @@ bool AFighterCharacter::ModifyEnergy(float SignedAmount)
 void AFighterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	ProcessCombatEvents();
 	TickAimCamera(DeltaSeconds);
-	TickMeleeFacing(DeltaSeconds);
-	TickMeleeMagnetism(DeltaSeconds);
-	TickRangedFacing(DeltaSeconds);
+ if (!CombatFeedback->IsStopped())
+ {
+  TickMeleeFacing(DeltaSeconds);
+  TickMeleeMagnetism(DeltaSeconds);
+  TickRangedFacing(DeltaSeconds);
+  if (bDeferredStopDodge) { bDeferredStopDodge = false; RequestDodge(DeferredStopDodgeDirection); }
+ }
 	TickCurseRegen(DeltaSeconds);
 	TickThrowPair();
 }
@@ -1735,4 +1798,29 @@ void UChargedBlastAbilityBase::ClearTimers()
 double UChargedBlastAbilityBase::Now() const
 {
 	return GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+}
+
+
+double AFighterCharacter::GetActionTime() const { return CombatFeedback->GetActionTime(); }
+bool AFighterCharacter::ResistsInterruption(int32 Level) const
+{
+ const auto* Attack = ResolveCurrentAttackDefinition();
+ return HasSuperArmor() && Level <= (Attack ? Attack->ArmorResistanceLevel : 0);
+}
+void AFighterCharacter::PauseActionTimers(bool bPause)
+{
+ auto& TM = GetWorldTimerManager();
+ if (bPause) TM.PauseTimer(HitStunTimerHandle); else TM.UnPauseTimer(HitStunTimerHandle);
+ if (AbilitySystem) for (const auto& Spec : AbilitySystem->GetActivatableAbilities())
+  for (auto* Instance : Spec.GetAbilityInstances())
+   if (auto* Melee = Cast<UMeleeComboAbility>(Instance)) Melee->PauseActionTimers(bPause);
+}
+UAnimMontage* AFighterCharacter::ResolveIncomingReaction(const FCombatEvent& Event, bool bGuard) const
+{
+ if (!Definition) return nullptr;
+ if (Definition->ReactionLibrary)
+  if (auto* M = Definition->ReactionLibrary->Resolve(Event.Feedback.Tier, bGuard,
+   GetActorTransform().InverseTransformVectorNoScale(Event.Feedback.Direction))) return M;
+ // Stable victim-library fallback; never use the victim's current attack.
+ return !bGuard && Definition->AttackDefinition ? Definition->AttackDefinition->HitReactMontage.Get() : nullptr;
 }

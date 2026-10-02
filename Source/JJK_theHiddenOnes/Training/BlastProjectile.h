@@ -30,7 +30,7 @@ public:
 	/** 注入弹体拖尾（发射后由能力侧从角色定义配置取；空项跳过） */
 	void ApplyFx(TSoftObjectPtr<UNiagaraSystem> InTrail, float InTrailScale);
 
-	/** 注入撞击特效（Cascade；命中/撞墙/寿命耗尽时生成） */
+	/** Legacy impact fallback: Hit/Guard/WorldImpact only; disabled when C owns the channel. */
 	void ApplyImpact(TSoftObjectPtr<UParticleSystem> InImpact, float InImpactScale, float InImpactLife);
 
 	/** 注入本次蓄力强度 0..1：命中特效持续时间与光束停留时长都随它缩放 */
@@ -49,7 +49,9 @@ protected:
 	UStaticMeshComponent* MeshComp;
 
 private:
-	void Finish();
+ void Finish(ECombatFeedbackResult Result, const FHitResult* Hit = nullptr, ECombatFeedbackEnd Reason = ECombatFeedbackEnd::Completed);
+ virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+ TWeakObjectPtr<UParticleSystemComponent> ActiveImpact;
 	void UpdateBeam();
 	FVector GetBeamOrigin() const;
 	void RecycleBeam();
@@ -71,6 +73,7 @@ private:
 	/** 命中后光束停留态：端点冻结在命中点、起点跟随施术者，到时熄灭（从命中起算，飞行时间不计） */
 	bool bLingering = false;
 	float LingerRemaining = 0.f;
+	bool bBeamDraining = false;
 	FVector ImpactLocation = FVector::ZeroVector;
 
 	TWeakObjectPtr<UNiagaraComponent> TrailComp;
