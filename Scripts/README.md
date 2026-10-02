@@ -1,4 +1,12 @@
-# UE 自动化与 M1 / M2 验收
+# UE 构建与自动化检查
+
+## 当前菜单试玩候选
+
+当前源码包含石流龙角色、战斗反馈和新版菜单。包含菜单的独立构建入口为 `Scripts/build_menu_demo.ps1`；`run_menu_package_smoke.py` 只检查主菜单启动，不验证点击开始后能移动 / 战斗。
+
+本地 `v0.1.0-alpha.1` 已整理 ZIP，但玩家反馈的启动后卡在地面和暂停背景读取问题未关闭。当前公开发行状态见 [发行说明](../Docs/releases/v0.1.0-alpha.1.md)，完整分发与版本规则见 [发布指引](../Docs/22_试玩版发布与版本管理.md)。本轮文档更新未重跑 UE 或游戏测试。
+
+下文 M1–M5 为历史阶段工具与检查口径，后续角色 / 动作 / 菜单接入可能改变原布景；各套件的通过计数不能合并成当前包的验收结论。原始记录按用户要求本地保存，Git 仓库只包含可复用脚本与长期使用说明。
 
 ## 道场修复与独立证据
 
@@ -48,7 +56,7 @@ python Scripts/ue_python.py Scripts/M1_art_review.py
 - `ue_capture.py`：默认捕获编辑器视口；末尾传 `CaptureEditorImage` 可捕获实际编辑器窗口，`CaptureAssetImage` 用于资产缩略图。
 - `M1_demo_view.py`：新 PIE 中取斜侧玩家视角，延后数帧请求游戏 HighResShot。截图写入有延迟，需查看文件时间与内容确认。
 
-运行结果、参数与已知限制见 [M1 记录](../Docs/开发过程/M1_基础训练擂台.md)；排障见 [处理回复](../Docs/求救信/M1_UE编辑器自动化通道_处理回复_2026-09-15.md)。
+运行结果、参数与已知限制见本地M1 记录（`../Docs/开发过程/M1_基础训练擂台.md`，不随 Git 分发）；排障见本地处理回复（`../Docs/求救信/M1_UE编辑器自动化通道_处理回复_2026-09-15.md`，不随 Git 分发）。
 
 ## M2 输入修复与冷启动验收
 
@@ -80,7 +88,7 @@ python Scripts/run_m3_demo.py
 
 规则 runner 在新 PIE 执行 118 项检查并归档源代码/资产 SHA-256；失败单独保存，不覆盖成功证据。需要验证真实 30/60/120 游戏时序时可用 `UnrealEditor.exe <uproject> -nullrhi -NoSound` 启动，再使用同一 runner；它验证真实动画姿态/碰撞/GAS/Input 但不验证渲染。`run_m3_demo.py` 必须在有图形编辑器运行，20 项闭环/边界检查并保存三张实际游戏截图；动画仍为占位，默认不发起独立打包。
 
-测试临时修改配置后会恢复，严禁在测试运行期间保存资产。菜单接入 `SetCombatInputEnabled`，对手停止决策接入 `SetRequestsEnabled`；训练重置仍用 `ResetTraining`。详见 [M3 验收与 M4 交接](../Docs/开发过程/M3_连招与核心攻防.md)。
+测试临时修改配置后会恢复，严禁在测试运行期间保存资产。菜单接入 `SetCombatInputEnabled`，对手停止决策接入 `SetRequestsEnabled`；训练重置仍用 `ResetTraining`。详见本地M3 验收与 M4 交接（`../Docs/开发过程/M3_连招与核心攻防.md`，不随 Git 分发）。
 
 
 ## M4 训练系统
@@ -97,7 +105,7 @@ python Scripts/run_m4_demo.py        # 必须有图形渲染：UMG 控件回调�
 
 游戏内 **F1** 打开训练面板。面板原生 UMG 控件无需另跑资源创建脚本；`TrainingPanelClass` 可由 Controller 薄蓝图替换。默认所有训练开关关闭。非 Shipping 构建的“开发测试技能”用真实 GE 消耗行动资源 1、咒力 10、领域能量 5，冷却 3 秒；默认领域能量 0 时正常拒绝，可先开无限资源试验。它不代表正式炮击已实现。
 
-自动化使用真实 PIE/ASC/碰撞/动画和 UMG 控件回调，不模拟操作系统实体键鼠。规则、统计口径和 M5/M6 交接见 [M4 记录](../Docs/开发过程/M4_训练系统.md)。
+自动化使用真实 PIE/ASC/碰撞/动画和 UMG 控件回调，不模拟操作系统实体键鼠。规则、统计口径和 M5/M6 交接见本地M4 记录（`../Docs/开发过程/M4_训练系统.md`，不随 Git 分发）。
 
 
 ## M5 AI 对战
@@ -131,7 +139,7 @@ python Scripts/run_m5_package.py
 
 `-skipbuildeditor` 要求编辑器模块已经由最终源码正式构建。包位于 `Saved/Packages/M5/Windows`；普通游戏从顶层 exe 启动。`run_m5_package.py` 显式传 `-M5SmokeTest`，通过包内开发验收器检查 14 项并自动退出，包含真实伤害、结果面板、三种胜负/三次重开与模式重入。未传该参数的普通游戏不运行自动测试；Shipping 中该入口无效。`--nullrhi` 可做无图形包内规则复查，但不能替代图形启动与截图。
 
-原生 BT/Blackboard、具体参数和 M6 技能任务接入点见 [M5 文档](../Docs/开发过程/M5_AI对战.md)。
+原生 BT/Blackboard、具体参数和 M6 技能任务接入点见本地M5 文档（`../Docs/开发过程/M5_AI对战.md`，不随 Git 分发）。
 
 
 ### M5 体验修复（2026-09-17）
@@ -169,7 +177,7 @@ python Scripts/run_m5_package.py
 - `python Scripts/ue_python.py Scripts/CombatFeedback/A2_bind.py`：A 的正式资产接线入口，**会保存** `DA_Fighter_Ishigori` 和 `DA_CombatFeedback_Ishigori`；已经接线的候选无需重复运行。
 - `A2_snapshot.py baseline`：开发前保存当前脏工作区哈希与可恢复原件。`A2_freeze.py`：文档和回归完成后创建一次候选快照、差异和保留检查；不会覆盖已有冻结快照。`A2_release_editor.py`：确认无 PIE、无脏包后记录交接并退出 Editor。
 
-最终同版范围、未通过项和 F 入口以 [A 第二阶段交接](../Docs/打击感开发/Agent_A_战斗底座与集成.md) 为准。没有真人听音/键鼠、声画同步完整录像、性能对照或新 Cook 包时，报告必须保留这些待办。
+最终同版范围、未通过项和 F 入口以本地A 第二阶段交接（`../Docs/打击感开发/Agent_A_战斗底座与集成.md`，不随 Git 分发）为准。没有真人听音/键鼠、声画同步完整录像、性能对照或新 Cook 包时，报告必须保留这些待办。
 
 ## R1 试玩反馈修复（2026-10-02）
 
@@ -187,4 +195,4 @@ python Scripts/run_m5_package.py
 - `Scripts/menu_ui_start_pie.py`：配置 1920×1080 PIE 窗口；随后通过 MCP 启动 `PlayMode_InEditorFloating`。
 - `Scripts/menu_ui_acceptance.py`：在 PIE 中检查真实菜单流程、设置生效与保存，并捕获所属游戏窗口；会恢复测试前配置文件。
 - `node Scripts/verify-menu-bridge.cjs`：Edge 下验证自由训练选择 AI 对手后仍保留训练会话标签。
-- `python -X utf8 Scripts/run_menu_package_smoke.py <顶层exe>`：独立启动打包结果，在隔离 UserDir 下检查菜单资源、默认页面与暂停状态，截图后退出。
+- `python -X utf8 Scripts/run_menu_package_smoke.py <顶层exe>`：独立启动打包结果，在隔离 UserDir 下检查菜单资源、默认页面与暂停状态，截图后退出。它不检查主菜单点击开始后的出生、移动与对战；这些需要包内完整流程验证。

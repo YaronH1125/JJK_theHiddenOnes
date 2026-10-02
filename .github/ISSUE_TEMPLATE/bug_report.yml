@@ -1,0 +1,44 @@
+name: 试玩问题
+description: 报告启动、输入、战斗、菜单或性能异常
+title: "[试玩问题] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请注明版本和触发步骤；截图或短录像可直接拖入下面的输入框。
+        GitHub 自动生成的 Source code 压缩包不是游戏运行包。
+  - type: input
+    id: version
+    attributes:
+      label: 试玩版本 / 构建
+      placeholder: 例如 v0.1.0-alpha.1 / MenuUI_20261002_222940，或源码提交号
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 如何触发
+      description: 请从启动入口、菜单选择开始描述，注明 exe 或 Play.cmd，以及是否使用训练辅助。
+      placeholder: |
+        1. 完整解压后双击……
+        2. 在主菜单选择……
+        3. 执行……后出现异常
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: 实际表现与预期
+      description: 说明卡住、报错或反馈不对的具体位置，以及能否重复。
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境
+      placeholder: Windows 版本、CPU、GPU、内存、分辨率、画质、帧率上限和解压路径
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 截图 / 录像 / 日志片段
+      description: 可附关键画面与错误附近的日志片段；避免上传包含个人信息的完整异常转储。
