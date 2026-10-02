@@ -24,10 +24,14 @@ public class JJK_theHiddenOnes : ModuleRules
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",
-			"Niagara"
+			"Niagara",
+			"WebBrowser",
+			"Json"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
+		// The local, self-contained menu is read through Unreal's pak-aware file system.
+		RuntimeDependencies.Add("$(ProjectDir)/Content/UI/Menu/menu-ui.html", StagedFileType.UFS);
 
 		PublicIncludePaths.AddRange(new string[] {
 			"JJK_theHiddenOnes",

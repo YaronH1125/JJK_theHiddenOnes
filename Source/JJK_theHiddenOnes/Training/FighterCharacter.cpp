@@ -43,6 +43,16 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 #include "Training/RestoreCursedEnergyGameplayEffect.h"
 #include "Training/TargetingComponent.h"
 
+void AFighterCharacter::DoLook(float Yaw, float Pitch)
+{
+ if (const auto* PC=Cast<AArenaPlayerController>(GetController()))
+ {
+  const float Scale=PC->GetMenuLookSensitivity();
+  Super::DoLook(Yaw*Scale,Pitch*Scale*(PC->IsMenuLookInverted() ? -1.f : 1.f));
+ }
+ else Super::DoLook(Yaw,Pitch);
+}
+
 AFighterCharacter::AFighterCharacter()
 {
 	AbilitySystem = CreateDefaultSubobject<UFighterAbilitySystemComponent>(TEXT("AbilitySystem"));

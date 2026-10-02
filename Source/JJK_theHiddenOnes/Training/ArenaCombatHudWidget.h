@@ -7,6 +7,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Training/CombatTypes.h"
+#include "Training/CombatFeedbackTypes.h"
 #include "Training/ArenaHudPainter.h"
 #include "ArenaCombatHudWidget.generated.h"
 
@@ -45,10 +46,7 @@ struct FArenaHudSideAnim
 	// 闪避成功闪示
 	double DodgeFlashTime = -100.0;
 	bool bDodgePrev = false;
-	// 接触统计观察（飘字：伤害/防御/免疫）
-	bool bStatsInit = false;
-	float PrevResolvedDamage = 0.f;
-	int32 PrevGuards = 0, PrevImmunes = 0;
+ int64 ChargeSession = 0;
 };
 
 /** 飘字条目：世界位置锚定 + 上飘淡出（§7 伤害数字 900ms ease-out） */
@@ -62,6 +60,10 @@ struct FArenaHudFloatItem
 	UPROPERTY() FLinearColor Color = FLinearColor::White;
 	UPROPERTY() float FontSize = 20.f;
 	UPROPERTY() double BornTime = 0.0;
+ TWeakObjectPtr<AFighterCharacter> Target;
+ TWeakObjectPtr<AFighterCharacter> Source;
+ ECombatFeedbackResult Result = ECombatFeedbackResult::None;
+ float ActualDamage = 0.f;
 };
 
 /** 单侧战斗状态快照：NativeTick 采集，NativePaint 只读 */
@@ -88,6 +90,8 @@ struct FArenaHudSideView
 	float CurseMinCost = 8.f;
 	float ChargeCap = 1.2f, ChargeGate = 0.f, ChargeMinCost = 8.f, ChargeMaxCost = 24.f, ChargeMinDmg = 30.f, ChargeMaxDmg = 90.f;
 	float SuperCdDuration = 10.f, StanceSwitchInterval = 0.5f, DomainCastTime = 1.f, DomainDuration = 6.f;
+ float SuperMinCost = 50.f;
+ bool bInfiniteResources = false;
 	float MeleeDamage[3] = { 35.f, 40.f, 55.f };
 	float HeavyPunchDamage = 75.f, KickDamage = 45.f, HeavyKickDamage = 95.f;
 
@@ -111,6 +115,14 @@ public:
 	/** 正式层显隐（默认 HitTestInvisible；JJKCombatHud 切换） */
 	UFUNCTION(BlueprintCallable, Category = "Training|UI")
 	void SetHudVisible(bool bVisible);
+ void ConsumeContact(const FCombatContactFeedback& Event);
+ void ConsumeAction(const FCombatActionFeedback& Event);
+ void ConsumeLifecycle(const FCombatLifecycleFeedback& Event);
+ void ClearFeedback(bool bRoundReset = false);
+ UFUNCTION(BlueprintPure, Category="Feedback|HUD") FString GetFeedbackState() const;
+ UFUNCTION(BlueprintPure, Category="Feedback|HUD") TArray<FString> GetFeedbackTexts() const;
+ UPROPERTY(BlueprintReadOnly, Category="Feedback|HUD") int32 ContactPromptCount = 0;
+ UPROPERTY(BlueprintReadOnly, Category="Feedback|HUD") int32 MergedPromptCount = 0;
 
 protected:
 	virtual void NativeOnInitialized() override;
@@ -124,8 +136,9 @@ private:
 	// ---------- 采集 ----------
 	void SnapshotSide(bool bPlayer, AFighterCharacter* Fighter, ATrainingGameMode* GM, FArenaHudSideView& OutView);
 	void UpdateSideAnim(const FArenaHudSideView& View, FArenaHudSideAnim& Anim, double Now, double DeltaSeconds);
-	void DetectFloats(const FArenaHudSideView& Prev, const FArenaHudSideView& NowView, AFighterCharacter* Fighter, bool bVictimIsOpponent, double Now);
 	void SpawnFloat(const FVector& WorldPos, const FString& Text, const FLinearColor& Color, float Size, double Now);
+ float ChargeTimeQ(const FArenaHudSideView& View, const FArenaHudSideAnim& Anim, double Now) const;
+ bool IsChargeLimited(const FArenaHudSideView& View, const FArenaHudSideAnim& Anim, double Now) const;
 
 	// ---------- 绘制 ----------
 	float DesignWidth(const FArenaHudCanvas& C) const;

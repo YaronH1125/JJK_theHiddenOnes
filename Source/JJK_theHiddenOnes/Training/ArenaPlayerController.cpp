@@ -1,6 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Training/ArenaPlayerController.h"
+#include "Training/ArenaMenuWidget.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "TimerManager.h"
+#include "Framework/Application/IInputProcessor.h"
+#include "Widgets/SViewport.h"
 #include "Training/FighterDefinition.h"
 
 #include "EnhancedInputComponent.h"
@@ -18,6 +24,36 @@
 #include "Training/FighterAttributeSet.h"
 #include "Training/TargetingComponent.h"
 #include "Training/TrainingGameMode.h"
+#include "Training/CombatFeedbackComponent.h"
+#include "Training/Feedback/Camera/CombatCameraFeedbackModifier.h"
+#include "InputKeyEventArgs.h"
+
+/** Route game-menu keys before editor PIE shortcuts, only within this player's UI/viewport. */
+class FArenaMenuInputProcessor final : public IInputProcessor
+{
+ TWeakObjectPtr<AArenaPlayerController> Player;
+public:
+ explicit FArenaMenuInputProcessor(AArenaPlayerController* PC) : Player(PC) {}
+ virtual void Tick(float, FSlateApplication&, TSharedRef<ICursor>) override {}
+ virtual bool HandleKeyDownEvent(FSlateApplication&, const FKeyEvent& Event) override
+ {
+  auto* PC=Player.Get();
+  if (!PC || !PC->GameMenu || Event.IsRepeat()) return false;
+  const FKey Key=Event.GetKey();
+  if (Key!=EKeys::Escape && Key!=EKeys::F1) return false;
+  if (PC->IsGameMenuOpen())
+  {
+   if (!PC->GameMenu->TakeWidget()->HasAnyUserFocusOrFocusedDescendants()) return false;
+   if (Key==EKeys::Escape) PC->GameMenu->NavigateBack();
+   return true;
+  }
+  auto* Client=PC->GetWorld() ? PC->GetWorld()->GetGameViewport() : nullptr;
+  const auto Viewport=Client ? Client->GetGameViewportWidget() : nullptr;
+  if (!Viewport || !Viewport->HasAnyUserFocusOrFocusedDescendants()) return false;
+  PC->OpenGameMenu(Key==EKeys::Escape ? TEXT("pause") : TEXT("settings"),Key==EKeys::F1 ? TEXT("training") : TEXT("graphics"));
+  return true;
+ }
+};
 
 void AArenaPlayerController::BeginPlay()
 {
@@ -31,9 +67,20 @@ void AArenaPlayerController::BeginPlay()
   ArenaHud=CreateWidget<UArenaCombatHudWidget>(this);
   ArenaHud->AddToViewport(6);
   CombatHud->SetVisibility(ESlateVisibility::Collapsed);
+  GameMenu=CreateWidget<UArenaMenuWidget>(this);
+  GameMenu->AddToViewport(100);
+  MenuInputProcessor=MakeShared<FArenaMenuInputProcessor>(this);
+  FSlateApplication::Get().RegisterInputPreProcessor(MenuInputProcessor,0);
+  const bool bSkipMenu=FParse::Param(FCommandLine::Get(),TEXT("JJKSkipMenu"));
+  GameMenu->ShowPage(bSkipMenu ? TEXT("battle") : TEXT("main"));
+  GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateWeakLambda(this,[this,bSkipMenu]()
+  {
+   SetGameMenuOpen(!bSkipMenu);
+  }));
  }
 	if (PlayerCameraManager != nullptr)
 	{
+		if (IsLocalController()) CombatCameraFeedback = Cast<UCombatCameraFeedbackModifier>(PlayerCameraManager->AddNewCameraModifier(UCombatCameraFeedbackModifier::StaticClass()));
 		PlayerCameraManager->ViewPitchMin = -65.f;
 		PlayerCameraManager->ViewPitchMax = 65.f;
 	}
@@ -45,11 +92,18 @@ void AArenaPlayerController::BeginPlay()
 
 void AArenaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+ UnbindCombatFeedback();
+ ClearCombatFeedback(true);
+ if (PlayerCameraManager && CombatCameraFeedback) PlayerCameraManager->RemoveCameraModifier(CombatCameraFeedback);
+ CombatCameraFeedback = nullptr;
 	if (FSlateApplication::IsInitialized())
 	{
+  if (MenuInputProcessor) FSlateApplication::Get().UnregisterInputPreProcessor(MenuInputProcessor);
+  MenuInputProcessor.Reset();
 		FSlateApplication::Get().OnApplicationActivationStateChanged().RemoveAll(this);
 	}
 	if(TrainingPanel) { TrainingPanel->RemoveFromParent(); TrainingPanel=nullptr; }
+ if(GameMenu) { GameMenu->RemoveFromParent(); GameMenu=nullptr; }
  if(CombatHud) { CombatHud->RemoveFromParent(); CombatHud=nullptr; }
  if(ArenaHud) { ArenaHud->RemoveFromParent(); ArenaHud=nullptr; }
 	Super::EndPlay(EndPlayReason);
@@ -57,8 +111,10 @@ void AArenaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AArenaPlayerController::HandleAppActivationChanged(bool bActive)
 {
+ bFeedbackAppActive = bActive;
 	if (!bActive)
 	{
+  ClearCombatFeedback();
 		bDodgeHeld = false;
 		ClearFrameInput();
 		if (AFighterCharacter* Fighter = GetPlayerFighter())
@@ -78,6 +134,8 @@ void AArenaPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	InputComponent->BindKey(EKeys::F1,IE_Pressed,this,&AArenaPlayerController::ToggleTrainingPanel);
+ auto& PauseBinding=InputComponent->BindKey(EKeys::Escape,IE_Pressed,this,&AArenaPlayerController::HandlePausePressed);
+ PauseBinding.bExecuteWhenPaused=true;
 	InputComponent->BindKey(EKeys::R,IE_Pressed,this,&AArenaPlayerController::HandleDomainPressed);
 	InputComponent->BindKey(EKeys::SpaceBar,IE_Pressed,this,&AArenaPlayerController::HandleRestartPressed);
 
@@ -131,9 +189,129 @@ void AArenaPlayerController::SetupInputComponent()
 
 void AArenaPlayerController::OnPossess(APawn* InPawn)
 {
+ UnbindCombatFeedback();
 	Super::OnPossess(InPawn);
+ ClearCombatFeedback(true);
+ RefreshFeedbackBindings();
 	SetCombatInputEnabled(bCombatInputEnabled);
 	UE_LOG(LogTemp, Log, TEXT("[ArenaPC] %s 接管 %s"), *GetName(), *GetNameSafe(InPawn));
+}
+
+void AArenaPlayerController::OnUnPossess()
+{
+ UnbindCombatFeedback();
+ ClearCombatFeedback(true);
+ Super::OnUnPossess();
+}
+
+void AArenaPlayerController::JJKCameraStrength(int32 Level) { UCombatCameraFeedbackModifier::SetStrength(Level); }
+int32 AArenaPlayerController::GetCameraFeedbackStrength() const { return UCombatCameraFeedbackModifier::GetStrength(); }
+void AArenaPlayerController::GetCombatAimViewPoint(FVector& Location, FRotator& Rotation) const
+{
+ GetPlayerViewPoint(Location, Rotation);
+ if (CombatCameraFeedback) Rotation.Roll -= CombatCameraFeedback->AppliedRoll;
+}
+bool AArenaPlayerController::CanPlayCombatFeedback() const
+{
+ const auto* GM = GetTrainingGameMode();
+ const auto* Fighter = GetPlayerFighter();
+ return IsLocalController() && bFeedbackAppActive && bCombatInputEnabled && IsValid(Fighter) && !Fighter->IsDead()
+  && GM && !GM->IsMatchResolved() && !GM->IsTrainingMenuOpen() && !(TrainingPanel && TrainingPanel->IsInViewport());
+}
+int32 AArenaPlayerController::GetFeedbackBindingCount() const
+{
+ int32 Count = 0;
+ for (const auto& Binding : FeedbackBindings) if (Binding.IsValid()) ++Count;
+ return Count;
+}
+void AArenaPlayerController::UnbindCombatFeedback()
+{
+ for (auto& Binding : FeedbackBindings) if (auto* F = Binding.Get())
+ {
+  F->OnContact.RemoveDynamic(this, &AArenaPlayerController::HandleFeedbackContact);
+  F->OnAction.RemoveDynamic(this, &AArenaPlayerController::HandleFeedbackAction);
+  F->OnLifecycle.RemoveDynamic(this, &AArenaPlayerController::HandleFeedbackLifecycle);
+ }
+ FeedbackBindings.Reset(); FeedbackPlayer.Reset(); FeedbackOpponent.Reset();
+ FeedbackContactKeys.Reset();
+}
+void AArenaPlayerController::ClearCombatFeedback(bool bRoundReset)
+{
+ if (CombatCameraFeedback) CombatCameraFeedback->ClearPulse();
+ if (ArenaHud) ArenaHud->ClearFeedback(bRoundReset);
+ if (bRoundReset) FeedbackContactKeys.Reset();
+}
+void AArenaPlayerController::RefreshFeedbackBindings()
+{
+ if (!IsLocalController()) return;
+ auto* GM = GetTrainingGameMode();
+ auto* LocalFighter = GetPlayerFighter();
+ auto* Opponent = GM ? GM->GetOpponentFighter() : nullptr;
+ if (!IsValid(LocalFighter))
+ {
+  UnbindCombatFeedback(); ClearCombatFeedback(); return;
+ }
+ const int32 Round = UCombatFeedbackComponent::Round(GetWorld());
+ if (Round != FeedbackRound)
+ {
+  FeedbackRound = Round; ClearCombatFeedback(true);
+ }
+ if (LocalFighter == FeedbackPlayer.Get() && Opponent == FeedbackOpponent.Get()
+  && GetFeedbackBindingCount() == (IsValid(LocalFighter) ? 1 : 0) + (IsValid(Opponent) && Opponent != LocalFighter ? 1 : 0)) return;
+ UnbindCombatFeedback(); ClearCombatFeedback(true);
+ FeedbackPlayer = LocalFighter; FeedbackOpponent = Opponent;
+ for (auto* Fighter : { LocalFighter, Opponent }) if (IsValid(Fighter))
+ {
+  auto* F = Fighter->GetCombatFeedback();
+  if (!F || FeedbackBindings.Contains(F)) continue;
+  F->OnContact.AddUniqueDynamic(this, &AArenaPlayerController::HandleFeedbackContact);
+  F->OnAction.AddUniqueDynamic(this, &AArenaPlayerController::HandleFeedbackAction);
+  F->OnLifecycle.AddUniqueDynamic(this, &AArenaPlayerController::HandleFeedbackLifecycle);
+  FeedbackBindings.Add(F);
+ }
+}
+void AArenaPlayerController::PlayerTick(float DeltaTime)
+{
+ RefreshFeedbackBindings();
+ if (!CanPlayCombatFeedback()) ClearCombatFeedback();
+ Super::PlayerTick(DeltaTime);
+}
+void AArenaPlayerController::HandleFeedbackContact(const FCombatContactFeedback& E)
+{
+ auto* Source = E.Source.Get(); auto* Target = E.Target.Get();
+ if (!CanPlayCombatFeedback() || !IsValid(Source) || !IsValid(Target)
+  || !FeedbackBindings.Contains(Source->GetCombatFeedback())
+  || !Source->GetCombatFeedback()->IsCurrent(E.RoundId, E.SourceGeneration)
+  || !Target->GetCombatFeedback()->IsCurrent(E.RoundId, E.TargetGeneration)) return;
+ const FString Key = FString::Printf(TEXT("%d:%s:%lld:%d:%s:%d"), E.RoundId, *Source->GetPathName(), E.AttackInstanceId,
+  E.SegmentId, *Target->GetPathName(), static_cast<int32>(E.Result));
+ if (FeedbackContactKeys.Contains(Key)) return;
+ FeedbackContactKeys.Add(Key); ++FeedbackContactCount;
+ if (CombatCameraFeedback) CombatCameraFeedback->ConsumeContact(E, GetPlayerFighter());
+ if (ArenaHud && Source->GetCombatFeedback()->IsChannelEnabled(ECombatFeedbackChannel::HUD)) ArenaHud->ConsumeContact(E);
+}
+void AArenaPlayerController::DebugConsumeFeedbackContact(const FCombatContactFeedback& E)
+{
+#if !UE_BUILD_SHIPPING
+ HandleFeedbackContact(E);
+#endif
+}
+void AArenaPlayerController::HandleFeedbackAction(const FCombatActionFeedback& E)
+{
+ auto* Source = E.Source.Get();
+ if (!IsValid(Source) || !FeedbackBindings.Contains(Source->GetCombatFeedback())
+  || !Source->GetCombatFeedback()->IsCurrent(E.RoundId, E.Generation)) return;
+ if (ArenaHud) ArenaHud->ConsumeAction(E);
+}
+void AArenaPlayerController::HandleFeedbackLifecycle(const FCombatLifecycleFeedback& E)
+{
+ auto* Source = E.Source.Get();
+ if (!IsValid(Source) || !FeedbackBindings.Contains(Source->GetCombatFeedback())
+  || !Source->GetCombatFeedback()->IsCurrent(E.RoundId, E.Generation)) return;
+ if (E.Reason == ECombatFeedbackEnd::Death || E.Reason == ECombatFeedbackEnd::Reset
+  || E.Reason == ECombatFeedbackEnd::Destroyed) ClearCombatFeedback(E.Reason == ECombatFeedbackEnd::Reset);
+ else if (E.AttackInstanceId == 0 && CombatCameraFeedback) CombatCameraFeedback->ClearForSource(Source);
+ if (ArenaHud) ArenaHud->ConsumeLifecycle(E);
 }
 
 AFighterCharacter* AArenaPlayerController::GetPlayerFighter() const
@@ -399,6 +577,7 @@ void AArenaPlayerController::ClearFrameInput()
 }
 void AArenaPlayerController::SetCombatInputEnabled(bool bEnabled)
 {
+ if (!bEnabled) ClearCombatFeedback();
  bCombatInputEnabled = bEnabled;
  if (auto* F = GetPlayerFighter()) F->GetCombatInput()->SetRequestsEnabled(bEnabled);
  ClearFrameInput();
@@ -442,8 +621,10 @@ void AArenaPlayerController::PostProcessInput(float DeltaTime, bool bGamePaused)
 
 void AArenaPlayerController::SetTrainingPanelOpen(bool bOpen)
 {
+ if (bOpen) ClearCombatFeedback();
  auto* GM=GetTrainingGameMode(); if(!GM) return;
- if(bOpen==GM->IsTrainingMenuOpen() && (!bOpen || (TrainingPanel && TrainingPanel->IsInViewport()))) return;
+ const bool bPanelPresent = TrainingPanel && TrainingPanel->IsInViewport();
+ if(bOpen==GM->IsTrainingMenuOpen() && bOpen==bPanelPresent) return;
  GM->SetTrainingMenuOpen(bOpen);
  ResetIgnoreMoveInput(); ResetIgnoreLookInput();
  SetIgnoreMoveInput(bOpen); SetIgnoreLookInput(bOpen);
@@ -464,12 +645,78 @@ void AArenaPlayerController::SetTrainingPanelOpen(bool bOpen)
  }
  FlushPressedKeys();
 }
-void AArenaPlayerController::ToggleTrainingPanel() { if(auto* GM=GetTrainingGameMode()) SetTrainingPanelOpen(!GM->IsTrainingMenuOpen()); }
+void AArenaPlayerController::ToggleTrainingPanel()
+{
+ if (GameMenu)
+ {
+  if (!bGameMenuOpen) OpenGameMenu(TEXT("settings"),TEXT("training"));
+  return;
+ }
+ if(GetTrainingGameMode()) SetTrainingPanelOpen(!(TrainingPanel && TrainingPanel->IsInViewport()));
+}
+
+void AArenaPlayerController::SetGameMenuOpen(bool bOpen)
+{
+ if (!GameMenu) return;
+ const bool bChanged=bGameMenuOpen!=bOpen;
+ bGameMenuOpen=bOpen;
+ if (TrainingPanel && TrainingPanel->IsInViewport()) TrainingPanel->RemoveFromParent();
+ if (auto* GM=GetTrainingGameMode())
+  if (bChanged || GM->IsTrainingMenuOpen()!=bOpen) GM->SetTrainingMenuOpen(bOpen);
+ if (bOpen)
+ {
+  SetPause(true);
+  ResetIgnoreMoveInput(); ResetIgnoreLookInput(); SetIgnoreMoveInput(true); SetIgnoreLookInput(true);
+  if (ArenaHud) ArenaHud->SetVisibility(ESlateVisibility::Collapsed);
+  if (CombatHud) CombatHud->SetVisibility(ESlateVisibility::Collapsed);
+  GameMenu->SetVisibility(ESlateVisibility::Visible); bShowMouseCursor=true;
+  FInputModeUIOnly Mode; Mode.SetWidgetToFocus(GameMenu->TakeWidget()); Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); SetInputMode(Mode);
+  GameMenu->FocusBrowser();
+ }
+ else
+ {
+  SetPause(false);
+  ResetIgnoreMoveInput(); ResetIgnoreLookInput();
+  GameMenu->SetVisibility(ESlateVisibility::Collapsed); bShowMouseCursor=false;
+  if (ArenaHud) ArenaHud->SetVisibility(ESlateVisibility::HitTestInvisible);
+  SetInputMode(FInputModeGameOnly());
+  HandleAppActivationChanged(FSlateApplication::Get().IsActive());
+ }
+ if (bChanged) FlushPressedKeys();
+}
+
+void AArenaPlayerController::OpenGameMenu(const FString& Page,const FString& Tab)
+{
+ if (!GameMenu) return;
+ if (!bGameMenuOpen) GameMenu->CaptureScene();
+ SetGameMenuOpen(true); GameMenu->ShowPage(Page,Tab); GameMenu->FocusBrowser();
+}
+void AArenaPlayerController::HandlePausePressed()
+{
+ if (GameMenu && !bGameMenuOpen) OpenGameMenu(TEXT("pause"));
+}
+void AArenaPlayerController::JJKMenu(const FString& Page)
+{
+#if !UE_BUILD_SHIPPING
+ if (Page==TEXT("battle")) { if (GameMenu) GameMenu->ShowPage(Page); SetGameMenuOpen(false); }
+ else if (TArray<FString>{TEXT("main"),TEXT("pause"),TEXT("settings"),TEXT("controls")}.Contains(Page)) OpenGameMenu(Page);
+#endif
+}
+float AArenaPlayerController::GetMenuLookSensitivity() const { return GameMenu ? GameMenu->GetLookSensitivity() : 1.f; }
+bool AArenaPlayerController::IsMenuLookInverted() const { return GameMenu && GameMenu->IsLookInverted(); }
 void AArenaPlayerController::DebugSendKey(FName KeyName, bool bPressed)
 {
 #if !UE_BUILD_SHIPPING
  if(!FSlateApplication::IsInitialized()) return;
- const FKeyEvent Event(FKey(KeyName),FModifierKeysState(),0,false,0,0);
+ const FKey Key(KeyName);
+ // Slate key events do not represent mouse button events. Send mouse buttons through
+ // the native input gateway so Development tests exercise the existing EnhancedInput bindings.
+ if (Key.IsMouseButton())
+ {
+  InputKey(FInputKeyEventArgs::CreateSimulated(Key, bPressed ? IE_Pressed : IE_Released, bPressed ? 1.f : 0.f));
+  return;
+ }
+ const FKeyEvent Event(Key,FModifierKeysState(),0,false,0,0);
  if(bPressed) FSlateApplication::Get().ProcessKeyDownEvent(Event);
  else FSlateApplication::Get().ProcessKeyUpEvent(Event);
 #endif

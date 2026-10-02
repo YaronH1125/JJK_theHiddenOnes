@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Training/CombatFeedbackTypes.h"
 #include "ArenaPlayerController.generated.h"
 
 class AFighterCharacter;
@@ -12,6 +13,10 @@ class UInputAction;
 class UTrainingPanelWidget;
 class UCombatHudWidget;
 class UArenaCombatHudWidget;
+class UCombatFeedbackComponent;
+class UCombatCameraFeedbackModifier;
+class UArenaMenuWidget;
+class IInputProcessor;
 
 /**
  * 训练场玩家控制器：输入入口与镜头协调。
@@ -23,6 +28,24 @@ class AArenaPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+ UPROPERTY(BlueprintReadOnly, Category="Menu") TObjectPtr<UArenaMenuWidget> GameMenu;
+ UFUNCTION(BlueprintCallable, Category="Menu") void SetGameMenuOpen(bool bOpen);
+ UFUNCTION(BlueprintCallable, Category="Menu") void OpenGameMenu(const FString& Page = TEXT("pause"), const FString& Tab = TEXT("graphics"));
+ UFUNCTION(BlueprintPure, Category="Menu") bool IsGameMenuOpen() const { return bGameMenuOpen; }
+ UFUNCTION(Exec) void JJKMenu(const FString& Page);
+ float GetMenuLookSensitivity() const;
+ bool IsMenuLookInverted() const;
+ UPROPERTY(BlueprintReadOnly, Category="Feedback|Camera") TObjectPtr<UCombatCameraFeedbackModifier> CombatCameraFeedback;
+ /** Runtime setting: 0 off / 1 low / 2 standard. Also available as JJK.Feedback.CameraStrength. */
+ UFUNCTION(Exec) void JJKCameraStrength(int32 Level);
+ UFUNCTION(BlueprintPure, Category="Feedback|Camera") int32 GetCameraFeedbackStrength() const;
+ /** Explicit baseline pose for consumers; render uses the camera manager with its roll overlay. */
+ UFUNCTION(BlueprintPure, Category="Feedback|Camera") void GetCombatAimViewPoint(FVector& Location, FRotator& Rotation) const;
+ UFUNCTION(BlueprintPure, Category="Feedback") bool CanPlayCombatFeedback() const;
+ UFUNCTION(BlueprintPure, Category="Feedback") int32 GetFeedbackBindingCount() const;
+ UPROPERTY(BlueprintReadOnly, Category="Feedback") int32 FeedbackContactCount = 0;
+ UFUNCTION(BlueprintCallable, Category="Feedback|Debug", meta=(DevelopmentOnly)) void DebugConsumeFeedbackContact(const FCombatContactFeedback& Event);
+ virtual void PlayerTick(float DeltaTime) override;
 	/** 切换锁定（按下触发） */
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Training")
 	TObjectPtr<UInputAction> LockTargetAction;
@@ -93,8 +116,23 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
+ virtual void OnUnPossess() override;
 
 private:
+ bool bGameMenuOpen = false;
+ TSharedPtr<IInputProcessor> MenuInputProcessor;
+ void HandlePausePressed();
+ TArray<TWeakObjectPtr<UCombatFeedbackComponent>> FeedbackBindings;
+ TWeakObjectPtr<AFighterCharacter> FeedbackPlayer, FeedbackOpponent;
+ TSet<FString> FeedbackContactKeys;
+ int32 FeedbackRound = 0;
+ bool bFeedbackAppActive = true;
+ void RefreshFeedbackBindings();
+ void UnbindCombatFeedback();
+ void ClearCombatFeedback(bool bRoundReset = false);
+ UFUNCTION() void HandleFeedbackContact(const FCombatContactFeedback& Event);
+ UFUNCTION() void HandleFeedbackAction(const FCombatActionFeedback& Event);
+ UFUNCTION() void HandleFeedbackLifecycle(const FCombatLifecycleFeedback& Event);
  bool bCombatInputEnabled = true;
  bool bAttackPressed = false, bAttackReleased = false, bKickPressed = false, bKickReleased = false;
  bool bDodgePressed = false, bStancePressed = false, bDomainPressed = false;

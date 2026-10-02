@@ -7,6 +7,8 @@
 #include "Engine/Font.h"
 #include "Engine/Texture2D.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Training/ArenaPlayerController.h"
+#include "Training/CombatFeedbackComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Training/AttackDefinition.h"
@@ -117,6 +119,7 @@ void UArenaCombatHudWidget::SnapshotSide(bool bPlayer, AFighterCharacter* F, ATr
 	V.bCastingNow = F->HasCombatTag(TAG_State_DomainCasting);
 	V.bDomainActive = F->IsDomainActive();
 	V.ChargePaidQ = F->GetBlastChargeAlpha();
+ V.bInfiniteResources = GM->Settings.bInfiniteResources;
 	// 移动炮叠加 RangedBlastCharging；定点超级炮没有该标签（ChargedBlastAbility ApplyChargeStateTags）
 	V.bSuperBlastCharging = V.bChargingNow && !F->HasCombatTag(TAG_State_RangedBlastCharging);
 
@@ -139,7 +142,8 @@ void UArenaCombatHudWidget::SnapshotSide(bool bPlayer, AFighterCharacter* F, ATr
 			V.ChargeMinDmg = D->MobileBlast.MinDamage; V.ChargeMaxDmg = D->MobileBlast.MaxDamage;
 		}
 		V.SuperCdDuration = FMath::Max(D->SuperBlast.Cooldown, 0.5f);
-		V.StanceSwitchInterval = D->StanceSwitchInterval;
+		V.StanceSwitchInterval = D->StanceSwitchDuration;
+  V.SuperMinCost = D->SuperBlast.MinCost;
 		V.DomainCastTime = FMath::Max(D->DomainConfig.CastTime, 0.1f);
 		V.DomainDuration = FMath::Max(D->DomainConfig.Duration, 0.5f);
 		for (int32 i = 0; i < 3; ++i)
@@ -221,38 +225,106 @@ void UArenaCombatHudWidget::SpawnFloat(const FVector& WorldPos, const FString& T
 	while (Floats.Num() > 24) Floats.RemoveAt(0);
 }
 
-void UArenaCombatHudWidget::DetectFloats(const FArenaHudSideView& Prev, const FArenaHudSideView& NowView,
-	AFighterCharacter* Fighter, bool bVictimIsOpponent, double Now)
+void UArenaCombatHudWidget::ClearFeedback(bool bRoundReset)
 {
-	if (!NowView.bValid || !Prev.bValid || !IsValid(Fighter)) return;
-	ATrainingGameMode* GM = GetWorld() ? GetWorld()->GetAuthGameMode<ATrainingGameMode>() : nullptr;
-	if (GM == nullptr) return;
+ Floats.Reset();
+ if (!bRoundReset) return; // Preserve actual cooldown/continuous state through menu and focus changes.
+ PlayerAnim = FArenaHudSideAnim(); OpponentAnim = FArenaHudSideAnim();
+ auto* GM = GetWorld() ? GetWorld()->GetAuthGameMode<ATrainingGameMode>() : nullptr;
+ if (!GM) return;
+ SnapshotSide(true, GM->GetPlayerFighter(), GM, PlayerView);
+ SnapshotSide(false, GM->GetOpponentFighter(), GM, OpponentView);
+ auto Seed = [](const FArenaHudSideView& V, FArenaHudSideAnim& A)
+ {
+  A.HpFillShown = A.HpFillFrom = A.HpFillTarget = A.GhostShown = A.GhostFrom = FMath::Clamp(V.Health / V.MaxHealth, 0.f, 1.f);
+  A.CurseShown = A.CurseTarget = FMath::Clamp(V.Curse / V.MaxCurse, 0.f, 1.f);
+ };
+ Seed(PlayerView, PlayerAnim); Seed(OpponentView, OpponentAnim);
+}
 
-	// 接触统计按攻击方累计：本侧是被打的一方 → 看对手那一份（RecordContact 口径）
-	FTrainingStats& Stats = bVictimIsOpponent ? GM->PlayerStats : GM->OpponentStats;
-	FArenaHudSideAnim& A = bVictimIsOpponent ? PlayerAnim : OpponentAnim;
-	if (!A.bStatsInit)
-	{
-		A.bStatsInit = true;
-		A.PrevResolvedDamage = Stats.ResolvedDamage;
-		A.PrevGuards = Stats.Guards;
-		A.PrevImmunes = Stats.Immunes;
-		return;
-	}
+void UArenaCombatHudWidget::ConsumeContact(const FCombatContactFeedback& E)
+{
+ auto* Target = E.Target.Get();
+ auto* Source = E.Source.Get();
+ if (!IsValid(Target) || !IsValid(Source) || E.bLethal || Target->IsDead()) return;
+ if (E.Result != ECombatFeedbackResult::Hit && E.Result != ECombatFeedbackResult::Guard && E.Result != ECombatFeedbackResult::Immune) return;
+ const double Now = GetWorld()->GetTimeSeconds();
+ const double Window = E.Tier == ECombatFeedbackTier::DomainOrb ? .35 : .10;
+ // One bounded prompt per target/result; domain balls update the same short prompt without extending its lifetime.
+ for (auto& Item : Floats) if (Item.Target.Get() == Target && Item.Result == E.Result && Now - Item.BornTime < Window)
+ {
+  Item.ActualDamage += FMath::Max(E.ActualDamage, 0.f);
+  if (E.Result == ECombatFeedbackResult::Guard)
+   Item.Text = Item.ActualDamage > .01f ? FString::Printf(TEXT("防御 · %.0f"), Item.ActualDamage) : TEXT("防御");
+  else if (E.Result == ECombatFeedbackResult::Hit && Item.ActualDamage > .01f)
+   Item.Text = FString::Printf(TEXT("%.0f"), Item.ActualDamage);
+  ++MergedPromptCount;
+  return;
+ }
+ FString Text;
+ const auto Color = E.Result == ECombatFeedbackResult::Guard ? FArenaHudPalette::Aim
+  : E.Result == ECombatFeedbackResult::Immune ? FArenaHudPalette::Muted : E.ActualDamage >= 100.f ? FArenaHudPalette::Gold : FLinearColor::White;
+ if (E.Result == ECombatFeedbackResult::Guard) Text = E.ActualDamage > .01f ? FString::Printf(TEXT("防御 · %.0f"), E.ActualDamage) : TEXT("防御");
+ else if (E.Result == ECombatFeedbackResult::Immune) Text = TEXT("免疫");
+ else Text = E.ActualDamage > .01f ? FString::Printf(TEXT("%.0f"), E.ActualDamage) : TEXT("命中");
+ SpawnFloat(E.Location + FVector(0, 0, 35), Text, Color, E.Result == ECombatFeedbackResult::Hit ? 20.f : 15.f, Now);
+ Floats.Last().Target = Target; Floats.Last().Source = Source; Floats.Last().Result = E.Result; Floats.Last().ActualDamage = E.ActualDamage;
+ while (Floats.Num() > 4) Floats.RemoveAt(0);
+ ++ContactPromptCount;
+}
 
-	const FVector Anchor = Fighter->GetActorLocation() + FVector(0.f, 0.f, 130.f);
-	const float Dmg = Stats.ResolvedDamage - A.PrevResolvedDamage;
-	if (Dmg > 0.5f && !NowView.bDead)
-	{
-		SpawnFloat(Anchor, FString::Printf(TEXT("%.0f"), Dmg),
-			Dmg >= 100.f ? FArenaHudPalette::Gold : FLinearColor::White,
-			Dmg >= 100.f ? 28.f : 20.f, Now);
-	}
-	if (Stats.Guards > A.PrevGuards) SpawnFloat(Anchor, TEXT("防御"), FArenaHudPalette::Aim, 15.f, Now);
-	if (Stats.Immunes > A.PrevImmunes) SpawnFloat(Anchor, TEXT("免疫"), FArenaHudPalette::Muted, 15.f, Now);
-	A.PrevResolvedDamage = Stats.ResolvedDamage;
-	A.PrevGuards = Stats.Guards;
-	A.PrevImmunes = Stats.Immunes;
+void UArenaCombatHudWidget::ConsumeAction(const FCombatActionFeedback& E)
+{
+ auto* PC = Cast<AArenaPlayerController>(GetOwningPlayer());
+ auto* GM = PC ? PC->GetTrainingGameMode() : nullptr;
+ if (!GM || (E.Tier != ECombatFeedbackTier::MobileBlast && E.Tier != ECombatFeedbackTier::SuperBlast)) return;
+ auto* Source = E.Source.Get();
+ FArenaHudSideAnim* A = Source == GM->GetPlayerFighter() ? &PlayerAnim : Source == GM->GetOpponentFighter() ? &OpponentAnim : nullptr;
+ if (!A) return;
+ if (E.Stage == ECombatActionStage::Start && E.SessionId > A->ChargeSession)
+ {
+  A->ChargeSession = E.SessionId; A->ChargeStartTime = GetWorld()->GetTimeSeconds(); A->bChargingSeen = true;
+ }
+ // PaidQ/Full/Fire are read from the live ability. Never manufacture state from an old Full or End callback.
+}
+
+void UArenaCombatHudWidget::ConsumeLifecycle(const FCombatLifecycleFeedback& E)
+{
+ if (E.Reason == ECombatFeedbackEnd::Death || E.Reason == ECombatFeedbackEnd::Reset
+  || E.Reason == ECombatFeedbackEnd::Destroyed) Floats.Reset();
+ else if (E.AttackInstanceId == 0) Floats.RemoveAll([&E](const FArenaHudFloatItem& Item) { return Item.Source == E.Source; });
+}
+
+float UArenaCombatHudWidget::ChargeTimeQ(const FArenaHudSideView& V, const FArenaHudSideAnim& A, double Now) const
+{
+ return V.bChargingNow ? FMath::Clamp(static_cast<float>((Now - A.ChargeStartTime - V.ChargeGate) / V.ChargeCap), 0.f, 1.f) : 0.f;
+}
+bool UArenaCombatHudWidget::IsChargeLimited(const FArenaHudSideView& V, const FArenaHudSideAnim& A, double Now) const
+{
+ // Charge payment updates at 20Hz. A transient gap between elapsed time and PaidQ is not resource exhaustion.
+ return V.bChargingNow && !V.bInfiniteResources && V.Curse <= .01f && V.ChargePaidQ < .999f
+  && V.ChargePaidQ < ChargeTimeQ(V, A, Now) - .01f;
+}
+
+TArray<FString> UArenaCombatHudWidget::GetFeedbackTexts() const
+{
+ TArray<FString> Texts;
+ for (const auto& Item : Floats) Texts.Add(Item.Text);
+ return Texts;
+}
+FString UArenaCombatHudWidget::GetFeedbackState() const
+{
+ const auto& P = PlayerView;
+ const bool bFull = P.bChargingNow && P.ChargePaidQ >= .999f;
+ const bool bLimited = IsChargeLimited(P, PlayerAnim, LastTime);
+ const bool bReady = P.bChargingNow && (!P.bSuperBlastCharging || LastTime - PlayerAnim.ChargeStartTime >= P.ChargeGate);
+ return FString::Printf(TEXT("{\"player_health\":%.4f,\"opponent_health\":%.4f,\"player_hp_fill\":%.4f,\"opponent_hp_fill\":%.4f,\"player_ghost\":%.4f,\"opponent_ghost\":%.4f,\"paid_q\":%.4f,\"time_q\":%.4f,\"charging\":%s,\"full\":%s,\"limited\":%s,\"gate_ready\":%s,\"paid_cost\":%.4f,\"damage_preview\":%.4f,\"super_cooldown\":%s,\"cooldown_remaining\":%.4f,\"domain\":%s,\"domain_suppressed\":%s,\"next_orb_skipped\":%s,\"floats\":%d}"),
+  P.Health, OpponentView.Health, PlayerAnim.HpFillShown, OpponentAnim.HpFillShown, PlayerAnim.GhostShown, OpponentAnim.GhostShown,
+  P.ChargePaidQ, ChargeTimeQ(P, PlayerAnim, LastTime), P.bChargingNow ? TEXT("true") : TEXT("false"), bFull ? TEXT("true") : TEXT("false"), bLimited ? TEXT("true") : TEXT("false"), bReady ? TEXT("true") : TEXT("false"),
+  P.bChargingNow ? P.ChargeMinCost + (P.ChargeMaxCost - P.ChargeMinCost) * P.ChargePaidQ : 0.f,
+  P.bChargingNow ? P.ChargeMinDmg + (P.ChargeMaxDmg - P.ChargeMinDmg) * P.ChargePaidQ : 0.f,
+  P.bSuperCdNow ? TEXT("true") : TEXT("false"), P.bSuperCdNow ? FMath::Max(0., P.SuperCdDuration - (LastTime - PlayerAnim.SuperCdStartTime)) : 0.,
+  P.bHasDomain ? TEXT("true") : TEXT("false"), P.bDomainSuppressed ? TEXT("true") : TEXT("false"), P.bNextOrbSkipped ? TEXT("true") : TEXT("false"), Floats.Num());
 }
 
 void UArenaCombatHudWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -267,24 +339,15 @@ void UArenaCombatHudWidget::NativeTick(const FGeometry& MyGeometry, float InDelt
 	const double Now = World->GetTimeSeconds();
 	LastTime = Now;
 
-	const FArenaHudSideView PrevPlayer = PlayerView;
-	const FArenaHudSideView PrevOpponent = OpponentView;
 	SnapshotSide(true, GM->GetPlayerFighter(), GM, PlayerView);
 	SnapshotSide(false, GM->GetOpponentFighter(), GM, OpponentView);
 	UpdateSideAnim(PlayerView, PlayerAnim, Now, InDeltaTime);
 	UpdateSideAnim(OpponentView, OpponentAnim, Now, InDeltaTime);
 
-	DetectFloats(PrevOpponent, OpponentView, GM->GetOpponentFighter(), true, Now);
-	DetectFloats(PrevPlayer, PlayerView, GM->GetPlayerFighter(), false, Now);
-
-	// 闪避成功闪示（只玩家侧）
-	if (World->GetTimeSeconds() - PlayerAnim.DodgeFlashTime >= 0.0 &&
-		World->GetTimeSeconds() - PlayerAnim.DodgeFlashTime < InDeltaTime + 0.02 &&
-		IsValid(GM->GetPlayerFighter()))
-	{
-		SpawnFloat(GM->GetPlayerFighter()->GetActorLocation() + FVector(0.f, 0.f, 150.f),
-			TEXT("闪避"), FArenaHudPalette::Aim, 15.f, Now);
-	}
+ Floats.RemoveAll([Now](const FArenaHudFloatItem& Item) { return Now - Item.BornTime >= .9 || !Item.Target.IsValid(); });
+ const auto* PC = Cast<AArenaPlayerController>(GetOwningPlayer());
+ if (!PC || !PC->CanPlayCombatFeedback() || !GM->GetPlayerFighter()
+  || !GM->GetPlayerFighter()->GetCombatFeedback()->IsChannelEnabled(ECombatFeedbackChannel::HUD)) Floats.Reset();
 }
 
 // ---------- 绘制主入口 ----------
@@ -562,7 +625,7 @@ void UArenaCombatHudWidget::DrawCenterStatus(const FArenaHudCanvas& C, const FAr
 		C.Lines({ Vec(CX + 260.f, 253.0f), Vec(CX + 260.f, 261.0f) }, WithAlpha(FArenaHudPalette::DomAct, 0.7f), 2.f, Layer);
 		const FString Banner = TEXT("领域受压制 · 自动炮暂停");
 		const FVector2f Bs = C.Measure(Banner, 11.5f);
-		C.Box(Vec(CX - Bs.X * 0.5f - 11.f, 268.0f), Vec(Bs.X + 22.f, 149.0f), FLinearColor(0.031f, 0.055f, 0.102f, 0.8f), Layer);
+		C.Box(Vec(CX - Bs.X * 0.5f - 11.f, 268.0f), Vec(Bs.X + 22.f, 19.0f), FLinearColor(0.031f, 0.055f, 0.102f, 0.8f), Layer);
 		C.Text(Banner, Vec(CX, 270.5f), 11.5f, FLinearColor(0.765f, 0.8f, 0.855f, 1.f), Layer + 1, EArenaHudAlign::Center);
 	}
 
@@ -611,7 +674,7 @@ void UArenaCombatHudWidget::DrawSkillArea(const FArenaHudCanvas& C, const FArena
 
 	const bool bSuperCd = P.bSuperCdNow;
 	const float CdFrac = bSuperCd ? 1.f - FMath::Clamp((NowT - A.SuperCdStartTime) / P.SuperCdDuration, 0.f, 1.f) : 0.f;
-	const float SwitchDur = P.StanceSwitchInterval > 0.05f ? P.StanceSwitchInterval : 0.5f;
+	const float SwitchDur = FMath::Max(P.StanceSwitchInterval, .01f);
 	const float SwitchT = (NowT - A.StanceSwitchTime) / SwitchDur;
 	const bool bSwitching = SwitchT >= 0.f && SwitchT < 1.f;
 	const bool bLmbUse = P.bChargingNow && !P.bSuperBlastCharging;
@@ -633,7 +696,10 @@ void UArenaCombatHudWidget::DrawSkillArea(const FArenaHudCanvas& C, const FArena
 		const FVector2f Center(B.X, SkillY);
 		const bool bUlt = Bi == 3;
 		const bool bUse = (Bi == 0 && bLmbUse) || (Bi == 1 && bQUse);
-		const bool bCool = Bi == 1 && bSuperCd;
+		const bool bCool = Bi == 1 && bRanged && bSuperCd;
+  if (Bi == 1 && bRanged && !P.bChargingNow)
+   C.Text(bCool ? TEXT("熔断") : P.Curse < P.SuperMinCost && !P.bInfiniteResources ? TEXT("咒力不足") : TEXT(""),
+    Center + Vec(0, -B.R - 18.f), 11.f, bCool ? FArenaHudPalette::Muted : FArenaHudPalette::Danger, Layer + 7, EArenaHudAlign::Center);
 
 		// v9: white emblems over a quiet transparent disk; state rings stay legible.
 		if (Bi > 0) C.Ring(Center, B.R, .5f, WithAlpha(FArenaHudPalette::Fg,.18f),Layer);
@@ -728,10 +794,10 @@ void UArenaCombatHudWidget::DrawFormAndCharge(const FArenaHudCanvas& C, const FA
 	const bool bCharging = P.bChargingNow;
 
 	// 蓄力时间强度 q 与已支付 qPaid（§6：伤害由已支付咒力封顶，不是由时长单独决定）
-	const float Q = bCharging ? FMath::Clamp((NowT - A.ChargeStartTime - P.ChargeGate) / P.ChargeCap, 0.f, 1.f) : 0.f;
+	const float Q = ChargeTimeQ(P, A, NowT);
 	const float QPaid = bCharging ? FMath::Clamp(P.ChargePaidQ, 0.f, 1.f) : 0.f;
-	const bool bLimited = bCharging && QPaid < Q - 0.01f;
-	const bool bFull = bCharging && Q >= 1.f && !bLimited;
+	const bool bLimited = IsChargeLimited(P, A, NowT);
+	const bool bFull = bCharging && QPaid >= .999f;
 	const float Damage = P.ChargeMinDmg + (P.ChargeMaxDmg - P.ChargeMinDmg) * QPaid;
 
 	if (!bCharging)
@@ -739,6 +805,8 @@ void UArenaCombatHudWidget::DrawFormAndCharge(const FArenaHudCanvas& C, const FA
 		C.Disc(Center,40.f,FLinearColor(0,0,0,.18f),Layer);
 		DrawIcon(C,bRanged?FName("blast"):FName("punch"),Center,52.f,FArenaHudPalette::Fg,Layer+1);
 		C.Text(bRanged?TEXT("远程"):TEXT("近战"),Center+Vec(0,35),12.f,FArenaHudPalette::Fg,Layer+2,EArenaHudAlign::Center);
+  if (bRanged && P.Curse < P.CurseMinCost && !P.bInfiniteResources)
+   C.Text(TEXT("咒力不足"),Center+Vec(0,57),11.f,FArenaHudPalette::Danger,Layer+2,EArenaHudAlign::Center);
 		return;
 	}
 
@@ -804,18 +872,29 @@ void UArenaCombatHudWidget::DrawFormAndCharge(const FArenaHudCanvas& C, const FA
 		FString Main, Sub;
 		if (bCharging)
 		{
-			if (bLimited)
+   if (P.bSuperBlastCharging && NowT - A.ChargeStartTime < P.ChargeGate)
+   {
+    Main = TEXT("蓄力未就绪");
+    Sub = FString::Printf(TEXT("至少 %.1fs · 已支付 %.0f 咒力"), P.ChargeGate,
+     P.ChargeMinCost + (P.ChargeMaxCost - P.ChargeMinCost) * QPaid);
+   }
+			else if (bLimited)
 			{
 				// 受限态读数恒定在支付上限，任何持炮时长都不出现更低的数字（§6）
 				Main = FString::Printf(TEXT("强度上限 %.0f"), Damage);
 				Sub = TEXT("咒力不足 · 继续持炮不会变强");
 			}
-			else
+			else if (bFull)
+   {
+    Main = FString::Printf(TEXT("满蓄 %.0f"), Damage);
+    Sub = TEXT("松开才发射");
+   }
+   else
 			{
 				Main = FString::Printf(TEXT("伤害 %.0f"), Damage);
 				Sub = FString::Printf(TEXT("蓄力 %.2fs · 已支付 %.0f 咒力"),
 					FMath::Min((NowT - A.ChargeStartTime), P.ChargeGate + P.ChargeCap),
-					FMath::Min(P.ChargeMinCost + (P.ChargeMaxCost - P.ChargeMinCost) * QPaid, P.Curse));
+					P.ChargeMinCost + (P.ChargeMaxCost - P.ChargeMinCost) * QPaid);
 			}
 		}
 		else if (bRanged)

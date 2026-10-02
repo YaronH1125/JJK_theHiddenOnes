@@ -41,6 +41,7 @@ class AFighterCharacter : public AJJK_theHiddenOnesCharacter, public IAbilitySys
 	GENERATED_BODY()
 
 public:
+ virtual void DoLook(float Yaw, float Pitch) override;
 	AFighterCharacter();
  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Feedback") TObjectPtr<UCombatFeedbackComponent> CombatFeedback;
  UFUNCTION(BlueprintPure, Category="Feedback") UCombatFeedbackComponent* GetCombatFeedback() const { return CombatFeedback; }
