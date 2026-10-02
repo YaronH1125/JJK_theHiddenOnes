@@ -44,14 +44,14 @@
 | F | 防御（正面格挡） | 同左 |
 | R | 领域展开 | 同左 |
 | 鼠标中键 | 锁定/解除目标（持续面向） | — |
-| F1 | 训练面板（对手模式/资源开关/统计/重置） | — |
+| F1 | 新版训练设置（对手模式与资源开关） | — |
 
 ## 构建与运行
 
 1. 安装 **Unreal Engine 5.8.2** 和 C++ 编译工具链。
 2. 按 [素材恢复说明](Docs/12_版本控制与素材依赖.md) 恢复 `Content/Mishima_DOJO/`、`Content/EnergyBeam/`，运行 `python Scripts/check_external_assets.py`。**两套原素材独立归档，不随 Git 分发；clone 后不能直接运行完整道场。**
 3. 双击 `JJK_theHiddenOnes.uproject`，或右键 → Generate Visual Studio project 后构建 `Development Editor`。
-4. 默认打开 `L_DojoArena`，PIE 运行；F1 打开训练面板。白盒回归手动打开 `L_TrainingArena`。
+4. 默认打开 `L_DojoArena`，PIE 运行后进入主菜单；开始游戏进入对战，Esc 暂停，F1 打开新版训练设置。白盒回归手动打开 `L_TrainingArena`。
 
 打包：关闭编辑器后运行 `Scripts/build_dojo.ps1`（当前脚本引擎位置为 `F:/GameStudy/UE_5.8`，其他机器需调整）。输出在 `Saved/Packages/Dojo/Windows`，双击顶层 exe。运行 `python Scripts/run_dojo_smoke.py --default-map` 验证道场，`--map L_TrainingArena` 验证白盒。完整说明见 [Scripts](Scripts/README.md)。
 
@@ -83,3 +83,6 @@ Source/JJK_theHiddenOnes/Training/
 
 - 角色为占位模型（Mannequin + 占位动画集），正式角色素材接入中
 - 演示视频待录制
+
+
+菜单 Demo：运行 `Scripts/build_menu_demo.ps1` 导出已批准设计、编译并打包到独立的 `Saved/Packages/MenuUI_日期时间/Windows/`；菜单源稿与引擎接入说明见 [菜单 UI 设计稿](Docs/21_菜单UI设计稿.md)。

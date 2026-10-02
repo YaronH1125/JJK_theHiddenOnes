@@ -179,3 +179,12 @@ python Scripts/run_m5_package.py
 - `python Scripts/ue_python.py Scripts/CombatFeedback/R1_audit.py`：保存后的硬依赖与派生光束引用核对。`R1_snapshot.py --freeze / --verify`：分别冻结构建输入、核对厂商素材/音频及构建输入保留情况，拒绝覆盖旧冻结记录。
 - `R1_release_editor.py`：核对无 PIE/脏包后退出。`powershell -File Scripts/CombatFeedback/R1_build.ps1`：独立构建到 `Saved/Packages/FeedbackR1_20261002/Windows/`，保留旧 F 包。
 - `R1_cook_audit.py` 使用本轮 `package-contents.csv`；`R1_package_smoke.py` 在新包两张地图开启顿帧运行有声图形烟测，明确含 debug 布景，不代表真人体验通过。所有新证据放在 `Saved/FeedbackRevisionR1/`。
+
+## 菜单 UI Demo
+
+- `python -X utf8 Scripts/build_menu_ui.py`：从批准设计导出带本地 UE 桥接的运行 HTML。
+- `powershell -ExecutionPolicy Bypass -File Scripts/build_menu_demo.ps1`：完整构建、cook、stage、pak 到新目录，保留旧包。
+- `Scripts/menu_ui_start_pie.py`：配置 1920×1080 PIE 窗口；随后通过 MCP 启动 `PlayMode_InEditorFloating`。
+- `Scripts/menu_ui_acceptance.py`：在 PIE 中检查真实菜单流程、设置生效与保存，并捕获所属游戏窗口；会恢复测试前配置文件。
+- `node Scripts/verify-menu-bridge.cjs`：Edge 下验证自由训练选择 AI 对手后仍保留训练会话标签。
+- `python -X utf8 Scripts/run_menu_package_smoke.py <顶层exe>`：独立启动打包结果，在隔离 UserDir 下检查菜单资源、默认页面与暂停状态，截图后退出。

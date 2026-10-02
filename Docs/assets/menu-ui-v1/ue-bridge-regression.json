@@ -1,0 +1,17 @@
+{
+  "browser": "Microsoft Edge",
+  "checks": [
+    {
+      "name": "Training with AI keeps free-training session",
+      "pass": true
+    },
+    {
+      "name": "AI battle keeps battle session",
+      "pass": true
+    },
+    {
+      "name": "All bundled images load",
+      "pass": true
+    }
+  ]
+}

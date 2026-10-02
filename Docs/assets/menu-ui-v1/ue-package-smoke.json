@@ -1,0 +1,20 @@
+{
+  "ready": true,
+  "page": "main",
+  "paused": true,
+  "screenshot": true,
+  "map": "L_DojoArena",
+  "exit_code": 0,
+  "command": [
+    "F:\\GameStudy\\JJK_theHiddenOnes\\Saved\\Packages\\MenuUI_20261002_222940\\Windows\\JJK_theHiddenOnes.exe",
+    "-unattended",
+    "-windowed",
+    "-ResX=1920",
+    "-ResY=1080",
+    "-UserDir=F:/GameStudy/JJK_theHiddenOnes/Saved/MenuPackageSmoke/20261002_223341/User",
+    "-abslog=F:/GameStudy/JJK_theHiddenOnes/Saved/MenuPackageSmoke/20261002_223341/runtime.log",
+    "-JJKMenuSmokeOut=F:/GameStudy/JJK_theHiddenOnes/Saved/MenuPackageSmoke/20261002_223341"
+  ],
+  "output": "F:\\GameStudy\\JJK_theHiddenOnes\\Saved\\MenuPackageSmoke\\20261002_223341",
+  "passed": true
+}

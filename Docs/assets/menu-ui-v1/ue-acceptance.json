@@ -1,0 +1,178 @@
+{
+  "status": "passed",
+  "map": "/Game/Maps/UEDPIE_0_L_DojoArena.L_DojoArena",
+  "checks": [
+    {
+      "name": "local_design_ready",
+      "passed": true
+    },
+    {
+      "name": "default_main_menu",
+      "passed": true
+    },
+    {
+      "name": "main_freezes_game",
+      "passed": true
+    },
+    {
+      "name": "01_main_owned_window_capture",
+      "passed": true
+    },
+    {
+      "name": "01_main_screenshot",
+      "passed": true
+    },
+    {
+      "name": "start_page",
+      "passed": true
+    },
+    {
+      "name": "real_game_unpaused",
+      "passed": true
+    },
+    {
+      "name": "ai_mode_applied",
+      "passed": true
+    },
+    {
+      "name": "both_real_fighters_spawned",
+      "passed": true
+    },
+    {
+      "name": "native_hud_visible",
+      "passed": true
+    },
+    {
+      "name": "02_game_owned_window_capture",
+      "passed": true
+    },
+    {
+      "name": "02_game_screenshot",
+      "passed": true
+    },
+    {
+      "name": "escape_opens_pause",
+      "passed": true
+    },
+    {
+      "name": "pause_freezes_game",
+      "passed": true
+    },
+    {
+      "name": "world_time_stops",
+      "passed": true
+    },
+    {
+      "name": "03_pause_owned_window_capture",
+      "passed": true
+    },
+    {
+      "name": "03_pause_screenshot",
+      "passed": true
+    },
+    {
+      "name": "escape_resumes_real_game",
+      "passed": true
+    },
+    {
+      "name": "f1_opens_new_training_settings",
+      "passed": true
+    },
+    {
+      "name": "training_tab_source",
+      "passed": true
+    },
+    {
+      "name": "unsaved_changes_confirmation",
+      "passed": true
+    },
+    {
+      "name": "discard_returns_to_pause",
+      "passed": true
+    },
+    {
+      "name": "discard_does_not_apply",
+      "passed": true
+    },
+    {
+      "name": "real_infinite_resources_applied",
+      "passed": true
+    },
+    {
+      "name": "real_no_cooldown_applied",
+      "passed": true
+    },
+    {
+      "name": "real_guard_opponent_applied",
+      "passed": true
+    },
+    {
+      "name": "settings_persisted",
+      "passed": true
+    },
+    {
+      "name": "04_training_settings_owned_window_capture",
+      "passed": true
+    },
+    {
+      "name": "04_training_settings_screenshot",
+      "passed": true
+    },
+    {
+      "name": "real_sfx_gain_applied",
+      "passed": true
+    },
+    {
+      "name": "real_camera_shake_disabled",
+      "passed": true
+    },
+    {
+      "name": "05_graphics_settings_owned_window_capture",
+      "passed": true
+    },
+    {
+      "name": "05_graphics_settings_screenshot",
+      "passed": true
+    },
+    {
+      "name": "controls_page",
+      "passed": true
+    },
+    {
+      "name": "06_controls_owned_window_capture",
+      "passed": true
+    },
+    {
+      "name": "06_controls_screenshot",
+      "passed": true
+    },
+    {
+      "name": "restart_cancel_keeps_pause",
+      "passed": true
+    },
+    {
+      "name": "real_match_restarted",
+      "passed": true
+    },
+    {
+      "name": "return_main_pauses_real_game",
+      "passed": true
+    },
+    {
+      "name": "main_settings_return_source",
+      "passed": true
+    },
+    {
+      "name": "training_starts_with_saved_opponent",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    "..\\..\\..\\..\\JJK_theHiddenOnes\\Saved\\MenuValidation\\20261002_221330\\01_main.png",
+    "..\\..\\..\\..\\JJK_theHiddenOnes\\Saved\\MenuValidation\\20261002_221330\\02_game.png",
+    "..\\..\\..\\..\\JJK_theHiddenOnes\\Saved\\MenuValidation\\20261002_221330\\03_pause.png",
+    "..\\..\\..\\..\\JJK_theHiddenOnes\\Saved\\MenuValidation\\20261002_221330\\04_training_settings.png",
+    "..\\..\\..\\..\\JJK_theHiddenOnes\\Saved\\MenuValidation\\20261002_221330\\05_graphics_settings.png",
+    "..\\..\\..\\..\\JJK_theHiddenOnes\\Saved\\MenuValidation\\20261002_221330\\06_controls.png"
+  ]
+}
